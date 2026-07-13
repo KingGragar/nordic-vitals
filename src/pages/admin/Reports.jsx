@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getAdminSummary } from '../../api/mlmApi'
 
 const WEEKLY_DATA = [
   { week: 'May 26', count: 12 },
@@ -36,11 +38,38 @@ const KPI_CARDS = [
 ]
 
 export default function Reports() {
+  const [tokenSummary, setTokenSummary] = useState(null)
+
+  useEffect(() => {
+    getAdminSummary().then(d => setTokenSummary(d)).catch(() => {})
+  }, [])
+
   return (
     <AdminLayout>
       <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--cream)', marginBottom: '24px' }}>
         Reports
       </h1>
+
+      {/* MLMT Token summary */}
+      {tokenSummary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '28px' }}>
+          <div className="stat-card" style={{ borderColor: '#92400e' }}>
+            <div className="label">MLMT Total Supply</div>
+            <div className="value" style={{ color: 'var(--gold)' }}>{tokenSummary.total_supply?.toLocaleString()}</div>
+            <div className="sub">Ledger-only · testnet</div>
+          </div>
+          <div className="stat-card" style={{ borderColor: '#92400e' }}>
+            <div className="label">Token Holders</div>
+            <div className="value" style={{ color: 'var(--gold)' }}>{tokenSummary.holders}</div>
+            <div className="sub">Active wallets</div>
+          </div>
+          <div className="stat-card" style={{ borderColor: '#92400e' }}>
+            <div className="label">Total Bonus Paid</div>
+            <div className="value" style={{ color: 'var(--gold)' }}>{tokenSummary.total_bonus_paid?.toLocaleString()} MLMT</div>
+            <div className="sub">All time</div>
+          </div>
+        </div>
+      )}
 
       {/* KPI cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>

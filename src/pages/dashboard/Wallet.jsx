@@ -1,11 +1,18 @@
-import { useState } from 'react'
-import { WALLET_TXS } from '../../data/mock'
+import { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
+import { getUserTransactions } from '../../api/mlmApi'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Wallet() {
+  const { user } = useAuth()
   const [showModal, setShowModal] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('1150')
   const [toast, setToast] = useState(null)
+  const [txs, setTxs] = useState([])
+
+  useEffect(() => {
+    getUserTransactions(user?.memberId || 'NV-10042').then(d => setTxs(d.transactions || []))
+  }, [user])
 
   function showToast(msg) {
     setToast(msg)
@@ -34,13 +41,13 @@ export default function Wallet() {
         {/* Available */}
         <div className="stat-card">
           <div className="label">Available Balance</div>
-          <div className="value" style={{ color: 'var(--green-ok)' }}>NOK 1,150</div>
+          <div className="value" style={{ color: 'var(--green-ok)' }}>1,150 MLMT</div>
           <div className="sub" style={{ marginTop: '12px' }}>
             <button
               className="btn btn-green btn-sm"
               onClick={() => setShowModal(true)}
             >
-              Withdraw
+              Claim / Withdraw
             </button>
           </div>
         </div>
@@ -48,15 +55,15 @@ export default function Wallet() {
         {/* Pending */}
         <div className="stat-card">
           <div className="label">Pending Balance</div>
-          <div className="value" style={{ color: 'var(--yellow)' }}>NOK 890</div>
+          <div className="value" style={{ color: 'var(--yellow)' }}>890 MLMT</div>
           <div className="sub">Clears Friday</div>
         </div>
 
         {/* Total Earned */}
         <div className="stat-card">
           <div className="label">Total Earned</div>
-          <div className="value" style={{ color: 'var(--gold)' }}>NOK 8,420</div>
-          <div className="sub">Lifetime earnings</div>
+          <div className="value" style={{ color: 'var(--gold)' }}>8,420 MLMT</div>
+          <div className="sub">Lifetime earnings · testnet</div>
         </div>
       </div>
 
@@ -80,19 +87,19 @@ export default function Wallet() {
             </tr>
           </thead>
           <tbody>
-            {WALLET_TXS.map(tx => (
-              <tr key={tx.id}>
-                <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{tx.date}</td>
-                <td style={{ fontSize: '14px' }}>{tx.desc}</td>
+            {txs.map((tx, i) => (
+              <tr key={i}>
+                <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{tx.created_at}</td>
+                <td style={{ fontSize: '14px' }}>{tx.description}</td>
                 <td style={{
                   fontWeight: 700,
-                  color: tx.credit ? 'var(--green-ok)' : 'var(--red)',
+                  color: tx.direction === 'credit' ? 'var(--green-ok)' : 'var(--red)',
                   fontSize: '14px',
                 }}>
-                  {tx.credit ? `+NOK ${tx.credit.toLocaleString()}` : `-NOK ${tx.debit.toLocaleString()}`}
+                  {tx.direction === 'credit' ? '+' : '-'}{tx.amount?.toLocaleString()} MLMT
                 </td>
-                <td style={{ color: 'var(--cream)', fontWeight: 600 }}>
-                  NOK {tx.balance.toLocaleString()}
+                <td style={{ color: 'var(--cream)', fontWeight: 600, fontSize: '13px' }}>
+                  {tx.balance !== undefined ? `${tx.balance?.toLocaleString()} MLMT` : '—'}
                 </td>
               </tr>
             ))}
