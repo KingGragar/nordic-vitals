@@ -39,6 +39,19 @@ export async function getNode(id) {
   return request('GET', `/v1/mlm/genealogy/node/${id}`)
 }
 
+export async function getNodeByUser(userId) {
+  if (MOCK) return { nodes: [] }
+  return request('GET', `/v1/mlm/genealogy/node-by-user/${userId}`)
+}
+
+export async function getTree(rootNodeId, { tree = 'placement', depth = 10 } = {}) {
+  if (MOCK) return {
+    root: rootNodeId, tree, depth, count: 1,
+    nodes: [{ id: rootNodeId, user_id: 'mock', plan_type: 'binary', sponsor_id: null, placement_parent_id: null, leg: null, active: false, depth: 0 }]
+  }
+  return request('GET', `/v1/mlm/genealogy/tree/${rootNodeId}?tree=${tree}&depth=${depth}`)
+}
+
 export async function getUpline(id, tree = 'placement') {
   if (MOCK) return { upline: [] }
   return request('GET', `/v1/mlm/genealogy/upline/${id}?tree=${tree}`)
