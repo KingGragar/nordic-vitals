@@ -1,330 +1,295 @@
-import { useState } from 'react'
+/**
+ * Tree.jsx — Interactive binary tree visualization
+ * Uses react-d3-tree with live node data from Arctico MLM API.
+ * TODO: swap hardcoded children to GET /v1/mlm/genealogy/tree/:root when live
+ */
+
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Tree from 'react-d3-tree'
-import { TREE_DATA } from '../../data/mock'
+import { getNode } from '../../api/mlmApi'
 import DashboardLayout from '../../components/DashboardLayout'
 
-const rankColors = {
-  Gold: '#c9a84c',
-  Silver: '#c0c8d8',
-  Bronze: '#cd7f32',
-  Unranked: '#4a5568',
-  empty: '#1e3450',
+// ── Known demo tree (hardcoded until /tree/:root ships) ───────────────────────
+// Root: efbb8d0e (user 20790ace, no parent, leg=null)
+// Children fetched from GET /v1/mlm/genealogy/node/:id
+const ROOT_ID = 'efbb8d0e-b5a5-4a15-bcc6-2f07b980ca64'
+
+const KNOWN_NODES = [
+  { id: 'efbb8d0e-b5a5-4a15-bcc6-2f07b980ca64', user_id: '20790ace-0000-0000-0000-000000000000', leg: null,  active: false, plan_type: 'binary' },
+  { id: '1fa2c990-e9ba-4cdf-8dcd-e2743da9b955', user_id: 'd548d377-0000-0000-0000-000000000000', leg: null,  active: false, plan_type: 'binary' },
+  { id: '73e768de-4d17-4c4d-8a5a-67187d1cfec9', user_id: '6c63524b-0000-0000-0000-000000000000', leg: 'L',   active: false, plan_type: 'binary' },
+  { id: 'e24bc3e3-e45f-4dd7-bc0c-cc44c1bd3418', user_id: '2b5563f4-0000-0000-0000-000000000000', leg: 'L',   active: false, plan_type: 'binary' },
+  { id: '55b4652a-62df-4e49-b96d-c354f0f7dc01', user_id: 'cdf8a1ce-0000-0000-0000-000000000000', leg: 'L',   active: false, plan_type: 'binary' },
+]
+
+function short(id) {
+  return id ? id.slice(0, 8) : '—'
 }
 
-function flattenTree(node, acc = []) {
-  if (!node) return acc
-  acc.push(node)
-  if (node.children) node.children.forEach(child => flattenTree(child, acc))
-  return acc
+// Build react-d3-tree compatible data from flat known nodes
+function buildTreeData(nodes, liveRoot) {
+  const root = liveRoot || nodes[0]
+  const children = nodes.slice(1).map(n => ({
+    name: `usr-${short(n.user_id)}`,
+    attributes: { id: n.id, user_id: n.user_id, leg: n.leg, active: n.active, plan_type: n.plan_type },
+    children: [],
+  }))
+  return {
+    name: `usr-${short(root.user_id)}`,
+    attributes: { id: root.id, user_id: root.user_id, leg: root.leg, active: root.active, plan_type: root.plan_type },
+    children,
+  }
 }
 
-function CustomNode({ nodeDatum, toggleNode, onSelect }) {
+// ── Leg colour helper ──────────────────────────────────────────────────────────
+function legBorderColor(leg) {
+  if (leg === 'L') return '#3b82f6'
+  if (leg === 'R') return '#22c55e'
+  return '#c9a84c' // root / no-leg → gold
+}
+
+function legLabel(leg) {
+  if (leg === 'L') return { text: 'L', color: '#3b82f6' }
+  if (leg === 'R') return { text: 'R', color: '#22c55e' }
+  return { text: 'ROOT', color: '#c9a84c' }
+}
+
+// ── Custom node renderer ───────────────────────────────────────────────────────
+function CustomNode({ nodeDatum, onSelect }) {
   const attr = nodeDatum.attributes || {}
-  const status = attr.status
-  const isActive = status === 'active'
-  const isInactive = status === 'inactive'
-  const isEmpty = status === 'empty'
-  const isSpillover = !!attr.spillover
-  const rankDotColor = rankColors[attr.rank] || '#4a5568'
-
-  let cardStyle = {
-    borderRadius: '10px',
-    padding: '10px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box',
-    userSelect: 'none',
-  }
-
-  if (isEmpty) {
-    cardStyle = {
-      ...cardStyle,
-      border: '1.5px dashed #1e3450',
-      background: '#0d1b2a',
-      color: 'var(--cream)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }
-  } else if (isInactive) {
-    cardStyle = {
-      ...cardStyle,
-      background: '#1a0f0f',
-      border: '1px solid #5f2020',
-    }
-  } else if (isSpillover) {
-    cardStyle = {
-      ...cardStyle,
-      background: '#12243a',
-      border: '2px dashed var(--gold)',
-    }
-  } else {
-    cardStyle = {
-      ...cardStyle,
-      background: '#12243a',
-      border: '1px solid #1e3450',
-    }
-  }
-
-  function handleClick() {
-    toggleNode()
-    if (!isEmpty) onSelect(nodeDatum)
-  }
+  const border = legBorderColor(attr.leg)
+  const badge = legLabel(attr.leg)
 
   return (
-    <foreignObject width={180} height={110} x={-90} y={-55}>
-      <div style={cardStyle} onClick={handleClick}>
-        {isEmpty ? (
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#4a6080' }}>＋ Empty slot</span>
-        ) : (
-          <>
-            {/* Top row: rank dot + name */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '5px' }}>
-              <span style={{ color: rankDotColor, fontSize: '10px', lineHeight: 1 }}>●</span>
-              <span style={{ fontWeight: 700, fontSize: '11px', color: 'var(--cream)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                {nodeDatum.name}
-              </span>
-            </div>
+    <foreignObject width={180} height={120} x={-90} y={-60}>
+      <div
+        onClick={() => onSelect(nodeDatum)}
+        style={{
+          background: 'var(--navy2)',
+          border: `2px solid ${border}`,
+          borderRadius: '10px',
+          padding: '10px 12px',
+          cursor: 'pointer',
+          fontSize: '11px',
+          width: '100%',
+          height: '100%',
+          boxSizing: 'border-box',
+          userSelect: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '5px',
+        }}
+      >
+        {/* Row 1: user short ID + leg badge */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 700, fontSize: '12px', color: 'var(--cream)', letterSpacing: '0.02em' }}>
+            usr-{short(attr.user_id)}
+          </span>
+          <span style={{
+            background: `${border}22`,
+            color: badge.color,
+            border: `1px solid ${badge.color}`,
+            borderRadius: '999px',
+            padding: '1px 7px',
+            fontSize: '10px',
+            fontWeight: 700,
+          }}>
+            {badge.text}
+          </span>
+        </div>
 
-            {/* Middle: ID + PV */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', color: attr.id ? 'var(--gold)' : '#4a5568' }}>
-                {attr.id || '—'}
-              </span>
-              <span style={{ fontSize: '11px', color: 'var(--text2)' }}>
-                PV: {attr.pv}
-              </span>
-            </div>
+        {/* Row 2: node ID (truncated) */}
+        <div style={{ color: 'var(--text2)', fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {attr.id ? attr.id.slice(0, 20) + '…' : '—'}
+        </div>
 
-            {/* Bottom: status + spillover */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '10px', color: isActive ? '#38a169' : '#e53e3e' }}>
-                ●
-              </span>
-              <span style={{ fontSize: '10px', color: isActive ? '#38a169' : '#e53e3e' }}>
-                {isActive ? 'Active' : 'Inactive'}
-              </span>
-              {isSpillover && (
-                <span style={{ fontSize: '10px', color: 'var(--gold)', marginLeft: 'auto', fontWeight: 700 }}>
-                  ↓ spillover
-                </span>
-              )}
-            </div>
-          </>
-        )}
+        {/* Row 3: active dot + plan type */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: 'auto' }}>
+          <span style={{
+            width: '7px', height: '7px', borderRadius: '50%',
+            background: attr.active ? '#22c55e' : '#64748b',
+            display: 'inline-block', flexShrink: 0,
+          }} />
+          <span style={{ color: attr.active ? '#86efac' : 'var(--text2)', fontSize: '10px' }}>
+            {attr.active ? 'Active' : 'Inactive'}
+          </span>
+          <span style={{ marginLeft: 'auto', color: 'var(--text2)', fontSize: '10px' }}>
+            {attr.plan_type}
+          </span>
+        </div>
       </div>
     </foreignObject>
   )
 }
 
+// ── Main page ──────────────────────────────────────────────────────────────────
 export default function TreePage() {
-  const [zoom, setZoom] = useState(0.7)
-  const [filter, setFilter] = useState('All')
-  const [search, setSearch] = useState('')
-  const [viewMode, setViewMode] = useState('tree')
+  const [treeData, setTreeData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [zoom, setZoom] = useState(0.72)
+  const [translate, setTranslate] = useState({ x: 440, y: 100 })
   const [selectedNode, setSelectedNode] = useState(null)
-  const [translate] = useState({ x: 400, y: 80 })
+  const containerRef = useRef(null)
 
-  const flatNodes = flattenTree(TREE_DATA)
-
-  const filteredNodes = flatNodes.filter(node => {
-    const attr = node.attributes || {}
-    if (filter === 'Left Leg' && attr.leg !== 'L' && attr.leg !== null) return false
-    if (filter === 'Right Leg' && attr.leg !== 'R' && attr.leg !== null) return false
-    if (search && !node.name.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
-
-  function handleNodeClick(nodeDatum) {
-    if (nodeDatum.attributes?.status !== 'empty') {
-      setSelectedNode(nodeDatum)
+  // Centre translate on window resize
+  const centre = useCallback(() => {
+    if (containerRef.current) {
+      const { width } = containerRef.current.getBoundingClientRect()
+      setTranslate({ x: width / 2, y: 100 })
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    centre()
+    window.addEventListener('resize', centre)
+    return () => window.removeEventListener('resize', centre)
+  }, [centre])
+
+  // Fetch live root node, build tree
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    getNode(ROOT_ID)
+      .then(liveRoot => {
+        if (cancelled) return
+        // Merge live root with known children
+        const root = liveRoot || KNOWN_NODES[0]
+        const data = buildTreeData(KNOWN_NODES, root)
+        setTreeData(data)
+      })
+      .catch(err => {
+        if (cancelled) return
+        // Fall back to hardcoded data so the page still renders
+        setTreeData(buildTreeData(KNOWN_NODES, null))
+        setError(err.message)
+      })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [])
 
   return (
     <DashboardLayout>
       <style>{`
-        .path-left { stroke: #3b82f6 !important; }
-        .path-right { stroke: #10b981 !important; }
-        .rd3t-link { stroke-width: 2px !important; fill: none !important; }
-        .rd3t-leaf-node circle, .rd3t-branch-node circle { fill: transparent !important; stroke: transparent !important; r: 0; }
+        .rd3t-link { stroke: var(--border) !important; stroke-width: 1.5px !important; fill: none !important; }
+        .rd3t-leaf-node circle,
+        .rd3t-branch-node circle { fill: transparent !important; stroke: transparent !important; r: 0 !important; }
       `}</style>
 
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '16px' }}>
-        My Binary Tree
-      </h1>
+      {/* Page header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '3px' }}>
+            Binary Tree
+          </h1>
+          <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
+            Live data · binary engine · /tree/:root endpoint coming (will auto-update)
+          </p>
+        </div>
+        {error && (
+          <span className="badge badge-yellow" style={{ fontSize: '11px' }}>
+            API fallback — {error}
+          </span>
+        )}
+      </div>
 
-      {/* Controls bar */}
+      {/* Controls */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 16px',
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--navy2)',
-        borderRadius: '10px',
-        marginBottom: '16px',
-        flexWrap: 'wrap',
+        display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
+        background: 'var(--navy2)', border: '1px solid var(--border)',
+        borderRadius: '10px', padding: '10px 14px', marginBottom: '12px',
       }}>
-        <button className="btn btn-outline btn-sm" onClick={() => setZoom(z => Math.min(z + 0.15, 2))}>
-          Zoom In ＋
+        <button className="btn btn-outline btn-sm" onClick={() => setZoom(z => Math.min(z + 0.15, 2.5))}>
+          + Zoom In
         </button>
-        <button className="btn btn-outline btn-sm" onClick={() => setZoom(z => Math.max(z - 0.15, 0.2))}>
-          Zoom Out －
+        <button className="btn btn-outline btn-sm" onClick={() => setZoom(z => Math.max(z - 0.15, 0.15))}>
+          − Zoom Out
         </button>
-        <button className="btn btn-outline btn-sm" onClick={() => setZoom(0.7)}>
-          Fit ◎
+        <button className="btn btn-outline btn-sm" onClick={() => { setZoom(0.72); centre() }}>
+          ◎ Centre
         </button>
 
-        <select
-          className="input"
-          style={{ maxWidth: '150px' }}
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-        >
-          <option value="All">Filter: All ▾</option>
-          <option value="Left Leg">Left Leg</option>
-          <option value="Right Leg">Right Leg</option>
-        </select>
-
-        <input
-          className="input"
-          style={{ maxWidth: '200px' }}
-          placeholder="Search members..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-
-        <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
-          <button
-            className={`btn btn-sm ${viewMode === 'tree' ? 'btn-gold' : 'btn-outline'}`}
-            onClick={() => setViewMode('tree')}
-          >
-            🌳 Tree
-          </button>
-          <button
-            className={`btn btn-sm ${viewMode === 'list' ? 'btn-gold' : 'btn-outline'}`}
-            onClick={() => setViewMode('list')}
-          >
-            📋 List
-          </button>
+        {/* Legend */}
+        <div style={{ display: 'flex', gap: '16px', marginLeft: 'auto', alignItems: 'center' }}>
+          {[
+            { color: '#c9a84c', label: 'Root / no leg' },
+            { color: '#3b82f6', label: 'Left leg' },
+            { color: '#22c55e', label: 'Right leg' },
+          ].map(({ color, label }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text2)' }}>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: color, display: 'inline-block' }} />
+              {label}
+            </div>
+          ))}
         </div>
       </div>
 
-      {viewMode === 'tree' ? (
-        /* Tree canvas */
-        <div style={{
-          height: 'calc(100vh - 220px)',
+      {/* Canvas */}
+      <div
+        ref={containerRef}
+        style={{
+          height: 'calc(100vh - 240px)',
+          minHeight: '460px',
           background: 'var(--navy2)',
           border: '1px solid var(--border)',
           borderRadius: '12px',
           overflow: 'hidden',
           position: 'relative',
-        }}>
+        }}
+      >
+        {loading && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', background: 'rgba(13,27,42,0.7)', zIndex: 10,
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', marginBottom: '10px', opacity: 0.6 }}>◌</div>
+              <div style={{ color: 'var(--text2)', fontSize: '14px' }}>Loading tree…</div>
+            </div>
+          </div>
+        )}
+
+        {treeData && (
           <Tree
-            data={TREE_DATA}
+            data={treeData}
             orientation="vertical"
             pathFunc="step"
             translate={translate}
             zoom={zoom}
-            separation={{ siblings: 1.5, nonSiblings: 2 }}
-            nodeSize={{ x: 220, y: 160 }}
+            separation={{ siblings: 1.8, nonSiblings: 2.2 }}
+            nodeSize={{ x: 220, y: 180 }}
             renderCustomNodeElement={(rd3tProps) => (
-              <CustomNode
-                {...rd3tProps}
-                onSelect={handleNodeClick}
-              />
+              <CustomNode {...rd3tProps} onSelect={setSelectedNode} />
             )}
-            pathClassFunc={(linkData) => {
-              const target = linkData?.target
-              if (!target) return ''
-              const leg = target?.data?.attributes?.leg
-              if (leg === 'L') return 'path-left'
-              if (leg === 'R') return 'path-right'
-              return ''
-            }}
           />
-        </div>
-      ) : (
-        /* List view */
-        <div style={{
-          background: 'var(--navy2)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Leg</th>
-                <th>Rank</th>
-                <th>PV</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredNodes.map((node, i) => {
-                const attr = node.attributes || {}
-                return (
-                  <tr
-                    key={i}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => attr.status !== 'empty' && setSelectedNode(node)}
-                  >
-                    <td style={{ color: 'var(--cream)', fontWeight: 500 }}>{node.name}</td>
-                    <td style={{ color: attr.leg === 'L' ? '#3b82f6' : attr.leg === 'R' ? '#10b981' : 'var(--text2)' }}>
-                      {attr.leg === 'L' ? 'Left' : attr.leg === 'R' ? 'Right' : '—'}
-                    </td>
-                    <td style={{ color: rankColors[attr.rank] || 'var(--text2)' }}>{attr.rank || '—'}</td>
-                    <td>{attr.pv ?? 0}</td>
-                    <td>
-                      {attr.status === 'active' && <span className="badge badge-green">Active</span>}
-                      {attr.status === 'inactive' && <span className="badge badge-red">Inactive</span>}
-                      {attr.status === 'empty' && <span className="badge badge-grey">Empty</span>}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Side drawer */}
+      {/* Side drawer overlay */}
       {selectedNode && (
         <>
-          {/* Overlay */}
           <div
             style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(0,0,0,0.3)', zIndex: 200,
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200,
             }}
             onClick={() => setSelectedNode(null)}
           />
-          {/* Panel */}
           <div style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            width: '320px',
-            height: '100vh',
+            position: 'fixed', top: 0, right: 0,
+            width: '340px', height: '100vh',
             background: 'var(--navy2)',
             borderLeft: '1px solid var(--border)',
-            zIndex: 201,
-            padding: '28px 24px',
-            overflowY: 'auto',
+            zIndex: 201, padding: '28px 24px', overflowY: 'auto',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--cream)' }}>Member Details</h3>
+            {/* Drawer header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--cream)' }}>Node Details</h3>
               <button
                 onClick={() => setSelectedNode(null)}
-                style={{
-                  background: 'none', border: 'none', color: 'var(--text2)',
-                  fontSize: '20px', cursor: 'pointer', lineHeight: 1, padding: '0 4px',
-                }}
+                style={{ background: 'none', border: 'none', color: 'var(--text2)', fontSize: '22px', cursor: 'pointer', lineHeight: 1 }}
               >
                 ×
               </button>
@@ -332,48 +297,62 @@ export default function TreePage() {
 
             {(() => {
               const attr = selectedNode.attributes || {}
-              const rankColor = rankColors[attr.rank] || 'var(--text2)'
+              const border = legBorderColor(attr.leg)
+              const badge = legLabel(attr.leg)
+              const rows = [
+                { label: 'Display name', value: selectedNode.name, color: 'var(--cream)', weight: 700 },
+                { label: 'Node ID (full)', value: attr.id || '—', color: 'var(--gold)', mono: true },
+                { label: 'User ID (full)', value: attr.user_id || '—', color: 'var(--text2)', mono: true },
+                { label: 'Plan type', value: attr.plan_type || '—', color: 'var(--text)' },
+              ]
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div>
-                    <div className="label-text">Name</div>
-                    <div style={{ color: 'var(--cream)', fontWeight: 700, fontSize: '16px' }}>{selectedNode.name}</div>
-                  </div>
-                  <div>
-                    <div className="label-text">Member ID</div>
-                    <div style={{ color: 'var(--gold)', fontSize: '14px' }}>{attr.id || '—'}</div>
-                  </div>
-                  <div>
-                    <div className="label-text">Rank</div>
-                    <div style={{ color: rankColor, fontWeight: 600, fontSize: '14px' }}>● {attr.rank}</div>
-                  </div>
-                  <div>
-                    <div className="label-text">Leg</div>
-                    <div style={{ color: attr.leg === 'L' ? '#3b82f6' : attr.leg === 'R' ? '#10b981' : 'var(--text2)', fontSize: '14px' }}>
-                      {attr.leg === 'L' ? '← Left Leg' : attr.leg === 'R' ? '→ Right Leg' : 'Root'}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {rows.map(({ label, value, color, weight, mono }) => (
+                    <div key={label}>
+                      <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+                      <div style={{
+                        color, fontWeight: weight || 400,
+                        fontSize: mono ? '11px' : '14px',
+                        fontFamily: mono ? 'monospace' : 'inherit',
+                        wordBreak: 'break-all',
+                      }}>{value}</div>
                     </div>
-                  </div>
+                  ))}
+
+                  {/* Leg */}
                   <div>
-                    <div className="label-text">Personal Volume</div>
-                    <div style={{ color: 'var(--cream)', fontSize: '14px', fontWeight: 600 }}>{attr.pv} PV</div>
-                  </div>
-                  <div>
-                    <div className="label-text">Status</div>
-                    <span className={`badge ${attr.status === 'active' ? 'badge-green' : 'badge-red'}`}>
-                      {attr.status === 'active' ? 'Active' : 'Inactive'}
+                    <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Leg position</div>
+                    <span style={{
+                      background: `${border}22`, color: badge.color,
+                      border: `1px solid ${badge.color}`,
+                      borderRadius: '999px', padding: '3px 12px',
+                      fontSize: '12px', fontWeight: 700,
+                    }}>
+                      {badge.text === 'ROOT' ? 'Root — no parent' : badge.text === 'L' ? 'Left leg (L)' : 'Right leg (R)'}
                     </span>
                   </div>
+
+                  {/* Active status */}
                   <div>
-                    <div className="label-text">Join Date</div>
-                    <div style={{ color: 'var(--text)', fontSize: '14px' }}>2025-03-12</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        width: '9px', height: '9px', borderRadius: '50%',
+                        background: attr.active ? '#22c55e' : '#64748b',
+                        display: 'inline-block',
+                      }} />
+                      <span style={{ color: attr.active ? '#86efac' : 'var(--text2)', fontSize: '14px', fontWeight: 500 }}>
+                        {attr.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="label-text">Sponsor</div>
-                    <div style={{ color: 'var(--text)', fontSize: '14px' }}>NV-10042</div>
-                  </div>
-                  <div>
-                    <div className="label-text">Direct Recruits</div>
-                    <div style={{ color: 'var(--text)', fontSize: '14px' }}>2</div>
+
+                  {/* Sponsor_id note */}
+                  <div style={{
+                    background: 'var(--navy3)', border: '1px solid var(--border)',
+                    borderRadius: '8px', padding: '12px', fontSize: '12px', color: 'var(--text2)', marginTop: '4px',
+                  }}>
+                    Sponsor ID and rank data will populate when GET /v1/mlm/genealogy/tree/:root ships full node payloads.
                   </div>
                 </div>
               )
