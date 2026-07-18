@@ -11,6 +11,12 @@ import DashboardLayout from '../../components/DashboardLayout'
 
 const ROOT_ID = 'efbb8d0e-b5a5-4a15-bcc6-2f07b980ca64'
 
+const PLAN_TYPES = [
+  { value: 'binary',         label: 'Binary' },
+  { value: 'breakaway',      label: 'Breakaway' },
+  { value: 'forced_matrix',  label: 'Forced Matrix' },
+]
+
 function short(id) { return id ? id.slice(0, 8) : '—' }
 
 // Build react-d3-tree nested structure from flat nodes[] using placement_parent_id
@@ -115,6 +121,7 @@ export default function TreePage() {
   const [zoom, setZoom]           = useState(0.72)
   const [translate, setTranslate] = useState({ x: 440, y: 80 })
   const [selected, setSelected]   = useState(null)
+  const [planType, setPlanType]   = useState('binary')
   const containerRef = useRef(null)
 
   const centre = useCallback(() => {
@@ -134,7 +141,8 @@ export default function TreePage() {
     let cancelled = false
     setLoading(true)
     setApiError(null)
-    getTree(ROOT_ID, { tree: 'placement', depth: 10 })
+    setTreeData(null)
+    getTree(ROOT_ID, { tree: 'placement', depth: 10, plan_type: planType })
       .then(data => {
         if (cancelled) return
         const built = buildTree(data.nodes || [])
@@ -147,7 +155,7 @@ export default function TreePage() {
       })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [])
+  }, [planType])
 
   return (
     <DashboardLayout>
@@ -160,10 +168,10 @@ export default function TreePage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '3px' }}>
-            Binary Tree
+            Genealogy Tree
           </h1>
           <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
-            Live · GET /v1/mlm/genealogy/tree/:root · {nodeCount} node{nodeCount !== 1 ? 's' : ''} · placement tree
+            Live · GET /v1/mlm/genealogy/tree/:root · {nodeCount} node{nodeCount !== 1 ? 's' : ''} · placement tree · {planType}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -172,6 +180,36 @@ export default function TreePage() {
             : <span className="badge badge-green">Live</span>
           }
         </div>
+      </div>
+
+      {/* Plan type selector */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
+        background: 'var(--navy2)', border: '1px solid var(--border)',
+        borderRadius: '10px', padding: '10px 14px', marginBottom: '10px',
+      }}>
+        <span style={{ fontSize: '11px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: '4px' }}>
+          Plan type
+        </span>
+        {PLAN_TYPES.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setPlanType(value)}
+            style={{
+              padding: '4px 14px',
+              borderRadius: '999px',
+              border: planType === value ? '1px solid #c9a84c' : '1px solid var(--border)',
+              background: planType === value ? '#c9a84c22' : 'transparent',
+              color: planType === value ? '#c9a84c' : 'var(--text2)',
+              fontSize: '12px',
+              fontWeight: planType === value ? 700 : 400,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Controls + legend */}

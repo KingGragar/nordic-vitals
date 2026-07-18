@@ -44,12 +44,12 @@ export async function getNodeByUser(userId) {
   return request('GET', `/v1/mlm/genealogy/node-by-user/${userId}`)
 }
 
-export async function getTree(rootNodeId, { tree = 'placement', depth = 10 } = {}) {
+export async function getTree(rootNodeId, { tree = 'placement', depth = 10, plan_type = 'binary' } = {}) {
   if (MOCK) return {
-    root: rootNodeId, tree, depth, count: 1,
-    nodes: [{ id: rootNodeId, user_id: 'mock', plan_type: 'binary', sponsor_id: null, placement_parent_id: null, leg: null, active: false, depth: 0 }]
+    root: rootNodeId, tree, depth, count: 1, plan_type,
+    nodes: [{ id: rootNodeId, user_id: 'mock', plan_type, sponsor_id: null, placement_parent_id: null, leg: null, active: false, depth: 0 }]
   }
-  return request('GET', `/v1/mlm/genealogy/tree/${rootNodeId}?tree=${tree}&depth=${depth}`)
+  return request('GET', `/v1/mlm/genealogy/tree/${rootNodeId}?tree=${tree}&depth=${depth}&plan_type=${plan_type}`)
 }
 
 export async function getUpline(id, tree = 'placement') {

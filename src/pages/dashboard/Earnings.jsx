@@ -157,9 +157,16 @@ function LegMeter({ label, bv, carry, color, warn }) {
   )
 }
 
+const PLAN_TYPES = [
+  { value: 'binary',        label: 'Binary' },
+  { value: 'breakaway',     label: 'Breakaway' },
+  { value: 'forced_matrix', label: 'Forced Matrix' },
+]
+
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function EarningsPage() {
   const [data] = useState(MOCK_EARNINGS)
+  const [planType, setPlanType] = useState('binary')
 
   // Build cumulative series as array of objects for recharts
   const cumulativeSeries = data.weekly_series.map((w, i) => ({
@@ -174,13 +181,50 @@ export default function EarningsPage() {
   return (
     <DashboardLayout>
       {/* Page header */}
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '4px' }}>
-          Earnings
-        </h1>
-        <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
-          Mock data · GET /v1/mlm/admin/earnings/:userId wires live when Arctico ships it
-        </p>
+      <div style={{ marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '4px' }}>
+              Earnings
+            </h1>
+            <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
+              Mock data · GET /v1/mlm/admin/earnings/:userId wires live when Arctico ships it · {planType}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Plan type selector */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
+        background: 'var(--navy2)', border: '1px solid var(--border)',
+        borderRadius: '10px', padding: '10px 14px', marginBottom: '16px',
+      }}>
+        <span style={{ fontSize: '11px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: '4px' }}>
+          Plan type
+        </span>
+        {PLAN_TYPES.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setPlanType(value)}
+            style={{
+              padding: '4px 14px',
+              borderRadius: '999px',
+              border: planType === value ? '1px solid #c9a84c' : '1px solid var(--border)',
+              background: planType === value ? '#c9a84c22' : 'transparent',
+              color: planType === value ? '#c9a84c' : 'var(--text2)',
+              fontSize: '12px',
+              fontWeight: planType === value ? 700 : 400,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+        <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text2)', fontStyle: 'italic' }}>
+          Live data wires when /earnings/:userId ships
+        </span>
       </div>
 
       {/* ── 1. Hero KPI row ──────────────────────────────────────────────────── */}
