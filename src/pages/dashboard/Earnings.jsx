@@ -322,33 +322,52 @@ export default function EarningsPage() {
         </Section>
       </div>
 
-      {/* ── 4. Binary leg balance ────────────────────────────────────────────── */}
-      <Section title="Binary Leg Balance" style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-          <LegMeter
-            label="Left Leg"
-            bv={leg_balance.left_bv}
-            carry={leg_balance.left_carry}
-            color="#3b82f6"
-            warn={leftFlush}
-          />
-          <div style={{ width: '1px', background: 'var(--border)', alignSelf: 'stretch' }} />
-          <LegMeter
-            label="Right Leg"
-            bv={leg_balance.right_bv}
-            carry={leg_balance.right_carry}
-            color="#22c55e"
-            warn={rightFlush}
-          />
-        </div>
-
-        {/* Carry delta note */}
-        <div style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text2)' }}>
-          Left carry advantage: <span style={{ color: '#3b82f6', fontWeight: 600 }}>
-            +{(leg_balance.left_carry - leg_balance.right_carry).toLocaleString()} BV
-          </span> — pairs will draw from the left leg carryover first in the next cycle.
-        </div>
-      </Section>
+      {/* ── 4. Leg / structure balance ───────────────────────────────────────── */}
+      {planType === 'binary' ? (
+        <Section title="Binary Leg Balance" style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+            <LegMeter
+              label="Left Leg"
+              bv={leg_balance.left_bv}
+              carry={leg_balance.left_carry}
+              color="#3b82f6"
+              warn={leftFlush}
+            />
+            <div style={{ width: '1px', background: 'var(--border)', alignSelf: 'stretch' }} />
+            <LegMeter
+              label="Right Leg"
+              bv={leg_balance.right_bv}
+              carry={leg_balance.right_carry}
+              color="#22c55e"
+              warn={rightFlush}
+            />
+          </div>
+          <div style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text2)' }}>
+            Left carry advantage: <span style={{ color: '#3b82f6', fontWeight: 600 }}>
+              +{(leg_balance.left_carry - leg_balance.right_carry).toLocaleString()} BV
+            </span> — pairs will draw from the left leg carryover first in the next cycle.
+          </div>
+        </Section>
+      ) : (
+        <Section
+          title={planType === 'breakaway' ? 'Breakaway Structure' : 'Matrix Position'}
+          style={{ marginBottom: '16px' }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            padding: '18px 0', color: 'var(--text2)', fontSize: '13px',
+          }}>
+            <span style={{ fontSize: '20px', opacity: 0.4 }}>
+              {planType === 'breakaway' ? '🌲' : '⊞'}
+            </span>
+            <span>
+              {planType === 'breakaway'
+                ? 'Breakaway volume legs and generation overrides will appear here when GET /v1/mlm/admin/earnings/:userId ships.'
+                : 'Matrix position, spillover, and cycle data will appear here when GET /v1/mlm/admin/earnings/:userId ships.'}
+            </span>
+          </div>
+        </Section>
+      )}
 
       {/* ── 5 + 6. Downline growth + rank progress ───────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '14px', marginBottom: '16px' }}>
@@ -401,14 +420,24 @@ export default function EarningsPage() {
             </div>
           </div>
 
-          {/* Rank requirement breakdown (illustrative) */}
+          {/* Rank requirement breakdown (illustrative, plan-specific) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
-            {[
-              { req: 'Personal Volume (PV)', current: '580 PV', target: '500 PV', met: true },
-              { req: 'Left Leg BV',          current: '1,840 BV', target: '2,500 BV', met: false },
-              { req: 'Right Leg BV',         current: '1,210 BV', target: '2,500 BV', met: false },
-              { req: 'Active Downline',      current: '12',      target: '10',       met: true },
-            ].map(({ req, current, target, met }) => (
+            {(planType === 'binary' ? [
+              { req: 'Personal Volume (PV)', current: '580 PV',    target: '500 PV',    met: true  },
+              { req: 'Left Leg BV',          current: '1,840 BV',  target: '2,500 BV',  met: false },
+              { req: 'Right Leg BV',         current: '1,210 BV',  target: '2,500 BV',  met: false },
+              { req: 'Active Downline',      current: '12',        target: '10',        met: true  },
+            ] : planType === 'breakaway' ? [
+              { req: 'Personal Volume (PV)',  current: '580 PV',    target: '500 PV',    met: true  },
+              { req: 'Group Sales Volume',    current: '3,050 GV',  target: '5,000 GV',  met: false },
+              { req: 'Active Legs',           current: '2',         target: '3',         met: false },
+              { req: 'Active Downline',       current: '12',        target: '10',        met: true  },
+            ] : [
+              { req: 'Personal Volume (PV)',  current: '580 PV',    target: '500 PV',    met: true  },
+              { req: 'Matrix Positions Filled', current: '8',       target: '10',        met: false },
+              { req: 'Cycle Count',           current: '1',         target: '2',         met: false },
+              { req: 'Active Downline',       current: '12',        target: '10',        met: true  },
+            ]).map(({ req, current, target, met }) => (
               <div key={req} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '7px', color: 'var(--text2)' }}>
                   <span style={{ color: met ? '#22c55e' : '#64748b', fontSize: '10px' }}>{met ? '✓' : '○'}</span>
