@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { COMMISSIONS } from '../../data/mock'
+import { useState, useEffect } from 'react'
+import { getCommissions } from '../../api/mlmApi'
+import { COMMISSIONS as MOCK_COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
 
 const TABS = ['This Week', 'This Month', 'Last Month', 'All Time']
@@ -23,6 +24,13 @@ const breakdownSegments = [
 
 export default function Commissions() {
   const [activeTab, setActiveTab] = useState('This Month')
+  const [commissions, setCommissions] = useState(MOCK_COMMISSIONS)
+
+  useEffect(() => {
+    getCommissions()
+      .then(d => { if (d?.commissions?.length) setCommissions(d.commissions) })
+      .catch(() => {})
+  }, [])
 
   return (
     <DashboardLayout>
@@ -68,17 +76,17 @@ export default function Commissions() {
       }}>
         <div className="stat-card">
           <div className="label">Total Earned</div>
-          <div className="value">NOK 4,280</div>
+          <div className="value">4,280 MLMT</div>
           <div className="sub">All commissions</div>
         </div>
         <div className="stat-card">
           <div className="label">Pending</div>
-          <div className="value" style={{ color: 'var(--yellow)' }}>NOK 890</div>
+          <div className="value" style={{ color: 'var(--yellow)' }}>890 MLMT</div>
           <div className="sub">Processing</div>
         </div>
         <div className="stat-card">
           <div className="label">Paid Out</div>
-          <div className="value" style={{ color: 'var(--green-ok)' }}>NOK 3,390</div>
+          <div className="value" style={{ color: 'var(--green-ok)' }}>3,390 MLMT</div>
           <div className="sub">Received</div>
         </div>
       </div>
@@ -146,12 +154,12 @@ export default function Commissions() {
               <th>Type</th>
               <th>From</th>
               <th>Leg / Level</th>
-              <th>Amount (NOK)</th>
+              <th>Amount (MLMT)</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {COMMISSIONS.map(c => {
+            {commissions.map(c => {
               const badge = TYPE_BADGE[c.type] || { cls: 'badge-grey', label: c.type }
               return (
                 <tr key={c.id}>
@@ -162,7 +170,7 @@ export default function Commissions() {
                   <td style={{ fontSize: '13px' }}>{c.from}</td>
                   <td style={{ fontSize: '13px', color: 'var(--text2)' }}>{c.leg}</td>
                   <td style={{ fontWeight: 700, color: 'var(--cream)' }}>
-                    NOK {c.amount.toLocaleString()}
+                    {c.amount.toLocaleString()} MLMT
                   </td>
                   <td>
                     <span className={`badge ${c.status === 'Paid' ? 'badge-green' : 'badge-yellow'}`}>

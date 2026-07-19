@@ -22,7 +22,7 @@ export default function Wallet() {
   function handleConfirmWithdrawal() {
     const amount = withdrawAmount || '1150'
     setShowModal(false)
-    showToast(`Withdrawal of NOK ${parseInt(amount).toLocaleString()} requested ✓`)
+    showToast(`Withdrawal of ${parseInt(amount).toLocaleString()} MLMT requested ✓`)
   }
 
   return (

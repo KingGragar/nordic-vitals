@@ -5,13 +5,13 @@ import DashboardLayout from '../../components/DashboardLayout'
 const statCards = [
   {
     label: "This Month's Earnings",
-    value: 'NOK 2,340',
+    value: '2,340 MLMT',
     sub: '↑ 18% vs last month',
     subColor: 'var(--green-ok)',
   },
   {
     label: 'Available Balance',
-    value: 'NOK 1,150',
+    value: '1,150 MLMT',
     sub: 'Ready to withdraw',
     subColor: null,
   },
@@ -108,7 +108,7 @@ export default function Home() {
                   <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{c.date}</td>
                   <td style={{ fontSize: '13px' }}>{c.type}</td>
                   <td style={{ fontSize: '13px', color: 'var(--text2)' }}>{c.from}</td>
-                  <td style={{ fontWeight: 600, color: 'var(--cream)' }}>NOK {c.amount.toLocaleString()}</td>
+                  <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{c.amount.toLocaleString()} MLMT</td>
                   <td>
                     <span className={`badge ${c.status === 'Paid' ? 'badge-green' : 'badge-yellow'}`}>
                       {c.status}
