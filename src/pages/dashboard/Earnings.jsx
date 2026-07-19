@@ -3,13 +3,15 @@
  * Mock data · GET /v1/mlm/admin/earnings/:userId wires live when Arctico ships it
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts'
 import DashboardLayout from '../../components/DashboardLayout'
+import { getEarnings } from '../../api/mlmApi'
+import { useAuth } from '../../context/AuthContext'
 
 // ── Mock data (swap for API response from GET /v1/mlm/admin/earnings/:userId) ─
 const MOCK_EARNINGS = {
@@ -165,8 +167,17 @@ const PLAN_TYPES = [
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function EarningsPage() {
-  const [data] = useState(MOCK_EARNINGS)
+  const { user } = useAuth()
+  const [data, setData] = useState(MOCK_EARNINGS)
+  const [usingLive, setUsingLive] = useState(false)
   const [planType, setPlanType] = useState('binary')
+
+  useEffect(() => {
+    const userId = user?.memberId || 'NV-10042'
+    getEarnings(userId, { planType })
+      .then(live => { if (live) { setData(live); setUsingLive(true) } })
+      .catch(() => {})
+  }, [planType, user?.memberId])
 
   // Build cumulative series as array of objects for recharts
   const cumulativeSeries = data.weekly_series.map((w, i) => ({
@@ -188,7 +199,9 @@ export default function EarningsPage() {
               Earnings
             </h1>
             <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
-              Mock data · GET /v1/mlm/admin/earnings/:userId wires live when Arctico ships it · {planType}
+              {usingLive
+                ? `Live data · plan: ${planType}`
+                : `Mock data · GET /v1/mlm/admin/earnings/:userId not yet live · ${planType}`}
             </p>
           </div>
         </div>
@@ -223,7 +236,7 @@ export default function EarningsPage() {
           </button>
         ))}
         <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text2)', fontStyle: 'italic' }}>
-          Live data wires when /earnings/:userId ships
+          {usingLive ? 'Live data' : 'Mock · wires live when /earnings/:userId ships'}
         </span>
       </div>
 
@@ -373,22 +386,40 @@ export default function EarningsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '14px', marginBottom: '16px' }}>
 
         {/* Downline growth */}
-        <Section title="Downline Growth">
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={data.downline_growth} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.gridStroke} />
-              <XAxis dataKey="week" tick={{ fill: CHART_THEME.labelFill, fontSize: 11 }} />
-              <YAxis tick={{ fill: CHART_THEME.labelFill, fontSize: 11 }} allowDecimals={false} />
-              <Tooltip
-                {...tooltipStyle}
-                formatter={(val, name) => [`${val} members`, name.charAt(0).toUpperCase() + name.slice(1) + ' leg']}
-              />
-              <Legend wrapperStyle={{ fontSize: '11px', color: 'var(--text2)' }} />
-              <Line type="monotone" dataKey="left"  stroke="#3b82f6" strokeWidth={2.5} dot={{ fill: '#3b82f6', r: 3 }} activeDot={{ r: 5 }} name="Left" />
-              <Line type="monotone" dataKey="right" stroke="#22c55e" strokeWidth={2.5} dot={{ fill: '#22c55e', r: 3 }} activeDot={{ r: 5 }} name="Right" />
-            </LineChart>
-          </ResponsiveContainer>
-        </Section>
+        {planType === 'binary' ? (
+          <Section title="Downline Growth">
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={data.downline_growth} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.gridStroke} />
+                <XAxis dataKey="week" tick={{ fill: CHART_THEME.labelFill, fontSize: 11 }} />
+                <YAxis tick={{ fill: CHART_THEME.labelFill, fontSize: 11 }} allowDecimals={false} />
+                <Tooltip
+                  {...tooltipStyle}
+                  formatter={(val, name) => [`${val} members`, name.charAt(0).toUpperCase() + name.slice(1) + ' leg']}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px', color: 'var(--text2)' }} />
+                <Line type="monotone" dataKey="left"  stroke="#3b82f6" strokeWidth={2.5} dot={{ fill: '#3b82f6', r: 3 }} activeDot={{ r: 5 }} name="Left" />
+                <Line type="monotone" dataKey="right" stroke="#22c55e" strokeWidth={2.5} dot={{ fill: '#22c55e', r: 3 }} activeDot={{ r: 5 }} name="Right" />
+              </LineChart>
+            </ResponsiveContainer>
+          </Section>
+        ) : (
+          <Section title={planType === 'breakaway' ? 'Leg Growth' : 'Matrix Growth'}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '18px 0', color: 'var(--text2)', fontSize: '13px',
+            }}>
+              <span style={{ fontSize: '20px', opacity: 0.4 }}>
+                {planType === 'breakaway' ? '🌲' : '⊞'}
+              </span>
+              <span>
+                {planType === 'breakaway'
+                  ? 'Weekly leg member growth will appear here when GET /v1/mlm/admin/earnings/:userId ships.'
+                  : 'Matrix position fill progress will appear here when GET /v1/mlm/admin/earnings/:userId ships.'}
+              </span>
+            </div>
+          </Section>
+        )}
 
         {/* Rank progress */}
         <Section title="Next Rank Progress">

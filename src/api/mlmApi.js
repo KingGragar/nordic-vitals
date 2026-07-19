@@ -123,3 +123,11 @@ export async function getPayoutQueue() {
   if (MOCK) return { queue: PAYOUT_QUEUE }
   return request('GET', '/v1/mlm/admin/payouts/queue')
 }
+
+// ── Earnings (PENDING — endpoint not yet shipped by Arctico) ─────────────────
+// Returns null in mock mode so the caller falls back to its own mock data.
+// When GET /v1/mlm/admin/earnings/:userId ships, this will return live data.
+export async function getEarnings(userId, { planType = 'binary' } = {}) {
+  if (MOCK) return null
+  return request('GET', `/v1/mlm/admin/earnings/${userId}?plan_type=${planType}`)
+}
