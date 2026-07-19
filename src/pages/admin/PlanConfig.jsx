@@ -21,7 +21,7 @@ const RANK_FIELDS = [
   { key: 'minPV',        label: 'Min PV' },
   { key: 'minLeftGV',    label: 'Min Left GV' },
   { key: 'minRightGV',   label: 'Min Right GV' },
-  { key: 'pairingCap',   label: 'Pairing Cap (NOK/wk)' },
+  { key: 'pairingCap',   label: 'Pairing Cap (MLMT/wk)' },
   { key: 'sponsorBonus', label: 'Sponsor Bonus %', suffix: '%' },
   { key: 'xFactorCap',   label: 'X-Factor Cap %', suffix: '%' },
 ]

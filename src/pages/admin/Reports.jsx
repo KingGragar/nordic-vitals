@@ -34,7 +34,7 @@ const KPI_CARDS = [
   { label: 'Total Members',        value: '847',        sub: 'All time' },
   { label: 'Active MTD',           value: '312',        sub: 'July 2026' },
   { label: 'Network Volume',       value: '42,800 PV',  sub: 'This cycle' },
-  { label: 'Commissions Paid',     value: 'NOK 18,400', sub: 'Last run' },
+  { label: 'Commissions Paid',     value: '18,400 MLMT', sub: 'Last run' },
 ]
 
 export default function Reports() {
@@ -184,7 +184,7 @@ export default function Reports() {
                   <td style={{ color: 'var(--text2)', fontWeight: 700 }}>{i + 1}</td>
                   <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{e.name}</td>
                   <td style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--text2)' }}>{e.id}</td>
-                  <td style={{ color: 'var(--gold)', fontWeight: 700 }}>NOK {e.amount}</td>
+                  <td style={{ color: 'var(--gold)', fontWeight: 700 }}>{e.amount} MLMT</td>
                 </tr>
               ))}
             </tbody>

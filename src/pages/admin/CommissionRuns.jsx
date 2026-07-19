@@ -2,21 +2,21 @@ import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 
 const RUN_HISTORY = [
-  { run: '#041', date: '2026-07-13 02:00 UTC', type: 'Scheduled', members: 847, total: 'NOK 18,400', status: 'Completed' },
-  { run: '#040', date: '2026-07-06 02:00 UTC', type: 'Scheduled', members: 844, total: 'NOK 17,850', status: 'Completed' },
-  { run: '#039', date: '2026-07-04 14:12 UTC', type: 'Manual',    members: 844, total: 'NOK 17,850', status: 'Completed' },
-  { run: '#038', date: '2026-06-29 02:00 UTC', type: 'Scheduled', members: 838, total: 'NOK 16,990', status: 'Completed' },
-  { run: '#037', date: '2026-06-22 02:00 UTC', type: 'Scheduled', members: 831, total: 'NOK 15,740', status: 'Completed' },
-  { run: '#036', date: '2026-06-15 02:00 UTC', type: 'Scheduled', members: 820, total: 'NOK 15,210', status: 'Completed' },
-  { run: '#035', date: '2026-06-08 02:00 UTC', type: 'Scheduled', members: 811, total: 'NOK 14,630', status: 'Failed'    },
-  { run: '#034', date: '2026-06-01 02:00 UTC', type: 'Scheduled', members: 799, total: 'NOK 13,980', status: 'Completed' },
+  { run: '#041', date: '2026-07-13 02:00 UTC', type: 'Scheduled', members: 847, total: '18,400 MLMT', status: 'Completed' },
+  { run: '#040', date: '2026-07-06 02:00 UTC', type: 'Scheduled', members: 844, total: '17,850 MLMT', status: 'Completed' },
+  { run: '#039', date: '2026-07-04 14:12 UTC', type: 'Manual',    members: 844, total: '17,850 MLMT', status: 'Completed' },
+  { run: '#038', date: '2026-06-29 02:00 UTC', type: 'Scheduled', members: 838, total: '16,990 MLMT', status: 'Completed' },
+  { run: '#037', date: '2026-06-22 02:00 UTC', type: 'Scheduled', members: 831, total: '15,740 MLMT', status: 'Completed' },
+  { run: '#036', date: '2026-06-15 02:00 UTC', type: 'Scheduled', members: 820, total: '15,210 MLMT', status: 'Completed' },
+  { run: '#035', date: '2026-06-08 02:00 UTC', type: 'Scheduled', members: 811, total: '14,630 MLMT', status: 'Failed'    },
+  { run: '#034', date: '2026-06-01 02:00 UTC', type: 'Scheduled', members: 799, total: '13,980 MLMT', status: 'Completed' },
 ]
 
 const BREAKDOWN = [
-  { label: 'Pairing Bonus',      amount: 'NOK 8,280' },
-  { label: 'Sponsor Bonus',      amount: 'NOK 4,600' },
-  { label: 'Level Commission',   amount: 'NOK 3,310' },
-  { label: 'Pool Bonus',         amount: 'NOK 2,210' },
+  { label: 'Pairing Bonus',      amount: '8,280 MLMT' },
+  { label: 'Sponsor Bonus',      amount: '4,600 MLMT' },
+  { label: 'Level Commission',   amount: '3,310 MLMT' },
+  { label: 'Pool Bonus',         amount: '2,210 MLMT' },
 ]
 
 function Toast({ message, onClose }) {
@@ -53,7 +53,7 @@ function BreakdownModal({ onClose }) {
             ))}
             <tr>
               <td style={{ fontWeight: 700, color: 'var(--cream)' }}>Total</td>
-              <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--gold)' }}>NOK 18,400</td>
+              <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--gold)' }}>18,400 MLMT</td>
             </tr>
           </tbody>
         </table>
@@ -149,7 +149,7 @@ export default function CommissionRuns() {
               2026-07-13 02:00 UTC
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-              847 members processed · Total payout: NOK 18,400 · Status:{' '}
+              847 members processed · Total payout: 18,400 MLMT · Status:{' '}
               <span style={{ color: '#86efac', fontWeight: 600 }}>✓ Completed</span>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function CommissionRuns() {
             </h2>
             <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
               This will calculate commissions for all <strong style={{ color: 'var(--cream)' }}>847 active members</strong> and queue{' '}
-              <strong style={{ color: 'var(--gold)' }}>NOK ~18,400</strong> in payouts. This cannot be undone. Continue?
+              <strong style={{ color: 'var(--gold)' }}>~18,400 MLMT</strong> in payouts. This cannot be undone. Continue?
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button className="btn btn-outline btn-sm" onClick={() => setShowConfirm(false)}>Cancel</button>
@@ -296,7 +296,7 @@ export default function CommissionRuns() {
                 </div>
                 <div style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>
                   ✓ Run complete: <strong style={{ color: 'var(--cream)' }}>847 members processed</strong>,{' '}
-                  <strong style={{ color: 'var(--gold)' }}>NOK 18,420</strong> queued for payout.
+                  <strong style={{ color: 'var(--gold)' }}>18,420 MLMT</strong> queued for payout.
                 </div>
                 <button className="btn btn-gold" onClick={closeRunModal}>Close</button>
               </>

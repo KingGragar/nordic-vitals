@@ -137,7 +137,7 @@ export default function Wallet() {
               </h2>
 
               <div style={{ marginBottom: '16px' }}>
-                <label className="label-text">Amount (NOK)</label>
+                <label className="label-text">Amount (MLMT)</label>
                 <input
                   className="input"
                   type="number"
@@ -147,7 +147,7 @@ export default function Wallet() {
                   min="1"
                 />
                 <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '6px' }}>
-                  Maximum available: NOK 1,150
+                  Maximum available: 1,150 MLMT
                 </div>
               </div>
 

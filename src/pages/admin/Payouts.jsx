@@ -28,7 +28,7 @@ export default function Payouts() {
     const processedDate = new Date().toISOString().slice(0, 10)
     setPending(prev => prev.filter(p => p.id !== id))
     setProcessed(prev => [...prev, { ...item, processedDate }])
-    showToast(`Payment of NOK ${item.amount.toLocaleString()} approved for ${item.member}`)
+    showToast(`Payment of ${item.amount.toLocaleString()} MLMT approved for ${item.member}`)
   }
 
   function reject(id) {
@@ -142,7 +142,7 @@ export default function Payouts() {
                     </td>
                     <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{p.member}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--text2)' }}>{p.memberId}</td>
-                    <td style={{ color: 'var(--gold)', fontWeight: 700 }}>NOK {p.amount.toLocaleString()}</td>
+                    <td style={{ color: 'var(--gold)', fontWeight: 700 }}>{p.amount.toLocaleString()} MLMT</td>
                     <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{p.requested}</td>
                     <td style={{ fontSize: '13px' }}>{p.method}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--text2)' }}>{p.iban}</td>
@@ -197,7 +197,7 @@ export default function Payouts() {
                 <tr key={p.id}>
                   <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{p.member}</td>
                   <td style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--text2)' }}>{p.memberId}</td>
-                  <td style={{ color: 'var(--gold)', fontWeight: 700 }}>NOK {p.amount.toLocaleString()}</td>
+                  <td style={{ color: 'var(--gold)', fontWeight: 700 }}>{p.amount.toLocaleString()} MLMT</td>
                   <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{p.requested}</td>
                   <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{p.processedDate}</td>
                   <td style={{ fontSize: '13px' }}>{p.method}</td>

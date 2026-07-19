@@ -43,7 +43,7 @@ const statCards = [
 
 const activityFeed = [
   { text: 'New member Ingrid H. joined your left leg', time: '2h ago', color: '#3b82f6' },
-  { text: 'Pairing bonus NOK 450 earned — cycle closed', time: '5h ago', color: 'var(--gold)' },
+  { text: 'Pairing bonus 450 MLMT earned — cycle closed', time: '5h ago', color: 'var(--gold)' },
   { text: 'Your rank confirmed: Silver ✓', time: '1d ago', color: '#c0c8d8' },
   { text: 'New order from downline member (Kari Holm)', time: '2d ago', color: 'var(--green-ok)' },
   { text: 'Left leg crossed 1,800 GV milestone 🎯', time: '3d ago', color: '#3b82f6' },
