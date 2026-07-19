@@ -1,45 +1,8 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { getCommissions } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
-
-const statCards = [
-  {
-    label: "This Month's Earnings",
-    value: '2,340 MLMT',
-    sub: '↑ 18% vs last month',
-    subColor: 'var(--green-ok)',
-  },
-  {
-    label: 'Available Balance',
-    value: '1,150 MLMT',
-    sub: 'Ready to withdraw',
-    subColor: null,
-  },
-  {
-    label: 'Team Size',
-    value: '47',
-    sub: '↑ 3 this week',
-    subColor: 'var(--green-ok)',
-  },
-  {
-    label: 'Personal Volume',
-    value: '320 PV',
-    sub: 'Goal: 500 PV',
-    subColor: null,
-  },
-  {
-    label: 'Left Leg GV',
-    value: '1,840',
-    sub: 'Blue leg',
-    subColor: '#3b82f6',
-  },
-  {
-    label: 'Right Leg GV',
-    value: '1,210',
-    sub: 'Green leg',
-    subColor: 'var(--green-ok)',
-  },
-]
 
 const activityFeed = [
   { text: 'New member Ingrid H. joined your left leg', time: '2h ago', color: '#3b82f6' },
@@ -49,15 +12,66 @@ const activityFeed = [
   { text: 'Left leg crossed 1,800 GV milestone 🎯', time: '3d ago', color: '#3b82f6' },
 ]
 
-const rankBars = [
-  { label: 'Personal Volume', current: 320, goal: 500, unit: 'PV' },
-  { label: 'Active Recruits', current: 3, goal: 5, unit: '' },
-  { label: 'Left Leg Volume', current: 1840, goal: 3000, unit: '' },
-]
-
 export default function Home() {
   const { user } = useAuth()
-  const recentCommissions = COMMISSIONS.slice(0, 8)
+  const [commissions, setCommissions] = useState(COMMISSIONS)
+
+  useEffect(() => {
+    getCommissions()
+      .then(d => { if (d?.commissions?.length) setCommissions(d.commissions) })
+      .catch(() => {})
+  }, [])
+
+  const pv      = user?.pv      ?? 320
+  const leftGV  = user?.leftGV  ?? 1840
+  const rightGV = user?.rightGV ?? 1210
+
+  const statCards = [
+    {
+      label: "This Month's Earnings",
+      value: '2,340 MLMT',
+      sub: '↑ 18% vs last month',
+      subColor: 'var(--green-ok)',
+    },
+    {
+      label: 'Available Balance',
+      value: '1,150 MLMT',
+      sub: 'Ready to withdraw',
+      subColor: null,
+    },
+    {
+      label: 'Team Size',
+      value: '47',
+      sub: '↑ 3 this week',
+      subColor: 'var(--green-ok)',
+    },
+    {
+      label: 'Personal Volume',
+      value: `${pv.toLocaleString()} PV`,
+      sub: 'Goal: 500 PV',
+      subColor: null,
+    },
+    {
+      label: 'Left Leg GV',
+      value: leftGV.toLocaleString(),
+      sub: 'Blue leg',
+      subColor: '#3b82f6',
+    },
+    {
+      label: 'Right Leg GV',
+      value: rightGV.toLocaleString(),
+      sub: 'Green leg',
+      subColor: 'var(--green-ok)',
+    },
+  ]
+
+  const rankBars = [
+    { label: 'Personal Volume', current: pv,      goal: 500,  unit: 'PV' },
+    { label: 'Active Recruits', current: 3,        goal: 5,    unit: '' },
+    { label: 'Left Leg Volume', current: leftGV,   goal: 3000, unit: '' },
+  ]
+
+  const recentCommissions = commissions.slice(0, 8)
 
   return (
     <DashboardLayout>

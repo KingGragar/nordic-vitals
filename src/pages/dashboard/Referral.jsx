@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import DashboardLayout from '../../components/DashboardLayout'
+import { useAuth } from '../../context/AuthContext'
 
-const REFERRAL_URL = 'https://nordicvitals.com/join?ref=NV-10042'
+const SITE_BASE = import.meta.env.VITE_SITE_URL || 'https://nordic-vitals.vercel.app'
 
 const RECRUITS = [
   { name: 'Mia Andersen', joined: '2025-05-01', pkg: 'Executive', status: 'Active' },
@@ -20,7 +21,11 @@ const STATS = [
 ]
 
 export default function Referral() {
+  const { user } = useAuth()
   const [toast, setToast] = useState(null)
+
+  const memberId    = user?.memberId ?? 'NV-10042'
+  const referralUrl = `${SITE_BASE}/join?ref=${memberId}`
 
   function showToast(msg) {
     setToast(msg)
@@ -28,15 +33,15 @@ export default function Referral() {
   }
 
   function handleCopy() {
-    navigator.clipboard.writeText(REFERRAL_URL).then(() => {
+    navigator.clipboard.writeText(referralUrl).then(() => {
       showToast('Copied to clipboard! 📋')
     }).catch(() => {
       showToast('Copied to clipboard! 📋')
     })
   }
 
-  const waLink = `whatsapp://send?text=Join Nordic Vitals! ${REFERRAL_URL}`
-  const emailLink = `mailto:?subject=Join me on Nordic Vitals&body=Hey! I think you'd love Nordic Vitals supplements. Join using my link and get started: ${REFERRAL_URL}`
+  const waLink    = `whatsapp://send?text=Join Nordic Vitals! ${referralUrl}`
+  const emailLink = `mailto:?subject=Join me on Nordic Vitals&body=Hey! I think you'd love Nordic Vitals supplements. Join using my link and get started: ${referralUrl}`
 
   return (
     <DashboardLayout>
@@ -52,7 +57,7 @@ export default function Referral() {
             <input
               className="input"
               readOnly
-              value={REFERRAL_URL}
+              value={referralUrl}
               onFocus={e => e.target.select()}
             />
             <button
@@ -93,7 +98,7 @@ export default function Referral() {
           border: '1px solid var(--border)',
         }}>
           <QRCodeSVG
-            value={REFERRAL_URL}
+            value={referralUrl}
             size={180}
             bgColor="#12243a"
             fgColor="#c9a84c"
