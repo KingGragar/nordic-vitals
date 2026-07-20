@@ -5,7 +5,7 @@
  */
 import {
   COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -122,6 +122,13 @@ export async function getAdminMembers() {
 export async function getPayoutQueue() {
   if (MOCK) return { queue: PAYOUT_QUEUE }
   return request('GET', '/v1/mlm/admin/payouts/queue')
+}
+
+// ── Orders (member product orders that generate PV) ──────────────────────────
+
+export async function getOrders(userId) {
+  if (MOCK) return { orders: ORDERS }
+  return request('GET', `/api/viking-peptides/orders?user_id=${userId}`)
 }
 
 // ── Earnings (PENDING — endpoint not yet shipped by Arctico) ─────────────────

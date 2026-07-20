@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { enrollMember } from '../api/mlmApi'
 
 const PACKAGES = [
   {
@@ -47,6 +48,8 @@ export default function Join() {
 
   const [step, setStep] = useState(1)
   const [done, setDone] = useState(false)
+  const [enrolling, setEnrolling] = useState(false)
+  const [newMemberId, setNewMemberId] = useState('')
 
   // Step 1
   const [sponsorId, setSponsorId] = useState(refParam || '')
@@ -88,8 +91,23 @@ export default function Join() {
     setStep(3)
   }
 
-  function handleEnroll() {
-    setDone(true)
+  async function handleEnroll() {
+    setEnrolling(true)
+    const tempId = 'NV-1' + String(Math.floor(Math.random() * 9000) + 1000)
+    try {
+      const result = await enrollMember({
+        userId: tempId,
+        planType: 'binary',
+        sponsorUserId: sponsorId || null,
+        leg: null,
+      })
+      setNewMemberId(result?.node?.id || tempId)
+    } catch {
+      setNewMemberId(tempId)
+    } finally {
+      setEnrolling(false)
+      setDone(true)
+    }
   }
 
   // ─── SUCCESS STATE ───────────────────────────────────────────────────────────
@@ -125,7 +143,7 @@ export default function Join() {
             marginBottom: '24px',
             letterSpacing: '2px',
           }}>
-            NV-10847
+            {newMemberId}
           </div>
           <p style={{
             color: 'var(--text2)',
@@ -270,7 +288,7 @@ export default function Join() {
                 <span style={{ color: 'var(--green2)', fontSize: '20px' }}>✓</span>
                 <div>
                   <div style={{ color: '#86efac', fontWeight: '700', fontSize: '14px', marginBottom: '2px' }}>
-                    You are joining under Lars Eriksen (NV-10042)
+                    You are joining under sponsor {refParam}
                   </div>
                   <div style={{ color: 'var(--text2)', fontSize: '13px' }}>
                     Your sponsor has been automatically applied.
@@ -563,10 +581,11 @@ export default function Join() {
               </button>
               <button
                 onClick={handleEnroll}
+                disabled={enrolling}
                 className="btn btn-gold"
-                style={{ flex: 2, justifyContent: 'center', fontSize: '15px' }}
+                style={{ flex: 2, justifyContent: 'center', fontSize: '15px', opacity: enrolling ? 0.7 : 1 }}
               >
-                Enroll Now →
+                {enrolling ? 'Enrolling…' : 'Enroll Now →'}
               </button>
             </div>
           </div>

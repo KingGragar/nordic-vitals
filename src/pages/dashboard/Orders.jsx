@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { ORDERS } from '../../data/mock'
+import { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
+import { useAuth } from '../../context/AuthContext'
+import { getOrders } from '../../api/mlmApi'
 
 const STATUS_BADGE = {
   Delivered:  'badge-green',
@@ -9,7 +10,13 @@ const STATUS_BADGE = {
 }
 
 export default function Orders() {
+  const { user } = useAuth()
+  const [orders, setOrders] = useState([])
   const [toast, setToast] = useState(null)
+
+  useEffect(() => {
+    getOrders(user?.memberId).then(d => setOrders(d.orders || [])).catch(() => {})
+  }, [user?.memberId])
 
   function showToast(msg) {
     setToast(msg)
@@ -45,7 +52,7 @@ export default function Orders() {
             </tr>
           </thead>
           <tbody>
-            {ORDERS.map(order => (
+            {orders.map(order => (
               <tr key={order.id}>
                 <td style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '13px' }}>{order.id}</td>
                 <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{order.date}</td>
