@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { PAYOUT_QUEUE } from '../../data/mock'
+import { getPayoutQueue } from '../../api/mlmApi'
 
 function Toast({ message, onClose }) {
   return (
@@ -16,6 +17,12 @@ export default function Payouts() {
   const [processed, setProcessed] = useState([])
   const [activeTab, setActiveTab] = useState('pending')
   const [toast, setToast]         = useState(null)
+
+  useEffect(() => {
+    getPayoutQueue()
+      .then(d => { if (d?.queue?.length) setPending(d.queue.map(p => ({ ...p, checked: false }))) })
+      .catch(() => {})
+  }, [])
 
   function showToast(msg) {
     setToast(msg)

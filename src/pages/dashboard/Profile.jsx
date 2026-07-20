@@ -6,8 +6,8 @@ export default function Profile() {
   const { user } = useAuth()
 
   const [personalInfo, setPersonalInfo] = useState({
-    name:    user?.name    ?? 'Lars Eriksen',
-    email:   'member@nordic.no',
+    name:    user?.name  ?? 'Lars Eriksen',
+    email:   user?.email ?? 'member@nordic.no',
     phone:   '+47 912 34 567',
     country: 'Norway',
   })

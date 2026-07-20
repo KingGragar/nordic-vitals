@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { ADMIN_MEMBERS } from '../../data/mock'
+import { getAdminMembers } from '../../api/mlmApi'
 
 const RANK_COLORS = {
   Unranked: '#9ca3af',
@@ -107,6 +108,12 @@ export default function Members() {
   const [statusFilter, setStatusFilter] = useState('All')
   const [viewMember, setViewMember] = useState(null)
   const [toast, setToast] = useState(null)
+
+  useEffect(() => {
+    getAdminMembers()
+      .then(d => { if (d?.members?.length) setMembers(d.members) })
+      .catch(() => {})
+  }, [])
 
   function showToast(msg) {
     setToast(msg)
