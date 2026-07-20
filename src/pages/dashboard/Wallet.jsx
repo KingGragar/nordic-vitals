@@ -11,8 +11,17 @@ export default function Wallet() {
   const [txs, setTxs] = useState([])
 
   useEffect(() => {
-    getUserTransactions(user?.memberId || 'NV-10042').then(d => setTxs(d.transactions || []))
+    getUserTransactions(user?.memberId || 'NV-10042').then(d => {
+      const loaded = d.transactions || []
+      setTxs(loaded)
+      if (loaded.length > 0 && loaded[0].balance !== undefined) {
+        setWithdrawAmount(String(loaded[0].balance))
+      }
+    })
   }, [user])
+
+  const availableBalance = txs.length > 0 && txs[0].balance !== undefined ? txs[0].balance : 1150
+  const totalEarned = txs.reduce((sum, tx) => tx.direction === 'credit' ? sum + (tx.amount || 0) : sum, 0) || 8420
 
   function showToast(msg) {
     setToast(msg)
@@ -41,7 +50,7 @@ export default function Wallet() {
         {/* Available */}
         <div className="stat-card">
           <div className="label">Available Balance</div>
-          <div className="value" style={{ color: 'var(--green-ok)' }}>1,150 MLMT</div>
+          <div className="value" style={{ color: 'var(--green-ok)' }}>{availableBalance.toLocaleString()} MLMT</div>
           <div className="sub" style={{ marginTop: '12px' }}>
             <button
               className="btn btn-green btn-sm"
@@ -62,7 +71,7 @@ export default function Wallet() {
         {/* Total Earned */}
         <div className="stat-card">
           <div className="label">Total Earned</div>
-          <div className="value" style={{ color: 'var(--gold)' }}>8,420 MLMT</div>
+          <div className="value" style={{ color: 'var(--gold)' }}>{totalEarned.toLocaleString()} MLMT</div>
           <div className="sub">Lifetime earnings · testnet</div>
         </div>
       </div>
@@ -143,11 +152,11 @@ export default function Wallet() {
                   type="number"
                   value={withdrawAmount}
                   onChange={e => setWithdrawAmount(e.target.value)}
-                  max="1150"
+                  max={String(availableBalance)}
                   min="1"
                 />
                 <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '6px' }}>
-                  Maximum available: 1,150 MLMT
+                  Maximum available: {availableBalance.toLocaleString()} MLMT
                 </div>
               </div>
 

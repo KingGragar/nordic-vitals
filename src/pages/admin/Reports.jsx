@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { getAdminSummary } from '../../api/mlmApi'
+import { getAdminSummary, getAdminMembers } from '../../api/mlmApi'
 
 const WEEKLY_DATA = [
   { week: 'May 26', count: 12 },
@@ -30,19 +30,22 @@ const TOP_EARNERS = [
   { name: 'Olaf Berg',     id: 'NV-10241', amount: '670'   },
 ]
 
-const KPI_CARDS = [
-  { label: 'Total Members',        value: '847',        sub: 'All time' },
-  { label: 'Active MTD',           value: '312',        sub: 'July 2026' },
-  { label: 'Network Volume',       value: '42,800 PV',  sub: 'This cycle' },
-  { label: 'Commissions Paid',     value: '18,400 MLMT', sub: 'Last run' },
+const KPI_CARDS_STATIC = [
+  { label: 'Network Volume',   value: '42,800 PV',   sub: 'This cycle' },
+  { label: 'Commissions Paid', value: '18,400 MLMT', sub: 'Last run'   },
 ]
 
 export default function Reports() {
   const [tokenSummary, setTokenSummary] = useState(null)
+  const [members, setMembers] = useState(null)
 
   useEffect(() => {
     getAdminSummary().then(d => setTokenSummary(d)).catch(() => {})
+    getAdminMembers().then(d => setMembers(d.members || [])).catch(() => {})
   }, [])
+
+  const totalMembers  = members !== null ? members.length : 847
+  const activeMembers = members !== null ? members.filter(m => m.status === 'Active').length : 312
 
   return (
     <AdminLayout>
@@ -73,7 +76,17 @@ export default function Reports() {
 
       {/* KPI cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-        {KPI_CARDS.map(kpi => (
+        <div className="stat-card">
+          <div className="label">Total Members</div>
+          <div className="value">{totalMembers.toLocaleString()}</div>
+          <div className="sub">All time</div>
+        </div>
+        <div className="stat-card">
+          <div className="label">Active MTD</div>
+          <div className="value">{activeMembers.toLocaleString()}</div>
+          <div className="sub">July 2026</div>
+        </div>
+        {KPI_CARDS_STATIC.map(kpi => (
           <div key={kpi.label} className="stat-card">
             <div className="label">{kpi.label}</div>
             <div className="value">{kpi.value}</div>
