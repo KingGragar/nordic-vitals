@@ -1,23 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '../../components/AdminLayout'
-
-const RUN_HISTORY = [
-  { run: '#041', date: '2026-07-13 02:00 UTC', type: 'Scheduled', members: 847, total: '18,400 MLMT', status: 'Completed' },
-  { run: '#040', date: '2026-07-06 02:00 UTC', type: 'Scheduled', members: 844, total: '17,850 MLMT', status: 'Completed' },
-  { run: '#039', date: '2026-07-04 14:12 UTC', type: 'Manual',    members: 844, total: '17,850 MLMT', status: 'Completed' },
-  { run: '#038', date: '2026-06-29 02:00 UTC', type: 'Scheduled', members: 838, total: '16,990 MLMT', status: 'Completed' },
-  { run: '#037', date: '2026-06-22 02:00 UTC', type: 'Scheduled', members: 831, total: '15,740 MLMT', status: 'Completed' },
-  { run: '#036', date: '2026-06-15 02:00 UTC', type: 'Scheduled', members: 820, total: '15,210 MLMT', status: 'Completed' },
-  { run: '#035', date: '2026-06-08 02:00 UTC', type: 'Scheduled', members: 811, total: '14,630 MLMT', status: 'Failed'    },
-  { run: '#034', date: '2026-06-01 02:00 UTC', type: 'Scheduled', members: 799, total: '13,980 MLMT', status: 'Completed' },
-]
-
-const BREAKDOWN = [
-  { label: 'Pairing Bonus',      amount: '8,280 MLMT' },
-  { label: 'Sponsor Bonus',      amount: '4,600 MLMT' },
-  { label: 'Level Commission',   amount: '3,310 MLMT' },
-  { label: 'Pool Bonus',         amount: '2,210 MLMT' },
-]
+import { getCommissionRuns, triggerCommissionRun } from '../../api/mlmApi'
+import { COMMISSION_RUNS as MOCK_RUNS } from '../../data/mock'
 
 function Toast({ message, onClose }) {
   return (
@@ -28,7 +12,10 @@ function Toast({ message, onClose }) {
   )
 }
 
-function BreakdownModal({ onClose }) {
+function BreakdownModal({ run, onClose }) {
+  const rows = run?.breakdown?.length ? run.breakdown : []
+  const total = rows.reduce((s, r) => s + r.amount, 0) || run?.total_paid || 0
+
   return (
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}
@@ -36,27 +23,42 @@ function BreakdownModal({ onClose }) {
     >
       <div className="card" style={{ width: '100%', maxWidth: '420px', position: 'relative' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'var(--text2)', fontSize: '20px', cursor: 'pointer' }}>×</button>
-        <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--cream)', marginBottom: '20px' }}>Run Breakdown</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Bonus Type</th>
-              <th style={{ textAlign: 'right' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {BREAKDOWN.map(row => (
-              <tr key={row.label}>
-                <td style={{ color: 'var(--cream)' }}>{row.label}</td>
-                <td style={{ textAlign: 'right', color: 'var(--gold)', fontWeight: 600 }}>{row.amount}</td>
+        <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--cream)', marginBottom: '4px' }}>
+          Run Breakdown
+        </h2>
+        <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '16px' }}>
+          {run?.id} — {run?.started_at ? new Date(run.started_at).toUTCString().replace(' GMT', ' UTC') : '—'}
+        </div>
+        {rows.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Bonus Type</th>
+                <th style={{ textAlign: 'right' }}>Amount</th>
               </tr>
-            ))}
-            <tr>
-              <td style={{ fontWeight: 700, color: 'var(--cream)' }}>Total</td>
-              <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--gold)' }}>18,400 MLMT</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map(row => (
+                <tr key={row.label}>
+                  <td style={{ color: 'var(--cream)' }}>{row.label}</td>
+                  <td style={{ textAlign: 'right', color: 'var(--gold)', fontWeight: 600 }}>
+                    {row.amount.toLocaleString()} MLMT
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td style={{ fontWeight: 700, color: 'var(--cream)' }}>Total</td>
+                <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--gold)' }}>
+                  {total.toLocaleString()} MLMT
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ color: 'var(--text2)', fontSize: '14px' }}>
+            Breakdown data not available for this run.
+          </p>
+        )}
         <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
           <button className="btn btn-outline btn-sm" onClick={onClose}>Close</button>
         </div>
@@ -66,23 +68,29 @@ function BreakdownModal({ onClose }) {
 }
 
 export default function CommissionRuns() {
-  // Run modal states
-  const [showConfirm, setShowConfirm]   = useState(false)
-  const [running, setRunning]           = useState(false)
-  const [progress, setProgress]         = useState(0)
-  const [runComplete, setRunComplete]   = useState(false)
+  const [runs, setRuns] = useState(MOCK_RUNS)
+
+  const [showConfirm, setShowConfirm]     = useState(false)
+  const [running, setRunning]             = useState(false)
+  const [progress, setProgress]           = useState(0)
+  const [runComplete, setRunComplete]     = useState(false)
+  const [lastRunResult, setLastRunResult] = useState(null)
   const progressRef = useRef(null)
 
-  // Schedule editing
   const [editSchedule, setEditSchedule] = useState(false)
   const [schedDay, setSchedDay]         = useState('Sunday')
   const [schedTime, setSchedTime]       = useState('02:00')
 
-  // Details modal
-  const [showBreakdown, setShowBreakdown] = useState(false)
+  const [selectedRun, setSelectedRun] = useState(null)
 
-  // Toast
   const [toast, setToast] = useState(null)
+
+  useEffect(() => {
+    getCommissionRuns()
+      .then(d => { if (d?.runs?.length) setRuns(d.runs) })
+      .catch(() => {})
+    return () => { if (progressRef.current) clearInterval(progressRef.current) }
+  }, [])
 
   function showToast(msg) {
     setToast(msg)
@@ -95,7 +103,10 @@ export default function CommissionRuns() {
     setProgress(0)
     setRunComplete(false)
 
-    // Animate progress bar over ~2 seconds
+    triggerCommissionRun({ type: 'manual' })
+      .then(result => setLastRunResult(result))
+      .catch(() => {})
+
     let pct = 0
     progressRef.current = setInterval(() => {
       pct += 2
@@ -105,19 +116,17 @@ export default function CommissionRuns() {
         setTimeout(() => {
           setRunning(false)
           setRunComplete(true)
+          getCommissionRuns().then(d => { if (d?.runs?.length) setRuns(d.runs) }).catch(() => {})
         }, 300)
       }
     }, 40)
   }
 
-  useEffect(() => {
-    return () => { if (progressRef.current) clearInterval(progressRef.current) }
-  }, [])
-
   function closeRunModal() {
     setRunning(false)
     setRunComplete(false)
     setProgress(0)
+    setLastRunResult(null)
   }
 
   function saveSchedule() {
@@ -131,6 +140,11 @@ export default function CommissionRuns() {
     if (status === 'Failed')    return <span className="badge badge-red">✗ Failed</span>
     return <span className="badge badge-grey">{status}</span>
   }
+
+  const latest = runs[0]
+  const latestDate = latest?.started_at
+    ? new Date(latest.started_at).toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
+    : '—'
 
   return (
     <AdminLayout>
@@ -146,11 +160,17 @@ export default function CommissionRuns() {
               Last Run
             </div>
             <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--cream)', marginBottom: '8px' }}>
-              2026-07-13 02:00 UTC
+              {latestDate}
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-              847 members processed · Total payout: 18,400 MLMT · Status:{' '}
-              <span style={{ color: '#86efac', fontWeight: 600 }}>✓ Completed</span>
+              {latest?.members_processed?.toLocaleString() ?? '—'} members processed
+              {' '}· Total payout: <span style={{ color: 'var(--gold)', fontWeight: 600 }}>
+                {latest?.total_paid?.toLocaleString() ?? '—'} MLMT
+              </span>
+              {' '}· Status:{' '}
+              <span style={{ color: '#86efac', fontWeight: 600 }}>
+                {latest?.status === 'Completed' ? '✓ Completed' : latest?.status ?? '—'}
+              </span>
             </div>
           </div>
           <button
@@ -211,7 +231,7 @@ export default function CommissionRuns() {
           <thead>
             <tr>
               <th>Run #</th>
-              <th>Date</th>
+              <th>Date (UTC)</th>
               <th>Type</th>
               <th>Members</th>
               <th>Total Payout</th>
@@ -220,22 +240,28 @@ export default function CommissionRuns() {
             </tr>
           </thead>
           <tbody>
-            {RUN_HISTORY.map(row => (
-              <tr key={row.run}>
-                <td style={{ color: 'var(--text2)', fontFamily: 'monospace', fontSize: '13px' }}>{row.run}</td>
-                <td style={{ color: 'var(--text)', fontSize: '13px' }}>{row.date}</td>
+            {runs.map(row => (
+              <tr key={row.id}>
+                <td style={{ color: 'var(--text2)', fontFamily: 'monospace', fontSize: '13px' }}>{row.id}</td>
+                <td style={{ color: 'var(--text)', fontSize: '13px' }}>
+                  {row.started_at
+                    ? new Date(row.started_at).toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
+                    : '—'}
+                </td>
                 <td>
                   <span className={row.type === 'Manual' ? 'badge badge-blue' : 'badge badge-grey'}>
                     {row.type}
                   </span>
                 </td>
-                <td>{row.members}</td>
-                <td style={{ color: 'var(--gold)', fontWeight: 600 }}>{row.total}</td>
+                <td>{row.members_processed?.toLocaleString() ?? '—'}</td>
+                <td style={{ color: 'var(--gold)', fontWeight: 600 }}>
+                  {row.total_paid != null ? row.total_paid.toLocaleString() + ' MLMT' : '—'}
+                </td>
                 <td>{statusBadge(row.status)}</td>
                 <td>
                   <button
                     className="btn btn-outline btn-sm"
-                    onClick={() => setShowBreakdown(true)}
+                    onClick={() => setSelectedRun(row)}
                   >
                     Details
                   </button>
@@ -257,8 +283,11 @@ export default function CommissionRuns() {
               Confirm Commission Run
             </h2>
             <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
-              This will calculate commissions for all <strong style={{ color: 'var(--cream)' }}>847 active members</strong> and queue{' '}
-              <strong style={{ color: 'var(--gold)' }}>~18,400 MLMT</strong> in payouts. This cannot be undone. Continue?
+              This will calculate commissions for all{' '}
+              <strong style={{ color: 'var(--cream)' }}>
+                {latest?.members_processed?.toLocaleString() ?? '—'} active members
+              </strong>{' '}
+              and queue payouts. This cannot be undone. Continue?
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button className="btn btn-outline btn-sm" onClick={() => setShowConfirm(false)}>Cancel</button>
@@ -280,7 +309,7 @@ export default function CommissionRuns() {
                   Running Commission Calculation…
                 </div>
                 <div style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>
-                  Processing 847 members. Please wait.
+                  Processing {latest?.members_processed?.toLocaleString() ?? '—'} members. Please wait.
                 </div>
                 <div className="progress-bar-wrap" style={{ marginBottom: '12px' }}>
                   <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
@@ -295,8 +324,9 @@ export default function CommissionRuns() {
                   Run Complete
                 </div>
                 <div style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>
-                  ✓ Run complete: <strong style={{ color: 'var(--cream)' }}>847 members processed</strong>,{' '}
-                  <strong style={{ color: 'var(--gold)' }}>18,420 MLMT</strong> queued for payout.
+                  ✓ Commission run triggered successfully
+                  {lastRunResult?.run_id ? ` (${lastRunResult.run_id})` : ''}.
+                  {' '}Payouts queued for processing.
                 </div>
                 <button className="btn btn-gold" onClick={closeRunModal}>Close</button>
               </>
@@ -306,7 +336,9 @@ export default function CommissionRuns() {
       )}
 
       {/* Breakdown modal */}
-      {showBreakdown && <BreakdownModal onClose={() => setShowBreakdown(false)} />}
+      {selectedRun && (
+        <BreakdownModal run={selectedRun} onClose={() => setSelectedRun(null)} />
+      )}
 
       {/* Toast */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}

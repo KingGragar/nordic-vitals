@@ -5,7 +5,7 @@
  */
 import {
   COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -137,4 +137,16 @@ export async function getOrders(userId) {
 export async function getEarnings(userId, { planType = 'binary' } = {}) {
   if (MOCK) return null
   return request('GET', `/v1/mlm/admin/earnings/${userId}?plan_type=${planType}`)
+}
+
+// ── Commission Runs ───────────────────────────────────────────────────────────
+
+export async function getCommissionRuns({ limit = 20 } = {}) {
+  if (MOCK) return { runs: COMMISSION_RUNS }
+  return request('GET', `/v1/mlm/admin/commission-runs?limit=${limit}`)
+}
+
+export async function triggerCommissionRun({ type = 'manual' } = {}) {
+  if (MOCK) return { run_id: `#mock-${Date.now()}`, status: 'Running', type }
+  return request('POST', '/v1/mlm/admin/commission-runs/trigger', { type })
 }

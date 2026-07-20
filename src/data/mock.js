@@ -114,3 +114,21 @@ export const PAYOUT_QUEUE = [
   { id: 'W-0088', member: 'Bjorn Lie',     memberId: 'NV-10215', amount: 175,  requested: '2026-07-10', method: 'Bank Transfer', iban: '****7743' },
   { id: 'W-0087', member: 'Olaf Berg',     memberId: 'NV-10241', amount: 90,   requested: '2026-07-10', method: 'Bank Transfer', iban: '****3390' },
 ]
+
+export const COMMISSION_RUNS = [
+  { id: '#041', started_at: '2026-07-13T02:00:00Z', type: 'Scheduled', members_processed: 847, total_paid: 18400, currency: 'MLMT', status: 'Completed',
+    breakdown: [
+      { label: 'Pairing Bonus',    amount: 8280 },
+      { label: 'Sponsor Bonus',    amount: 4600 },
+      { label: 'Level Commission', amount: 3310 },
+      { label: 'Pool Bonus',       amount: 2210 },
+    ]
+  },
+  { id: '#040', started_at: '2026-07-06T02:00:00Z', type: 'Scheduled', members_processed: 844, total_paid: 17850, currency: 'MLMT', status: 'Completed', breakdown: [] },
+  { id: '#039', started_at: '2026-07-04T14:12:00Z', type: 'Manual',    members_processed: 844, total_paid: 17850, currency: 'MLMT', status: 'Completed', breakdown: [] },
+  { id: '#038', started_at: '2026-06-29T02:00:00Z', type: 'Scheduled', members_processed: 838, total_paid: 16990, currency: 'MLMT', status: 'Completed', breakdown: [] },
+  { id: '#037', started_at: '2026-06-22T02:00:00Z', type: 'Scheduled', members_processed: 831, total_paid: 15740, currency: 'MLMT', status: 'Completed', breakdown: [] },
+  { id: '#036', started_at: '2026-06-15T02:00:00Z', type: 'Scheduled', members_processed: 820, total_paid: 15210, currency: 'MLMT', status: 'Completed', breakdown: [] },
+  { id: '#035', started_at: '2026-06-08T02:00:00Z', type: 'Scheduled', members_processed: 811, total_paid: 14630, currency: 'MLMT', status: 'Failed',    breakdown: [] },
+  { id: '#034', started_at: '2026-06-01T02:00:00Z', type: 'Scheduled', members_processed: 799, total_paid: 13980, currency: 'MLMT', status: 'Completed', breakdown: [] },
+]
