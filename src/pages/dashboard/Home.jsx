@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { getCommissions, getUserTransactions } from '../../api/mlmApi'
+import { getCommissions, getUserTransactions, getAdminMembers } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
 
@@ -33,18 +33,45 @@ function currentYearMonth() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 }
 
-const activityFeed = [
-  { text: 'New member Ingrid H. joined your left leg', time: '2h ago', color: '#3b82f6' },
-  { text: 'Pairing bonus 450 MLMT earned — cycle closed', time: '5h ago', color: 'var(--gold)' },
-  { text: 'Your rank confirmed: Silver ✓', time: '1d ago', color: '#c0c8d8' },
-  { text: 'New order from downline member (Kari Holm)', time: '2d ago', color: 'var(--green-ok)' },
-  { text: 'Left leg crossed 1,800 GV milestone 🎯', time: '3d ago', color: '#3b82f6' },
-]
+function buildActivityFeed(commissions, transactions) {
+  const items = []
+  const now = new Date()
+
+  function relativeTime(dateStr) {
+    if (!dateStr) return ''
+    const d = new Date(dateStr)
+    const diffMs = now - d
+    const diffH = Math.floor(diffMs / 3_600_000)
+    const diffD = Math.floor(diffMs / 86_400_000)
+    if (diffH < 1) return 'just now'
+    if (diffH < 24) return `${diffH}h ago`
+    if (diffD === 1) return '1d ago'
+    return `${diffD}d ago`
+  }
+
+  commissions.slice(0, 6).forEach(c => {
+    const color = c.type?.toLowerCase().includes('pairing') ? 'var(--gold)'
+      : c.type?.toLowerCase().includes('sponsor') ? 'var(--green-ok)' : '#c0c8d8'
+    items.push({ text: `${c.type} ${c.amount?.toLocaleString()} MLMT${c.from && c.from !== '—' ? ` — from ${c.from}` : ''}`, time: relativeTime(c.date), color })
+  })
+  transactions.slice(0, 3).forEach(tx => {
+    if (tx.event_type === 'withdrawal') {
+      items.push({ text: `Withdrawal ${tx.amount?.toLocaleString()} MLMT processed`, time: relativeTime(tx.created_at || tx.date), color: '#64748b' })
+    }
+  })
+  items.sort((a, b) => {
+    const rank = t => t === 'just now' ? 0 : t.endsWith('h ago') ? parseInt(t) : parseInt(t) * 24
+    return rank(a.time) - rank(b.time)
+  })
+  return items.slice(0, 6)
+}
 
 export default function Home() {
   const { user } = useAuth()
   const [commissions, setCommissions] = useState(COMMISSIONS)
+  const [transactions, setTransactions] = useState([])
   const [availableBalance, setAvailableBalance] = useState(null)
+  const [teamSize, setTeamSize] = useState(null)
 
   useEffect(() => {
     getCommissions()
@@ -53,8 +80,12 @@ export default function Home() {
     getUserTransactions(user?.memberId || 'NV-10042')
       .then(d => {
         const txs = d?.transactions || []
+        setTransactions(txs)
         if (txs.length > 0 && txs[0].balance !== undefined) setAvailableBalance(txs[0].balance)
       })
+      .catch(() => {})
+    getAdminMembers()
+      .then(d => { if (d?.members?.length) setTeamSize(d.members.length) })
       .catch(() => {})
   }, [user])
 
@@ -73,6 +104,9 @@ export default function Home() {
     .reduce((s, c) => s + (c.amount || 0), 0)
 
   const displayBalance = availableBalance ?? 1150
+  const displayTeamSize = teamSize ?? 47
+
+  const activityFeed = buildActivityFeed(commissions, transactions)
 
   const statCards = [
     {
@@ -89,8 +123,8 @@ export default function Home() {
     },
     {
       label: 'Team Size',
-      value: '47',
-      sub: '↑ 3 this week',
+      value: displayTeamSize.toString(),
+      sub: teamSize ? 'Live member count' : '↑ 3 this week',
       subColor: 'var(--green-ok)',
     },
     {
