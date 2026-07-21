@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { getCommissions, getUserTransactions, getAdminMembers } from '../../api/mlmApi'
+import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
 
@@ -72,8 +72,10 @@ export default function Home() {
   const [transactions, setTransactions] = useState([])
   const [availableBalance, setAvailableBalance] = useState(null)
   const [teamSize, setTeamSize] = useState(null)
+  const [activeRecruits, setActiveRecruits] = useState(null)
 
   useEffect(() => {
+    const uid = user?.userId || user?.memberId || 'NV-10042'
     getCommissions()
       .then(d => { if (d?.commissions?.length) setCommissions(d.commissions) })
       .catch(() => {})
@@ -86,6 +88,12 @@ export default function Home() {
       .catch(() => {})
     getAdminMembers()
       .then(d => { if (d?.members?.length) setTeamSize(d.members.length) })
+      .catch(() => {})
+    getDirectDownline(uid)
+      .then(d => {
+        const recruits = d?.recruits || []
+        setActiveRecruits(recruits.filter(m => m.status === 'Active').length)
+      })
       .catch(() => {})
   }, [user])
 
@@ -149,9 +157,9 @@ export default function Home() {
 
   const rankBars = goals
     ? [
-        { label: 'Personal Volume', current: pv,      goal: goals.min_pv,       unit: 'PV' },
-        { label: 'Active Recruits', current: 3,        goal: goals.active_recruits, unit: '' },
-        { label: 'Left Leg Volume', current: leftGV,   goal: goals.min_left_gv,  unit: '' },
+        { label: 'Personal Volume', current: pv,                     goal: goals.min_pv,          unit: 'PV' },
+        { label: 'Active Recruits', current: activeRecruits ?? 3,     goal: goals.active_recruits, unit: '' },
+        { label: 'Left Leg Volume', current: leftGV,                  goal: goals.min_left_gv,     unit: '' },
       ]
     : []
 
@@ -167,7 +175,7 @@ export default function Home() {
       {/* 6 stat cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: '16px',
         marginBottom: '32px',
       }}>

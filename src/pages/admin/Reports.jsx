@@ -10,17 +10,21 @@ const RANK_ORDER  = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Unranked']
 const RANK_COLORS = { Platinum: '#ffffff', Gold: '#c9a84c', Silver: '#aaaaaa', Bronze: '#cd7f32', Unranked: '#9ca3af' }
 
 export default function Reports() {
-  const [tokenSummary, setTokenSummary] = useState(null)
-  const [members,      setMembers]      = useState(null)
-  const [topEarners,   setTopEarners]   = useState(null)
-  const [weeklyData,   setWeeklyData]   = useState(null)
-  const [networkVol,   setNetworkVol]   = useState(null)
+  const [tokenSummary,  setTokenSummary]  = useState(null)
+  const [members,       setMembers]       = useState(null)
+  const [topEarners,    setTopEarners]    = useState(null)
+  const [weeklyData,    setWeeklyData]    = useState(null)
+  const [weeklyLoaded,  setWeeklyLoaded]  = useState(false)
+  const [networkVol,    setNetworkVol]    = useState(null)
 
   useEffect(() => {
     getAdminSummary().then(d => setTokenSummary(d)).catch(() => {})
     getAdminMembers().then(d => setMembers(d.members || [])).catch(() => {})
     getAdminTopEarners({ limit: 5 }).then(d => setTopEarners(d.earners || [])).catch(() => {})
-    getAdminWeeklySignups({ weeks: 8 }).then(d => setWeeklyData(d.weeks || [])).catch(() => {})
+    getAdminWeeklySignups({ weeks: 8 })
+      .then(d => setWeeklyData(d.weeks || []))
+      .catch(() => {})
+      .finally(() => setWeeklyLoaded(true))
     getAdminNetworkVolume().then(d => setNetworkVol(d)).catch(() => {})
   }, [])
 
@@ -123,7 +127,7 @@ export default function Reports() {
           </ResponsiveContainer>
         ) : (
           <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text2)' }}>
-            Loading…
+            {weeklyLoaded ? 'No signup data available yet.' : 'Loading…'}
           </div>
         )}
       </div>
