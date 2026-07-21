@@ -5,6 +5,7 @@ const navLinks = [
   { to: '/dashboard',             label: '🏠 Dashboard',   end: true },
   { to: '/dashboard/tree',        label: '🌳 My Tree' },
   { to: '/dashboard/commissions', label: '💰 Commissions' },
+  { to: '/dashboard/earnings',    label: '📈 Earnings' },
   { to: '/dashboard/wallet',      label: '💳 Wallet' },
   { to: '/dashboard/referral',    label: '🔗 Referral' },
   { to: '/dashboard/orders',      label: '📦 My Orders' },

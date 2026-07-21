@@ -233,3 +233,39 @@ export async function updatePassword(userId, { current_password, new_password })
   if (MOCK) return { ok: true }
   return request('POST', `/v1/mlm/users/${userId}/password`, { current_password, new_password })
 }
+
+// ── Admin Reports ─────────────────────────────────────────────────────────────
+
+export async function getAdminTopEarners({ limit = 5, period = 'monthly' } = {}) {
+  if (MOCK) return {
+    earners: [
+      { user_id: 'NV-10042', name: 'Lars Eriksen',  total_commissions: 2340 },
+      { user_id: 'NV-10087', name: 'Mia Andersen',  total_commissions: 1890 },
+      { user_id: 'NV-10230', name: 'Sigrid Voss',   total_commissions: 1440 },
+      { user_id: 'NV-10091', name: 'Erik Solberg',  total_commissions: 980  },
+      { user_id: 'NV-10241', name: 'Olaf Berg',     total_commissions: 670  },
+    ].slice(0, limit)
+  }
+  return request('GET', `/v1/mlm/admin/reports/top-earners?limit=${limit}&period=${period}`)
+}
+
+export async function getAdminWeeklySignups({ weeks = 8 } = {}) {
+  if (MOCK) return {
+    weeks: [
+      { week: 'May 26', count: 12 },
+      { week: 'Jun 2',  count: 18 },
+      { week: 'Jun 9',  count: 9  },
+      { week: 'Jun 16', count: 24 },
+      { week: 'Jun 23', count: 15 },
+      { week: 'Jun 30', count: 31 },
+      { week: 'Jul 7',  count: 22 },
+      { week: 'Jul 13', count: 14 },
+    ].slice(-weeks)
+  }
+  return request('GET', `/v1/mlm/admin/reports/weekly-signups?weeks=${weeks}`)
+}
+
+export async function getAdminNetworkVolume() {
+  if (MOCK) return { network_pv: 42800, commissions_paid_last_run: 18400 }
+  return request('GET', '/v1/mlm/admin/reports/network-volume')
+}
