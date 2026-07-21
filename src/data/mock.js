@@ -1,6 +1,6 @@
 export const USERS = [
-  { email: 'member@nordic.no', password: 'demo123', role: 'member', name: 'Lars Eriksen', memberId: 'NV-10042', rank: 'Silver', pv: 320, leftGV: 1840, rightGV: 1210 },
-  { email: 'admin@nordic.no',  password: 'admin123', role: 'admin',  name: 'Admin',        memberId: 'NV-00001', rank: 'Platinum', pv: 0, leftGV: 0, rightGV: 0 },
+  { userId: 'efbb8d0e-b5a5-4a15-bcc6-2f07b980ca64', email: 'member@nordic.no', password: 'demo123', role: 'member', name: 'Lars Eriksen', memberId: 'NV-10042', rank: 'Silver', pv: 320, leftGV: 1840, rightGV: 1210 },
+  { userId: '00000000-0000-0000-0000-000000000001', email: 'admin@nordic.no',  password: 'admin123', role: 'admin',  name: 'Admin',        memberId: 'NV-00001', rank: 'Platinum', pv: 0, leftGV: 0, rightGV: 0 },
 ]
 
 export const PRODUCTS = [

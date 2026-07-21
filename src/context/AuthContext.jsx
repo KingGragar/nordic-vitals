@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react'
-import { USERS } from '../data/mock'
+import { loginUser, setAuthToken } from '../api/mlmApi'
 
 const AuthContext = createContext(null)
 
@@ -7,13 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [cart, setCart] = useState([])
 
-  function login(email, password) {
-    const found = USERS.find(u => u.email === email && u.password === password)
-    if (found) { setUser(found); return true }
-    return false
+  async function login(email, password) {
+    const userData = await loginUser(email, password)
+    setUser(userData)
   }
 
-  function logout() { setUser(null) }
+  function logout() { setUser(null); setAuthToken('') }
 
   function addToCart(product) {
     setCart(prev => {

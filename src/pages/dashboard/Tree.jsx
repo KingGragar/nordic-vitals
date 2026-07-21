@@ -6,10 +6,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Tree from 'react-d3-tree'
-import { getTree } from '../../api/mlmApi'
+import { getTree, getNodeByUser } from '../../api/mlmApi'
+import { useAuth } from '../../context/AuthContext'
 import DashboardLayout from '../../components/DashboardLayout'
-
-const ROOT_ID = 'efbb8d0e-b5a5-4a15-bcc6-2f07b980ca64'
 
 const PLAN_TYPES = [
   { value: 'binary',         label: 'Binary' },
@@ -114,6 +113,8 @@ function CustomNode({ nodeDatum, onSelect }) {
 }
 
 export default function TreePage() {
+  const { user } = useAuth()
+  const [rootNodeId, setRootNodeId] = useState(null)
   const [treeData, setTreeData]   = useState(null)
   const [nodeCount, setNodeCount] = useState(0)
   const [loading, setLoading]     = useState(true)
@@ -137,12 +138,26 @@ export default function TreePage() {
     return () => window.removeEventListener('resize', centre)
   }, [centre])
 
+  // Look up this user's root genealogy node
   useEffect(() => {
+    if (!user) return
+    const uid = user.userId || user.memberId
+    getNodeByUser(uid)
+      .then(data => {
+        const id = data.node?.id || data.nodes?.[0]?.id
+        if (id) setRootNodeId(id)
+        else setApiError('No genealogy node found for this account')
+      })
+      .catch(err => setApiError(err.message))
+  }, [user])
+
+  useEffect(() => {
+    if (!rootNodeId) return
     let cancelled = false
     setLoading(true)
     setApiError(null)
     setTreeData(null)
-    getTree(ROOT_ID, { tree: 'placement', depth: 10, plan_type: planType })
+    getTree(rootNodeId, { tree: 'placement', depth: 10, plan_type: planType })
       .then(data => {
         if (cancelled) return
         const built = buildTree(data.nodes || [])
@@ -155,7 +170,7 @@ export default function TreePage() {
       })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [planType])
+  }, [planType, rootNodeId])
 
   return (
     <DashboardLayout>
@@ -172,6 +187,7 @@ export default function TreePage() {
           </h1>
           <p style={{ fontSize: '12px', color: 'var(--text2)' }}>
             Live · GET /v1/mlm/genealogy/tree/:root · {nodeCount} node{nodeCount !== 1 ? 's' : ''} · placement tree · {planType}
+            {rootNodeId && <span style={{ marginLeft: 8, fontFamily: 'monospace', fontSize: '10px', opacity: 0.5 }}>{rootNodeId.slice(0, 8)}…</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

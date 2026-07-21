@@ -4,7 +4,7 @@
  * Until then every call resolves with mock data from src/data/mock.js.
  */
 import {
-  COMMISSIONS, WALLET_TXS, TREE_DATA,
+  USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS,
 } from '../data/mock'
 
@@ -13,18 +13,44 @@ const KEY  = import.meta.env.VITE_MLM_API_KEY  || ''
 
 const MOCK = !BASE
 
+let AUTH_TOKEN = ''
+export function setAuthToken(token) { AUTH_TOKEN = token }
+
 async function request(method, path, body) {
+  const headers = { 'Content-Type': 'application/json', 'x-api-key': KEY }
+  if (AUTH_TOKEN) headers['Authorization'] = `Bearer ${AUTH_TOKEN}`
   const res = await fetch(`${BASE}${path}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': KEY,
-    },
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   })
   const json = await res.json()
   if (!json.ok) throw new Error(json.error || 'API error')
   return json.data
+}
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
+export async function loginUser(email, password) {
+  if (MOCK) {
+    const found = USERS.find(u => u.email === email && u.password === password)
+    if (!found) throw new Error('Invalid email or password')
+    const { password: _pw, ...safe } = found
+    return safe
+  }
+  const data = await request('POST', '/v1/mlm/auth/login', { email, password })
+  if (data.token) setAuthToken(data.token)
+  return {
+    userId:   data.user_id,
+    email:    data.email,
+    name:     data.name,
+    memberId: data.member_id,
+    role:     data.role,
+    rank:     data.rank     || 'Bronze',
+    pv:       data.pv       || 0,
+    leftGV:   data.left_gv  || 0,
+    rightGV:  data.right_gv || 0,
+  }
 }
 
 // ── Genealogy ────────────────────────────────────────────────────────────────
@@ -40,7 +66,7 @@ export async function getNode(id) {
 }
 
 export async function getNodeByUser(userId) {
-  if (MOCK) return { nodes: [] }
+  if (MOCK) return { node: { id: userId, user_id: userId, plan_type: 'binary', active: true } }
   return request('GET', `/v1/mlm/genealogy/node-by-user/${userId}`)
 }
 

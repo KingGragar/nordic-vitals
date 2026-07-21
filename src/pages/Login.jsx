@@ -16,23 +16,17 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-
-    // Small delay for UX
-    await new Promise(r => setTimeout(r, 300))
-
-    const success = login(email, password)
-    setLoading(false)
-
-    if (success) {
-      // Determine role from the USERS array via the returned context
-      // login() sets user in context; we look up the role from email match
+    try {
+      await login(email, password)
+      setLoading(false)
       if (email === 'admin@nordic.no') {
         navigate('/admin')
       } else {
         navigate('/dashboard')
       }
-    } else {
-      setError('Invalid email or password')
+    } catch (err) {
+      setLoading(false)
+      setError(err.message || 'Invalid email or password')
     }
   }
 
