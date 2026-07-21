@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
+import { getVpProducts } from '../api/mlmApi'
 
 const productGradients = {
   1: 'linear-gradient(135deg,#164e63,#1e3a5f)',
@@ -19,10 +20,17 @@ const productEmojis = {
 export default function ProductDetail() {
   const { id } = useParams()
   const { addToCart } = useAuth()
+  const [products, setProducts] = useState(PRODUCTS)
   const [qty, setQty] = useState(1)
   const [toast, setToast] = useState(false)
 
-  const product = PRODUCTS.find(p => p.id === Number(id))
+  useEffect(() => {
+    getVpProducts()
+      .then(d => { if (d?.products?.length) setProducts(d.products) })
+      .catch(() => {})
+  }, [])
+
+  const product = products.find(p => p.id === Number(id))
 
   if (!product) {
     return (

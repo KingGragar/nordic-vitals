@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
+import { getVpProducts } from '../api/mlmApi'
 
 const productGradients = {
   1: 'linear-gradient(135deg,#164e63,#1e3a5f)',
@@ -18,7 +19,14 @@ const productEmojis = {
 
 export default function Shop() {
   const { addToCart } = useAuth()
+  const [products, setProducts] = useState(PRODUCTS)
   const [toast, setToast] = useState(false)
+
+  useEffect(() => {
+    getVpProducts()
+      .then(d => { if (d?.products?.length) setProducts(d.products) })
+      .catch(() => {})
+  }, [])
 
   function handleAddToCart(product) {
     addToCart(product)
@@ -52,7 +60,7 @@ export default function Shop() {
           gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
           gap: '24px',
         }}>
-          {PRODUCTS.map(p => (
+          {products.map(p => (
             <div
               key={p.id}
               className="card"

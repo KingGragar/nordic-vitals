@@ -5,7 +5,7 @@
  */
 import {
   COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -122,6 +122,13 @@ export async function getAdminMembers() {
 export async function getPayoutQueue() {
   if (MOCK) return { queue: PAYOUT_QUEUE }
   return request('GET', '/v1/mlm/admin/payouts/queue')
+}
+
+// ── VP Products (storefront catalog) ─────────────────────────────────────────
+
+export async function getVpProducts() {
+  if (MOCK) return { products: PRODUCTS }
+  return request('GET', '/api/viking-peptides/products')
 }
 
 // ── Orders (member product orders that generate PV) ──────────────────────────

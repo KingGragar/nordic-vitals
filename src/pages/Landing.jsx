@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
+import { getVpProducts } from '../api/mlmApi'
 
 const productGradients = {
   1: 'linear-gradient(135deg, #164e63, #1e3a5f)',
@@ -11,7 +13,15 @@ const productGradients = {
 }
 
 export default function Landing() {
-  const featured = PRODUCTS.slice(0, 3)
+  const [allProducts, setAllProducts] = useState(PRODUCTS)
+
+  useEffect(() => {
+    getVpProducts()
+      .then(d => { if (d?.products?.length) setAllProducts(d.products) })
+      .catch(() => {})
+  }, [])
+
+  const featured = allProducts.slice(0, 3)
 
   return (
     <div style={{ background: 'var(--navy)', color: 'var(--text)' }}>
