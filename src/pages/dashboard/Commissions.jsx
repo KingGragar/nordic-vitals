@@ -15,12 +15,32 @@ const TYPE_BADGE = {
   'Override Bonus':        { cls: 'badge-gold',   label: 'Override' },
 }
 
-const breakdownSegments = [
-  { label: 'Pairing', pct: 45, color: '#3b82f6' },
-  { label: 'Sponsor', pct: 25, color: '#10b981' },
-  { label: 'Level',   pct: 18, color: '#d69e2e' },
-  { label: 'Pool',    pct: 12, color: '#8b5cf6' },
-]
+const BONUS_GROUP = {
+  'Pairing Bonus':        { label: 'Pairing',  color: '#3b82f6' },
+  'Sponsor Bonus':        { label: 'Sponsor',  color: '#10b981' },
+  'Level Commission L1':  { label: 'Level',    color: '#d69e2e' },
+  'Level Commission L2':  { label: 'Level',    color: '#d69e2e' },
+  'Level Commission L3':  { label: 'Level',    color: '#d69e2e' },
+  'Pool Bonus':           { label: 'Pool',     color: '#8b5cf6' },
+  'Override Bonus':       { label: 'Override', color: '#ec4899' },
+}
+
+function computeSummary(commissions) {
+  const totalEarned  = commissions.reduce((s, c) => s + c.amount, 0)
+  const pendingAmount = commissions.filter(c => c.status === 'Pending').reduce((s, c) => s + c.amount, 0)
+  const paidAmount    = commissions.filter(c => c.status === 'Paid').reduce((s, c) => s + c.amount, 0)
+  const groups = {}
+  commissions.forEach(c => {
+    const g = BONUS_GROUP[c.type] || { label: 'Other', color: '#64748b' }
+    groups[g.label] = groups[g.label] || { label: g.label, color: g.color, amount: 0 }
+    groups[g.label].amount += c.amount
+  })
+  const segments = Object.values(groups)
+    .filter(g => g.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .map(g => ({ ...g, pct: totalEarned > 0 ? Math.round((g.amount / totalEarned) * 100) : 0 }))
+  return { totalEarned, pendingAmount, paidAmount, segments }
+}
 
 export default function Commissions() {
   const [activeTab, setActiveTab] = useState('This Month')
@@ -31,6 +51,8 @@ export default function Commissions() {
       .then(d => { if (d?.commissions?.length) setCommissions(d.commissions) })
       .catch(() => {})
   }, [])
+
+  const { totalEarned, pendingAmount, paidAmount, segments } = computeSummary(commissions)
 
   return (
     <DashboardLayout>
@@ -76,17 +98,17 @@ export default function Commissions() {
       }}>
         <div className="stat-card">
           <div className="label">Total Earned</div>
-          <div className="value">4,280 MLMT</div>
+          <div className="value">{totalEarned.toLocaleString()} MLMT</div>
           <div className="sub">All commissions</div>
         </div>
         <div className="stat-card">
           <div className="label">Pending</div>
-          <div className="value" style={{ color: 'var(--yellow)' }}>890 MLMT</div>
+          <div className="value" style={{ color: 'var(--yellow)' }}>{pendingAmount.toLocaleString()} MLMT</div>
           <div className="sub">Processing</div>
         </div>
         <div className="stat-card">
           <div className="label">Paid Out</div>
-          <div className="value" style={{ color: 'var(--green-ok)' }}>3,390 MLMT</div>
+          <div className="value" style={{ color: 'var(--green-ok)' }}>{paidAmount.toLocaleString()} MLMT</div>
           <div className="sub">Received</div>
         </div>
       </div>
@@ -103,7 +125,7 @@ export default function Commissions() {
           overflow: 'hidden',
           marginBottom: '12px',
         }}>
-          {breakdownSegments.map(seg => (
+          {segments.map(seg => (
             <div
               key={seg.label}
               style={{
@@ -123,7 +145,7 @@ export default function Commissions() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-          {breakdownSegments.map(seg => (
+          {segments.map(seg => (
             <div key={seg.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{
                 width: '10px', height: '10px',

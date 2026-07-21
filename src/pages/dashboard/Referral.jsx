@@ -1,17 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import DashboardLayout from '../../components/DashboardLayout'
 import { useAuth } from '../../context/AuthContext'
+import { getDirectDownline } from '../../api/mlmApi'
 
 const SITE_BASE = import.meta.env.VITE_SITE_URL || 'https://nordic-vitals.vercel.app'
-
-const RECRUITS = [
-  { name: 'Mia Andersen', joined: '2025-05-01', pkg: 'Executive', status: 'Active' },
-  { name: 'Erik Solberg',  joined: '2025-06-14', pkg: 'Builder',   status: 'Active' },
-  { name: 'Anna Lund',     joined: '2025-09-18', pkg: 'Starter',   status: 'Active' },
-  { name: 'Olaf Berg',     joined: '2026-03-20', pkg: 'Builder',   status: 'Active' },
-  { name: 'Sigrid Voss',   joined: '2026-02-14', pkg: 'Executive', status: 'Active' },
-]
 
 const STATS = [
   { label: 'Clicks', value: '124' },
@@ -23,9 +16,30 @@ const STATS = [
 export default function Referral() {
   const { user } = useAuth()
   const [toast, setToast] = useState(null)
+  const [recruits, setRecruits] = useState([])
+  const qrRef = useRef(null)
 
   const memberId    = user?.memberId ?? 'NV-10042'
   const referralUrl = `${SITE_BASE}/join?ref=${memberId}`
+
+  useEffect(() => {
+    getDirectDownline(memberId)
+      .then(d => { if (d?.recruits?.length) setRecruits(d.recruits) })
+      .catch(() => {})
+  }, [memberId])
+
+  function handleDownloadQr() {
+    const svgEl = qrRef.current?.querySelector('svg')
+    if (!svgEl) return
+    const serialized = new XMLSerializer().serializeToString(svgEl)
+    const blob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'nordic-vitals-qr.svg'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   function showToast(msg) {
     setToast(msg)
@@ -87,7 +101,7 @@ export default function Referral() {
       {/* QR Code */}
       <div className="card" style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '16px' }}>
         <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--cream)' }}>QR Code</h2>
-        <div style={{
+        <div ref={qrRef} style={{
           background: '#12243a',
           borderRadius: '12px',
           padding: '20px',
@@ -103,14 +117,13 @@ export default function Referral() {
             bgColor="#12243a"
             fgColor="#c9a84c"
           />
-          <a
-            href={`data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"/>`}
-            download="nordic-vitals-qr.svg"
+          <button
+            onClick={handleDownloadQr}
             className="btn btn-outline btn-sm"
             style={{ textAlign: 'center' }}
           >
             Download QR
-          </a>
+          </button>
         </div>
       </div>
 
@@ -136,35 +149,42 @@ export default function Referral() {
         borderRadius: '12px',
         overflow: 'hidden',
       }}>
-        <div style={{ padding: '20px 24px 12px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ padding: '20px 24px 12px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--cream)' }}>Direct Recruits</h2>
+          <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{recruits.length} total</span>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Joined</th>
-              <th>Package</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {RECRUITS.map((r, i) => (
-              <tr key={i}>
-                <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{r.name}</td>
-                <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{r.joined}</td>
-                <td>
-                  <span className={`badge ${r.pkg === 'Executive' ? 'badge-gold' : r.pkg === 'Builder' ? 'badge-blue' : 'badge-grey'}`}>
-                    {r.pkg}
-                  </span>
-                </td>
-                <td>
-                  <span className="badge badge-green">{r.status}</span>
-                </td>
+        {recruits.length === 0 ? (
+          <div style={{ padding: '28px 24px', color: 'var(--text2)', fontSize: '13px', textAlign: 'center' }}>
+            No direct recruits yet — share your link to start building your team.
+          </div>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Joined</th>
+                <th>Rank</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {recruits.map((r, i) => (
+                <tr key={r.id || i}>
+                  <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{r.name}</td>
+                  <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{r.joined}</td>
+                  <td>
+                    <span className={`badge ${r.rank === 'Gold' || r.rank === 'Platinum' ? 'badge-gold' : r.rank === 'Silver' || r.rank === 'Bronze' ? 'badge-blue' : 'badge-grey'}`}>
+                      {r.rank}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`badge ${r.status === 'Active' ? 'badge-green' : 'badge-grey'}`}>{r.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {toast && <div className="toast">{toast}</div>}

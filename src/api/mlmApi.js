@@ -124,6 +124,25 @@ export async function getPayoutQueue() {
   return request('GET', '/v1/mlm/admin/payouts/queue')
 }
 
+// ── Direct Downline (sponsor tree, depth 1) ───────────────────────────────────
+
+export async function getDirectDownline(userId) {
+  if (MOCK) return {
+    recruits: ADMIN_MEMBERS
+      .filter(m => m.sponsor === userId)
+      .map(m => ({ id: m.id, name: m.name, joined: m.joined, rank: m.rank, status: m.status }))
+  }
+  const nodeData = await request('GET', `/v1/mlm/genealogy/node-by-user/${userId}`)
+  const nodeId = nodeData?.node?.id
+  if (!nodeId) return { recruits: [] }
+  const treeData = await request('GET', `/v1/mlm/genealogy/tree/${nodeId}?tree=sponsor&depth=1`)
+  return {
+    recruits: (treeData?.nodes || [])
+      .filter(n => n.depth === 1)
+      .map(n => ({ id: n.user_id, name: n.user_id, joined: n.created_at, rank: n.rank || 'Unranked', status: n.active ? 'Active' : 'Inactive' }))
+  }
+}
+
 // ── VP Products (storefront catalog) ─────────────────────────────────────────
 
 export async function getVpProducts() {
