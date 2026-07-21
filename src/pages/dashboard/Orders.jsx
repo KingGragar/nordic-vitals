@@ -12,10 +12,14 @@ const STATUS_BADGE = {
 export default function Orders() {
   const { user } = useAuth()
   const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState(null)
 
   useEffect(() => {
-    getOrders(user?.memberId).then(d => setOrders(d.orders || [])).catch(() => {})
+    getOrders(user?.memberId)
+      .then(d => setOrders(d.orders || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [user?.memberId])
 
   function showToast(msg) {
@@ -52,7 +56,21 @@ export default function Orders() {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text2)', padding: '40px', fontSize: '14px' }}>
+                  Loading orders…
+                </td>
+              </tr>
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text2)', padding: '40px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>📦</div>
+                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--cream)', marginBottom: '6px' }}>No orders yet</div>
+                  <div style={{ fontSize: '13px' }}>Your Viking Peptides orders will appear here once placed.</div>
+                </td>
+              </tr>
+            ) : orders.map(order => (
               <tr key={order.id}>
                 <td style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '13px' }}>{order.id}</td>
                 <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{order.date}</td>

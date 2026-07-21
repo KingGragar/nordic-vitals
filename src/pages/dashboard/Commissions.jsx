@@ -5,6 +5,27 @@ import DashboardLayout from '../../components/DashboardLayout'
 
 const TABS = ['This Week', 'This Month', 'Last Month', 'All Time']
 
+function filterByTab(commissions, tab) {
+  if (tab === 'All Time') return commissions
+  const now = new Date()
+  if (tab === 'This Week') {
+    const cutoff = new Date(now)
+    cutoff.setDate(cutoff.getDate() - 7)
+    const cutoffStr = cutoff.toISOString().slice(0, 10)
+    return commissions.filter(c => c.date >= cutoffStr)
+  }
+  if (tab === 'This Month') {
+    const ym = now.toISOString().slice(0, 7)
+    return commissions.filter(c => c.date.startsWith(ym))
+  }
+  if (tab === 'Last Month') {
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    return commissions.filter(c => c.date.startsWith(ym))
+  }
+  return commissions
+}
+
 const TYPE_BADGE = {
   'Pairing Bonus':         { cls: 'badge-blue',   label: 'Pairing' },
   'Sponsor Bonus':         { cls: 'badge-green',  label: 'Sponsor' },
@@ -52,7 +73,8 @@ export default function Commissions() {
       .catch(() => {})
   }, [])
 
-  const { totalEarned, pendingAmount, paidAmount, segments } = computeSummary(commissions)
+  const filtered = filterByTab(commissions, activeTab)
+  const { totalEarned, pendingAmount, paidAmount, segments } = computeSummary(filtered)
 
   return (
     <DashboardLayout>
@@ -167,7 +189,9 @@ export default function Commissions() {
         overflow: 'hidden',
       }}>
         <div style={{ padding: '20px 24px 12px', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--cream)' }}>All Commissions</h2>
+          <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--cream)' }}>
+            {activeTab === 'All Time' ? 'All Commissions' : `Commissions — ${activeTab}`}
+          </h2>
         </div>
         <table>
           <thead>
@@ -181,7 +205,13 @@ export default function Commissions() {
             </tr>
           </thead>
           <tbody>
-            {commissions.map(c => {
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text2)', padding: '32px', fontSize: '14px' }}>
+                  No commissions for this period
+                </td>
+              </tr>
+            ) : filtered.map(c => {
               const badge = TYPE_BADGE[c.type] || { cls: 'badge-grey', label: c.type }
               return (
                 <tr key={c.id}>

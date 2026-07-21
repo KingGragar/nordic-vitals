@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
-import { getUserTransactions } from '../../api/mlmApi'
+import { getUserTransactions, getCommissions } from '../../api/mlmApi'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Wallet() {
@@ -9,6 +9,7 @@ export default function Wallet() {
   const [withdrawAmount, setWithdrawAmount] = useState('1150')
   const [toast, setToast] = useState(null)
   const [txs, setTxs] = useState([])
+  const [pendingBalance, setPendingBalance] = useState(0)
 
   useEffect(() => {
     getUserTransactions(user?.memberId || 'NV-10042').then(d => {
@@ -18,6 +19,14 @@ export default function Wallet() {
         setWithdrawAmount(String(loaded[0].balance))
       }
     })
+    getCommissions()
+      .then(d => {
+        const pending = (d?.commissions || [])
+          .filter(c => c.status === 'Pending')
+          .reduce((s, c) => s + (c.amount || 0), 0)
+        setPendingBalance(pending)
+      })
+      .catch(() => {})
   }, [user])
 
   const availableBalance = txs.length > 0 && txs[0].balance !== undefined ? txs[0].balance : 1150
@@ -64,8 +73,8 @@ export default function Wallet() {
         {/* Pending */}
         <div className="stat-card">
           <div className="label">Pending Balance</div>
-          <div className="value" style={{ color: 'var(--yellow)' }}>890 MLMT</div>
-          <div className="sub">Clears Friday</div>
+          <div className="value" style={{ color: 'var(--yellow)' }}>{pendingBalance.toLocaleString()} MLMT</div>
+          <div className="sub">{pendingBalance > 0 ? 'Processing' : 'None pending'}</div>
         </div>
 
         {/* Total Earned */}
