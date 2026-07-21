@@ -1,8 +1,37 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { getCommissions } from '../../api/mlmApi'
+import { getCommissions, getUserTransactions } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
+
+const RANK_ORDER = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum']
+
+const RANK_EMOJI = {
+  Unranked: '⬜',
+  Bronze:   '🥉',
+  Silver:   '🥈',
+  Gold:     '🥇',
+  Platinum: '💎',
+}
+
+const RANK_GOALS = {
+  Bronze:   { min_pv: 100,  min_left_gv: 500,   min_right_gv: 500,   active_recruits: 1 },
+  Silver:   { min_pv: 300,  min_left_gv: 2000,  min_right_gv: 2000,  active_recruits: 3 },
+  Gold:     { min_pv: 500,  min_left_gv: 5000,  min_right_gv: 5000,  active_recruits: 5 },
+  Platinum: { min_pv: 1000, min_left_gv: 15000, min_right_gv: 15000, active_recruits: 10 },
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function currentYearMonth() {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
 
 const activityFeed = [
   { text: 'New member Ingrid H. joined your left leg', time: '2h ago', color: '#3b82f6' },
@@ -15,27 +44,46 @@ const activityFeed = [
 export default function Home() {
   const { user } = useAuth()
   const [commissions, setCommissions] = useState(COMMISSIONS)
+  const [availableBalance, setAvailableBalance] = useState(null)
 
   useEffect(() => {
     getCommissions()
       .then(d => { if (d?.commissions?.length) setCommissions(d.commissions) })
       .catch(() => {})
-  }, [])
+    getUserTransactions(user?.memberId || 'NV-10042')
+      .then(d => {
+        const txs = d?.transactions || []
+        if (txs.length > 0 && txs[0].balance !== undefined) setAvailableBalance(txs[0].balance)
+      })
+      .catch(() => {})
+  }, [user])
 
   const pv      = user?.pv      ?? 320
   const leftGV  = user?.leftGV  ?? 1840
   const rightGV = user?.rightGV ?? 1210
+  const rank    = user?.rank    ?? 'Silver'
+
+  const nextRankIndex = RANK_ORDER.indexOf(rank) + 1
+  const nextRank = nextRankIndex < RANK_ORDER.length ? RANK_ORDER[nextRankIndex] : null
+  const goals = nextRank ? RANK_GOALS[nextRank] : null
+
+  const ym = currentYearMonth()
+  const thisMonthEarnings = commissions
+    .filter(c => c.date && c.date.startsWith(ym))
+    .reduce((s, c) => s + (c.amount || 0), 0)
+
+  const displayBalance = availableBalance ?? 1150
 
   const statCards = [
     {
       label: "This Month's Earnings",
-      value: '2,340 MLMT',
-      sub: '↑ 18% vs last month',
+      value: `${thisMonthEarnings.toLocaleString()} MLMT`,
+      sub: 'Current month · all types',
       subColor: 'var(--green-ok)',
     },
     {
       label: 'Available Balance',
-      value: '1,150 MLMT',
+      value: `${displayBalance.toLocaleString()} MLMT`,
       sub: 'Ready to withdraw',
       subColor: null,
     },
@@ -48,7 +96,7 @@ export default function Home() {
     {
       label: 'Personal Volume',
       value: `${pv.toLocaleString()} PV`,
-      sub: 'Goal: 500 PV',
+      sub: goals ? `Goal: ${goals.min_pv.toLocaleString()} PV` : 'Max rank reached',
       subColor: null,
     },
     {
@@ -65,11 +113,13 @@ export default function Home() {
     },
   ]
 
-  const rankBars = [
-    { label: 'Personal Volume', current: pv,      goal: 500,  unit: 'PV' },
-    { label: 'Active Recruits', current: 3,        goal: 5,    unit: '' },
-    { label: 'Left Leg Volume', current: leftGV,   goal: 3000, unit: '' },
-  ]
+  const rankBars = goals
+    ? [
+        { label: 'Personal Volume', current: pv,      goal: goals.min_pv,       unit: 'PV' },
+        { label: 'Active Recruits', current: 3,        goal: goals.active_recruits, unit: '' },
+        { label: 'Left Leg Volume', current: leftGV,   goal: goals.min_left_gv,  unit: '' },
+      ]
+    : []
 
   const recentCommissions = commissions.slice(0, 8)
 
@@ -77,7 +127,7 @@ export default function Home() {
     <DashboardLayout>
       {/* Page title */}
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '24px' }}>
-        Good morning, {user?.name?.split(' ')[0] ?? 'Lars'} 👋
+        {greeting()}, {user?.name?.split(' ')[0] ?? 'Lars'} 👋
       </h1>
 
       {/* 6 stat cards */}
@@ -138,36 +188,46 @@ export default function Home() {
         <div className="card" style={{ flex: 1 }}>
           <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--cream)', marginBottom: '16px' }}>Rank Progress</h2>
           <div style={{ marginBottom: '4px' }}>
-            <span style={{ fontSize: '22px', fontWeight: 800, color: '#c0c8d8' }}>🥈 SILVER</span>
+            <span style={{ fontSize: '22px', fontWeight: 800, color: '#c0c8d8' }}>
+              {RANK_EMOJI[rank] ?? '★'} {rank.toUpperCase()}
+            </span>
           </div>
-          <div style={{ fontSize: '14px', color: 'var(--gold)', marginBottom: '20px', fontWeight: 600 }}>
-            → GOLD
-          </div>
+          {nextRank ? (
+            <div style={{ fontSize: '14px', color: 'var(--gold)', marginBottom: '20px', fontWeight: 600 }}>
+              → {nextRank.toUpperCase()}
+            </div>
+          ) : (
+            <div style={{ fontSize: '13px', color: 'var(--green-ok)', marginBottom: '20px', fontWeight: 600 }}>
+              ✓ Maximum rank reached
+            </div>
+          )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
-            {rankBars.map((bar) => {
-              const pct = Math.round((bar.current / bar.goal) * 100)
-              return (
-                <div key={bar.label}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{bar.label}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--cream)', fontWeight: 600 }}>
-                      {bar.current.toLocaleString()} / {bar.goal.toLocaleString()}{bar.unit ? ` ${bar.unit}` : ''}
-                    </span>
+          {rankBars.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
+              {rankBars.map((bar) => {
+                const pct = Math.min(100, Math.round((bar.current / bar.goal) * 100))
+                return (
+                  <div key={bar.label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{bar.label}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--cream)', fontWeight: 600 }}>
+                        {bar.current.toLocaleString()} / {bar.goal.toLocaleString()}{bar.unit ? ` ${bar.unit}` : ''}
+                      </span>
+                    </div>
+                    <div className="progress-bar-wrap">
+                      <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <div style={{ textAlign: 'right', fontSize: '11px', color: 'var(--text2)', marginTop: '3px' }}>
+                      {pct}%
+                    </div>
                   </div>
-                  <div className="progress-bar-wrap">
-                    <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
-                  </div>
-                  <div style={{ textAlign: 'right', fontSize: '11px', color: 'var(--text2)', marginTop: '3px' }}>
-                    {pct}%
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
 
           <div style={{ fontSize: '12px', color: 'var(--text2)', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
-            Est. rank-up: ~18 days at current pace 📈
+            {nextRank ? 'Est. rank-up: ~18 days at current pace 📈' : '🏆 Top performer'}
           </div>
         </div>
       </div>
