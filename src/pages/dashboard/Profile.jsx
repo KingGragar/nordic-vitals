@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
 import { useAuth } from '../../context/AuthContext'
+import { updateProfile, updatePassword } from '../../api/mlmApi'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -18,25 +19,50 @@ export default function Profile() {
     confirm: '',
   })
 
-  const [toast, setToast] = useState(null)
+  const [toast, setToast]   = useState(null)
+  const [saving, setSaving] = useState(false)
 
   function showToast(msg, isError = false) {
     setToast({ msg, isError })
     setTimeout(() => setToast(null), 3000)
   }
 
-  function handleSavePersonal(e) {
+  async function handleSavePersonal(e) {
     e.preventDefault()
-    showToast('Profile updated successfully ✓')
+    setSaving(true)
+    try {
+      await updateProfile(user?.memberId ?? 'NV-10042', {
+        name:    personalInfo.name,
+        email:   personalInfo.email,
+        phone:   personalInfo.phone,
+        country: personalInfo.country,
+      })
+      showToast('Profile updated successfully ✓')
+    } catch {
+      showToast('Failed to update profile', true)
+    } finally {
+      setSaving(false)
+    }
   }
 
-  function handleUpdatePassword(e) {
+  async function handleUpdatePassword(e) {
     e.preventDefault()
     if (!passwords.current) return showToast('Please enter your current password', true)
     if (passwords.next.length < 6) return showToast('New password must be at least 6 characters', true)
     if (passwords.next !== passwords.confirm) return showToast('Passwords do not match', true)
-    setPasswords({ current: '', next: '', confirm: '' })
-    showToast('Password updated successfully ✓')
+    setSaving(true)
+    try {
+      await updatePassword(user?.memberId ?? 'NV-10042', {
+        current_password: passwords.current,
+        new_password: passwords.next,
+      })
+      setPasswords({ current: '', next: '', confirm: '' })
+      showToast('Password updated successfully ✓')
+    } catch {
+      showToast('Failed to update password', true)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -98,8 +124,8 @@ export default function Profile() {
                 style={{ opacity: 0.6, cursor: 'not-allowed', marginBottom: '20px' }}
               />
             </div>
-            <button type="submit" className="btn btn-gold">
-              Save Changes
+            <button type="submit" className="btn btn-gold" disabled={saving}>
+              {saving ? 'Saving…' : 'Save Changes'}
             </button>
           </form>
         </div>
@@ -195,8 +221,8 @@ export default function Profile() {
                 />
               </div>
             </div>
-            <button type="submit" className="btn btn-outline">
-              Update Password
+            <button type="submit" className="btn btn-outline" disabled={saving}>
+              {saving ? 'Saving…' : 'Update Password'}
             </button>
           </form>
         </div>

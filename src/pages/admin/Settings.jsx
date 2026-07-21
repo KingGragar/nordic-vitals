@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
+import { getAdminSettings, saveAdminSettings } from '../../api/mlmApi'
 
 function Toast({ message, onClose }) {
   return (
@@ -86,7 +87,26 @@ export default function Settings() {
   const [showResetConfirm, setShowResetConfirm]   = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const [toast, setToast] = useState(null)
+  const [toast, setToast]     = useState(null)
+  const [saving, setSaving]   = useState(false)
+
+  useEffect(() => {
+    getAdminSettings().then(s => {
+      if (!s) return
+      setCompanyName(s.company_name)
+      setCurrency(s.currency)
+      setTimezone(s.timezone)
+      setLanguage(s.language)
+      if (s.notifications) {
+        setNotifs({
+          newMember:     s.notifications.new_member,
+          rankChange:    s.notifications.rank_change,
+          commissionRun: s.notifications.commission_run,
+          smsWithdrawal: s.notifications.sms_withdrawal,
+        })
+      }
+    }).catch(() => {})
+  }, [])
 
   function showToast(msg) {
     setToast(msg)
@@ -97,12 +117,50 @@ export default function Settings() {
     setNotifs(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  function saveGeneral() {
-    showToast('General settings saved ✓')
+  async function saveGeneral() {
+    setSaving(true)
+    try {
+      await saveAdminSettings({
+        company_name: companyName,
+        currency,
+        timezone,
+        language,
+        notifications: {
+          new_member:     notifs.newMember,
+          rank_change:    notifs.rankChange,
+          commission_run: notifs.commissionRun,
+          sms_withdrawal: notifs.smsWithdrawal,
+        },
+      })
+      showToast('General settings saved ✓')
+    } catch {
+      showToast('Failed to save settings')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  function saveNotifications() {
-    showToast('Notification preferences saved ✓')
+  async function saveNotifications() {
+    setSaving(true)
+    try {
+      await saveAdminSettings({
+        company_name: companyName,
+        currency,
+        timezone,
+        language,
+        notifications: {
+          new_member:     notifs.newMember,
+          rank_change:    notifs.rankChange,
+          commission_run: notifs.commissionRun,
+          sms_withdrawal: notifs.smsWithdrawal,
+        },
+      })
+      showToast('Notification preferences saved ✓')
+    } catch {
+      showToast('Failed to save preferences')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function handleReset() {
@@ -181,8 +239,8 @@ export default function Settings() {
         )}
 
         <div style={{ marginTop: '4px' }}>
-          <button className="btn btn-gold btn-sm" onClick={saveGeneral}>
-            Save
+          <button className="btn btn-gold btn-sm" onClick={saveGeneral} disabled={saving}>
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>
@@ -215,8 +273,8 @@ export default function Settings() {
         />
 
         <div style={{ marginTop: '8px' }}>
-          <button className="btn btn-gold btn-sm" onClick={saveNotifications}>
-            Save Preferences
+          <button className="btn btn-gold btn-sm" onClick={saveNotifications} disabled={saving}>
+            {saving ? 'Saving…' : 'Save Preferences'}
           </button>
         </div>
       </div>

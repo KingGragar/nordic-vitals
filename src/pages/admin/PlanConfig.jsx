@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
+import { getPlanConfig, savePlanConfig } from '../../api/mlmApi'
 
 const RANK_COLORS = {
   Unranked: '#9ca3af',
@@ -93,6 +94,28 @@ export default function PlanConfig() {
   const [xFactorDraft, setXFactorDraft]     = useState('35')
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
   const [toast, setToast]           = useState(null)
+  const [saving, setSaving]         = useState(false)
+
+  useEffect(() => {
+    getPlanConfig().then(cfg => {
+      if (!cfg) return
+      if (cfg.ranks) {
+        setRanks(cfg.ranks.map(r => ({
+          rank:         r.rank,
+          minPV:        r.min_pv,
+          minLeftGV:    r.min_left_gv,
+          minRightGV:   r.min_right_gv,
+          pairingCap:   r.pairing_cap,
+          sponsorBonus: r.sponsor_bonus,
+          xFactorCap:   r.x_factor_cap,
+        })))
+      }
+      if (cfg.levels) setLevels(cfg.levels.map(l => ({ level: l.level, rate: l.rate })))
+      if (cfg.x_factor_cap != null) { setXFactorCap(cfg.x_factor_cap); setXFactorDraft(String(cfg.x_factor_cap)) }
+      if (cfg.cycle_period) setCyclePeriod(cfg.cycle_period)
+      if (cfg.payout_day)   setPayoutDay(cfg.payout_day)
+    }).catch(() => {})
+  }, [])
 
   function showToast(msg) {
     setToast(msg)
@@ -113,13 +136,47 @@ export default function PlanConfig() {
     setEditingXFactor(false)
   }
 
-  function handleSaveAll() {
-    setShowSaveConfirm(false)
-    showToast('Plan configuration saved ✓')
+  function buildPayload() {
+    return {
+      ranks: ranks.map(r => ({
+        rank:         r.rank,
+        min_pv:       r.minPV,
+        min_left_gv:  r.minLeftGV,
+        min_right_gv: r.minRightGV,
+        pairing_cap:  r.pairingCap,
+        sponsor_bonus: r.sponsorBonus,
+        x_factor_cap: r.xFactorCap,
+      })),
+      levels: levels.map(l => ({ level: l.level, rate: l.rate })),
+      x_factor_cap: xFactorCap,
+      cycle_period: cyclePeriod,
+      payout_day: payoutDay,
+    }
   }
 
-  function saveSettings() {
-    showToast('Global settings saved ✓')
+  async function handleSaveAll() {
+    setShowSaveConfirm(false)
+    setSaving(true)
+    try {
+      await savePlanConfig(buildPayload())
+      showToast('Plan configuration saved ✓')
+    } catch {
+      showToast('Failed to save plan configuration')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function saveSettings() {
+    setSaving(true)
+    try {
+      await savePlanConfig(buildPayload())
+      showToast('Global settings saved ✓')
+    } catch {
+      showToast('Failed to save settings')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -170,8 +227,8 @@ export default function PlanConfig() {
           </tbody>
         </table>
         <div style={{ padding: '16px 20px' }}>
-          <button className="btn btn-gold btn-sm" onClick={() => setShowSaveConfirm(true)}>
-            Save All Changes
+          <button className="btn btn-gold btn-sm" onClick={() => setShowSaveConfirm(true)} disabled={saving}>
+            {saving ? 'Saving…' : 'Save All Changes'}
           </button>
         </div>
       </div>
@@ -274,8 +331,8 @@ export default function PlanConfig() {
           </div>
         </div>
 
-        <button className="btn btn-gold btn-sm" onClick={saveSettings}>
-          Save Settings
+        <button className="btn btn-gold btn-sm" onClick={saveSettings} disabled={saving}>
+          {saving ? 'Saving…' : 'Save Settings'}
         </button>
       </div>
 
