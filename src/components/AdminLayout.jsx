@@ -1,4 +1,5 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const navLinks = [
@@ -10,9 +11,27 @@ const navLinks = [
   { to: '/admin/settings', label: '🔧 Settings' },
 ]
 
+const SIDEBAR_W = 220
+const MOBILE_BP = 768
+const BANNER_H = 33
+
 export default function AdminLayout({ children }) {
   const { logout } = useAuth()
   const navigate = useNavigate()
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BP)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BP - 1}px)`)
+    const handler = e => {
+      setIsMobile(e.matches)
+      if (!e.matches) setOpen(false)
+    }
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  const close = useCallback(() => setOpen(false), [])
 
   function handleLogout() {
     logout()
@@ -33,33 +52,65 @@ export default function AdminLayout({ children }) {
         zIndex: 200,
         position: 'sticky',
         top: 0,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
       }}>
+        {isMobile && (
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              background: 'none', border: 'none', color: '#e9d5ff',
+              fontSize: '18px', lineHeight: 1, cursor: 'pointer', padding: '2px',
+            }}
+            aria-label="Open menu"
+          >
+            ☰
+          </button>
+        )}
         ⚙ ADMIN PANEL — Nordic Vitals
       </div>
 
       {/* Below banner: sidebar + main */}
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
         {/* Sidebar */}
         <aside style={{
-          width: '220px',
+          width: `${SIDEBAR_W}px`,
           flexShrink: 0,
           background: 'var(--navy2)',
           borderRight: '1px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
-          position: 'sticky',
-          top: '33px',
-          height: 'calc(100vh - 33px)',
+          position: isMobile ? 'fixed' : 'sticky',
+          top: isMobile ? 0 : `${BANNER_H}px`,
+          left: isMobile ? (open ? 0 : `-${SIDEBAR_W}px`) : 0,
+          height: isMobile ? '100vh' : `calc(100vh - ${BANNER_H}px)`,
           overflowY: 'auto',
+          zIndex: isMobile ? 300 : 100,
+          transition: isMobile ? 'left 0.25s ease' : 'none',
         }}>
-          {/* Branding */}
-          <div style={{ padding: '20px 20px 14px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--cream)', marginBottom: '2px' }}>
-              Nordic Vitals
+          {/* Branding + close btn on mobile */}
+          <div style={{ padding: '20px 20px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--cream)', marginBottom: '2px' }}>
+                Nordic Vitals
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text2)', letterSpacing: '0.5px' }}>
+                Admin Portal
+              </div>
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text2)', letterSpacing: '0.5px' }}>
-              Admin Portal
-            </div>
+            {isMobile && (
+              <button
+                onClick={close}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--text2)',
+                  fontSize: '20px', lineHeight: 1, cursor: 'pointer', padding: '4px',
+                }}
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           {/* Nav links */}
@@ -69,6 +120,7 @@ export default function AdminLayout({ children }) {
                 key={to}
                 to={to}
                 end={end}
+                onClick={isMobile ? close : undefined}
                 style={({ isActive }) => ({
                   display: 'block',
                   padding: '10px 14px',
@@ -119,12 +171,23 @@ export default function AdminLayout({ children }) {
           </div>
         </aside>
 
+        {/* Overlay on mobile when sidebar open */}
+        {isMobile && open && (
+          <div
+            onClick={close}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 200,
+              background: 'rgba(0,0,0,0.55)',
+            }}
+          />
+        )}
+
         {/* Main content */}
         <main style={{
           flex: 1,
-          padding: '32px',
+          padding: isMobile ? '20px 16px' : '32px',
           overflowY: 'auto',
-          minHeight: 'calc(100vh - 33px)',
+          minHeight: `calc(100vh - ${BANNER_H}px)`,
         }}>
           {children}
         </main>
