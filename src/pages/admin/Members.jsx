@@ -3,6 +3,8 @@ import AdminLayout from '../../components/AdminLayout'
 import { ADMIN_MEMBERS } from '../../data/mock'
 import { getAdminMembers } from '../../api/mlmApi'
 
+const PAGE_SIZE = 20
+
 const RANK_COLORS = {
   Unranked: '#9ca3af',
   Bronze:   '#cd7f32',
@@ -38,7 +40,6 @@ function MemberModal({ member, onClose, onToast }) {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="card" style={{ width: '100%', maxWidth: '520px', position: 'relative' }}>
-        {/* Close button */}
         <button
           onClick={onClose}
           style={{
@@ -101,13 +102,41 @@ function MemberModal({ member, onClose, onToast }) {
   )
 }
 
+function exportCsv(members) {
+  const headers = ['Name', 'ID', 'Sponsor', 'Rank', 'PV', 'GV', 'Status', 'Joined']
+  const rows = members.map(m => [
+    m.name, m.id, m.sponsor, m.rank, m.pv, m.gv, m.status, m.joined,
+  ])
+  const csv = [headers, ...rows]
+    .map(row => row.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = `nordic-vitals-members-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+const RANK_ORDER = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum']
+
+function cmpRank(a, b) {
+  return RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank)
+}
+
 export default function Members() {
-  const [members, setMembers] = useState(ADMIN_MEMBERS)
-  const [search, setSearch]   = useState('')
+  const [members, setMembers]       = useState(ADMIN_MEMBERS)
+  const [search, setSearch]         = useState('')
   const [rankFilter, setRankFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
   const [viewMember, setViewMember] = useState(null)
-  const [toast, setToast] = useState(null)
+  const [toast, setToast]           = useState(null)
+  const [page, setPage]             = useState(1)
+  const [sortCol, setSortCol]       = useState('name')
+  const [sortDir, setSortDir]       = useState('asc')
 
   useEffect(() => {
     getAdminMembers()
@@ -130,8 +159,24 @@ export default function Members() {
     )
   }
 
+  function handleSort(col) {
+    if (col === sortCol) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
+    setPage(1)
+  }
+
+  function sortIndicator(col) {
+    if (col !== sortCol) return <span style={{ color: 'var(--border)', marginLeft: '4px' }}>↕</span>
+    return <span style={{ color: 'var(--gold)', marginLeft: '4px' }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
+  }
+
   const filtered = useMemo(() => {
-    return members.filter(m => {
+    setPage(1)
+    const base = members.filter(m => {
       const q = search.toLowerCase()
       const matchSearch = !q ||
         m.name.toLowerCase().includes(q) ||
@@ -141,15 +186,36 @@ export default function Members() {
       const matchStatus = statusFilter === 'All' || m.status === statusFilter
       return matchSearch && matchRank && matchStatus
     })
-  }, [members, search, rankFilter, statusFilter])
+    const dir = sortDir === 'asc' ? 1 : -1
+    return [...base].sort((a, b) => {
+      if (sortCol === 'rank')   return dir * cmpRank(a, b)
+      if (sortCol === 'pv')     return dir * (a.pv - b.pv)
+      if (sortCol === 'gv')     return dir * (a.gv - b.gv)
+      if (sortCol === 'joined') return dir * a.joined.localeCompare(b.joined)
+      if (sortCol === 'status') return dir * a.status.localeCompare(b.status)
+      return dir * String(a[sortCol] ?? '').localeCompare(String(b[sortCol] ?? ''))
+    })
+  }, [members, search, rankFilter, statusFilter, sortCol, sortDir])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <AdminLayout>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--cream)' }}>
           Member Management
         </h1>
         <span className="badge badge-blue">{filtered.length} members</span>
+        <button
+          className="btn btn-outline btn-sm"
+          style={{ marginLeft: 'auto' }}
+          onClick={() => { exportCsv(filtered); showToast(`Exported ${filtered.length} members to CSV`) }}
+          title="Download filtered members as CSV"
+        >
+          ↓ Export CSV
+        </button>
       </div>
 
       {/* Filters row */}
@@ -197,26 +263,36 @@ export default function Members() {
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>ID</th>
-              <th>Sponsor</th>
-              <th>Rank</th>
-              <th>PV</th>
-              <th>GV</th>
-              <th>Status</th>
-              <th>Joined</th>
+              {[
+                ['name',   'Name'],
+                ['id',     'ID'],
+                ['sponsor','Sponsor'],
+                ['rank',   'Rank'],
+                ['pv',     'PV'],
+                ['gv',     'GV'],
+                ['status', 'Status'],
+                ['joined', 'Joined'],
+              ].map(([col, label]) => (
+                <th
+                  key={col}
+                  onClick={() => handleSort(col)}
+                  style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+                >
+                  {label}{sortIndicator(col)}
+                </th>
+              ))}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
+            {paginated.length === 0 && (
               <tr>
                 <td colSpan={9} style={{ textAlign: 'center', color: 'var(--text2)', padding: '32px' }}>
                   No members match the current filters.
                 </td>
               </tr>
             )}
-            {filtered.map(m => (
+            {paginated.map(m => (
               <tr key={m.id}>
                 <td style={{ fontWeight: 600, color: 'var(--cream)' }}>{m.name}</td>
                 <td style={{ color: 'var(--text2)', fontFamily: 'monospace', fontSize: '13px' }}>{m.id}</td>
@@ -255,6 +331,71 @@ export default function Members() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginTop: '16px', flexWrap: 'wrap', gap: '10px',
+        }}>
+          <span style={{ fontSize: '13px', color: 'var(--text2)' }}>
+            Page {page} of {totalPages} · {filtered.length} total
+          </span>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <button
+              className="btn btn-outline btn-sm"
+              disabled={page === 1}
+              onClick={() => setPage(1)}
+              style={{ opacity: page === 1 ? 0.4 : 1, cursor: page === 1 ? 'default' : 'pointer' }}
+            >
+              «
+            </button>
+            <button
+              className="btn btn-outline btn-sm"
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              style={{ opacity: page === 1 ? 0.4 : 1, cursor: page === 1 ? 'default' : 'pointer' }}
+            >
+              ‹ Prev
+            </button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const start = Math.max(1, Math.min(page - 2, totalPages - 4))
+              const p = start + i
+              return p <= totalPages ? (
+                <button
+                  key={p}
+                  className="btn btn-sm"
+                  onClick={() => setPage(p)}
+                  style={{
+                    background: p === page ? 'var(--navy3)' : 'transparent',
+                    border: `1px solid ${p === page ? 'var(--gold)' : 'var(--border)'}`,
+                    color: p === page ? 'var(--gold)' : 'var(--text2)',
+                    minWidth: '34px',
+                  }}
+                >
+                  {p}
+                </button>
+              ) : null
+            })}
+            <button
+              className="btn btn-outline btn-sm"
+              disabled={page === totalPages}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              style={{ opacity: page === totalPages ? 0.4 : 1, cursor: page === totalPages ? 'default' : 'pointer' }}
+            >
+              Next ›
+            </button>
+            <button
+              className="btn btn-outline btn-sm"
+              disabled={page === totalPages}
+              onClick={() => setPage(totalPages)}
+              style={{ opacity: page === totalPages ? 0.4 : 1, cursor: page === totalPages ? 'default' : 'pointer' }}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Member detail modal */}
       <MemberModal
