@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { getVpProducts } from '../api/mlmApi'
+import Navbar from '../components/Navbar'
 
 const productGradients = {
   1: 'linear-gradient(135deg, #164e63, #1e3a5f)',
@@ -24,6 +25,8 @@ export default function Landing() {
   const featured = allProducts.slice(0, 3)
 
   return (
+    <>
+    <Navbar />
     <div style={{ background: 'var(--navy)', color: 'var(--text)' }}>
 
       {/* ── HERO ── */}
@@ -367,5 +370,6 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

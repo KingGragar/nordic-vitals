@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
 import { getVpProducts } from '../api/mlmApi'
+import Navbar from '../components/Navbar'
 
 const productGradients = {
   1: 'linear-gradient(135deg,#164e63,#1e3a5f)',
@@ -35,6 +36,8 @@ export default function Shop() {
   }
 
   return (
+    <>
+    <Navbar />
     <div style={{ background: 'var(--navy)', minHeight: '100vh', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
@@ -171,5 +174,6 @@ export default function Shop() {
         </div>
       )}
     </div>
+    </>
   )
 }
