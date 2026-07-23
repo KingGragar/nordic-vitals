@@ -9,6 +9,23 @@ import {
 const RANK_ORDER  = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Unranked']
 const RANK_COLORS = { Platinum: '#ffffff', Gold: '#c9a84c', Silver: '#aaaaaa', Bronze: '#cd7f32', Unranked: '#9ca3af' }
 
+const PERIOD_OPTIONS = [
+  { value: '4',  label: 'Last 4 weeks' },
+  { value: '8',  label: 'Last 8 weeks' },
+  { value: '12', label: 'Last 12 weeks' },
+  { value: '26', label: 'Last 6 months' },
+]
+
+function downloadCSV(filename, rows, headers) {
+  const escape = v => (v === null || v === undefined) ? '' : String(v).replace(/"/g, '""')
+  const lines = [headers.join(','), ...rows.map(r => r.map(c => `"${escape(c)}"`).join(','))]
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename; a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function Reports() {
   const [tokenSummary,  setTokenSummary]  = useState(null)
   const [members,       setMembers]       = useState(null)
@@ -16,17 +33,23 @@ export default function Reports() {
   const [weeklyData,    setWeeklyData]    = useState(null)
   const [weeklyLoaded,  setWeeklyLoaded]  = useState(false)
   const [networkVol,    setNetworkVol]    = useState(null)
+  const [weeksBack,     setWeeksBack]     = useState('8')
 
   useEffect(() => {
     getAdminSummary().then(d => setTokenSummary(d)).catch(() => {})
     getAdminMembers().then(d => setMembers(d.members || [])).catch(() => {})
-    getAdminTopEarners({ limit: 5 }).then(d => setTopEarners(d.earners || [])).catch(() => {})
-    getAdminWeeklySignups({ weeks: 8 })
+    getAdminTopEarners({ limit: 10 }).then(d => setTopEarners(d.earners || [])).catch(() => {})
+    getAdminNetworkVolume().then(d => setNetworkVol(d)).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    setWeeklyLoaded(false)
+    setWeeklyData(null)
+    getAdminWeeklySignups({ weeks: parseInt(weeksBack, 10) })
       .then(d => setWeeklyData(d.weeks || []))
       .catch(() => {})
       .finally(() => setWeeklyLoaded(true))
-    getAdminNetworkVolume().then(d => setNetworkVol(d)).catch(() => {})
-  }, [])
+  }, [weeksBack])
 
   const totalMembers  = members !== null ? members.length : 847
   const activeMembers = members !== null ? members.filter(m => m.status === 'Active').length : 312
@@ -52,11 +75,40 @@ export default function Reports() {
 
   const chartData = weeklyData || []
 
+  function handleExportRankDist() {
+    const rows = (rankDist || []).map(r => [r.rank, r.members, r.pct, r.avgGV])
+    downloadCSV(`rank-distribution-${new Date().toISOString().slice(0,10)}.csv`,
+      rows, ['Rank', 'Members', '% of Active', 'Avg GV'])
+  }
+
+  function handleExportTopEarners() {
+    const earners = topEarners || []
+    const rows = earners.map((e, i) => [i + 1, e.name, e.user_id, e.total_commissions])
+    downloadCSV(`top-earners-${new Date().toISOString().slice(0,10)}.csv`,
+      rows, ['#', 'Member', 'ID', 'Commissions (MLMT)'])
+  }
+
+  function handleExportWeeklySignups() {
+    if (!chartData.length) return
+    const rows = chartData.map(w => [w.week, w.count])
+    downloadCSV(`weekly-signups-${new Date().toISOString().slice(0,10)}.csv`,
+      rows, ['Week', 'New Members'])
+  }
+
+  const btnStyle = {
+    padding: '5px 12px', fontSize: '12px', fontWeight: 600,
+    borderRadius: '6px', border: '1px solid var(--border)',
+    background: 'var(--navy3)', color: 'var(--text2)',
+    cursor: 'pointer',
+  }
+
   return (
     <AdminLayout>
-      <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--cream)', marginBottom: '24px' }}>
-        Reports
-      </h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--cream)', margin: 0 }}>
+          Reports
+        </h1>
+      </div>
 
       {/* MLMT Token summary */}
       {tokenSummary && (
@@ -89,7 +141,7 @@ export default function Reports() {
         <div className="stat-card">
           <div className="label">Active MTD</div>
           <div className="value">{activeMembers.toLocaleString()}</div>
-          <div className="sub">July 2026</div>
+          <div className="sub">This month</div>
         </div>
         <div className="stat-card">
           <div className="label">Network Volume</div>
@@ -108,9 +160,29 @@ export default function Reports() {
         background: 'var(--navy2)', borderRadius: '12px',
         padding: '20px', marginBottom: '28px', border: '1px solid var(--border)',
       }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', marginBottom: '20px' }}>
-          New Members per Week (last 8 weeks)
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', margin: 0 }}>
+            New Members per Week
+          </h2>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <select
+              value={weeksBack}
+              onChange={e => setWeeksBack(e.target.value)}
+              style={{
+                padding: '4px 8px', fontSize: '12px', borderRadius: '6px',
+                border: '1px solid var(--border)', background: 'var(--navy3)',
+                color: 'var(--text)', cursor: 'pointer',
+              }}
+            >
+              {PERIOD_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <button style={btnStyle} onClick={handleExportWeeklySignups} disabled={!chartData.length}>
+              Export CSV
+            </button>
+          </div>
+        </div>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
@@ -135,13 +207,16 @@ export default function Reports() {
       {/* Two-column: rank dist + top earners */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
 
-        {/* Rank distribution — derived from live members */}
+        {/* Rank distribution */}
         <div className="card" style={{ padding: 0 }}>
-          <div style={{ padding: '20px 20px 0', marginBottom: '4px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 20px 0', marginBottom: '4px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', margin: 0 }}>
               Rank Distribution
               {members !== null && <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 400, marginLeft: '8px' }}>live</span>}
             </h2>
+            <button style={btnStyle} onClick={handleExportRankDist} disabled={!rankDist}>
+              Export CSV
+            </button>
           </div>
           <table>
             <thead>
@@ -173,11 +248,14 @@ export default function Reports() {
 
         {/* Top earners */}
         <div className="card" style={{ padding: 0 }}>
-          <div style={{ padding: '20px 20px 0', marginBottom: '4px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 20px 0', marginBottom: '4px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', margin: 0 }}>
               Top Earners — July 2026
               {topEarners !== null && <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 400, marginLeft: '8px' }}>live</span>}
             </h2>
+            <button style={btnStyle} onClick={handleExportTopEarners} disabled={!topEarners}>
+              Export CSV
+            </button>
           </div>
           <table>
             <thead>
