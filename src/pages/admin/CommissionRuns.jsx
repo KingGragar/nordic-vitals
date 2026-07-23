@@ -3,6 +3,8 @@ import AdminLayout from '../../components/AdminLayout'
 import { getCommissionRuns, triggerCommissionRun } from '../../api/mlmApi'
 import { COMMISSION_RUNS as MOCK_RUNS } from '../../data/mock'
 
+const PAGE_SIZE = 20
+
 function Toast({ message, onClose }) {
   return (
     <div className="toast" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -67,6 +69,26 @@ function BreakdownModal({ run, onClose }) {
   )
 }
 
+function exportCSV(rows) {
+  const headers = ['Run #', 'Date (UTC)', 'Type', 'Members Processed', 'Total Payout (MLMT)', 'Status']
+  const csvRows = rows.map(r => [
+    r.id,
+    r.started_at ? new Date(r.started_at).toISOString().replace('T', ' ').slice(0, 16) + ' UTC' : '',
+    r.type,
+    r.members_processed ?? '',
+    r.total_paid ?? '',
+    r.status,
+  ])
+  const csv = [headers, ...csvRows].map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `commission-runs-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function CommissionRuns() {
   const [runs, setRuns] = useState(MOCK_RUNS)
 
@@ -84,6 +106,10 @@ export default function CommissionRuns() {
   const [selectedRun, setSelectedRun] = useState(null)
 
   const [toast, setToast] = useState(null)
+
+  const [filterType,   setFilterType]   = useState('All')
+  const [filterStatus, setFilterStatus] = useState('All')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     getCommissionRuns()
@@ -145,6 +171,23 @@ export default function CommissionRuns() {
   const latestDate = latest?.started_at
     ? new Date(latest.started_at).toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
     : '—'
+
+  const filtered = runs.filter(r => {
+    if (filterType !== 'All' && r.type !== filterType) return false
+    if (filterStatus !== 'All' && r.status !== filterStatus) return false
+    return true
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
+  function onFilterChange(setter) {
+    return e => { setter(e.target.value); setPage(1) }
+  }
+
+  const typeOptions   = ['All', ...Array.from(new Set(runs.map(r => r.type).filter(Boolean)))]
+  const statusOptions = ['All', ...Array.from(new Set(runs.map(r => r.status).filter(Boolean)))]
 
   return (
     <AdminLayout>
@@ -224,9 +267,42 @@ export default function CommissionRuns() {
 
       {/* Run history table */}
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
-        <div style={{ padding: '20px 20px 0', marginBottom: '12px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)' }}>Run History</h2>
+        {/* Toolbar */}
+        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', marginRight: 'auto' }}>
+            Run History
+            <span style={{ marginLeft: '8px', fontSize: '13px', fontWeight: 400, color: 'var(--text2)' }}>
+              {filtered.length} run{filtered.length !== 1 ? 's' : ''}
+            </span>
+          </h2>
+
+          <select
+            className="input"
+            style={{ width: '130px', fontSize: '13px', padding: '6px 10px' }}
+            value={filterType}
+            onChange={onFilterChange(setFilterType)}
+          >
+            {typeOptions.map(t => <option key={t} value={t}>{t === 'All' ? 'All Types' : t}</option>)}
+          </select>
+
+          <select
+            className="input"
+            style={{ width: '140px', fontSize: '13px', padding: '6px 10px' }}
+            value={filterStatus}
+            onChange={onFilterChange(setFilterStatus)}
+          >
+            {statusOptions.map(s => <option key={s} value={s}>{s === 'All' ? 'All Statuses' : s}</option>)}
+          </select>
+
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => exportCSV(filtered)}
+            title="Export filtered runs as CSV"
+          >
+            ↓ Export CSV
+          </button>
         </div>
+
         <table>
           <thead>
             <tr>
@@ -240,7 +316,13 @@ export default function CommissionRuns() {
             </tr>
           </thead>
           <tbody>
-            {runs.map(row => (
+            {pageRows.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', color: 'var(--text2)', padding: '32px', fontSize: '14px' }}>
+                  No runs match the selected filters.
+                </td>
+              </tr>
+            ) : pageRows.map(row => (
               <tr key={row.id}>
                 <td style={{ color: 'var(--text2)', fontFamily: 'monospace', fontSize: '13px' }}>{row.id}</td>
                 <td style={{ color: 'var(--text)', fontSize: '13px' }}>
@@ -270,6 +352,51 @@ export default function CommissionRuns() {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', fontSize: '13px', color: 'var(--text2)' }}>
+            <span>
+              Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={safePage === 1}
+              >
+                ‹ Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                .reduce((acc, p, i, arr) => {
+                  if (i > 0 && arr[i - 1] !== p - 1) acc.push('…')
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((p, i) =>
+                  p === '…'
+                    ? <span key={`ellipsis-${i}`} style={{ padding: '0 4px' }}>…</span>
+                    : <button
+                        key={p}
+                        className={`btn btn-sm ${p === safePage ? 'btn-gold' : 'btn-outline'}`}
+                        onClick={() => setPage(p)}
+                        style={{ minWidth: '32px' }}
+                      >
+                        {p}
+                      </button>
+                )
+              }
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={safePage === totalPages}
+              >
+                Next ›
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Confirm modal */}
