@@ -7,7 +7,6 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [toastVisible, setToastVisible] = useState(false)
 
   function handleLogout() {
     logout()
@@ -16,8 +15,7 @@ export default function Navbar() {
 
   function handleCheckout() {
     setDrawerOpen(false)
-    setToastVisible(true)
-    setTimeout(() => setToastVisible(false), 3000)
+    navigate('/checkout')
   }
 
   return (
@@ -344,13 +342,6 @@ export default function Navbar() {
           </div>
         )}
       </div>
-
-      {/* Checkout toast */}
-      {toastVisible && (
-        <div className="toast">
-          Order placed! 🎉
-        </div>
-      )}
 
       {/* Responsive styles injected */}
       <style>{`

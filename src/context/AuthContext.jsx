@@ -28,6 +28,7 @@ export function AuthProvider({ children }) {
     const userData = await loginUser(email, password)
     setUser(userData)
     try { localStorage.setItem(AUTH_KEY, JSON.stringify({ user: userData, token: userData.token || '' })) } catch {}
+    return userData
   }
 
   function logout() {

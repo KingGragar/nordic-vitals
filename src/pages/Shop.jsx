@@ -125,17 +125,16 @@ export default function Shop() {
                     fontSize: '22px',
                     fontWeight: '700',
                     display: 'block',
-                    marginBottom: '4px',
+                    marginBottom: '2px',
                   }}>
                     NOK {p.price}
                   </span>
                   <span style={{
                     color: 'var(--gold)',
-                    fontSize: '13px',
-                    textDecoration: 'line-through',
-                    opacity: 0.8,
+                    fontSize: '12px',
+                    fontWeight: '600',
                   }}>
-                    Member: NOK {p.memberPrice}
+                    ★ Members: NOK {p.memberPrice} · Save NOK {p.price - p.memberPrice}
                   </span>
                 </div>
 

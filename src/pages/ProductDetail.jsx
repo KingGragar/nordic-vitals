@@ -142,8 +142,8 @@ export default function ProductDetail() {
               <div style={{ color: 'var(--cream)', fontSize: '32px', fontWeight: '800', marginBottom: '4px' }}>
                 NOK {product.price}
               </div>
-              <div style={{ color: 'var(--gold)', fontSize: '14px' }}>
-                <span style={{ textDecoration: 'line-through', opacity: 0.8 }}>Member price: NOK {product.memberPrice}</span>
+              <div style={{ color: 'var(--gold)', fontSize: '14px', fontWeight: '600' }}>
+                ★ Members: NOK {product.memberPrice} · Save NOK {product.price - product.memberPrice}
               </div>
             </div>
 

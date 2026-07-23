@@ -240,11 +240,11 @@ export default function Landing() {
                     NOK {p.price}
                   </div>
                   <Link
-                    to="/shop"
+                    to={`/shop/${p.id}`}
                     className="btn btn-gold btn-sm"
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    Shop Now →
+                    View Product →
                   </Link>
                 </div>
               </div>

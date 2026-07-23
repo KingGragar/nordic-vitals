@@ -17,13 +17,9 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
+      const userData = await login(email, password)
       setLoading(false)
-      if (email === 'admin@nordic.no') {
-        navigate('/admin')
-      } else {
-        navigate('/dashboard')
-      }
+      navigate(userData.role === 'admin' ? '/admin' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err.message || 'Invalid email or password')
