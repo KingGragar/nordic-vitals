@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { enrollMember } from '../api/mlmApi'
+import Navbar from '../components/Navbar'
 
 const PACKAGES = [
   {
@@ -167,6 +168,8 @@ export default function Join() {
 
   // ─── MULTI-STEP FORM ─────────────────────────────────────────────────────────
   return (
+    <>
+    <Navbar />
     <div style={{
       background: 'var(--navy)',
       minHeight: '100vh',
@@ -598,5 +601,6 @@ export default function Join() {
         </p>
       </div>
     </div>
+    </>
   )
 }

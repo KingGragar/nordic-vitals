@@ -24,6 +24,7 @@ const AdminReports = lazy(() => import('./pages/admin/Reports'))
 const AdminPlan    = lazy(() => import('./pages/admin/PlanConfig'))
 const AdminSettings= lazy(() => import('./pages/admin/Settings'))
 const Checkout     = lazy(() => import('./pages/Checkout'))
+const NotFound     = lazy(() => import('./pages/NotFound'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -65,7 +66,7 @@ export default function App() {
         <Route path="/admin/plan"     element={<RequireAuth role="admin"><AdminPlan /></RequireAuth>} />
         <Route path="/admin/settings" element={<RequireAuth role="admin"><AdminSettings /></RequireAuth>} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   )
