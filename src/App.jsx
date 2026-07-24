@@ -24,8 +24,10 @@ const AdminPayouts = lazy(() => import('./pages/admin/Payouts'))
 const AdminReports = lazy(() => import('./pages/admin/Reports'))
 const AdminPlan    = lazy(() => import('./pages/admin/PlanConfig'))
 const AdminSettings= lazy(() => import('./pages/admin/Settings'))
-const Checkout     = lazy(() => import('./pages/Checkout'))
-const NotFound     = lazy(() => import('./pages/NotFound'))
+const Checkout       = lazy(() => import('./pages/Checkout'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
+const NotFound       = lazy(() => import('./pages/NotFound'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -49,7 +51,9 @@ export default function App() {
         <Route path="/shop/:id" element={<ProductDetail />} />
         <Route path="/login"   element={<Login />} />
         <Route path="/join"    element={<Join />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout"        element={<Checkout />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password"  element={<ResetPassword />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />

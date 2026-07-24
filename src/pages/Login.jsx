@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
@@ -142,9 +142,8 @@ export default function Login() {
                 />
                 Remember me
               </label>
-              <a
-                href="#"
-                onClick={e => e.preventDefault()}
+              <Link
+                to="/forgot-password"
                 style={{
                   color: 'var(--gold)',
                   fontSize: '13px',
@@ -155,7 +154,7 @@ export default function Login() {
                 onMouseLeave={e => e.target.style.opacity = '1'}
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit button */}

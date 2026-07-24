@@ -53,6 +53,24 @@ export async function loginUser(email, password) {
   }
 }
 
+export async function forgotPassword(email) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 700))
+    const found = USERS.find(u => u.email === email)
+    if (!found) return { sent: true }
+    return { sent: true }
+  }
+  return request('POST', '/v1/mlm/auth/forgot-password', { email })
+}
+
+export async function resetPassword(token, newPassword) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 700))
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/auth/reset-password', { token, password: newPassword })
+}
+
 // ── Genealogy ────────────────────────────────────────────────────────────────
 
 export async function enrollMember({ userId, planType = 'binary', sponsorUserId, leg }) {
