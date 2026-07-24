@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -303,4 +303,16 @@ export async function getAdminWeeklySignups({ weeks = 8 } = {}) {
 export async function getAdminNetworkVolume() {
   if (MOCK) return { network_pv: 42800, commissions_paid_last_run: 18400 }
   return request('GET', '/v1/mlm/admin/reports/network-volume')
+}
+
+// ── Product Reviews ───────────────────────────────────────────────────────────
+
+export async function getProductReviews(productId) {
+  if (MOCK) return { reviews: PRODUCT_REVIEWS[productId] || [] }
+  return request('GET', `/api/viking-peptides/products/${productId}/reviews`)
+}
+
+export async function submitProductReview(productId, { rating, comment }) {
+  if (MOCK) return { ok: true }
+  return request('POST', `/api/viking-peptides/products/${productId}/reviews`, { rating, comment })
 }

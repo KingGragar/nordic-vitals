@@ -115,6 +115,36 @@ export const PAYOUT_QUEUE = [
   { id: 'W-0087', member: 'Olaf Berg',     memberId: 'NV-10241', amount: 90,   requested: '2026-07-10', method: 'Bank Transfer', iban: '****3390' },
 ]
 
+export const PRODUCT_REVIEWS = {
+  1: [
+    { id: 'r1-1', reviewer: 'Lars E.',   rating: 5, date: '2026-07-10', comment: 'Best omega-3 I\'ve tried. No fishy aftertaste and the capsules are easy to swallow. Noticed clearer thinking after 3 weeks.', verified: true },
+    { id: 'r1-2', reviewer: 'Sigrid V.', rating: 4, date: '2026-07-01', comment: 'Great quality, noticeable difference in joint flexibility. Would give 5 stars if the price were slightly lower.', verified: true },
+    { id: 'r1-3', reviewer: 'Erik S.',   rating: 5, date: '2026-06-22', comment: 'Pure product, third-party tested. Exactly what it says on the label — no fillers.', verified: false },
+  ],
+  2: [
+    { id: 'r2-1', reviewer: 'Mia A.',    rating: 5, date: '2026-07-08', comment: 'Skin feels noticeably more hydrated after 4 weeks. Hair is stronger too. Worth every krone.', verified: true },
+    { id: 'r2-2', reviewer: 'Kari H.',   rating: 4, date: '2026-06-28', comment: 'Love the cloudberry extract — a genuinely Nordic ingredient. Good taste, mixes well in water.', verified: true },
+  ],
+  3: [
+    { id: 'r3-1', reviewer: 'Ole H.',    rating: 5, date: '2026-07-05', comment: 'Finally a D3+K2 combo with proper K2 MK-7 dosage. Made a real difference through the dark winter months.', verified: true },
+    { id: 'r3-2', reviewer: 'Anna L.',   rating: 5, date: '2026-06-20', comment: 'My GP recommended D3+K2 together and this formula is exactly right. Clean, no unnecessary additives.', verified: false },
+    { id: 'r3-3', reviewer: 'Tor B.',    rating: 4, date: '2026-06-10', comment: 'Softgel format is easy to take, no aftertaste. Will definitely reorder.', verified: true },
+  ],
+  4: [
+    { id: 'r4-1', reviewer: 'Bjorn L.',  rating: 5, date: '2026-07-02', comment: 'Authentic resin, not a powder extract. Energy is steady throughout the day — no crash.', verified: true },
+    { id: 'r4-2', reviewer: 'Hege M.',   rating: 4, date: '2026-06-25', comment: 'Takes a week or two to feel the difference but it\'s real. Fulvic acid content is clearly stated — great transparency.', verified: true },
+  ],
+  5: [
+    { id: 'r5-1', reviewer: 'Per N.',    rating: 5, date: '2026-07-11', comment: '22 greens in one scoop is impressive. Mixes clean, earthy taste but not overwhelming. My morning stack is sorted.', verified: true },
+    { id: 'r5-2', reviewer: 'Lise D.',   rating: 5, date: '2026-07-03', comment: 'Love the ashwagandha addition — keeps me calm and focused. Great value for a comprehensive greens blend.', verified: false },
+    { id: 'r5-3', reviewer: 'Olaf B.',   rating: 4, date: '2026-06-18', comment: 'Would love a vanilla flavour option, but otherwise this is a solid daily greens powder.', verified: true },
+  ],
+  6: [
+    { id: 'r6-1', reviewer: 'Lars E.',   rating: 5, date: '2026-07-09', comment: 'Stack of Lion\'s Mane + Bacopa + L-Theanine is exactly right. No jitters, just clean sustained focus. Highly recommend.', verified: true },
+    { id: 'r6-2', reviewer: 'Sigrid V.', rating: 5, date: '2026-06-30', comment: 'Noticed improved recall and calmer thinking within two weeks. The PS (phosphatidylserine) is a nice addition that most competitors skip.', verified: true },
+  ],
+}
+
 export const COMMISSION_RUNS = [
   { id: '#041', started_at: '2026-07-13T02:00:00Z', type: 'Scheduled', members_processed: 847, total_paid: 18400, currency: 'MLMT', status: 'Completed',
     breakdown: [
