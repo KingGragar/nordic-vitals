@@ -183,6 +183,15 @@ export async function getOrders(userId) {
   return request('GET', `/api/viking-peptides/orders?user_id=${userId}`)
 }
 
+export async function placeOrder({ userId, items, shippingAddress, orderRef }) {
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0)
+  const pv    = items.reduce((s, i) => s + (i.pv || i.price) * i.qty, 0)
+  if (MOCK) return { order: { id: orderRef, status: 'pending', total, pv } }
+  return request('POST', '/api/viking-peptides/orders', {
+    user_id: userId, items, shipping_address: shippingAddress, order_ref: orderRef, total, pv,
+  })
+}
+
 // ── Earnings (PENDING — endpoint not yet shipped by Arctico) ─────────────────
 // Returns null in mock mode so the caller falls back to its own mock data.
 // When GET /v1/mlm/admin/earnings/:userId ships, this will return live data.

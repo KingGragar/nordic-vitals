@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { placeOrder, postVolumeEvent } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 
 const COUNTRIES = [
@@ -9,7 +10,7 @@ const COUNTRIES = [
 ]
 
 export default function Checkout() {
-  const { cart, cartTotal, cartCount, removeFromCart, user } = useAuth()
+  const { cart, cartTotal, cartCount, removeFromCart, clearCart, user } = useAuth()
   const navigate = useNavigate()
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -46,8 +47,26 @@ export default function Checkout() {
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 900))
-    const ref = 'NV-ORD-' + String(Math.floor(1000 + Math.random() * 9000))
+    const ref = 'NV-ORD-' + String(Date.now()).slice(-6)
+    try {
+      await placeOrder({
+        userId: user?.userId,
+        items: cart,
+        shippingAddress: { ...form },
+        orderRef: ref,
+      })
+      if (user?.userId) {
+        const totalPv = cart.reduce((s, i) => s + (i.pv || i.price) * i.qty, 0)
+        postVolumeEvent({
+          userId: user.userId,
+          planType: user.planType || 'binary',
+          pv: totalPv,
+          bv: totalPv,
+          orderId: ref,
+        }).catch(() => {})
+      }
+    } catch {}
+    clearCart()
     setOrderRef(ref)
     setSubmitting(false)
     setDone(true)

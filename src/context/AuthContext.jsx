@@ -64,11 +64,16 @@ export function AuthProvider({ children }) {
     })
   }
 
+  function clearCart() {
+    setCart([])
+    try { localStorage.removeItem(CART_KEY) } catch {}
+  }
+
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
   const cartCount = cart.reduce((s, i) => s + i.qty, 0)
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, cart, addToCart, removeFromCart, updateQty, cartTotal, cartCount }}>
+    <AuthContext.Provider value={{ user, login, logout, cart, addToCart, removeFromCart, updateQty, clearCart, cartTotal, cartCount }}>
       {children}
     </AuthContext.Provider>
   )
