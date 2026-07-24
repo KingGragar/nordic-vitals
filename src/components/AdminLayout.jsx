@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const navLinks = [
+  { to: '/admin/overview', label: '📋 Overview' },
   { to: '/admin',          label: '👥 Members',         end: true },
   { to: '/admin/runs',     label: '⚡ Commission Runs' },
   { to: '/admin/payouts',  label: '💸 Payout Queue' },

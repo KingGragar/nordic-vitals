@@ -17,6 +17,7 @@ const DashOrders  = lazy(() => import('./pages/dashboard/Orders'))
 const DashProfile  = lazy(() => import('./pages/dashboard/Profile'))
 const DashEarnings = lazy(() => import('./pages/dashboard/Earnings'))
 
+const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
 const AdminRuns    = lazy(() => import('./pages/admin/CommissionRuns'))
 const AdminPayouts = lazy(() => import('./pages/admin/Payouts'))
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/dashboard/profile"   element={<RequireAuth><DashProfile /></RequireAuth>} />
         <Route path="/dashboard/earnings" element={<RequireAuth><DashEarnings /></RequireAuth>} />
 
+        <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
         <Route path="/admin/runs"     element={<RequireAuth role="admin"><AdminRuns /></RequireAuth>} />
         <Route path="/admin/payouts"  element={<RequireAuth role="admin"><AdminPayouts /></RequireAuth>} />
