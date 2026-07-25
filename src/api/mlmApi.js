@@ -379,3 +379,53 @@ export async function getLeaderboard({ period = 'monthly' } = {}) {
   }
   return request('GET', `/v1/mlm/leaderboard?period=${period}`)
 }
+
+export async function verifyEmail(token) {
+  // POST /v1/mlm/auth/verify-email  { token }
+  // Returns { success: true, user_id } or throws
+  if (!token) throw new Error('Missing verification token')
+  try {
+    return await request('POST', '/v1/mlm/auth/verify-email', { token })
+  } catch {
+    // Mock: any non-empty token succeeds
+    if (token === 'INVALID') throw new Error('Invalid or expired token')
+    return { success: true }
+  }
+}
+
+export async function getNotifications(userId) {
+  // GET /v1/mlm/members/:userId/notifications
+  const MOCK_NOTIFS = [
+    { id: 'n1', type: 'rank_up',    read: false, ts: '2026-07-25T08:00:00Z', title: 'Rank upgrade!',            body: 'Congratulations — you\'ve advanced to Silver rank.' },
+    { id: 'n2', type: 'commission', read: false, ts: '2026-07-24T15:30:00Z', title: 'Commission credited',      body: '87.50 MLMT pairing bonus added to your wallet.' },
+    { id: 'n3', type: 'referral',   read: false, ts: '2026-07-24T11:10:00Z', title: 'New team member',          body: 'Lars Eriksen joined your team on your left leg.' },
+    { id: 'n4', type: 'commission', read: true,  ts: '2026-07-23T09:15:00Z', title: 'Weekly commission run',    body: 'Commission run #14 completed. 120.00 MLMT credited.' },
+    { id: 'n5', type: 'system',     read: true,  ts: '2026-07-22T14:00:00Z', title: 'Platform maintenance',     body: 'Scheduled maintenance on Jul 23 03:00–04:00 UTC.' },
+    { id: 'n6', type: 'referral',   read: true,  ts: '2026-07-21T17:45:00Z', title: 'New team member',          body: 'Mia Andersen joined your team on your right leg.' },
+    { id: 'n7', type: 'system',     read: true,  ts: '2026-07-20T10:00:00Z', title: 'New products available',   body: '3 new products added to the Nordic Vitals catalogue.' },
+    { id: 'n8', type: 'commission', read: true,  ts: '2026-07-17T09:15:00Z', title: 'Weekly commission run',    body: 'Commission run #13 completed. 95.00 MLMT credited.' },
+  ]
+  try {
+    return await request('GET', `/v1/mlm/members/${userId}/notifications`)
+  } catch {
+    return MOCK_NOTIFS
+  }
+}
+
+export async function markNotificationRead(userId, notifId) {
+  // PATCH /v1/mlm/members/:userId/notifications/:notifId  { read: true }
+  try {
+    return await request('PATCH', `/v1/mlm/members/${userId}/notifications/${notifId}`, { read: true })
+  } catch {
+    return { success: true }
+  }
+}
+
+export async function markAllNotificationsRead(userId) {
+  // POST /v1/mlm/members/:userId/notifications/read-all
+  try {
+    return await request('POST', `/v1/mlm/members/${userId}/notifications/read-all`, {})
+  } catch {
+    return { success: true }
+  }
+}

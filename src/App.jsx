@@ -15,8 +15,9 @@ const DashWallet  = lazy(() => import('./pages/dashboard/Wallet'))
 const DashRef     = lazy(() => import('./pages/dashboard/Referral'))
 const DashOrders  = lazy(() => import('./pages/dashboard/Orders'))
 const DashProfile  = lazy(() => import('./pages/dashboard/Profile'))
-const DashEarnings     = lazy(() => import('./pages/dashboard/Earnings'))
-const DashLeaderboard  = lazy(() => import('./pages/dashboard/Leaderboard'))
+const DashEarnings       = lazy(() => import('./pages/dashboard/Earnings'))
+const DashLeaderboard    = lazy(() => import('./pages/dashboard/Leaderboard'))
+const DashNotifications  = lazy(() => import('./pages/dashboard/Notifications'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -28,6 +29,7 @@ const AdminSettings= lazy(() => import('./pages/admin/Settings'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
+const VerifyEmail    = lazy(() => import('./pages/VerifyEmail'))
 const FAQ            = lazy(() => import('./pages/FAQ'))
 const Contact        = lazy(() => import('./pages/Contact'))
 const Terms          = lazy(() => import('./pages/Terms'))
@@ -59,6 +61,7 @@ export default function App() {
         <Route path="/checkout"        element={<Checkout />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password"  element={<ResetPassword />} />
+        <Route path="/verify-email"    element={<VerifyEmail />} />
         <Route path="/faq"     element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms"   element={<Terms />} />
@@ -71,8 +74,9 @@ export default function App() {
         <Route path="/dashboard/referral"    element={<RequireAuth><DashRef /></RequireAuth>} />
         <Route path="/dashboard/orders"      element={<RequireAuth><DashOrders /></RequireAuth>} />
         <Route path="/dashboard/profile"      element={<RequireAuth><DashProfile /></RequireAuth>} />
-        <Route path="/dashboard/earnings"     element={<RequireAuth><DashEarnings /></RequireAuth>} />
-        <Route path="/dashboard/leaderboard"  element={<RequireAuth><DashLeaderboard /></RequireAuth>} />
+        <Route path="/dashboard/earnings"       element={<RequireAuth><DashEarnings /></RequireAuth>} />
+        <Route path="/dashboard/leaderboard"   element={<RequireAuth><DashLeaderboard /></RequireAuth>} />
+        <Route path="/dashboard/notifications" element={<RequireAuth><DashNotifications /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
