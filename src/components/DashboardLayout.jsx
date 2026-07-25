@@ -3,14 +3,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const navLinks = [
-  { to: '/dashboard',             label: '🏠 Dashboard',   end: true },
-  { to: '/dashboard/tree',        label: '🌳 My Tree' },
-  { to: '/dashboard/commissions', label: '💰 Commissions' },
-  { to: '/dashboard/earnings',    label: '📈 Earnings' },
-  { to: '/dashboard/wallet',      label: '💳 Wallet' },
-  { to: '/dashboard/referral',    label: '🔗 Referral' },
-  { to: '/dashboard/orders',      label: '📦 My Orders' },
-  { to: '/dashboard/profile',     label: '👤 Profile' },
+  { to: '/dashboard',               label: '🏠 Dashboard',    end: true },
+  { to: '/dashboard/tree',          label: '🌳 My Tree' },
+  { to: '/dashboard/commissions',   label: '💰 Commissions' },
+  { to: '/dashboard/earnings',      label: '📈 Earnings' },
+  { to: '/dashboard/wallet',        label: '💳 Wallet' },
+  { to: '/dashboard/leaderboard',   label: '🏆 Leaderboard' },
+  { to: '/dashboard/referral',      label: '🔗 Referral' },
+  { to: '/dashboard/orders',        label: '📦 My Orders' },
+  { to: '/dashboard/profile',       label: '👤 Profile' },
 ]
 
 const SIDEBAR_W = 220

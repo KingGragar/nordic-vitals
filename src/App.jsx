@@ -15,7 +15,8 @@ const DashWallet  = lazy(() => import('./pages/dashboard/Wallet'))
 const DashRef     = lazy(() => import('./pages/dashboard/Referral'))
 const DashOrders  = lazy(() => import('./pages/dashboard/Orders'))
 const DashProfile  = lazy(() => import('./pages/dashboard/Profile'))
-const DashEarnings = lazy(() => import('./pages/dashboard/Earnings'))
+const DashEarnings     = lazy(() => import('./pages/dashboard/Earnings'))
+const DashLeaderboard  = lazy(() => import('./pages/dashboard/Leaderboard'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -69,8 +70,9 @@ export default function App() {
         <Route path="/dashboard/wallet"      element={<RequireAuth><DashWallet /></RequireAuth>} />
         <Route path="/dashboard/referral"    element={<RequireAuth><DashRef /></RequireAuth>} />
         <Route path="/dashboard/orders"      element={<RequireAuth><DashOrders /></RequireAuth>} />
-        <Route path="/dashboard/profile"   element={<RequireAuth><DashProfile /></RequireAuth>} />
-        <Route path="/dashboard/earnings" element={<RequireAuth><DashEarnings /></RequireAuth>} />
+        <Route path="/dashboard/profile"      element={<RequireAuth><DashProfile /></RequireAuth>} />
+        <Route path="/dashboard/earnings"     element={<RequireAuth><DashEarnings /></RequireAuth>} />
+        <Route path="/dashboard/leaderboard"  element={<RequireAuth><DashLeaderboard /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
