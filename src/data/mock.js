@@ -92,6 +92,34 @@ export const TREE_DATA = {
   ],
 }
 
+export const ADMIN_ORDERS = [
+  { id: 'NV-ORD-1001', memberId: 'NV-10042', member: 'Lars Eriksen',  date: '2026-07-24', items: ['Omega-3 Arctic Pure ×2', 'Nordic Greens Blend ×1'], total: 1077, pv: 108, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1002', memberId: 'NV-10087', member: 'Mia Andersen',  date: '2026-07-23', items: ['Nordic Collagen Complex ×2'],                          total: 858,  pv: 86,  status: 'Shipped',    method: 'Bank Transfer', shippingCountry: 'Sweden' },
+  { id: 'NV-ORD-1003', memberId: 'NV-10230', member: 'Sigrid Voss',   date: '2026-07-23', items: ['Vitamin D3+K2 ×3', 'Focus Formula ×1'],                total: 1206, pv: 121, status: 'Processing', method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1004', memberId: 'NV-10091', member: 'Erik Solberg',  date: '2026-07-22', items: ['Arctic Shilajit ×1'],                                  total: 599,  pv: 60,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Denmark' },
+  { id: 'NV-ORD-1005', memberId: 'NV-10122', member: 'Anna Lund',     date: '2026-07-22', items: ['Nordic Greens Blend ×2', 'Vitamin D3+K2 ×1'],          total: 1007, pv: 101, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1006', memberId: 'NV-10215', member: 'Bjorn Lie',     date: '2026-07-21', items: ['Focus Formula ×2'],                                    total: 918,  pv: 92,  status: 'Shipped',    method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1007', memberId: 'NV-10241', member: 'Olaf Berg',     date: '2026-07-21', items: ['Omega-3 Arctic Pure ×1', 'Vitamin D3+K2 ×2'],          total: 847,  pv: 85,  status: 'Processing', method: 'Bank Transfer', shippingCountry: 'Finland' },
+  { id: 'NV-ORD-1008', memberId: 'NV-10042', member: 'Lars Eriksen',  date: '2026-07-20', items: ['Arctic Shilajit ×2'],                                  total: 1198, pv: 120, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1009', memberId: 'NV-10102', member: 'Kari Holm',     date: '2026-07-19', items: ['Nordic Collagen Complex ×1'],                          total: 429,  pv: 43,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1010', memberId: 'NV-10087', member: 'Mia Andersen',  date: '2026-07-18', items: ['Omega-3 Arctic Pure ×3'],                              total: 1047, pv: 105, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Sweden' },
+  { id: 'NV-ORD-1011', memberId: 'NV-10230', member: 'Sigrid Voss',   date: '2026-07-17', items: ['Executive Enrollment Package'],                        total: 1499, pv: 150, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1012', memberId: 'NV-10201', member: 'Per Nilsen',    date: '2026-07-16', items: ['Focus Formula ×1', 'Vitamin D3+K2 ×1'],                total: 708,  pv: 71,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1013', memberId: 'NV-10118', member: 'Tor Bakke',     date: '2026-07-15', items: ['Nordic Greens Blend ×1'],                              total: 379,  pv: 38,  status: 'Cancelled',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1014', memberId: 'NV-10091', member: 'Erik Solberg',  date: '2026-07-14', items: ['Omega-3 Arctic Pure ×1', 'Focus Formula ×1'],          total: 808,  pv: 81,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Denmark' },
+  { id: 'NV-ORD-1015', memberId: 'NV-10122', member: 'Anna Lund',     date: '2026-07-13', items: ['Arctic Shilajit ×1', 'Nordic Collagen Complex ×1'],    total: 1028, pv: 103, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1016', memberId: 'NV-10042', member: 'Lars Eriksen',  date: '2026-07-11', items: ['Vitamin D3+K2 ×4'],                                   total: 996,  pv: 100, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1017', memberId: 'NV-10208', member: 'Hege Moen',     date: '2026-07-10', items: ['Nordic Greens Blend ×2'],                              total: 758,  pv: 76,  status: 'Cancelled',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1018', memberId: 'NV-10215', member: 'Bjorn Lie',     date: '2026-07-09', items: ['Nordic Collagen Complex ×1', 'Vitamin D3+K2 ×2'],      total: 927,  pv: 93,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1019', memberId: 'NV-10241', member: 'Olaf Berg',     date: '2026-07-08', items: ['Focus Formula ×1'],                                    total: 459,  pv: 46,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Finland' },
+  { id: 'NV-ORD-1020', memberId: 'NV-10102', member: 'Kari Holm',     date: '2026-07-07', items: ['Omega-3 Arctic Pure ×2', 'Arctic Shilajit ×1'],        total: 1297, pv: 130, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1021', memberId: 'NV-10087', member: 'Mia Andersen',  date: '2026-07-06', items: ['Executive Enrollment Package'],                        total: 1499, pv: 150, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Sweden' },
+  { id: 'NV-ORD-1022', memberId: 'NV-10210', member: 'Lise Dahl',     date: '2026-07-04', items: ['Vitamin D3+K2 ×1'],                                   total: 249,  pv: 25,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1023', memberId: 'NV-10230', member: 'Sigrid Voss',   date: '2026-07-02', items: ['Nordic Greens Blend ×1', 'Focus Formula ×1'],          total: 838,  pv: 84,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1024', memberId: 'NV-10042', member: 'Lars Eriksen',  date: '2026-06-30', items: ['Omega-3 Arctic Pure ×1'],                              total: 349,  pv: 35,  status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+  { id: 'NV-ORD-1025', memberId: 'NV-10215', member: 'Bjorn Lie',     date: '2026-06-28', items: ['Arctic Shilajit ×2', 'Nordic Collagen Complex ×1'],    total: 1627, pv: 163, status: 'Delivered',  method: 'Bank Transfer', shippingCountry: 'Norway' },
+]
+
 export const ADMIN_MEMBERS = [
   { id: 'NV-10042', name: 'Lars Eriksen',   sponsor: 'NV-00010', rank: 'Silver',   pv: 320, gv: 3050, status: 'Active',   joined: '2025-03-12' },
   { id: 'NV-10087', name: 'Mia Andersen',   sponsor: 'NV-10042', rank: 'Bronze',   pv: 180, gv: 1240, status: 'Active',   joined: '2025-05-01' },

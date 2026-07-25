@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -475,4 +475,39 @@ export async function toggleProductActive(id) {
     return { product: _adminProducts.find(p => p.id === id) }
   }
   return request('POST', `/api/viking-peptides/admin/products/${id}/toggle`, {})
+}
+
+// ── Admin Order Management ────────────────────────────────────────────────────
+
+let _adminOrders = null
+
+export async function getAdminOrders({ status, search, limit = 200 } = {}) {
+  if (MOCK) {
+    if (!_adminOrders) _adminOrders = [...ADMIN_ORDERS]
+    let result = _adminOrders
+    if (status && status !== 'all') result = result.filter(o => o.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(o =>
+        o.id.toLowerCase().includes(q) ||
+        o.member.toLowerCase().includes(q) ||
+        o.memberId.toLowerCase().includes(q)
+      )
+    }
+    return { orders: result.slice(0, limit) }
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (search) params.set('search', search)
+  if (limit) params.set('limit', String(limit))
+  return request('GET', `/api/viking-peptides/admin/orders?${params}`)
+}
+
+export async function updateOrderStatus(orderId, status) {
+  if (MOCK) {
+    if (!_adminOrders) _adminOrders = [...ADMIN_ORDERS]
+    _adminOrders = _adminOrders.map(o => o.id === orderId ? { ...o, status } : o)
+    return { order: _adminOrders.find(o => o.id === orderId) }
+  }
+  return request('PATCH', `/api/viking-peptides/admin/orders/${orderId}`, { status })
 }

@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/admin/overview',  label: '📋 Overview' },
   { to: '/admin',           label: '👥 Members',         end: true },
   { to: '/admin/products',  label: '🛍️ Products' },
+  { to: '/admin/orders',   label: '📦 Orders' },
   { to: '/admin/runs',      label: '⚡ Commission Runs' },
   { to: '/admin/payouts',   label: '💸 Payout Queue' },
   { to: '/admin/reports',   label: '📊 Reports' },
