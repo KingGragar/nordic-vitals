@@ -519,12 +519,18 @@ export default function Landing() {
             <div>
               <h4 style={{ color: 'var(--cream)', fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Company</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['About', 'Blog', 'Careers'].map(l => (
-                  <a key={l} href="#" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
-                    onMouseEnter={e => e.target.style.color = 'var(--gold)'}
-                    onMouseLeave={e => e.target.style.color = 'var(--text2)'}
-                  >{l}</a>
-                ))}
+                <a href="#about" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >About</a>
+                <Link to="/terms" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >Terms</Link>
+                <Link to="/privacy" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >Privacy</Link>
               </div>
             </div>
 
@@ -551,12 +557,18 @@ export default function Landing() {
             <div>
               <h4 style={{ color: 'var(--cream)', fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Support</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {['Contact', 'FAQ', 'Shipping'].map(l => (
-                  <a key={l} href="#" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
-                    onMouseEnter={e => e.target.style.color = 'var(--gold)'}
-                    onMouseLeave={e => e.target.style.color = 'var(--text2)'}
-                  >{l}</a>
-                ))}
+                <Link to="/contact" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >Contact</Link>
+                <Link to="/faq" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >FAQ</Link>
+                <Link to="/faq#shipping" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >Shipping</Link>
               </div>
             </div>
           </div>

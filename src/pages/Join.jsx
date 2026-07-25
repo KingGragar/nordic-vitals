@@ -469,9 +469,9 @@ export default function Join() {
                 style={{ width: '16px', height: '16px', marginTop: '2px', accentColor: 'var(--gold)', cursor: 'pointer', flexShrink: 0 }}
               />
               I accept the{' '}
-              <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--gold)', fontWeight: '600' }}>
-                Terms & Conditions
-              </a>
+              <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)', fontWeight: '600' }}>
+                Terms &amp; Conditions
+              </Link>
             </label>
 
             {/* Nav buttons */}

@@ -27,6 +27,10 @@ const AdminSettings= lazy(() => import('./pages/admin/Settings'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
+const FAQ            = lazy(() => import('./pages/FAQ'))
+const Contact        = lazy(() => import('./pages/Contact'))
+const Terms          = lazy(() => import('./pages/Terms'))
+const Privacy        = lazy(() => import('./pages/Privacy'))
 const NotFound       = lazy(() => import('./pages/NotFound'))
 
 function RequireAuth({ children, role }) {
@@ -54,6 +58,10 @@ export default function App() {
         <Route path="/checkout"        element={<Checkout />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password"  element={<ResetPassword />} />
+        <Route path="/faq"     element={<FAQ />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/terms"   element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />

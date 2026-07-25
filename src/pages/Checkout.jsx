@@ -250,6 +250,12 @@ export default function Checkout() {
                 >
                   {submitting ? 'Placing order…' : `Confirm Order · NOK ${cartTotal}`}
                 </button>
+                <p style={{ fontSize: '12px', color: 'var(--text2)', textAlign: 'center', lineHeight: 1.6, marginTop: '12px' }}>
+                  By placing your order you agree to our{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)' }}>Terms &amp; Conditions</a>
+                  {' '}and{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)' }}>Privacy Policy</a>.
+                </p>
               </div>
             </form>
 
