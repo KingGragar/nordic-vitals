@@ -429,3 +429,50 @@ export async function markAllNotificationsRead(userId) {
     return { success: true }
   }
 }
+
+// ── Admin Product Management ──────────────────────────────────────────────────
+
+let _adminProducts = null
+
+export async function getAdminProducts() {
+  if (MOCK) {
+    if (!_adminProducts) {
+      _adminProducts = PRODUCTS.map(p => ({ ...p, active: true, stock: Math.floor(Math.random() * 200) + 20 }))
+    }
+    return { products: _adminProducts }
+  }
+  return request('GET', '/api/viking-peptides/admin/products')
+}
+
+export async function createProduct(product) {
+  if (MOCK) {
+    const newProduct = {
+      ...product,
+      id: Date.now(),
+      active: true,
+      stock: product.stock || 0,
+    }
+    if (!_adminProducts) await getAdminProducts()
+    _adminProducts = [newProduct, ..._adminProducts]
+    return { product: newProduct }
+  }
+  return request('POST', '/api/viking-peptides/admin/products', product)
+}
+
+export async function updateProduct(id, updates) {
+  if (MOCK) {
+    if (!_adminProducts) await getAdminProducts()
+    _adminProducts = _adminProducts.map(p => p.id === id ? { ...p, ...updates } : p)
+    return { product: _adminProducts.find(p => p.id === id) }
+  }
+  return request('PUT', `/api/viking-peptides/admin/products/${id}`, updates)
+}
+
+export async function toggleProductActive(id) {
+  if (MOCK) {
+    if (!_adminProducts) await getAdminProducts()
+    _adminProducts = _adminProducts.map(p => p.id === id ? { ...p, active: !p.active } : p)
+    return { product: _adminProducts.find(p => p.id === id) }
+  }
+  return request('POST', `/api/viking-peptides/admin/products/${id}/toggle`, {})
+}

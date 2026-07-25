@@ -290,7 +290,8 @@ export default function Overview() {
         gap: '12px',
       }}>
         {[
-          { label: '👥 Members',         desc: 'Browse & manage all members',  path: '/admin' },
+          { label: '👥 Members',         desc: 'Browse & manage all members',   path: '/admin' },
+          { label: '🛍️ Products',       desc: 'Manage Viking Peptides catalog', path: '/admin/products' },
           { label: '⚡ Commission Runs', desc: 'History & manual triggers',     path: '/admin/runs' },
           { label: '💸 Payout Queue',    desc: 'Review withdrawal requests',    path: '/admin/payouts' },
           { label: '📊 Reports',         desc: 'Analytics & top earners',       path: '/admin/reports' },
