@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -654,4 +654,100 @@ export async function addMemberNote(memberId, note) {
     return { ok: true }
   }
   return request('POST', `/v1/mlm/admin/members/${memberId}/notes`, { note })
+}
+
+// ── Support Tickets ────────────────────────────────────────────────────────────
+
+const TICKET_STORE = SUPPORT_TICKETS.map(t => ({ ...t, messages: [...t.messages] }))
+
+export async function getMyTickets(memberId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    return TICKET_STORE.filter(t => t.memberId === memberId)
+  }
+  return request('GET', `/v1/mlm/support/tickets?member_id=${memberId}`)
+}
+
+export async function getTicket(ticketId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    const t = TICKET_STORE.find(t => t.id === ticketId)
+    if (!t) throw new Error('Ticket not found')
+    return t
+  }
+  return request('GET', `/v1/mlm/support/tickets/${ticketId}`)
+}
+
+export async function createTicket({ memberId, memberName, memberEmail, category, subject, message, priority = 'medium' }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const newTicket = {
+      id: `tkt-${String(TICKET_STORE.length + 1).padStart(3, '0')}`,
+      memberId, memberName, memberEmail, category, subject, priority,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: [{ id: 'm1', from: 'member', text: message, ts: new Date().toISOString() }],
+    }
+    TICKET_STORE.push(newTicket)
+    return newTicket
+  }
+  return request('POST', '/v1/mlm/support/tickets', { member_id: memberId, member_name: memberName, member_email: memberEmail, category, subject, message, priority })
+}
+
+export async function replyToTicket(ticketId, { from, text }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const t = TICKET_STORE.find(t => t.id === ticketId)
+    if (!t) throw new Error('Ticket not found')
+    const msg = { id: `m${t.messages.length + 1}`, from, text, ts: new Date().toISOString() }
+    t.messages.push(msg)
+    t.updatedAt = new Date().toISOString()
+    if (from === 'admin' && t.status === 'open') t.status = 'in_progress'
+    return t
+  }
+  return request('POST', `/v1/mlm/support/tickets/${ticketId}/messages`, { from, text })
+}
+
+export async function updateTicketStatus(ticketId, status) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const t = TICKET_STORE.find(t => t.id === ticketId)
+    if (!t) throw new Error('Ticket not found')
+    t.status = status
+    t.updatedAt = new Date().toISOString()
+    return t
+  }
+  return request('PATCH', `/v1/mlm/support/tickets/${ticketId}`, { status })
+}
+
+export async function getAdminTickets({ status, category, search, page = 1, pageSize = 20 } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let rows = [...TICKET_STORE]
+    if (status && status !== 'all') rows = rows.filter(t => t.status === status)
+    if (category && category !== 'all') rows = rows.filter(t => t.category === category)
+    if (search) {
+      const q = search.toLowerCase()
+      rows = rows.filter(t =>
+        t.subject.toLowerCase().includes(q) ||
+        t.memberName.toLowerCase().includes(q) ||
+        t.memberId.toLowerCase().includes(q)
+      )
+    }
+    rows.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    const total = rows.length
+    const items = rows.slice((page - 1) * pageSize, page * pageSize)
+    const open = TICKET_STORE.filter(t => t.status === 'open').length
+    const inProgress = TICKET_STORE.filter(t => t.status === 'in_progress').length
+    const resolved = TICKET_STORE.filter(t => t.status === 'resolved').length
+    return { items, total, open, inProgress, resolved }
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (category && category !== 'all') params.set('category', category)
+  if (search) params.set('q', search)
+  params.set('page', page)
+  params.set('page_size', pageSize)
+  return request('GET', `/v1/mlm/support/tickets/admin?${params}`)
 }

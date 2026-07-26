@@ -274,3 +274,92 @@ export const AUDIT_LOG = [
   { id: 'aud-027', ts: '2026-07-26T08:14:00Z', actor: 'admin@nordic.no', category: 'config',       action: 'SETTINGS_UPDATE',      detail: 'Updated commission notification email',     target: 'settings', result: 'success' },
   { id: 'aud-028', ts: '2026-07-26T08:55:00Z', actor: 'admin@nordic.no', category: 'announcement', action: 'ANNOUNCEMENT_DELETE',  detail: 'Deleted announcement "Welcome to NV!"',     target: 'ann-001', result: 'success' },
 ]
+
+export const SUPPORT_TICKETS = [
+  {
+    id: 'tkt-001', memberId: 'MBR-001', memberName: 'Ingrid Larsen', memberEmail: 'ingrid@example.com',
+    category: 'commission', subject: 'Missing commission from July run', status: 'open',
+    priority: 'high', createdAt: '2026-07-20T08:15:00Z', updatedAt: '2026-07-20T08:15:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'I noticed my binary commission from the July 20 run is not showing up. My left leg PV was 3200 and right leg was 2800, but I received 0 MLMT. Please investigate.', ts: '2026-07-20T08:15:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-002', memberId: 'MBR-003', memberName: 'Erik Halvorsen', memberEmail: 'erik@example.com',
+    category: 'account', subject: 'Cannot update bank details', status: 'in_progress',
+    priority: 'medium', createdAt: '2026-07-21T14:02:00Z', updatedAt: '2026-07-22T09:30:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'When I try to update my bank details in the Wallet section I get an error "Invalid IBAN format". My IBAN is valid — I double-checked with my bank.', ts: '2026-07-21T14:02:00Z' },
+      { id: 'm2', from: 'admin', text: 'Hi Erik, thank you for reporting this. We are investigating the IBAN validation issue. Could you share which country your IBAN is from?', ts: '2026-07-22T09:30:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-003', memberId: 'MBR-005', memberName: 'Astrid Moe', memberEmail: 'astrid@example.com',
+    category: 'product', subject: 'Order ORD-019 not delivered', status: 'open',
+    priority: 'high', createdAt: '2026-07-22T11:45:00Z', updatedAt: '2026-07-22T11:45:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'Order ORD-019 (Nordic Omega-3 Pro x2) was placed on July 10th and the status changed to "Shipped" on July 12th but I have not received it. The tracking number provided does not work.', ts: '2026-07-22T11:45:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-004', memberId: 'MBR-007', memberName: 'Lars Nygaard', memberEmail: 'lars@example.com',
+    category: 'referral', subject: 'New member not appearing in my downline', status: 'resolved',
+    priority: 'low', createdAt: '2026-07-18T16:30:00Z', updatedAt: '2026-07-19T10:15:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'I referred Hilde Bakken using my referral link but she does not appear in my downline tree. She says she clicked my link and joined.', ts: '2026-07-18T16:30:00Z' },
+      { id: 'm2', from: 'admin', text: 'Hi Lars, we have investigated and found a session cookie issue caused her enrolment to not capture the sponsor ID correctly. We have manually linked Hilde to your left leg. She should appear in your tree now.', ts: '2026-07-19T10:15:00Z' },
+      { id: 'm3', from: 'member', text: 'Yes, I can see her now! Thank you for the quick resolution.', ts: '2026-07-19T11:00:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-005', memberId: 'MBR-002', memberName: 'Bjarne Dahl', memberEmail: 'bjarne@example.com',
+    category: 'payout', subject: 'Withdrawal pending for 8 days', status: 'in_progress',
+    priority: 'high', createdAt: '2026-07-18T09:00:00Z', updatedAt: '2026-07-24T12:00:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'I submitted a withdrawal request of 1500 MLMT on July 18 and it is still showing as Pending. When will it be processed?', ts: '2026-07-18T09:00:00Z' },
+      { id: 'm2', from: 'admin', text: 'Hi Bjarne, we apologise for the delay. Your request is in the current batch being processed. Expected completion is July 26.', ts: '2026-07-24T12:00:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-006', memberId: 'MBR-004', memberName: 'Silje Berg', memberEmail: 'silje@example.com',
+    category: 'technical', subject: 'Dashboard shows wrong rank', status: 'resolved',
+    priority: 'medium', createdAt: '2026-07-23T07:20:00Z', updatedAt: '2026-07-23T15:45:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'My dashboard shows my rank as Silver but I should have qualified for Gold last month. My GV is over 15000.', ts: '2026-07-23T07:20:00Z' },
+      { id: 'm2', from: 'admin', text: 'Hello Silje, we have reviewed your account and confirmed you have met the Gold rank requirements. We have applied a manual rank override. Your dashboard should now show Gold.', ts: '2026-07-23T15:45:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-007', memberId: 'MBR-006', memberName: 'Morten Vik', memberEmail: 'morten@example.com',
+    category: 'account', subject: 'Two-factor authentication not working', status: 'open',
+    priority: 'medium', createdAt: '2026-07-25T10:10:00Z', updatedAt: '2026-07-25T10:10:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'After enabling 2FA I can no longer log in. The OTP codes from my authenticator app are all rejected. I need help regaining access.', ts: '2026-07-25T10:10:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-008', memberId: 'MBR-009', memberName: 'Kari Solberg', memberEmail: 'kari@example.com',
+    category: 'product', subject: 'Wrong item shipped in order ORD-022', status: 'open',
+    priority: 'high', createdAt: '2026-07-25T14:55:00Z', updatedAt: '2026-07-25T14:55:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'I ordered Arctic Greens Blend (x1) but received Nordic Collagen Boost instead. Please arrange a correct replacement and return label.', ts: '2026-07-25T14:55:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-009', memberId: 'MBR-010', memberName: 'Olav Strand', memberEmail: 'olav@example.com',
+    category: 'commission', subject: 'Rank bonus not included in July 22 run', status: 'resolved',
+    priority: 'medium', createdAt: '2026-07-22T18:00:00Z', updatedAt: '2026-07-23T11:00:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'I promoted to Silver on July 15 but the rank advancement bonus was not in the July 22 run payout.', ts: '2026-07-22T18:00:00Z' },
+      { id: 'm2', from: 'admin', text: 'Hi Olav, we have confirmed the rank advancement bonus was omitted due to a timing cutoff issue. We have added 200 MLMT as a manual adjustment to your account.', ts: '2026-07-23T11:00:00Z' },
+    ],
+  },
+  {
+    id: 'tkt-010', memberId: 'MBR-001', memberName: 'Ingrid Larsen', memberEmail: 'ingrid@example.com',
+    category: 'technical', subject: 'PDF download for commission statement fails', status: 'open',
+    priority: 'low', createdAt: '2026-07-26T06:30:00Z', updatedAt: '2026-07-26T06:30:00Z',
+    messages: [
+      { id: 'm1', from: 'member', text: 'When I click "Download Statement" on the Commissions page nothing happens. I am using Chrome on Windows 11.', ts: '2026-07-26T06:30:00Z' },
+    ],
+  },
+]

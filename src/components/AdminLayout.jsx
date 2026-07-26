@@ -13,6 +13,7 @@ const navLinks = [
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/announcements', label: '📣 Announcements' },
   { to: '/admin/audit-log',    label: '🔍 Audit Log' },
+  { to: '/admin/support',      label: '🎫 Support' },
   { to: '/admin/settings',     label: '🔧 Settings' },
 ]
 
