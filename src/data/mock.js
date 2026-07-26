@@ -363,3 +363,62 @@ export const SUPPORT_TICKETS = [
     ],
   },
 ]
+
+export const AUTOSHIPS = [
+  {
+    id: 'as-001', memberId: 'usr-001', memberName: 'Ingrid Larsen', memberEmail: 'ingrid@example.com',
+    productId: 1, productName: 'Omega-3 Arctic Pure', qty: 2, frequency: 'monthly',
+    memberPrice: 279, pv: 35, totalPv: 70,
+    status: 'active', nextShipDate: '2026-08-01', lastShipDate: '2026-07-01',
+    shippingAddress: 'Storgata 14, 0182 Oslo, Norway', createdAt: '2026-03-01T10:00:00Z',
+  },
+  {
+    id: 'as-002', memberId: 'usr-001', memberName: 'Ingrid Larsen', memberEmail: 'ingrid@example.com',
+    productId: 3, productName: 'Vitamin D3 + K2', qty: 1, frequency: 'monthly',
+    memberPrice: 199, pv: 25, totalPv: 25,
+    status: 'active', nextShipDate: '2026-08-01', lastShipDate: '2026-07-01',
+    shippingAddress: 'Storgata 14, 0182 Oslo, Norway', createdAt: '2026-04-15T08:30:00Z',
+  },
+  {
+    id: 'as-003', memberId: 'MBR-002', memberName: 'Bjarne Dahl', memberEmail: 'bjarne@example.com',
+    productId: 1, productName: 'Omega-3 Arctic Pure', qty: 1, frequency: 'monthly',
+    memberPrice: 279, pv: 35, totalPv: 35,
+    status: 'paused', nextShipDate: null, lastShipDate: '2026-06-01',
+    shippingAddress: 'Torvet 3, 7013 Trondheim, Norway', createdAt: '2026-02-10T14:00:00Z',
+  },
+  {
+    id: 'as-004', memberId: 'MBR-003', memberName: 'Erik Halvorsen', memberEmail: 'erik@example.com',
+    productId: 5, productName: 'Nordic Greens Blend', qty: 2, frequency: 'monthly',
+    memberPrice: 299, pv: 38, totalPv: 76,
+    status: 'active', nextShipDate: '2026-08-05', lastShipDate: '2026-07-05',
+    shippingAddress: 'Bryggen 8, 5003 Bergen, Norway', createdAt: '2026-05-20T11:00:00Z',
+  },
+  {
+    id: 'as-005', memberId: 'MBR-003', memberName: 'Erik Halvorsen', memberEmail: 'erik@example.com',
+    productId: 6, productName: 'Focus Formula', qty: 1, frequency: 'monthly',
+    memberPrice: 369, pv: 46, totalPv: 46,
+    status: 'active', nextShipDate: '2026-08-05', lastShipDate: '2026-07-05',
+    shippingAddress: 'Bryggen 8, 5003 Bergen, Norway', createdAt: '2026-06-01T09:00:00Z',
+  },
+  {
+    id: 'as-006', memberId: 'MBR-004', memberName: 'Silje Berg', memberEmail: 'silje@example.com',
+    productId: 2, productName: 'Nordic Collagen Complex', qty: 1, frequency: 'monthly',
+    memberPrice: 339, pv: 43, totalPv: 43,
+    status: 'active', nextShipDate: '2026-08-10', lastShipDate: '2026-07-10',
+    shippingAddress: 'Kongens gate 5, 4610 Kristiansand, Norway', createdAt: '2026-04-01T16:00:00Z',
+  },
+  {
+    id: 'as-007', memberId: 'MBR-005', memberName: 'Astrid Moe', memberEmail: 'astrid@example.com',
+    productId: 4, productName: 'Arctic Shilajit', qty: 1, frequency: 'monthly',
+    memberPrice: 479, pv: 60, totalPv: 60,
+    status: 'cancelled', nextShipDate: null, lastShipDate: '2026-05-15',
+    shippingAddress: 'Munkegata 2, 7011 Trondheim, Norway', createdAt: '2026-01-15T12:00:00Z',
+  },
+  {
+    id: 'as-008', memberId: 'MBR-006', memberName: 'Morten Vik', memberEmail: 'morten@example.com',
+    productId: 1, productName: 'Omega-3 Arctic Pure', qty: 3, frequency: 'monthly',
+    memberPrice: 279, pv: 35, totalPv: 105,
+    status: 'active', nextShipDate: '2026-08-03', lastShipDate: '2026-07-03',
+    shippingAddress: 'Kirkegata 7, 6413 Molde, Norway', createdAt: '2026-03-20T10:30:00Z',
+  },
+]

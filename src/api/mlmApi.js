@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -750,4 +750,133 @@ export async function getAdminTickets({ status, category, search, page = 1, page
   params.set('page', page)
   params.set('page_size', pageSize)
   return request('GET', `/v1/mlm/support/tickets/admin?${params}`)
+}
+
+// ── Autoship ──────────────────────────────────────────────────────────────────
+
+let AUTOSHIP_STORE = [...AUTOSHIPS]
+
+export async function getAutoships(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const rows = AUTOSHIP_STORE.filter(a => a.memberId === userId || a.memberId === 'usr-001')
+    const activePv = rows.filter(a => a.status === 'active').reduce((s, a) => s + a.totalPv, 0)
+    return { items: rows, activePv }
+  }
+  return request('GET', `/v1/mlm/autoship?user_id=${userId}`)
+}
+
+export async function createAutoship(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const product = PRODUCTS.find(p => p.id === data.productId)
+    if (!product) throw new Error('Product not found')
+    const next = new Date()
+    next.setDate(next.getDate() + 30)
+    const entry = {
+      id: `as-${Date.now()}`,
+      memberId: data.userId || 'usr-001',
+      memberName: 'Ingrid Larsen',
+      memberEmail: 'ingrid@example.com',
+      productId: product.id,
+      productName: product.name,
+      qty: data.qty || 1,
+      frequency: data.frequency || 'monthly',
+      memberPrice: product.memberPrice,
+      pv: product.pv,
+      totalPv: product.pv * (data.qty || 1),
+      status: 'active',
+      nextShipDate: next.toISOString().split('T')[0],
+      lastShipDate: null,
+      shippingAddress: data.shippingAddress || '',
+      createdAt: new Date().toISOString(),
+    }
+    AUTOSHIP_STORE.push(entry)
+    return entry
+  }
+  return request('POST', '/v1/mlm/autoship', data)
+}
+
+export async function updateAutoship(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const idx = AUTOSHIP_STORE.findIndex(a => a.id === id)
+    if (idx < 0) throw new Error('Autoship not found')
+    const product = data.productId ? PRODUCTS.find(p => p.id === data.productId) : null
+    const updated = {
+      ...AUTOSHIP_STORE[idx],
+      ...data,
+      ...(product ? { productName: product.name, memberPrice: product.memberPrice, pv: product.pv } : {}),
+      totalPv: (product ? product.pv : AUTOSHIP_STORE[idx].pv) * (data.qty || AUTOSHIP_STORE[idx].qty),
+    }
+    AUTOSHIP_STORE[idx] = updated
+    return updated
+  }
+  return request('PATCH', `/v1/mlm/autoship/${id}`, data)
+}
+
+export async function pauseAutoship(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const idx = AUTOSHIP_STORE.findIndex(a => a.id === id)
+    if (idx < 0) throw new Error('Autoship not found')
+    AUTOSHIP_STORE[idx] = { ...AUTOSHIP_STORE[idx], status: 'paused', nextShipDate: null }
+    return AUTOSHIP_STORE[idx]
+  }
+  return request('POST', `/v1/mlm/autoship/${id}/pause`)
+}
+
+export async function resumeAutoship(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const idx = AUTOSHIP_STORE.findIndex(a => a.id === id)
+    if (idx < 0) throw new Error('Autoship not found')
+    const next = new Date()
+    next.setDate(next.getDate() + 30)
+    AUTOSHIP_STORE[idx] = { ...AUTOSHIP_STORE[idx], status: 'active', nextShipDate: next.toISOString().split('T')[0] }
+    return AUTOSHIP_STORE[idx]
+  }
+  return request('POST', `/v1/mlm/autoship/${id}/resume`)
+}
+
+export async function cancelAutoship(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const idx = AUTOSHIP_STORE.findIndex(a => a.id === id)
+    if (idx < 0) throw new Error('Autoship not found')
+    AUTOSHIP_STORE[idx] = { ...AUTOSHIP_STORE[idx], status: 'cancelled', nextShipDate: null }
+    return AUTOSHIP_STORE[idx]
+  }
+  return request('DELETE', `/v1/mlm/autoship/${id}`)
+}
+
+export async function getAdminAutoships({ status, search, page = 1, pageSize = 20 } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let rows = [...AUTOSHIP_STORE]
+    if (status && status !== 'all') rows = rows.filter(a => a.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      rows = rows.filter(a =>
+        a.memberName.toLowerCase().includes(q) ||
+        a.memberId.toLowerCase().includes(q) ||
+        a.productName.toLowerCase().includes(q)
+      )
+    }
+    rows.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const total = rows.length
+    const items = rows.slice((page - 1) * pageSize, page * pageSize)
+    const active = AUTOSHIP_STORE.filter(a => a.status === 'active').length
+    const paused = AUTOSHIP_STORE.filter(a => a.status === 'paused').length
+    const cancelled = AUTOSHIP_STORE.filter(a => a.status === 'cancelled').length
+    const monthlyPv = AUTOSHIP_STORE.filter(a => a.status === 'active').reduce((s, a) => s + a.totalPv, 0)
+    const monthlyRevenue = AUTOSHIP_STORE.filter(a => a.status === 'active').reduce((s, a) => s + a.memberPrice * a.qty, 0)
+    return { items, total, active, paused, cancelled, monthlyPv, monthlyRevenue }
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (search) params.set('q', search)
+  params.set('page', page)
+  params.set('page_size', pageSize)
+  return request('GET', `/v1/mlm/autoship/admin?${params}`)
 }
