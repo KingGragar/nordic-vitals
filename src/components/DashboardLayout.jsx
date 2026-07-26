@@ -12,6 +12,7 @@ const navLinks = [
   { to: '/dashboard/referral',           label: '🔗 Referral' },
   { to: '/dashboard/orders',             label: '📦 My Orders' },
   { to: '/dashboard/notifications',      label: '🔔 Notifications' },
+  { to: '/dashboard/calculator',         label: '🧮 Calculator' },
   { to: '/dashboard/profile',            label: '👤 Profile' },
 ]
 
