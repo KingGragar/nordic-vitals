@@ -26,8 +26,9 @@ const AdminPayouts = lazy(() => import('./pages/admin/Payouts'))
 const AdminReports = lazy(() => import('./pages/admin/Reports'))
 const AdminPlan    = lazy(() => import('./pages/admin/PlanConfig'))
 const AdminSettings= lazy(() => import('./pages/admin/Settings'))
-const AdminProducts= lazy(() => import('./pages/admin/Products'))
-const AdminOrders  = lazy(() => import('./pages/admin/Orders'))
+const AdminProducts      = lazy(() => import('./pages/admin/Products'))
+const AdminOrders        = lazy(() => import('./pages/admin/Orders'))
+const AdminAnnouncements = lazy(() => import('./pages/admin/Announcements'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -88,7 +89,8 @@ export default function App() {
         <Route path="/admin/plan"     element={<RequireAuth role="admin"><AdminPlan /></RequireAuth>} />
         <Route path="/admin/settings"  element={<RequireAuth role="admin"><AdminSettings /></RequireAuth>} />
         <Route path="/admin/products" element={<RequireAuth role="admin"><AdminProducts /></RequireAuth>} />
-        <Route path="/admin/orders"   element={<RequireAuth role="admin"><AdminOrders /></RequireAuth>} />
+        <Route path="/admin/orders"         element={<RequireAuth role="admin"><AdminOrders /></RequireAuth>} />
+        <Route path="/admin/announcements" element={<RequireAuth role="admin"><AdminAnnouncements /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

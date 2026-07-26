@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -539,4 +539,47 @@ export async function rejectWithdrawal(payoutId, reason = '') {
     return { payout_id: payoutId, status: 'rejected' }
   }
   return request('PATCH', `/v1/mlm/withdrawals/${payoutId}/reject`, { reason })
+}
+
+// ── Announcements ──────────────────────────────────────────────────────────────
+
+let _announcements = null
+let _annSeq = 6
+
+export async function getAnnouncements() {
+  if (MOCK) {
+    if (!_announcements) _announcements = [...ANNOUNCEMENTS].reverse()
+    return { announcements: _announcements }
+  }
+  return request('GET', '/v1/mlm/admin/announcements')
+}
+
+export async function createAnnouncement({ title, body, audience = 'all', type = 'info' }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    if (!_announcements) _announcements = [...ANNOUNCEMENTS].reverse()
+    const ann = {
+      id: `ann-00${++_annSeq}`,
+      title,
+      body,
+      audience,
+      type,
+      created_at: new Date().toISOString(),
+      sent_by: 'Admin',
+      recipient_count: Math.floor(900 + Math.random() * 300),
+    }
+    _announcements = [ann, ..._announcements]
+    return { announcement: ann }
+  }
+  return request('POST', '/v1/mlm/admin/announcements', { title, body, audience, type })
+}
+
+export async function deleteAnnouncement(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    if (!_announcements) _announcements = [...ANNOUNCEMENTS].reverse()
+    _announcements = _announcements.filter(a => a.id !== id)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/announcements/${id}`)
 }

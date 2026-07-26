@@ -11,7 +11,8 @@ const navLinks = [
   { to: '/admin/payouts',   label: '💸 Payout Queue' },
   { to: '/admin/reports',   label: '📊 Reports' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
-  { to: '/admin/settings',  label: '🔧 Settings' },
+  { to: '/admin/announcements', label: '📣 Announcements' },
+  { to: '/admin/settings',     label: '🔧 Settings' },
 ]
 
 const SIDEBAR_W = 220
