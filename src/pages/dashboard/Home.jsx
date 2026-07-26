@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline } from '../../api/mlmApi'
+import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline, getMilestones } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
 
@@ -73,6 +74,7 @@ export default function Home() {
   const [availableBalance, setAvailableBalance] = useState(null)
   const [teamSize, setTeamSize] = useState(null)
   const [activeRecruits, setActiveRecruits] = useState(null)
+  const [claimableCount, setClaimableCount] = useState(0)
 
   useEffect(() => {
     const uid = user?.userId || user?.memberId || 'NV-10042'
@@ -94,6 +96,9 @@ export default function Home() {
         const recruits = d?.recruits || []
         setActiveRecruits(recruits.filter(m => m.status === 'Active').length)
       })
+      .catch(() => {})
+    getMilestones(uid)
+      .then(d => setClaimableCount((d?.milestones || []).filter(m => m.status === 'claimable').length))
       .catch(() => {})
   }, [user])
 
@@ -273,6 +278,29 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Milestones banner */}
+      {claimableCount > 0 && (
+        <Link to="/dashboard/milestones" style={{ textDecoration: 'none', display: 'block', marginBottom: 24 }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(161,107,0,0.08) 100%)',
+            border: '1px solid rgba(245,158,11,0.45)',
+            borderRadius: 12, padding: '16px 22px',
+            display: 'flex', alignItems: 'center', gap: 16,
+          }}>
+            <span style={{ fontSize: 28 }}>🎁</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ margin: 0, fontWeight: 700, color: '#fcd34d', fontSize: 14 }}>
+                You have {claimableCount} unclaimed milestone reward{claimableCount !== 1 ? 's' : ''}!
+              </p>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--text2)' }}>
+                Click to view your achievements and collect your MLMT bonus.
+              </p>
+            </div>
+            <span style={{ fontSize: 13, color: '#fcd34d', fontWeight: 600, whiteSpace: 'nowrap' }}>View Milestones →</span>
+          </div>
+        </Link>
+      )}
 
       {/* Activity Feed */}
       <div className="card">

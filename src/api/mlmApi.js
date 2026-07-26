@@ -880,3 +880,61 @@ export async function getAdminAutoships({ status, search, page = 1, pageSize = 2
   params.set('page_size', pageSize)
   return request('GET', `/v1/mlm/autoship/admin?${params}`)
 }
+
+// ── Milestones & Achievements ──────────────────────────────────────────────────
+
+const MOCK_MILESTONES = [
+  // Getting Started
+  { id: 'm-gs-1', category: 'Getting Started', icon: '🎉', title: 'Welcome to Nordic Vitals!', desc: 'Your account has been created. Your journey starts now.', reward: '25 MLMT', rewardValue: 25, status: 'completed', completedAt: '2026-01-15T10:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-gs-2', category: 'Getting Started', icon: '✉️', title: 'Email Verified',             desc: 'Verify your email address to unlock all features.',    reward: '10 MLMT', rewardValue: 10, status: 'completed', completedAt: '2026-01-15T10:05:00Z', progress: null, target: null, cta: null },
+  { id: 'm-gs-3', category: 'Getting Started', icon: '👤', title: 'Profile Complete',           desc: 'Fill in your name, phone, and country in your profile.', reward: '15 MLMT', rewardValue: 15, status: 'completed', completedAt: '2026-01-20T14:00:00Z', progress: null, target: null, cta: { label: 'Go to Profile', href: '/dashboard/profile' } },
+  { id: 'm-gs-4', category: 'Getting Started', icon: '🛍️', title: 'First Order',               desc: 'Place your first order from the Nordic Vitals shop.',     reward: '50 MLMT', rewardValue: 50, status: 'completed', completedAt: '2026-05-20T08:00:00Z', progress: null, target: null, cta: { label: 'Shop Now', href: '/shop' } },
+  { id: 'm-gs-5', category: 'Getting Started', icon: '♻️', title: 'Autoship Activated',         desc: 'Set up your first recurring autoship subscription.',       reward: '30 MLMT', rewardValue: 30, status: 'completed', completedAt: '2026-06-01T09:00:00Z', progress: null, target: null, cta: { label: 'Manage Autoship', href: '/dashboard/autoship' } },
+  // Sales Champion
+  { id: 'm-sc-1', category: 'Sales Champion', icon: '💊', title: 'First 100 PV',     desc: 'Generate 100 Personal Volume — your first real milestone.',     reward: '75 MLMT',  rewardValue: 75,  status: 'completed',   completedAt: '2026-06-15T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-sc-2', category: 'Sales Champion', icon: '🔥', title: '300 PV Achiever',  desc: 'Reach 300 PV in a single month — unlock Silver rank eligibility.', reward: '150 MLMT', rewardValue: 150, status: 'completed',   completedAt: '2026-07-01T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-sc-3', category: 'Sales Champion', icon: '⭐', title: '500 PV Star',       desc: 'Reach 500 PV — required for Gold rank advancement.',             reward: '300 MLMT', rewardValue: 300, status: 'in_progress', completedAt: null, progress: 320, target: 500, progressLabel: '320 / 500 PV', cta: { label: 'View Earnings', href: '/dashboard/earnings' } },
+  { id: 'm-sc-4', category: 'Sales Champion', icon: '📝', title: 'Review Pioneer',   desc: 'Submit your first product review to help the community.',         reward: '20 MLMT',  rewardValue: 20,  status: 'claimable',   completedAt: '2026-07-10T00:00:00Z', progress: null, target: null, cta: null },
+  // Team Builder
+  { id: 'm-tb-1', category: 'Team Builder', icon: '🤝', title: 'First Recruit',    desc: 'Personally sponsor your first new member.',                    reward: '100 MLMT', rewardValue: 100, status: 'completed',   completedAt: '2026-02-10T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-tb-2', category: 'Team Builder', icon: '👥', title: 'Growing Team',     desc: 'Grow your personally sponsored team to 3 members.',             reward: '200 MLMT', rewardValue: 200, status: 'completed',   completedAt: '2026-04-01T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-tb-3', category: 'Team Builder', icon: '🧑‍🤝‍🧑', title: 'Squad of 5',  desc: 'Personally recruit 5 active members into your team.',            reward: '350 MLMT', rewardValue: 350, status: 'claimable',  completedAt: '2026-07-05T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-tb-4', category: 'Team Builder', icon: '🌐', title: 'Network of 10',    desc: 'Build a personally recruited team of 10 active members.',        reward: '750 MLMT', rewardValue: 750, status: 'in_progress', completedAt: null, progress: 6, target: 10, progressLabel: '6 / 10 members', cta: { label: 'View Referrals', href: '/dashboard/referral' } },
+  // Leadership
+  { id: 'm-ld-1', category: 'Leadership', icon: '🥉', title: 'Bronze Rank',          desc: 'Achieve Bronze rank — you are officially on your way up.',       reward: '100 MLMT', rewardValue: 100, status: 'completed', completedAt: '2026-03-15T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-ld-2', category: 'Leadership', icon: '🥈', title: 'Silver Rank',          desc: 'Advance to Silver rank — you are now a team leader.',            reward: '500 MLMT', rewardValue: 500, status: 'completed', completedAt: '2026-07-01T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-ld-3', category: 'Leadership', icon: '🥇', title: 'Gold Rank',            desc: 'Reach Gold rank — requires 500 PV and 5,000 GV each leg.',       reward: '1500 MLMT', rewardValue: 1500, status: 'locked', completedAt: null, progress: 320, target: 500, progressLabel: '320 / 500 PV needed', cta: { label: 'See Calculator', href: '/dashboard/calculator' } },
+  { id: 'm-ld-4', category: 'Leadership', icon: '💰', title: 'First Commission',     desc: 'Earn your very first commission from the Arctico MLM engine.',    reward: '25 MLMT', rewardValue: 25,  status: 'completed', completedAt: '2026-02-16T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-ld-5', category: 'Leadership', icon: '💎', title: '1,000 MLMT Earned',   desc: 'Accumulate 1,000 MLMT in total commissions.',                     reward: '100 MLMT', rewardValue: 100, status: 'completed', completedAt: '2026-06-30T00:00:00Z', progress: null, target: null, cta: null },
+  { id: 'm-ld-6', category: 'Leadership', icon: '🏆', title: 'Top 10 Leaderboard',  desc: 'Appear in the Top 10 Earners on the monthly leaderboard.',        reward: '250 MLMT', rewardValue: 250, status: 'completed', completedAt: '2026-07-13T00:00:00Z', progress: null, target: null, cta: { label: 'View Leaderboard', href: '/dashboard/leaderboard' } },
+]
+
+const _claimedMilestones = new Set()
+
+export async function getMilestones(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const milestones = MOCK_MILESTONES.map(m => ({
+      ...m,
+      status: _claimedMilestones.has(m.id) ? 'completed' : m.status,
+    }))
+    const claimed = milestones.filter(m => m.status === 'completed')
+    const totalRewardClaimed = claimed.reduce((s, m) => s + (m.rewardValue || 0), 0)
+    return { milestones, totalRewardClaimed }
+  }
+  return request('GET', `/v1/mlm/members/${userId}/milestones`)
+}
+
+export async function claimMilestone(userId, milestoneId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const m = MOCK_MILESTONES.find(m => m.id === milestoneId)
+    if (!m) throw new Error('Milestone not found')
+    if (m.status !== 'claimable') throw new Error('Milestone is not claimable')
+    _claimedMilestones.add(milestoneId)
+    m.status = 'completed'
+    m.completedAt = new Date().toISOString()
+    return { milestoneId, reward: m.rewardValue || 0, newBalance: 1150 + (m.rewardValue || 0) }
+  }
+  return request('POST', `/v1/mlm/members/${userId}/milestones/${milestoneId}/claim`, {})
+}
