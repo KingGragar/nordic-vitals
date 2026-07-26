@@ -121,18 +121,18 @@ export const ADMIN_ORDERS = [
 ]
 
 export const ADMIN_MEMBERS = [
-  { id: 'NV-10042', name: 'Lars Eriksen',   sponsor: 'NV-00010', rank: 'Silver',   pv: 320, gv: 3050, status: 'Active',   joined: '2025-03-12' },
-  { id: 'NV-10087', name: 'Mia Andersen',   sponsor: 'NV-10042', rank: 'Bronze',   pv: 180, gv: 1240, status: 'Active',   joined: '2025-05-01' },
-  { id: 'NV-10091', name: 'Erik Solberg',   sponsor: 'NV-10042', rank: 'Unranked', pv: 90,  gv: 600,  status: 'Active',   joined: '2025-06-14' },
-  { id: 'NV-10102', name: 'Kari Holm',      sponsor: 'NV-10087', rank: 'Unranked', pv: 60,  gv: 60,   status: 'Active',   joined: '2025-07-22' },
-  { id: 'NV-10118', name: 'Tor Bakke',      sponsor: 'NV-10091', rank: 'Unranked', pv: 45,  gv: 45,   status: 'Inactive', joined: '2025-08-03' },
-  { id: 'NV-10122', name: 'Anna Lund',      sponsor: 'NV-10091', rank: 'Unranked', pv: 30,  gv: 55,   status: 'Active',   joined: '2025-09-18' },
-  { id: 'NV-10201', name: 'Per Nilsen',     sponsor: 'NV-10102', rank: 'Unranked', pv: 20,  gv: 20,   status: 'Active',   joined: '2025-10-05' },
-  { id: 'NV-10208', name: 'Hege Moen',      sponsor: 'NV-10102', rank: 'Unranked', pv: 15,  gv: 15,   status: 'Inactive', joined: '2025-11-12' },
-  { id: 'NV-10210', name: 'Lise Dahl',      sponsor: 'NV-10118', rank: 'Unranked', pv: 10,  gv: 10,   status: 'Inactive', joined: '2025-12-01' },
-  { id: 'NV-10215', name: 'Bjorn Lie',      sponsor: 'NV-10122', rank: 'Unranked', pv: 25,  gv: 25,   status: 'Active',   joined: '2026-01-08' },
-  { id: 'NV-10230', name: 'Sigrid Voss',    sponsor: 'NV-10087', rank: 'Bronze',   pv: 120, gv: 340,  status: 'Active',   joined: '2026-02-14' },
-  { id: 'NV-10241', name: 'Olaf Berg',      sponsor: 'NV-10042', rank: 'Unranked', pv: 50,  gv: 50,   status: 'Active',   joined: '2026-03-20' },
+  { id: 'NV-10042', name: 'Lars Eriksen',   email: 'lars.eriksen@example.no',   phone: '+47 901 23 456', country: 'Norway',  sponsor: 'NV-00010', rank: 'Silver',   pv: 320, gv: 3050, status: 'Active',   joined: '2025-03-12', notes: '' },
+  { id: 'NV-10087', name: 'Mia Andersen',   email: 'mia.andersen@example.no',   phone: '+47 912 34 567', country: 'Norway',  sponsor: 'NV-10042', rank: 'Bronze',   pv: 180, gv: 1240, status: 'Active',   joined: '2025-05-01', notes: '' },
+  { id: 'NV-10091', name: 'Erik Solberg',   email: 'erik.solberg@example.no',   phone: '+47 923 45 678', country: 'Norway',  sponsor: 'NV-10042', rank: 'Unranked', pv: 90,  gv: 600,  status: 'Active',   joined: '2025-06-14', notes: '' },
+  { id: 'NV-10102', name: 'Kari Holm',      email: 'kari.holm@example.no',      phone: '+47 934 56 789', country: 'Norway',  sponsor: 'NV-10087', rank: 'Unranked', pv: 60,  gv: 60,   status: 'Active',   joined: '2025-07-22', notes: '' },
+  { id: 'NV-10118', name: 'Tor Bakke',      email: 'tor.bakke@example.no',      phone: '+47 945 67 890', country: 'Norway',  sponsor: 'NV-10091', rank: 'Unranked', pv: 45,  gv: 45,   status: 'Inactive', joined: '2025-08-03', notes: 'Inactive since Oct 2025' },
+  { id: 'NV-10122', name: 'Anna Lund',      email: 'anna.lund@example.se',      phone: '+46 701 23 456', country: 'Sweden',  sponsor: 'NV-10091', rank: 'Unranked', pv: 30,  gv: 55,   status: 'Active',   joined: '2025-09-18', notes: '' },
+  { id: 'NV-10201', name: 'Per Nilsen',     email: 'per.nilsen@example.no',     phone: '+47 956 78 901', country: 'Norway',  sponsor: 'NV-10102', rank: 'Unranked', pv: 20,  gv: 20,   status: 'Active',   joined: '2025-10-05', notes: '' },
+  { id: 'NV-10208', name: 'Hege Moen',      email: 'hege.moen@example.no',      phone: '+47 967 89 012', country: 'Norway',  sponsor: 'NV-10102', rank: 'Unranked', pv: 15,  gv: 15,   status: 'Inactive', joined: '2025-11-12', notes: '' },
+  { id: 'NV-10210', name: 'Lise Dahl',      email: 'lise.dahl@example.dk',      phone: '+45 701 23 456', country: 'Denmark', sponsor: 'NV-10118', rank: 'Unranked', pv: 10,  gv: 10,   status: 'Inactive', joined: '2025-12-01', notes: '' },
+  { id: 'NV-10215', name: 'Bjorn Lie',      email: 'bjorn.lie@example.no',      phone: '+47 978 90 123', country: 'Norway',  sponsor: 'NV-10122', rank: 'Unranked', pv: 25,  gv: 25,   status: 'Active',   joined: '2026-01-08', notes: '' },
+  { id: 'NV-10230', name: 'Sigrid Voss',    email: 'sigrid.voss@example.no',    phone: '+47 989 01 234', country: 'Norway',  sponsor: 'NV-10087', rank: 'Bronze',   pv: 120, gv: 340,  status: 'Active',   joined: '2026-02-14', notes: '' },
+  { id: 'NV-10241', name: 'Olaf Berg',      email: 'olaf.berg@example.no',      phone: '+47 990 12 345', country: 'Norway',  sponsor: 'NV-10042', rank: 'Unranked', pv: 50,  gv: 50,   status: 'Active',   joined: '2026-03-20', notes: '' },
 ]
 
 export const PAYOUT_QUEUE = [

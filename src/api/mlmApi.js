@@ -8,6 +8,8 @@ import {
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG,
 } from '../data/mock'
 
+const MEMBER_STATUS_OVERRIDE = {}
+
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
 const KEY  = import.meta.env.VITE_MLM_API_KEY  || ''
 
@@ -609,4 +611,47 @@ export async function getAuditLog({ category, result, search, limit = 100 } = {}
   if (search)   params.set('q',        search)
   params.set('limit', limit)
   return request('GET', `/v1/mlm/admin/audit-log?${params}`)
+}
+
+// ── Admin Member Detail ────────────────────────────────────────────────────────
+
+export async function getMemberDetail(memberId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const base = ADMIN_MEMBERS.find(m => m.id === memberId)
+    if (!base) throw new Error('Member not found')
+    const member = { ...base, ...MEMBER_STATUS_OVERRIDE[memberId] }
+    const downline = ADMIN_MEMBERS.filter(m => m.sponsor === memberId)
+    const commissions = COMMISSIONS.filter((_, i) => i % Math.max(1, Math.floor(COMMISSIONS.length / 4)) === 0).slice(0, 6)
+    const orders = ADMIN_ORDERS.filter(o => o.memberId === memberId).slice(0, 5)
+    return { member, downline, commissions, orders }
+  }
+  return request('GET', `/v1/mlm/admin/members/${memberId}`)
+}
+
+export async function updateMemberStatus(memberId, status) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    MEMBER_STATUS_OVERRIDE[memberId] = { ...(MEMBER_STATUS_OVERRIDE[memberId] || {}), status }
+    return { ok: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/members/${memberId}`, { status })
+}
+
+export async function setMemberRank(memberId, rank) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    MEMBER_STATUS_OVERRIDE[memberId] = { ...(MEMBER_STATUS_OVERRIDE[memberId] || {}), rank }
+    return { ok: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/members/${memberId}`, { rank })
+}
+
+export async function addMemberNote(memberId, note) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    MEMBER_STATUS_OVERRIDE[memberId] = { ...(MEMBER_STATUS_OVERRIDE[memberId] || {}), notes: note }
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/members/${memberId}/notes`, { note })
 }
