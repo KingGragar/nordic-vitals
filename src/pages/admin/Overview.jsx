@@ -298,6 +298,7 @@ export default function Overview() {
           { label: '📊 Reports',         desc: 'Analytics & top earners',       path: '/admin/reports' },
           { label: '⚙️ Plan Config',     desc: 'Rank thresholds & rates',       path: '/admin/plan' },
           { label: '📣 Announcements',    desc: 'Broadcast messages to members',  path: '/admin/announcements' },
+          { label: '🔍 Audit Log',       desc: 'Immutable record of all actions', path: '/admin/audit-log' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
         ].map(({ label, desc, path }) => (
           <div

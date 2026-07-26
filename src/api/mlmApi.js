@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG,
 } from '../data/mock'
 
 const BASE = import.meta.env.VITE_MLM_API_URL || ''
@@ -582,4 +582,31 @@ export async function deleteAnnouncement(id) {
     return { ok: true }
   }
   return request('DELETE', `/v1/mlm/admin/announcements/${id}`)
+}
+
+// ── Audit Log ──────────────────────────────────────────────────────────────────
+
+export async function getAuditLog({ category, result, search, limit = 100 } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let rows = [...AUDIT_LOG].reverse()
+    if (category && category !== 'all') rows = rows.filter(r => r.category === category)
+    if (result   && result   !== 'all') rows = rows.filter(r => r.result   === result)
+    if (search) {
+      const q = search.toLowerCase()
+      rows = rows.filter(r =>
+        r.action.toLowerCase().includes(q) ||
+        r.detail.toLowerCase().includes(q) ||
+        r.actor.toLowerCase().includes(q) ||
+        r.target.toLowerCase().includes(q)
+      )
+    }
+    return { entries: rows.slice(0, limit), total: rows.length }
+  }
+  const params = new URLSearchParams()
+  if (category && category !== 'all') params.set('category', category)
+  if (result   && result   !== 'all') params.set('result',   result)
+  if (search)   params.set('q',        search)
+  params.set('limit', limit)
+  return request('GET', `/v1/mlm/admin/audit-log?${params}`)
 }
