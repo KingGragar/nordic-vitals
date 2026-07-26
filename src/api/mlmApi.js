@@ -511,3 +511,32 @@ export async function updateOrderStatus(orderId, status) {
   }
   return request('PATCH', `/api/viking-peptides/admin/orders/${orderId}`, { status })
 }
+
+// ── Withdrawals ───────────────────────────────────────────────────────────────
+
+let _withdrawalSeq = 91
+
+export async function requestWithdrawal(userId, { amount, method = 'Bank Transfer', address = '' }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    const id = `W-00${++_withdrawalSeq}`
+    return { payout_id: id, status: 'pending', amount, method }
+  }
+  return request('POST', '/v1/mlm/withdrawals', { user_id: userId, amount, method, address })
+}
+
+export async function approveWithdrawal(payoutId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return { payout_id: payoutId, status: 'approved' }
+  }
+  return request('PATCH', `/v1/mlm/withdrawals/${payoutId}/approve`)
+}
+
+export async function rejectWithdrawal(payoutId, reason = '') {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return { payout_id: payoutId, status: 'rejected' }
+  }
+  return request('PATCH', `/v1/mlm/withdrawals/${payoutId}/reject`, { reason })
+}

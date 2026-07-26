@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
-import { getUserTransactions, getCommissions } from '../../api/mlmApi'
+import { getUserTransactions, getCommissions, requestWithdrawal } from '../../api/mlmApi'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Wallet() {
   const { user } = useAuth()
   const [showModal, setShowModal] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('1150')
+  const [withdrawMethod, setWithdrawMethod] = useState('Bank Transfer')
+  const [withdrawAddress, setWithdrawAddress] = useState('')
+  const [withdrawLoading, setWithdrawLoading] = useState(false)
+  const [withdrawError, setWithdrawError] = useState('')
   const [toast, setToast] = useState(null)
   const [txs, setTxs] = useState([])
   const [pendingBalance, setPendingBalance] = useState(0)
@@ -37,10 +41,28 @@ export default function Wallet() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  function handleConfirmWithdrawal() {
-    const amount = withdrawAmount || '1150'
-    setShowModal(false)
-    showToast(`Withdrawal of ${parseInt(amount).toLocaleString()} MLMT requested ✓`)
+  async function handleConfirmWithdrawal() {
+    const amount = parseInt(withdrawAmount, 10)
+    setWithdrawError('')
+    if (!amount || amount <= 0) { setWithdrawError('Enter a valid amount.'); return }
+    if (amount > availableBalance) { setWithdrawError(`Amount exceeds available balance (${availableBalance.toLocaleString()} MLMT).`); return }
+    if (withdrawMethod !== 'Bank Transfer' && !withdrawAddress.trim()) { setWithdrawError('Enter your withdrawal address.'); return }
+    setWithdrawLoading(true)
+    try {
+      const result = await requestWithdrawal(user?.memberId || 'NV-10042', {
+        amount,
+        method: withdrawMethod,
+        address: withdrawAddress.trim(),
+      })
+      setShowModal(false)
+      setWithdrawAmount(String(availableBalance))
+      setWithdrawAddress('')
+      showToast(`Withdrawal of ${amount.toLocaleString()} MLMT requested ✓ (${result.payout_id})`)
+    } catch (err) {
+      setWithdrawError(err.message || 'Request failed — please try again.')
+    } finally {
+      setWithdrawLoading(false)
+    }
   }
 
   return (
@@ -155,46 +177,83 @@ export default function Wallet() {
               </h2>
 
               <div style={{ marginBottom: '16px' }}>
+                <label className="label-text">Method</label>
+                <select
+                  className="input"
+                  value={withdrawMethod}
+                  onChange={e => { setWithdrawMethod(e.target.value); setWithdrawAddress(''); setWithdrawError('') }}
+                >
+                  <option>Bank Transfer</option>
+                  <option>SEPA Transfer</option>
+                  <option>Crypto (USDT/TRC-20)</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
                 <label className="label-text">Amount (MLMT)</label>
                 <input
                   className="input"
                   type="number"
                   value={withdrawAmount}
-                  onChange={e => setWithdrawAmount(e.target.value)}
+                  onChange={e => { setWithdrawAmount(e.target.value); setWithdrawError('') }}
                   max={String(availableBalance)}
                   min="1"
                 />
                 <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '6px' }}>
-                  Maximum available: {availableBalance.toLocaleString()} MLMT
+                  Available: {availableBalance.toLocaleString()} MLMT
                 </div>
               </div>
 
-              <div style={{
-                background: 'var(--navy)',
-                borderRadius: '8px',
-                padding: '14px 16px',
-                marginBottom: '16px',
-                fontSize: '13px',
-                color: 'var(--text2)',
-              }}>
-                <div style={{ marginBottom: '6px' }}>
-                  🏦 Bank account: IBAN ending <strong style={{ color: 'var(--cream)' }}>****4521</strong>
+              {withdrawMethod !== 'Bank Transfer' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label className="label-text">
+                    {withdrawMethod === 'SEPA Transfer' ? 'IBAN' : 'Wallet Address'}
+                  </label>
+                  <input
+                    className="input"
+                    placeholder={withdrawMethod === 'SEPA Transfer' ? 'NO93 1234 5678 901' : 'T... (TRC-20)'}
+                    value={withdrawAddress}
+                    onChange={e => { setWithdrawAddress(e.target.value); setWithdrawError('') }}
+                  />
                 </div>
-                <div>⏱ Estimated: 2–3 business days</div>
-              </div>
+              )}
+
+              {withdrawMethod === 'Bank Transfer' && (
+                <div style={{
+                  background: 'var(--navy)',
+                  borderRadius: '8px',
+                  padding: '14px 16px',
+                  marginBottom: '16px',
+                  fontSize: '13px',
+                  color: 'var(--text2)',
+                }}>
+                  <div style={{ marginBottom: '6px' }}>
+                    🏦 Bank account on file: IBAN ending <strong style={{ color: 'var(--cream)' }}>****4521</strong>
+                  </div>
+                  <div>⏱ Estimated: 2–3 business days</div>
+                </div>
+              )}
+
+              {withdrawError && (
+                <div style={{ color: 'var(--red)', fontSize: '13px', marginBottom: '12px' }}>
+                  {withdrawError}
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                 <button
                   className="btn btn-outline"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => { setShowModal(false); setWithdrawError('') }}
+                  disabled={withdrawLoading}
                 >
                   Cancel
                 </button>
                 <button
                   className="btn btn-green"
                   onClick={handleConfirmWithdrawal}
+                  disabled={withdrawLoading}
                 >
-                  Confirm Withdrawal
+                  {withdrawLoading ? 'Submitting…' : 'Confirm Withdrawal'}
                 </button>
               </div>
             </div>

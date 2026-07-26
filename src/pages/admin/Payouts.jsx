@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { PAYOUT_QUEUE } from '../../data/mock'
-import { getPayoutQueue } from '../../api/mlmApi'
+import { getPayoutQueue, approveWithdrawal, rejectWithdrawal } from '../../api/mlmApi'
 
 const PAGE_SIZE = 20
 
@@ -92,20 +92,30 @@ export default function Payouts() {
     setTimeout(() => setToast(null), 3500)
   }
 
-  function approve(id) {
+  async function approve(id) {
     const item = allPending.find(p => p.id === id)
     if (!item) return
-    const processedDate = new Date().toISOString().slice(0, 10)
-    setAllPending(prev => prev.filter(p => p.id !== id))
-    setProcessed(prev => [...prev, { ...item, processedDate }])
-    showToast(`Payment of ${item.amount.toLocaleString()} MLMT approved for ${item.member}`)
+    try {
+      await approveWithdrawal(id)
+      const processedDate = new Date().toISOString().slice(0, 10)
+      setAllPending(prev => prev.filter(p => p.id !== id))
+      setProcessed(prev => [...prev, { ...item, processedDate }])
+      showToast(`Payment of ${item.amount.toLocaleString()} MLMT approved for ${item.member}`)
+    } catch {
+      showToast(`Failed to approve payment for ${item.member} — please try again`)
+    }
   }
 
-  function reject(id) {
+  async function reject(id) {
     const item = allPending.find(p => p.id === id)
     if (!item) return
-    setAllPending(prev => prev.filter(p => p.id !== id))
-    showToast(`Payment rejected for ${item.member}`)
+    try {
+      await rejectWithdrawal(id)
+      setAllPending(prev => prev.filter(p => p.id !== id))
+      showToast(`Payment rejected for ${item.member}`)
+    } catch {
+      showToast(`Failed to reject payment for ${item.member} — please try again`)
+    }
   }
 
   function toggleCheck(id) {
@@ -118,13 +128,18 @@ export default function Payouts() {
     setAllPending(prev => prev.map(p => visibleIds.has(p.id) ? { ...p, checked: !allChecked } : p))
   }
 
-  function approveSelected() {
+  async function approveSelected() {
     const selected = allPending.filter(p => p.checked)
     if (selected.length === 0) return
-    const processedDate = new Date().toISOString().slice(0, 10)
-    setAllPending(prev => prev.filter(p => !p.checked))
-    setProcessed(prev => [...prev, ...selected.map(s => ({ ...s, processedDate }))])
-    showToast(`${selected.length} payment${selected.length > 1 ? 's' : ''} approved`)
+    try {
+      await Promise.all(selected.map(s => approveWithdrawal(s.id)))
+      const processedDate = new Date().toISOString().slice(0, 10)
+      setAllPending(prev => prev.filter(p => !p.checked))
+      setProcessed(prev => [...prev, ...selected.map(s => ({ ...s, processedDate }))])
+      showToast(`${selected.length} payment${selected.length > 1 ? 's' : ''} approved`)
+    } catch {
+      showToast('Some approvals failed — please refresh and retry')
+    }
   }
 
   // Filtering
