@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -937,4 +937,40 @@ export async function claimMilestone(userId, milestoneId) {
     return { milestoneId, reward: m.rewardValue || 0, newBalance: 1150 + (m.rewardValue || 0) }
   }
   return request('POST', `/v1/mlm/members/${userId}/milestones/${milestoneId}/claim`, {})
+}
+
+const _resourceDownloads = {}
+
+export async function getResources(filters = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let items = RESOURCES.map(r => ({
+      ...r,
+      downloads: r.downloads + (_resourceDownloads[r.id] || 0),
+    }))
+    if (filters.category && filters.category !== 'All') {
+      items = items.filter(r => r.category === filters.category)
+    }
+    if (filters.search) {
+      const q = filters.search.toLowerCase()
+      items = items.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        r.desc.toLowerCase().includes(q) ||
+        r.tags.some(t => t.includes(q))
+      )
+    }
+    return { resources: items, total: items.length }
+  }
+  const params = new URLSearchParams()
+  if (filters.category && filters.category !== 'All') params.set('category', filters.category)
+  if (filters.search) params.set('search', filters.search)
+  return request('GET', `/v1/mlm/resources?${params}`)
+}
+
+export async function trackResourceDownload(resourceId) {
+  if (MOCK) {
+    _resourceDownloads[resourceId] = (_resourceDownloads[resourceId] || 0) + 1
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/resources/${resourceId}/download`, {})
 }

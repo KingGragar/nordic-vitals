@@ -16,6 +16,7 @@ const navLinks = [
   { to: '/dashboard/support',            label: '🎫 Support' },
   { to: '/dashboard/autoship',           label: '♻️ Autoship' },
   { to: '/dashboard/milestones',         label: '🏅 Milestones' },
+  { to: '/dashboard/resources',         label: '📂 Resources' },
   { to: '/dashboard/profile',            label: '👤 Profile' },
 ]
 
