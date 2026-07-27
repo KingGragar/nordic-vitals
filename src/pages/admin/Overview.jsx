@@ -424,6 +424,7 @@ export default function Overview() {
           { label: '🔍 Audit Log',       desc: 'Immutable record of all actions', path: '/admin/audit-log' },
           { label: '🎫 Support',         desc: 'Manage member help tickets',      path: '/admin/support' },
           { label: '✉️ Email Templates',  desc: 'Edit transactional email templates', path: '/admin/email-templates' },
+          { label: '🪙 Token Management', desc: 'Mint, airdrop, burn MLMT + ledger', path: '/admin/tokens' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
         ].map(({ label, desc, path }) => (
           <div

@@ -796,3 +796,31 @@ Nordic Vitals`,
     sentCount: 289,
   },
 ]
+
+export const TOKEN_STATS = {
+  totalSupply:       10_000_000,
+  circulatingSupply:  3_482_150,
+  burnedTotal:          217_850,
+  reservedPlatform:   6_300_000,
+  memberWallets:      3_482_150,
+  lastMintAt: '2026-07-15T10:00:00Z',
+  lastBurnAt: '2026-07-20T14:30:00Z',
+}
+
+export const TOKEN_EVENTS = [
+  { id: 'te001', type: 'mint',     amount: 500_000, actor: 'admin@nordicvitals.com', recipient: 'platform-reserve', memo: 'Initial platform reserve',          ts: '2026-01-01T00:00:00Z' },
+  { id: 'te002', type: 'airdrop',  amount:  50_000, actor: 'admin@nordicvitals.com', recipient: 'all-members',      memo: 'Beta launch bonus — all members',   ts: '2026-02-01T09:00:00Z' },
+  { id: 'te003', type: 'mint',     amount: 200_000, actor: 'admin@nordicvitals.com', recipient: 'platform-reserve', memo: 'Q1 expansion mint',                  ts: '2026-03-15T11:00:00Z' },
+  { id: 'te004', type: 'burn',     amount:  10_000, actor: 'system',                 recipient: null,               memo: 'Expired promo code rewards',        ts: '2026-04-01T08:00:00Z' },
+  { id: 'te005', type: 'airdrop',  amount:   5_000, actor: 'admin@nordicvitals.com', recipient: 'rank:platinum',    memo: 'Platinum anniversary bonus',        ts: '2026-04-15T12:00:00Z' },
+  { id: 'te006', type: 'mint',     amount: 1_000_000, actor: 'admin@nordicvitals.com', recipient: 'platform-reserve', memo: 'Series A reserve allocation',    ts: '2026-05-01T09:00:00Z' },
+  { id: 'te007', type: 'airdrop',  amount:  25_000, actor: 'admin@nordicvitals.com', recipient: 'rank:gold',        memo: 'Gold rank quarterly bonus',         ts: '2026-05-15T10:30:00Z' },
+  { id: 'te008', type: 'burn',     amount:  50_000, actor: 'system',                 recipient: null,               memo: 'Lapsed member wallet reclaim',      ts: '2026-06-01T00:00:00Z' },
+  { id: 'te009', type: 'mint',     amount: 2_000_000, actor: 'admin@nordicvitals.com', recipient: 'platform-reserve', memo: 'Growth reserve expansion',       ts: '2026-06-15T09:00:00Z' },
+  { id: 'te010', type: 'airdrop',  amount:  10_000, actor: 'admin@nordicvitals.com', recipient: 'all-members',      memo: 'Mid-year engagement airdrop',       ts: '2026-07-01T10:00:00Z' },
+  { id: 'te011', type: 'airdrop',  amount:   2_500, actor: 'admin@nordicvitals.com', recipient: 'rank:silver',      memo: 'Silver summer promo',               ts: '2026-07-10T11:00:00Z' },
+  { id: 'te012', type: 'mint',     amount: 5_000_000, actor: 'admin@nordicvitals.com', recipient: 'platform-reserve', memo: 'Long-term incentive pool',       ts: '2026-07-15T10:00:00Z' },
+  { id: 'te013', type: 'burn',     amount: 150_000, actor: 'system',                 recipient: null,               memo: 'Commission over-issue correction',  ts: '2026-07-20T14:30:00Z' },
+  { id: 'te014', type: 'airdrop',  amount:   1_000, actor: 'admin@nordicvitals.com', recipient: 'member:usr-0001',  memo: 'Manual top-up for top recruiter',   ts: '2026-07-22T09:00:00Z' },
+  { id: 'te015', type: 'burn',     amount:   7_850, actor: 'system',                 recipient: null,               memo: 'Stale autoship credit reclaim',     ts: '2026-07-25T08:00:00Z' },
+]

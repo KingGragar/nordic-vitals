@@ -18,6 +18,7 @@ const navLinks = [
   { to: '/admin/audit-log',       label: '🔍 Audit Log' },
   { to: '/admin/support',         label: '🎫 Support' },
   { to: '/admin/email-templates', label: '✉️ Email Templates' },
+  { to: '/admin/tokens',          label: '🪙 Token Management' },
   { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 

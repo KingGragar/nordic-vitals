@@ -6,6 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
+  TOKEN_STATS, TOKEN_EVENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1101,4 +1102,99 @@ export async function resetEmailTemplate(id) {
 export async function sendTestEmail(id, toEmail) {
   if (MOCK) return { ok: true, message: `Test email sent to ${toEmail}` }
   return request('POST', `/v1/mlm/admin/email-templates/${id}/test`, { to: toEmail })
+}
+
+// ── Token Management ──────────────────────────────────────────────────────────
+
+let _mockTokenStats = { ...TOKEN_STATS }
+let _mockTokenEvents = TOKEN_EVENTS.map(e => ({ ...e }))
+
+export async function getTokenStats() {
+  if (MOCK) return { stats: { ..._mockTokenStats } }
+  return request('GET', '/v1/mlm/admin/tokens/stats')
+}
+
+export async function getTokenEvents({ type, search, limit = 50, offset = 0 } = {}) {
+  if (MOCK) {
+    let data = [..._mockTokenEvents].sort((a, b) => b.ts.localeCompare(a.ts))
+    if (type && type !== 'all') data = data.filter(e => e.type === type)
+    if (search) {
+      const q = search.toLowerCase()
+      data = data.filter(e =>
+        e.memo.toLowerCase().includes(q) ||
+        e.actor.toLowerCase().includes(q) ||
+        (e.recipient || '').toLowerCase().includes(q)
+      )
+    }
+    return { events: data.slice(offset, offset + limit), total: data.length }
+  }
+  const params = new URLSearchParams({ limit, offset })
+  if (type && type !== 'all') params.set('type', type)
+  if (search) params.set('search', search)
+  return request('GET', `/v1/mlm/admin/tokens/events?${params}`)
+}
+
+export async function mintTokens({ amount, recipient, memo }) {
+  if (MOCK) {
+    const event = {
+      id: `te${Date.now()}`,
+      type: 'mint',
+      amount,
+      actor: 'admin@nordicvitals.com',
+      recipient: recipient || 'platform-reserve',
+      memo,
+      ts: new Date().toISOString(),
+    }
+    _mockTokenEvents.unshift(event)
+    _mockTokenStats.totalSupply += amount
+    _mockTokenStats.reservedPlatform += amount
+    _mockTokenStats.lastMintAt = event.ts
+    return { ok: true, event }
+  }
+  return request('POST', '/v1/mlm/admin/tokens/mint', { amount, recipient, memo })
+}
+
+export async function airdropTokens({ amount, target, memo }) {
+  if (MOCK) {
+    const memberCount = target === 'all-members' ? ADMIN_MEMBERS.length
+      : target.startsWith('rank:') ? ADMIN_MEMBERS.filter(m => m.rank.toLowerCase() === target.split(':')[1]).length
+      : 1
+    const totalAmount = amount * memberCount
+    const event = {
+      id: `te${Date.now()}`,
+      type: 'airdrop',
+      amount: totalAmount,
+      actor: 'admin@nordicvitals.com',
+      recipient: target,
+      memo,
+      ts: new Date().toISOString(),
+    }
+    _mockTokenEvents.unshift(event)
+    _mockTokenStats.circulatingSupply += totalAmount
+    _mockTokenStats.memberWallets += totalAmount
+    _mockTokenStats.reservedPlatform -= totalAmount
+    return { ok: true, event, memberCount, totalAmount }
+  }
+  return request('POST', '/v1/mlm/admin/tokens/airdrop', { amount, target, memo })
+}
+
+export async function burnTokens({ amount, memo }) {
+  if (MOCK) {
+    const event = {
+      id: `te${Date.now()}`,
+      type: 'burn',
+      amount,
+      actor: 'system',
+      recipient: null,
+      memo,
+      ts: new Date().toISOString(),
+    }
+    _mockTokenEvents.unshift(event)
+    _mockTokenStats.totalSupply -= amount
+    _mockTokenStats.burnedTotal += amount
+    _mockTokenStats.reservedPlatform -= amount
+    _mockTokenStats.lastBurnAt = event.ts
+    return { ok: true, event }
+  }
+  return request('POST', '/v1/mlm/admin/tokens/burn', { amount, memo })
 }
