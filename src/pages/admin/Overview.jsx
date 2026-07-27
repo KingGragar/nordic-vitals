@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -82,6 +82,41 @@ export default function Overview() {
   const commissionsPaid = netVol?.commissions_paid_last_run ?? 18400
   const tokenSupply = summary?.total_supply ?? 100_000_000
   const bonusPaid = summary?.total_bonus_paid ?? 3133
+
+  const allMembers = members.length > 0 ? members : ADMIN_MEMBERS
+
+  const recentSignups = useMemo(() => {
+    return [...allMembers]
+      .sort((a, b) => new Date(b.joined) - new Date(a.joined))
+      .slice(0, 5)
+  }, [allMembers])
+
+  const RANK_THRESHOLDS = {
+    Bronze:   { minPv: 100,  minGv: 1000  },
+    Silver:   { minPv: 300,  minGv: 4000  },
+    Gold:     { minPv: 500,  minGv: 10000 },
+    Platinum: { minPv: 1000, minGv: 30000 },
+  }
+  const RANK_ORDER = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum']
+
+  const nearRankUp = useMemo(() => {
+    return allMembers
+      .filter(m => m.status === 'Active' && m.rank !== 'Platinum')
+      .map(m => {
+        const currentIdx = RANK_ORDER.indexOf(m.rank)
+        const nextRank   = RANK_ORDER[currentIdx + 1]
+        if (!nextRank) return null
+        const thresh = RANK_THRESHOLDS[nextRank]
+        if (!thresh) return null
+        const pvPct = Math.min(100, Math.round((m.pv / thresh.minPv) * 100))
+        const gvPct = Math.min(100, Math.round((m.gv / thresh.minGv) * 100))
+        const progress = Math.min(pvPct, gvPct)
+        return { ...m, nextRank, progress }
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.progress - a.progress)
+      .slice(0, 5)
+  }, [allMembers])
 
   const kpis = [
     {
@@ -281,6 +316,91 @@ export default function Overview() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Recent Signups + Near Rank Up */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+
+        {/* Recent signups */}
+        <div style={{ background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px 12px', borderBottom: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--cream)' }}>Recent Signups</h2>
+            <button onClick={() => navigate('/admin')} className="btn btn-outline btn-sm">View all</button>
+          </div>
+          {recentSignups.length === 0 ? (
+            <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--text2)', fontSize: '14px' }}>No members found</div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Country</th>
+                  <th>Joined</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentSignups.map(m => (
+                  <tr key={m.id}>
+                    <td>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--cream)' }}>{m.name}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text2)' }}>{m.id}</div>
+                    </td>
+                    <td style={{ fontSize: '12px', color: 'var(--text2)' }}>{m.country}</td>
+                    <td style={{ fontSize: '12px', color: 'var(--text2)' }}>{m.joined}</td>
+                    <td><span className={`badge ${m.status === 'Active' ? 'badge-green' : 'badge-grey'}`}>{m.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Near rank up */}
+        <div style={{ background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px 12px', borderBottom: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--cream)' }}>
+              Near Rank Up
+              <span style={{ fontSize: '11px', color: 'var(--text2)', fontWeight: 400, marginLeft: '8px' }}>active members</span>
+            </h2>
+            <button onClick={() => navigate('/admin')} className="btn btn-outline btn-sm">Manage</button>
+          </div>
+          {nearRankUp.length === 0 ? (
+            <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--text2)', fontSize: '14px' }}>All members at max rank or no data</div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Current → Next</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                {nearRankUp.map(m => (
+                  <tr key={m.id}>
+                    <td>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--cream)' }}>{m.name}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text2)' }}>PV {m.pv} · GV {m.gv?.toLocaleString()}</div>
+                    </td>
+                    <td style={{ fontSize: '12px', color: 'var(--text2)', whiteSpace: 'nowrap' }}>
+                      {m.rank} → <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{m.nextRank}</span>
+                    </td>
+                    <td style={{ minWidth: '100px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ flex: 1, height: '6px', background: 'var(--navy3)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${m.progress}%`, background: m.progress >= 80 ? '#22c55e' : m.progress >= 50 ? 'var(--gold)' : '#60a5fa', borderRadius: '3px', transition: 'width 0.3s' }} />
+                        </div>
+                        <span style={{ fontSize: '11px', color: 'var(--text2)', minWidth: '32px', textAlign: 'right' }}>{m.progress}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
       </div>
 
       {/* Quick nav cards */}
