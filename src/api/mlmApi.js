@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1037,4 +1037,28 @@ export async function deletePromoCode(id) {
     return { ok: true }
   }
   return request('DELETE', `/v1/mlm/admin/promos/${id}`, {})
+}
+
+// ── Referral Tracking ────────────────────────────────────────────────────────
+
+export async function getAdminReferrals({ rank, status, search } = {}) {
+  if (MOCK) {
+    let data = [...REFERRAL_STATS]
+    if (rank && rank !== 'all')    data = data.filter(r => r.rank === rank)
+    if (status && status !== 'all') data = data.filter(r => r.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      data = data.filter(r =>
+        r.memberName.toLowerCase().includes(q) ||
+        r.memberId.toLowerCase().includes(q) ||
+        r.referralCode.toLowerCase().includes(q)
+      )
+    }
+    return { referrals: data }
+  }
+  const params = new URLSearchParams()
+  if (rank && rank !== 'all')    params.set('rank', rank)
+  if (status && status !== 'all') params.set('status', status)
+  if (search)                     params.set('search', search)
+  return request('GET', `/v1/mlm/admin/referrals?${params}`)
 }

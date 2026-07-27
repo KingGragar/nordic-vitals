@@ -483,3 +483,76 @@ export const PROMO_CODES = [
     active: false, expiresAt: '2026-03-15T23:59:59Z', createdAt: '2026-03-14T00:00:00Z', totalSaved: 2500,
   },
 ]
+
+export const REFERRAL_STATS = [
+  {
+    memberId: 'NV-10042', memberName: 'Lars Eriksen',  rank: 'Silver',   status: 'Active',
+    referralCode: 'LARS42',
+    clicks30d: 148, conversions30d: 14, clicksAll: 892, conversionsAll: 71,
+    lastConversionAt: '2026-07-26T11:22:00Z',
+    totalCommissionsEarned: 3140,
+  },
+  {
+    memberId: 'NV-10087', memberName: 'Mia Andersen',  rank: 'Bronze',   status: 'Active',
+    referralCode: 'MIA87',
+    clicks30d: 94, conversions30d: 8, clicksAll: 411, conversionsAll: 33,
+    lastConversionAt: '2026-07-24T09:15:00Z',
+    totalCommissionsEarned: 1650,
+  },
+  {
+    memberId: 'NV-10230', memberName: 'Sigrid Voss',   rank: 'Bronze',   status: 'Active',
+    referralCode: 'SIGRID230',
+    clicks30d: 76, conversions30d: 6, clicksAll: 298, conversionsAll: 21,
+    lastConversionAt: '2026-07-23T14:40:00Z',
+    totalCommissionsEarned: 940,
+  },
+  {
+    memberId: 'NV-10091', memberName: 'Erik Solberg',  rank: 'Unranked', status: 'Active',
+    referralCode: 'ERIK91',
+    clicks30d: 53, conversions30d: 4, clicksAll: 187, conversionsAll: 14,
+    lastConversionAt: '2026-07-20T16:55:00Z',
+    totalCommissionsEarned: 560,
+  },
+  {
+    memberId: 'NV-10241', memberName: 'Olaf Berg',     rank: 'Unranked', status: 'Active',
+    referralCode: 'OLAF241',
+    clicks30d: 39, conversions30d: 3, clicksAll: 112, conversionsAll: 8,
+    lastConversionAt: '2026-07-18T08:30:00Z',
+    totalCommissionsEarned: 320,
+  },
+  {
+    memberId: 'NV-10122', memberName: 'Anna Lund',     rank: 'Unranked', status: 'Active',
+    referralCode: 'ANNA122',
+    clicks30d: 28, conversions30d: 2, clicksAll: 74, conversionsAll: 5,
+    lastConversionAt: '2026-07-15T12:10:00Z',
+    totalCommissionsEarned: 200,
+  },
+  {
+    memberId: 'NV-10215', memberName: 'Bjorn Lie',     rank: 'Unranked', status: 'Active',
+    referralCode: 'BLIE215',
+    clicks30d: 22, conversions30d: 2, clicksAll: 55, conversionsAll: 4,
+    lastConversionAt: '2026-07-12T17:45:00Z',
+    totalCommissionsEarned: 160,
+  },
+  {
+    memberId: 'NV-10102', memberName: 'Kari Holm',     rank: 'Unranked', status: 'Active',
+    referralCode: 'KARI102',
+    clicks30d: 15, conversions30d: 1, clicksAll: 38, conversionsAll: 3,
+    lastConversionAt: '2026-07-08T10:20:00Z',
+    totalCommissionsEarned: 120,
+  },
+  {
+    memberId: 'NV-10118', memberName: 'Tor Bakke',     rank: 'Unranked', status: 'Inactive',
+    referralCode: 'TOR118',
+    clicks30d: 4, conversions30d: 0, clicksAll: 29, conversionsAll: 2,
+    lastConversionAt: '2026-04-03T09:00:00Z',
+    totalCommissionsEarned: 80,
+  },
+  {
+    memberId: 'NV-10208', memberName: 'Hege Moen',     rank: 'Unranked', status: 'Inactive',
+    referralCode: 'HEGE208',
+    clicks30d: 2, conversions30d: 0, clicksAll: 11, conversionsAll: 1,
+    lastConversionAt: '2026-02-14T15:30:00Z',
+    totalCommissionsEarned: 40,
+  },
+]
