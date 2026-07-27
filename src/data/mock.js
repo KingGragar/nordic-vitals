@@ -450,3 +450,36 @@ export const RESOURCES = [
   { id: 'res-020', category: 'Compliance', icon: '🏷️', title: 'Approved Claim Language Guide', desc: 'What you may and may not say about products and income — with examples.', fileType: 'PDF', fileSize: '0.6 MB', updatedAt: '2026-05-15', downloads: 1532, tags: ['claims', 'language', 'compliance'] },
   { id: 'res-021', category: 'Compliance', icon: '🌐', title: 'GDPR & Data Privacy Guide', desc: 'How to handle prospect data legally as a Nordic Vitals member in Europe.', fileType: 'PDF', fileSize: '0.5 MB', updatedAt: '2026-03-20', downloads: 678, tags: ['gdpr', 'data', 'privacy', 'europe'] },
 ]
+
+export const PROMO_CODES = [
+  {
+    id: 'promo-001', code: 'NORDIC10', description: 'Welcome — 10% off everything',
+    type: 'percent', value: 10, minOrder: 0, maxUses: null, usedCount: 248,
+    active: true, expiresAt: null, createdAt: '2026-01-01T00:00:00Z', totalSaved: 34920,
+  },
+  {
+    id: 'promo-002', code: 'WELCOME25', description: '25% off first order over NOK 400',
+    type: 'percent', value: 25, minOrder: 400, maxUses: 500, usedCount: 312,
+    active: true, expiresAt: '2026-12-31T23:59:59Z', createdAt: '2026-01-01T00:00:00Z', totalSaved: 78400,
+  },
+  {
+    id: 'promo-003', code: 'SUMMER100', description: 'NOK 100 off orders over NOK 500',
+    type: 'fixed', value: 100, minOrder: 500, maxUses: 200, usedCount: 143,
+    active: true, expiresAt: '2026-08-31T23:59:59Z', createdAt: '2026-06-01T00:00:00Z', totalSaved: 14300,
+  },
+  {
+    id: 'promo-004', code: 'VIP20', description: '20% off for VIP members',
+    type: 'percent', value: 20, minOrder: 0, maxUses: 100, usedCount: 67,
+    active: true, expiresAt: '2026-09-30T23:59:59Z', createdAt: '2026-05-01T00:00:00Z', totalSaved: 28640,
+  },
+  {
+    id: 'promo-005', code: 'OMEGA15', description: '15% off on all Omega products',
+    type: 'percent', value: 15, minOrder: 0, maxUses: 300, usedCount: 89,
+    active: true, expiresAt: '2026-10-31T23:59:59Z', createdAt: '2026-04-15T00:00:00Z', totalSaved: 11835,
+  },
+  {
+    id: 'promo-006', code: 'FLASH50', description: '24-hour flash sale — NOK 50 off',
+    type: 'fixed', value: 50, minOrder: 200, maxUses: 50, usedCount: 50,
+    active: false, expiresAt: '2026-03-15T23:59:59Z', createdAt: '2026-03-14T00:00:00Z', totalSaved: 2500,
+  },
+]

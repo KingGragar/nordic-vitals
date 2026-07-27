@@ -12,6 +12,7 @@ const navLinks = [
   { to: '/admin/payouts',   label: '💸 Payout Queue' },
   { to: '/admin/reports',   label: '📊 Reports' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
+  { to: '/admin/promos',        label: '🏷️ Promo Codes' },
   { to: '/admin/announcements', label: '📣 Announcements' },
   { to: '/admin/audit-log',    label: '🔍 Audit Log' },
   { to: '/admin/support',      label: '🎫 Support' },

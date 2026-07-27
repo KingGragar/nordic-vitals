@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { placeOrder, postVolumeEvent } from '../api/mlmApi'
+import { placeOrder, postVolumeEvent, validatePromoCode } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 
 const COUNTRIES = [
@@ -25,6 +25,38 @@ export default function Checkout() {
     country:   'Norway',
   })
   const [errors, setErrors] = useState({})
+  const [promoInput, setPromoInput] = useState('')
+  const [promoApplied, setPromoApplied] = useState(null)
+  const [promoDiscount, setPromoDiscount] = useState(0)
+  const [promoError, setPromoError] = useState('')
+  const [promoLoading, setPromoLoading] = useState(false)
+
+  async function handleApplyPromo() {
+    if (!promoInput.trim()) return
+    setPromoLoading(true)
+    setPromoError('')
+    setPromoApplied(null)
+    setPromoDiscount(0)
+    try {
+      const res = await validatePromoCode(promoInput.trim(), cartTotal)
+      if (res.valid) {
+        setPromoApplied(res.promo)
+        setPromoDiscount(res.discount)
+      } else {
+        setPromoError(res.error || 'Invalid promo code.')
+      }
+    } catch {
+      setPromoError('Could not validate promo code. Try again.')
+    }
+    setPromoLoading(false)
+  }
+
+  function removePromo() {
+    setPromoApplied(null)
+    setPromoDiscount(0)
+    setPromoInput('')
+    setPromoError('')
+  }
 
   function validate() {
     const e = {}
@@ -49,11 +81,15 @@ export default function Checkout() {
     setSubmitting(true)
     const ref = 'NV-ORD-' + String(Date.now()).slice(-6)
     try {
+      const orderTotal = Math.max(0, cartTotal - promoDiscount)
       await placeOrder({
         userId: user?.userId,
         items: cart,
         shippingAddress: { ...form },
         orderRef: ref,
+        promoCode: promoApplied?.code || null,
+        discount: promoDiscount,
+        total: orderTotal,
       })
       if (user?.userId) {
         const totalPv = cart.reduce((s, i) => s + (i.pv || i.price) * i.qty, 0)
@@ -248,7 +284,7 @@ export default function Checkout() {
                   disabled={submitting}
                   style={{ width: '100%', justifyContent: 'center', fontSize: '15px', padding: '14px', opacity: submitting ? 0.7 : 1 }}
                 >
-                  {submitting ? 'Placing order…' : `Confirm Order · NOK ${cartTotal}`}
+                  {submitting ? 'Placing order…' : `Confirm Order · NOK ${Math.max(0, cartTotal - promoDiscount)}`}
                 </button>
                 <p style={{ fontSize: '12px', color: 'var(--text2)', textAlign: 'center', lineHeight: 1.6, marginTop: '12px' }}>
                   By placing your order you agree to our{' '}
@@ -279,18 +315,64 @@ export default function Checkout() {
                 ))}
               </div>
 
+              {/* Promo code input */}
+              <div style={{ marginBottom: '16px' }}>
+                {promoApplied ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px' }}>
+                    <span style={{ color: '#34d399', fontSize: '13px', flex: 1 }}>
+                      ✅ <strong style={{ fontFamily: 'monospace' }}>{promoApplied.code}</strong> applied — NOK {promoDiscount} off
+                    </span>
+                    <button
+                      type="button"
+                      onClick={removePromo}
+                      style={{ background: 'none', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 2px' }}
+                    >×</button>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="input"
+                        placeholder="Promo code"
+                        value={promoInput}
+                        onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError('') }}
+                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleApplyPromo())}
+                        style={{ flex: 1, textTransform: 'uppercase', letterSpacing: '1px' }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline"
+                        onClick={handleApplyPromo}
+                        disabled={promoLoading || !promoInput.trim()}
+                        style={{ padding: '10px 16px', fontSize: '13px', whiteSpace: 'nowrap' }}
+                      >
+                        {promoLoading ? '…' : 'Apply'}
+                      </button>
+                    </div>
+                    {promoError && <div style={{ color: '#fca5a5', fontSize: '12px', marginTop: '6px' }}>{promoError}</div>}
+                  </div>
+                )}
+              </div>
+
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>
                   <span>Subtotal</span>
                   <span>NOK {cartTotal}</span>
                 </div>
+                {promoDiscount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#34d399', marginBottom: '8px' }}>
+                    <span>Promo ({promoApplied?.code})</span>
+                    <span>– NOK {promoDiscount}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '16px' }}>
                   <span>Shipping</span>
                   <span style={{ color: 'var(--gold)' }}>Free</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--cream)', fontWeight: '700', fontSize: '16px' }}>Total</span>
-                  <span style={{ color: 'var(--cream)', fontWeight: '800', fontSize: '22px' }}>NOK {cartTotal}</span>
+                  <span style={{ color: 'var(--cream)', fontWeight: '800', fontSize: '22px' }}>NOK {Math.max(0, cartTotal - promoDiscount)}</span>
                 </div>
               </div>
 

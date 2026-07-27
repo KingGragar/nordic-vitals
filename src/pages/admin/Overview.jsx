@@ -298,6 +298,7 @@ export default function Overview() {
           { label: '💸 Payout Queue',    desc: 'Review withdrawal requests',    path: '/admin/payouts' },
           { label: '📊 Reports',         desc: 'Analytics & top earners',       path: '/admin/reports' },
           { label: '⚙️ Plan Config',     desc: 'Rank thresholds & rates',       path: '/admin/plan' },
+          { label: '🏷️ Promo Codes',      desc: 'Create & manage discount codes', path: '/admin/promos' },
           { label: '📣 Announcements',    desc: 'Broadcast messages to members',  path: '/admin/announcements' },
           { label: '🔍 Audit Log',       desc: 'Immutable record of all actions', path: '/admin/audit-log' },
           { label: '🎫 Support',         desc: 'Manage member help tickets',      path: '/admin/support' },

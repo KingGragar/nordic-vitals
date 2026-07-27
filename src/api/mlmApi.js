@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -973,4 +973,68 @@ export async function trackResourceDownload(resourceId) {
     return { ok: true }
   }
   return request('POST', `/v1/mlm/resources/${resourceId}/download`, {})
+}
+
+// --- Promo Codes ---
+const _mockPromos = PROMO_CODES.map(p => ({ ...p }))
+
+export async function validatePromoCode(code, subtotal) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const promo = _mockPromos.find(p => p.code.toUpperCase() === code.toUpperCase() && p.active)
+    if (!promo) return { valid: false, error: 'Invalid or expired promo code.' }
+    if (promo.maxUses !== null && promo.usedCount >= promo.maxUses) return { valid: false, error: 'This promo code has reached its usage limit.' }
+    if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) return { valid: false, error: 'This promo code has expired.' }
+    if (subtotal < promo.minOrder) return { valid: false, error: `Minimum order of NOK ${promo.minOrder} required for this code.` }
+    const discount = promo.type === 'percent'
+      ? Math.round(subtotal * promo.value / 100)
+      : Math.min(promo.value, subtotal)
+    return { valid: true, promo, discount }
+  }
+  return request('POST', '/v1/mlm/promos/validate', { code, subtotal })
+}
+
+export async function getAdminPromos() {
+  if (MOCK) return { promos: _mockPromos }
+  return request('GET', '/v1/mlm/admin/promos')
+}
+
+export async function createPromoCode(data) {
+  if (MOCK) {
+    const newPromo = {
+      id: 'promo-' + Date.now(),
+      code: data.code.toUpperCase(),
+      description: data.description || '',
+      type: data.type,
+      value: Number(data.value),
+      minOrder: Number(data.minOrder) || 0,
+      maxUses: data.maxUses ? Number(data.maxUses) : null,
+      usedCount: 0,
+      active: true,
+      expiresAt: data.expiresAt || null,
+      createdAt: new Date().toISOString(),
+      totalSaved: 0,
+    }
+    _mockPromos.push(newPromo)
+    return { promo: newPromo }
+  }
+  return request('POST', '/v1/mlm/admin/promos', data)
+}
+
+export async function togglePromoCode(id, active) {
+  if (MOCK) {
+    const p = _mockPromos.find(x => x.id === id)
+    if (p) p.active = active
+    return { ok: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/promos/${id}`, { active })
+}
+
+export async function deletePromoCode(id) {
+  if (MOCK) {
+    const idx = _mockPromos.findIndex(x => x.id === id)
+    if (idx !== -1) _mockPromos.splice(idx, 1)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/promos/${id}`, {})
 }
