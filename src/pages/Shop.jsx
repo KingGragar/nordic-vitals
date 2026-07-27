@@ -4,6 +4,7 @@ import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
 import { getVpProducts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
   1: 'linear-gradient(135deg,#164e63,#1e3a5f)',
@@ -26,6 +27,7 @@ const SORT_OPTIONS = [
 ]
 
 export default function Shop() {
+  usePageTitle('Shop', 'Browse Nordic Vitals premium Arctic supplements — Omega-3, Collagen, Vitamin D3, Shilajit, Greens, and Focus Formula. Member pricing available.')
   const { addToCart } = useAuth()
   const [products, setProducts] = useState(PRODUCTS)
   const [toast, setToast] = useState(false)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { enrollMember } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const PACKAGES = [
   {
@@ -42,6 +43,7 @@ const COUNTRIES = [
 ]
 
 export default function Join() {
+  usePageTitle('Join Nordic Vitals', 'Become a Nordic Vitals member. Choose a starter package, earn commissions on sales, and build your network with premium Arctic supplements.')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 

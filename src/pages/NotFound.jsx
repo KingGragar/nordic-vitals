@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 export default function NotFound() {
+  usePageTitle('Page Not Found')
   return (
     <>
       <Navbar />

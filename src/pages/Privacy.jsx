@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const LAST_UPDATED = '1 July 2026'
 
@@ -15,6 +16,7 @@ function Section({ title, children }) {
 }
 
 export default function PrivacyPage() {
+  usePageTitle('Privacy Policy', 'Nordic Vitals GDPR-compliant privacy policy. How we collect, use, and protect your personal data as a customer or member.')
   return (
     <>
       <Navbar />

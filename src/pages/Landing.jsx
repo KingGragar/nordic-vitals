@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { getVpProducts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
   1: 'linear-gradient(135deg, #164e63, #1e3a5f)',
@@ -14,6 +15,7 @@ const productGradients = {
 }
 
 export default function Landing() {
+  usePageTitle(null, 'Nordic Vitals offers premium Arctic-sourced supplements — Omega-3, Collagen, Vitamin D3, Shilajit, and more. Join our member programme and earn while you share.')
   const [allProducts, setAllProducts] = useState(PRODUCTS)
 
   useEffect(() => {

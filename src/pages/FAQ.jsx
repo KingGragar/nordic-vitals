@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const SECTIONS = [
   {
@@ -119,6 +120,7 @@ function Accordion({ q, a }) {
 }
 
 export default function FAQPage() {
+  usePageTitle('FAQ', 'Frequently asked questions about Nordic Vitals supplements, membership, shipping, returns, and the member rewards programme.')
   return (
     <>
       <Navbar />

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+
+Sitemap: https://nordic-vitals.vercel.app/sitemap.xml

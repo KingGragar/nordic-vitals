@@ -4,6 +4,7 @@ import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
 import { getVpProducts, getProductReviews, submitProductReview } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
   1: 'linear-gradient(135deg,#164e63,#1e3a5f)',
@@ -56,6 +57,11 @@ export default function ProductDetail() {
   }, [id])
 
   const product = products.find(p => p.id === Number(id))
+
+  usePageTitle(
+    product ? product.name : 'Product',
+    product ? `${product.name} — ${product.tagline}. ${product.desc}` : undefined
+  )
 
   if (!product) {
     return (

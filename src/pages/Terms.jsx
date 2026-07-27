@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const LAST_UPDATED = '1 July 2026'
 
@@ -15,6 +16,7 @@ function Section({ title, children }) {
 }
 
 export default function TermsPage() {
+  usePageTitle('Terms & Conditions', 'Nordic Vitals terms and conditions governing membership, purchases, returns, and use of our supplements and member platform.')
   return (
     <>
       <Navbar />

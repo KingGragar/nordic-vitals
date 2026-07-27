@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import usePageTitle from '../hooks/usePageTitle'
 
 const TOPICS = [
   'Order / Shipping inquiry',
@@ -12,6 +13,7 @@ const TOPICS = [
 ]
 
 export default function ContactPage() {
+  usePageTitle('Contact Us', 'Get in touch with the Nordic Vitals support team. We\'re here to help with orders, membership questions, and product enquiries.')
   const [form, setForm] = useState({ name: '', email: '', topic: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
