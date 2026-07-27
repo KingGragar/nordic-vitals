@@ -37,8 +37,9 @@ const AdminAnnouncements = lazy(() => import('./pages/admin/Announcements'))
 const AdminAuditLog      = lazy(() => import('./pages/admin/AuditLog'))
 const AdminSupport       = lazy(() => import('./pages/admin/Support'))
 const AdminAutoships     = lazy(() => import('./pages/admin/Autoships'))
-const AdminPromos        = lazy(() => import('./pages/admin/Promos'))
-const AdminReferrals     = lazy(() => import('./pages/admin/Referrals'))
+const AdminPromos          = lazy(() => import('./pages/admin/Promos'))
+const AdminReferrals       = lazy(() => import('./pages/admin/Referrals'))
+const AdminEmailTemplates  = lazy(() => import('./pages/admin/EmailTemplates'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -109,8 +110,9 @@ export default function App() {
         <Route path="/admin/audit-log"    element={<RequireAuth role="admin"><AdminAuditLog /></RequireAuth>} />
         <Route path="/admin/support"      element={<RequireAuth role="admin"><AdminSupport /></RequireAuth>} />
         <Route path="/admin/autoships"    element={<RequireAuth role="admin"><AdminAutoships /></RequireAuth>} />
-        <Route path="/admin/promos"       element={<RequireAuth role="admin"><AdminPromos /></RequireAuth>} />
-        <Route path="/admin/referrals"    element={<RequireAuth role="admin"><AdminReferrals /></RequireAuth>} />
+        <Route path="/admin/promos"           element={<RequireAuth role="admin"><AdminPromos /></RequireAuth>} />
+        <Route path="/admin/referrals"        element={<RequireAuth role="admin"><AdminReferrals /></RequireAuth>} />
+        <Route path="/admin/email-templates"  element={<RequireAuth role="admin"><AdminEmailTemplates /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -15,9 +15,10 @@ const navLinks = [
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
   { to: '/admin/referrals',     label: '🔗 Referrals' },
   { to: '/admin/announcements', label: '📣 Announcements' },
-  { to: '/admin/audit-log',    label: '🔍 Audit Log' },
-  { to: '/admin/support',      label: '🎫 Support' },
-  { to: '/admin/settings',     label: '🔧 Settings' },
+  { to: '/admin/audit-log',       label: '🔍 Audit Log' },
+  { to: '/admin/support',         label: '🎫 Support' },
+  { to: '/admin/email-templates', label: '✉️ Email Templates' },
+  { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 
 const SIDEBAR_W = 220

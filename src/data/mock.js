@@ -556,3 +556,243 @@ export const REFERRAL_STATS = [
     totalCommissionsEarned: 40,
   },
 ]
+
+export const EMAIL_TEMPLATES = [
+  {
+    id: 'welcome',
+    category: 'onboarding',
+    name: 'Welcome to Nordic Vitals',
+    subject: 'Welcome, {{member_name}}! Your Nordic Vitals account is ready',
+    body: `Hi {{member_name}},
+
+Welcome to Nordic Vitals! Your member ID is {{member_id}}.
+
+You're now part of a growing community of health-focused entrepreneurs across Scandinavia and beyond.
+
+Here's what you can do right now:
+• Browse our product catalogue and place your first order
+• Share your referral link and start building your team
+• Explore your member dashboard at {{dashboard_link}}
+
+If you have any questions, our support team is here to help.
+
+To your health and success,
+The Nordic Vitals Team`,
+    variables: ['member_name', 'member_id', 'dashboard_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 312,
+  },
+  {
+    id: 'commission_run',
+    category: 'transaction',
+    name: 'Commission Run Results',
+    subject: 'Your commissions are in — {{amount}} MLMT credited',
+    body: `Hi {{member_name}},
+
+Great news! The weekly commission run for {{period}} has completed and your earnings have been credited to your wallet.
+
+Summary:
+• Commissions earned: {{amount}} MLMT
+• Current rank: {{rank}}
+• Run date: {{date}}
+
+Log in to your dashboard to view the full breakdown and request a withdrawal:
+{{dashboard_link}}
+
+Keep sharing, keep earning!
+Nordic Vitals`,
+    variables: ['member_name', 'amount', 'rank', 'period', 'date', 'dashboard_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 1840,
+  },
+  {
+    id: 'rank_up',
+    category: 'rank',
+    name: 'Rank Up Congratulations',
+    subject: '🎉 Congratulations {{member_name}} — you reached {{rank}}!',
+    body: `Hi {{member_name}},
+
+Amazing achievement! You've just been promoted to {{rank}} in the Nordic Vitals network.
+
+This rank unlocks:
+• Higher commission percentages on team volume
+• Access to exclusive rank bonuses
+• Priority support from our member success team
+
+Your new rank is live immediately. Log in to see your updated earnings potential:
+{{dashboard_link}}
+
+You're an inspiration to your team — keep it up!
+
+Warm regards,
+Nordic Vitals`,
+    variables: ['member_name', 'rank', 'dashboard_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 87,
+  },
+  {
+    id: 'withdrawal_processed',
+    category: 'transaction',
+    name: 'Withdrawal Processed',
+    subject: 'Your withdrawal of {{amount}} MLMT has been processed',
+    body: `Hi {{member_name}},
+
+Your withdrawal request has been approved and processed.
+
+Details:
+• Amount: {{amount}} MLMT
+• Method: {{method}}
+• Reference: {{reference}}
+• Processed on: {{date}}
+
+Please allow 1–3 business days for funds to arrive depending on your chosen method.
+
+If you have any questions, contact us at support@nordicvitals.com.
+
+Best,
+Nordic Vitals Finance Team`,
+    variables: ['member_name', 'amount', 'method', 'reference', 'date'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 204,
+  },
+  {
+    id: 'withdrawal_rejected',
+    category: 'transaction',
+    name: 'Withdrawal Request Update',
+    subject: 'Update on your withdrawal request',
+    body: `Hi {{member_name}},
+
+We were unable to process your recent withdrawal request of {{amount}} MLMT.
+
+Reason: {{reason}}
+
+Common reasons include insufficient verified account details or a pending compliance review. Please log in to your wallet and resubmit with updated information:
+{{dashboard_link}}
+
+If you believe this is an error, please open a support ticket and we'll resolve it promptly.
+
+Nordic Vitals Support`,
+    variables: ['member_name', 'amount', 'reason', 'dashboard_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 19,
+  },
+  {
+    id: 'password_reset',
+    category: 'auth',
+    name: 'Password Reset',
+    subject: 'Reset your Nordic Vitals password',
+    body: `Hi {{member_name}},
+
+We received a request to reset the password for your account ({{email}}).
+
+Click the link below to set a new password — this link expires in 2 hours:
+{{reset_link}}
+
+If you didn't request a password reset, you can ignore this email. Your current password will remain unchanged.
+
+Nordic Vitals Security Team`,
+    variables: ['member_name', 'email', 'reset_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 56,
+  },
+  {
+    id: 'autoship_reminder',
+    category: 'autoship',
+    name: 'Autoship Ships Tomorrow',
+    subject: 'Your autoship order ships tomorrow — {{product_name}}',
+    body: `Hi {{member_name}},
+
+Just a heads-up — your autoship subscription is scheduled to process tomorrow.
+
+Order details:
+• Product: {{product_name}}
+• Quantity: {{quantity}}
+• Frequency: {{frequency}}
+• Estimated charge: NOK {{price}}
+
+Need to make changes? You can pause, edit, or cancel up until midnight tonight:
+{{autoship_link}}
+
+Thank you for your continued support!
+Nordic Vitals`,
+    variables: ['member_name', 'product_name', 'quantity', 'frequency', 'price', 'autoship_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 628,
+  },
+  {
+    id: 'autoship_failed',
+    category: 'autoship',
+    name: 'Autoship Payment Failed',
+    subject: 'Action required — autoship payment could not be processed',
+    body: `Hi {{member_name}},
+
+We were unable to charge your payment method for your autoship order of {{product_name}}.
+
+To avoid missing your next shipment and losing your subscription PV, please update your payment details as soon as possible:
+{{autoship_link}}
+
+Your autoship will be paused after 3 failed attempts.
+
+If you need help, contact us at support@nordicvitals.com.
+
+Nordic Vitals`,
+    variables: ['member_name', 'product_name', 'autoship_link'],
+    active: false,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 11,
+  },
+  {
+    id: 'support_reply',
+    category: 'support',
+    name: 'Support Ticket Reply',
+    subject: 'Re: [Ticket #{{ticket_id}}] {{ticket_subject}}',
+    body: `Hi {{member_name}},
+
+Our support team has replied to your ticket #{{ticket_id}}.
+
+{{agent_reply}}
+
+View the full conversation and reply here:
+{{ticket_link}}
+
+We aim to resolve all tickets within 24 hours on business days.
+
+Nordic Vitals Support`,
+    variables: ['member_name', 'ticket_id', 'ticket_subject', 'agent_reply', 'ticket_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 143,
+  },
+  {
+    id: 'new_recruit',
+    category: 'referral',
+    name: 'New Team Member Joined',
+    subject: '{{recruit_name}} just joined your team!',
+    body: `Hi {{member_name}},
+
+Exciting news — {{recruit_name}} just enrolled in Nordic Vitals using your referral link!
+
+They've been placed in your {{leg}} leg. Here's how this helps you:
+• Their purchases count toward your group volume (GV)
+• They count toward your team-size rank requirements
+• Help them get started quickly to maximise your commission potential
+
+Log in to see your updated team tree:
+{{dashboard_link}}
+
+Keep sharing — every new member brings you closer to your next rank!
+
+Nordic Vitals`,
+    variables: ['member_name', 'recruit_name', 'leg', 'dashboard_link'],
+    active: true,
+    lastEditedAt: '2026-06-10T09:00:00Z',
+    sentCount: 289,
+  },
+]

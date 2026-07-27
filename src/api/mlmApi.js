@@ -5,7 +5,7 @@
  */
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
-  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS,
+  ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1061,4 +1061,44 @@ export async function getAdminReferrals({ rank, status, search } = {}) {
   if (status && status !== 'all') params.set('status', status)
   if (search)                     params.set('search', search)
   return request('GET', `/v1/mlm/admin/referrals?${params}`)
+}
+
+// ── Email Templates ───────────────────────────────────────────────────────────
+
+let _mockTemplates = EMAIL_TEMPLATES.map(t => ({ ...t }))
+
+export async function getEmailTemplates() {
+  if (MOCK) return { templates: _mockTemplates }
+  return request('GET', '/v1/mlm/admin/email-templates')
+}
+
+export async function updateEmailTemplate(id, { subject, body, active }) {
+  if (MOCK) {
+    const idx = _mockTemplates.findIndex(t => t.id === id)
+    if (idx !== -1) {
+      if (subject !== undefined) _mockTemplates[idx].subject = subject
+      if (body    !== undefined) _mockTemplates[idx].body    = body
+      if (active  !== undefined) _mockTemplates[idx].active  = active
+      _mockTemplates[idx].lastEditedAt = new Date().toISOString()
+    }
+    return { ok: true, template: _mockTemplates[idx] }
+  }
+  return request('PUT', `/v1/mlm/admin/email-templates/${id}`, { subject, body, active })
+}
+
+export async function resetEmailTemplate(id) {
+  if (MOCK) {
+    const orig = EMAIL_TEMPLATES.find(t => t.id === id)
+    if (orig) {
+      const idx = _mockTemplates.findIndex(t => t.id === id)
+      _mockTemplates[idx] = { ...orig, lastEditedAt: new Date().toISOString() }
+    }
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/email-templates/${id}/reset`, {})
+}
+
+export async function sendTestEmail(id, toEmail) {
+  if (MOCK) return { ok: true, message: `Test email sent to ${toEmail}` }
+  return request('POST', `/v1/mlm/admin/email-templates/${id}/test`, { to: toEmail })
 }
