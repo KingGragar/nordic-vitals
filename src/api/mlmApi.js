@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1293,4 +1293,49 @@ export async function getRankProgress(userId) {
 export async function getAdminAnalytics() {
   if (MOCK) return ANALYTICS_DATA
   return request('GET', '/v1/mlm/admin/analytics')
+}
+
+// ── Training ──────────────────────────────────────────────────────────────────
+export async function getTrainingModules(userId) {
+  if (MOCK) {
+    const key = `nv_training_${userId || 'guest'}`
+    let completed = []
+    try { completed = JSON.parse(localStorage.getItem(key) || '[]') } catch {}
+    return TRAINING_MODULES.map(mod => ({
+      ...mod,
+      lessons: mod.lessons.map(l => ({ ...l, completed: completed.includes(l.id) })),
+      completedCount: mod.lessons.filter(l => completed.includes(l.id)).length,
+      rewardClaimed: completed.includes(`reward_${mod.id}`),
+    }))
+  }
+  return request('GET', `/v1/mlm/members/${userId}/training`)
+}
+
+export async function completeTrainingLesson(userId, lessonId) {
+  if (MOCK) {
+    const key = `nv_training_${userId || 'guest'}`
+    let completed = []
+    try { completed = JSON.parse(localStorage.getItem(key) || '[]') } catch {}
+    if (!completed.includes(lessonId)) {
+      completed = [...completed, lessonId]
+      localStorage.setItem(key, JSON.stringify(completed))
+    }
+    return { ok: true, completed }
+  }
+  return request('POST', `/v1/mlm/members/${userId}/training/complete`, { lessonId })
+}
+
+export async function claimTrainingReward(userId, moduleId) {
+  if (MOCK) {
+    const key = `nv_training_${userId || 'guest'}`
+    let completed = []
+    try { completed = JSON.parse(localStorage.getItem(key) || '[]') } catch {}
+    const rewardKey = `reward_${moduleId}`
+    if (!completed.includes(rewardKey)) {
+      completed = [...completed, rewardKey]
+      localStorage.setItem(key, JSON.stringify(completed))
+    }
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/members/${userId}/training/claim-reward`, { moduleId })
 }
