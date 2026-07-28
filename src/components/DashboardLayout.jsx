@@ -8,6 +8,7 @@ const navLinks = [
   { to: '/dashboard/commissions',        label: '💰 Commissions' },
   { to: '/dashboard/earnings',           label: '📈 Earnings' },
   { to: '/dashboard/wallet',             label: '💳 Wallet' },
+  { to: '/dashboard/rank-progress',      label: '📊 Rank Progress' },
   { to: '/dashboard/leaderboard',        label: '🏆 Leaderboard' },
   { to: '/dashboard/referral',           label: '🔗 Referral' },
   { to: '/dashboard/orders',             label: '📦 My Orders' },

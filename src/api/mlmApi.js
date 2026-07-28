@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1263,4 +1263,28 @@ export async function burnTokens({ amount, memo }) {
     return { ok: true, event }
   }
   return request('POST', '/v1/mlm/admin/tokens/burn', { amount, memo })
+}
+
+// ── Rank Progress ─────────────────────────────────────────────────────────────
+export async function getRankProgress(userId) {
+  if (MOCK) {
+    const u = USERS.find(x => x.userId === userId) || USERS[0]
+    const joinedAt = RANK_HISTORY.length > 0 ? RANK_HISTORY[RANK_HISTORY.length - 1].achievedAt : null
+    const currentEntry = RANK_HISTORY.find(h => h.rank === u.rank)
+    const achievedAt = currentEntry ? currentEntry.achievedAt : joinedAt
+    const daysAtRank = achievedAt
+      ? Math.floor((Date.now() - new Date(achievedAt).getTime()) / 86_400_000)
+      : 0
+    const activeRecruits = ADMIN_MEMBERS.filter(m => m.sponsor === u.name && m.status === 'active').length
+    return {
+      currentRank: u.rank,
+      pv: u.pv,
+      leftGV: u.leftGV,
+      rightGV: u.rightGV,
+      activeRecruits,
+      daysAtRank,
+      history: RANK_HISTORY,
+    }
+  }
+  return request('GET', `/v1/mlm/members/${userId}/rank-progress`)
 }

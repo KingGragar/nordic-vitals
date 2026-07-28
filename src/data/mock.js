@@ -824,3 +824,9 @@ export const TOKEN_EVENTS = [
   { id: 'te014', type: 'airdrop',  amount:   1_000, actor: 'admin@nordicvitals.com', recipient: 'member:usr-0001',  memo: 'Manual top-up for top recruiter',   ts: '2026-07-22T09:00:00Z' },
   { id: 'te015', type: 'burn',     amount:   7_850, actor: 'system',                 recipient: null,               memo: 'Stale autoship credit reclaim',     ts: '2026-07-25T08:00:00Z' },
 ]
+
+export const RANK_HISTORY = [
+  { rank: 'Silver',   achievedAt: '2026-06-10T09:00:00Z', note: 'Reached 2 000 GV on left leg'       },
+  { rank: 'Bronze',   achievedAt: '2026-04-22T14:30:00Z', note: 'First active recruit enrolled'      },
+  { rank: 'Unranked', achievedAt: '2026-03-05T11:00:00Z', note: 'Joined Nordic Vitals'               },
+]
