@@ -42,6 +42,7 @@ const AdminPromos          = lazy(() => import('./pages/admin/Promos'))
 const AdminReferrals       = lazy(() => import('./pages/admin/Referrals'))
 const AdminEmailTemplates  = lazy(() => import('./pages/admin/EmailTemplates'))
 const AdminTokens          = lazy(() => import('./pages/admin/Tokens'))
+const AdminNetwork         = lazy(() => import('./pages/admin/Network'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -117,6 +118,7 @@ export default function App() {
         <Route path="/admin/referrals"        element={<RequireAuth role="admin"><AdminReferrals /></RequireAuth>} />
         <Route path="/admin/email-templates"  element={<RequireAuth role="admin"><AdminEmailTemplates /></RequireAuth>} />
         <Route path="/admin/tokens"           element={<RequireAuth role="admin"><AdminTokens /></RequireAuth>} />
+        <Route path="/admin/network"          element={<RequireAuth role="admin"><AdminNetwork /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

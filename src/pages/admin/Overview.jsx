@@ -425,6 +425,7 @@ export default function Overview() {
           { label: '🎫 Support',         desc: 'Manage member help tickets',      path: '/admin/support' },
           { label: '✉️ Email Templates',  desc: 'Edit transactional email templates', path: '/admin/email-templates' },
           { label: '🪙 Token Management', desc: 'Mint, airdrop, burn MLMT + ledger', path: '/admin/tokens' },
+          { label: '🌐 Network Tree',    desc: 'Interactive full-network genealogy', path: '/admin/network' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
         ].map(({ label, desc, path }) => (
           <div
