@@ -969,3 +969,71 @@ export const TRAINING_MODULES = [
     ],
   },
 ]
+
+export const ADMIN_USERS = [
+  { id: 'au-001', name: 'Bjørn V. Hauge',   email: 'bvh@veriton.io',       role: 'super_admin', status: 'active',   lastLogin: '2026-07-28T08:30:00Z', joinedAt: '2025-01-01', mfaEnabled: true,  note: 'Platform owner' },
+  { id: 'au-002', name: 'Gary Granello',     email: 'gary.granello@gmail.com', role: 'admin',    status: 'active',   lastLogin: '2026-07-28T06:12:00Z', joinedAt: '2025-01-15', mfaEnabled: false, note: 'Tenant operator' },
+  { id: 'au-003', name: 'Mia Andersen',      email: 'mia.andersen@nordic.no',  role: 'moderator', status: 'active',  lastLogin: '2026-07-27T14:00:00Z', joinedAt: '2025-03-10', mfaEnabled: true,  note: 'Member support lead' },
+  { id: 'au-004', name: 'Erik Solberg',      email: 'erik.solberg@nordic.no',  role: 'analyst',   status: 'active',  lastLogin: '2026-07-25T09:45:00Z', joinedAt: '2025-04-22', mfaEnabled: false, note: 'Reports access only' },
+  { id: 'au-005', name: 'Kari Holm',         email: 'kari.holm@nordic.no',     role: 'moderator', status: 'inactive',lastLogin: '2026-06-30T11:00:00Z', joinedAt: '2025-05-01', mfaEnabled: false, note: 'On leave' },
+  { id: 'au-006', name: 'Anna Lund',         email: 'anna.lund@nordic.no',     role: 'analyst',   status: 'invited', lastLogin: null,                    joinedAt: '2026-07-20', mfaEnabled: false, note: '' },
+]
+
+export const ROLE_PERMISSIONS = {
+  super_admin: {
+    label: 'Super Admin',
+    color: '#ef4444',
+    description: 'Full platform access including billing and role management.',
+    permissions: {
+      members: true, network: true, orders: true, products: true,
+      commissions: true, payouts: true, reports: true, analytics: true,
+      announcements: true, support: true, audit: true, tokens: true,
+      promos: true, referrals: true, email_templates: true, autoships: true,
+      plan_config: true, settings: true, roles: true,
+    },
+  },
+  admin: {
+    label: 'Admin',
+    color: '#f59e0b',
+    description: 'Full operational access. Cannot manage roles or billing.',
+    permissions: {
+      members: true, network: true, orders: true, products: true,
+      commissions: true, payouts: true, reports: true, analytics: true,
+      announcements: true, support: true, audit: true, tokens: true,
+      promos: true, referrals: true, email_templates: true, autoships: true,
+      plan_config: true, settings: true, roles: false,
+    },
+  },
+  moderator: {
+    label: 'Moderator',
+    color: '#3b82f6',
+    description: 'Member and support management. No financial or config access.',
+    permissions: {
+      members: true, network: true, orders: true, products: false,
+      commissions: false, payouts: false, reports: true, analytics: false,
+      announcements: true, support: true, audit: false, tokens: false,
+      promos: false, referrals: false, email_templates: false, autoships: true,
+      plan_config: false, settings: false, roles: false,
+    },
+  },
+  analyst: {
+    label: 'Analyst',
+    color: '#10b981',
+    description: 'Read-only access to reports and analytics. No write operations.',
+    permissions: {
+      members: false, network: false, orders: false, products: false,
+      commissions: false, payouts: false, reports: true, analytics: true,
+      announcements: false, support: false, audit: true, tokens: false,
+      promos: false, referrals: true, email_templates: false, autoships: false,
+      plan_config: false, settings: false, roles: false,
+    },
+  },
+}
+
+export const PERMISSION_LABELS = {
+  members: 'Members', network: 'Network Tree', orders: 'Orders', products: 'Products',
+  commissions: 'Commissions', payouts: 'Payouts', reports: 'Reports', analytics: 'Analytics',
+  announcements: 'Announcements', support: 'Support Tickets', audit: 'Audit Log', tokens: 'Token Management',
+  promos: 'Promo Codes', referrals: 'Referrals', email_templates: 'Email Templates', autoships: 'Autoships',
+  plan_config: 'Plan Config', settings: 'Settings', roles: 'Roles & Permissions',
+}

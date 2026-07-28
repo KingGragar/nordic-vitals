@@ -21,6 +21,7 @@ const navLinks = [
   { to: '/admin/support',         label: '🎫 Support' },
   { to: '/admin/email-templates', label: '✉️ Email Templates' },
   { to: '/admin/tokens',          label: '🪙 Token Management' },
+  { to: '/admin/roles',           label: '🔐 Roles & Permissions' },
   { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 

@@ -1353,3 +1353,59 @@ export async function claimTrainingReward(userId, moduleId) {
   }
   return request('POST', `/v1/mlm/members/${userId}/training/claim-reward`, { moduleId })
 }
+
+export async function getAdminUsers() {
+  if (MOCK) {
+    const { ADMIN_USERS } = await import('../data/mock.js')
+    return ADMIN_USERS
+  }
+  return request('GET', '/v1/mlm/admin/users')
+}
+
+export async function inviteAdminUser(payload) {
+  if (MOCK) {
+    const { ADMIN_USERS } = await import('../data/mock.js')
+    const newUser = {
+      id: 'au-' + Date.now(),
+      name: payload.email.split('@')[0],
+      email: payload.email,
+      role: payload.role,
+      status: 'invited',
+      lastLogin: null,
+      joinedAt: new Date().toISOString().slice(0, 10),
+      mfaEnabled: false,
+      note: payload.note || '',
+    }
+    ADMIN_USERS.push(newUser)
+    return newUser
+  }
+  return request('POST', '/v1/mlm/admin/users/invite', payload)
+}
+
+export async function updateAdminUserRole(userId, role) {
+  if (MOCK) {
+    const { ADMIN_USERS } = await import('../data/mock.js')
+    const u = ADMIN_USERS.find(x => x.id === userId)
+    if (u) u.role = role
+    return { ok: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/users/${userId}/role`, { role })
+}
+
+export async function deactivateAdminUser(userId) {
+  if (MOCK) {
+    const { ADMIN_USERS } = await import('../data/mock.js')
+    const u = ADMIN_USERS.find(x => x.id === userId)
+    if (u) u.status = u.status === 'inactive' ? 'active' : 'inactive'
+    return { ok: true, status: u?.status }
+  }
+  return request('PATCH', `/v1/mlm/admin/users/${userId}/status`)
+}
+
+export async function getRolePermissions() {
+  if (MOCK) {
+    const { ROLE_PERMISSIONS, PERMISSION_LABELS } = await import('../data/mock.js')
+    return { roles: ROLE_PERMISSIONS, labels: PERMISSION_LABELS }
+  }
+  return request('GET', '/v1/mlm/admin/roles/permissions')
+}
