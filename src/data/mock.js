@@ -830,3 +830,74 @@ export const RANK_HISTORY = [
   { rank: 'Bronze',   achievedAt: '2026-04-22T14:30:00Z', note: 'First active recruit enrolled'      },
   { rank: 'Unranked', achievedAt: '2026-03-05T11:00:00Z', note: 'Joined Nordic Vitals'               },
 ]
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+export const ANALYTICS_DATA = {
+  kpis: {
+    ytdRevenue:          2_497_600,
+    ytdRevenueGrowth:        41.2,   // % vs same period prior year
+    autoshipMRR:           184_320,
+    avgOrderValue:           2_840,
+    commissionPayoutRatio:    28.4,  // % of revenue paid as commissions
+    activeConversionRate:     25.2,  // % of all-time sign-ups who are currently active
+    avgRecruitPerMember:       2.3,
+  },
+  monthlyRevenue: [
+    { month: 'Jul 25', revenue: 148_200, orders: 52,  commissions:  42_130 },
+    { month: 'Aug 25', revenue: 174_600, orders: 61,  commissions:  49_640 },
+    { month: 'Sep 25', revenue: 203_400, orders: 72,  commissions:  57_770 },
+    { month: 'Oct 25', revenue: 241_800, orders: 85,  commissions:  68_670 },
+    { month: 'Nov 25', revenue: 318_500, orders: 113, commissions:  90_460 },
+    { month: 'Dec 25', revenue: 402_100, orders: 142, commissions: 114_200 },
+    { month: 'Jan 26', revenue: 287_400, orders:  98, commissions:  81_680 },
+    { month: 'Feb 26', revenue: 312_800, orders: 108, commissions:  88_840 },
+    { month: 'Mar 26', revenue: 395_200, orders: 136, commissions: 112_230 },
+    { month: 'Apr 26', revenue: 428_600, orders: 151, commissions: 121_730 },
+    { month: 'May 26', revenue: 467_400, orders: 165, commissions: 132_740 },
+    { month: 'Jun 26', revenue: 512_200, orders: 181, commissions: 145_470 },
+    { month: 'Jul 26', revenue: 294_000, orders:  99, commissions:  83_500, partial: true },
+  ],
+  memberGrowth: [
+    { month: 'Jul 25', newMembers:  38, cumulative:  82 },
+    { month: 'Aug 25', newMembers:  44, cumulative: 126 },
+    { month: 'Sep 25', newMembers:  61, cumulative: 187 },
+    { month: 'Oct 25', newMembers:  75, cumulative: 262 },
+    { month: 'Nov 25', newMembers:  98, cumulative: 360 },
+    { month: 'Dec 25', newMembers: 127, cumulative: 487 },
+    { month: 'Jan 26', newMembers:  84, cumulative: 571 },
+    { month: 'Feb 26', newMembers:  92, cumulative: 663 },
+    { month: 'Mar 26', newMembers: 108, cumulative: 771 },
+    { month: 'Apr 26', newMembers:  94, cumulative: 865 },
+    { month: 'May 26', newMembers:  79, cumulative: 944 },
+    { month: 'Jun 26', newMembers:  85, cumulative: 1_029 },
+    { month: 'Jul 26', newMembers:  53, cumulative: 1_082, partial: true },
+  ],
+  conversionFunnel: [
+    { stage: 'Landing page visitors',  count: 54_200 },
+    { stage: 'Product page views',     count: 21_840 },
+    { stage: 'Join page visits',       count:  6_150 },
+    { stage: 'Completed sign-ups',     count:  1_082 },
+    { stage: 'First purchase made',    count:    847 },
+    { stage: 'Active members (30d)',   count:    312 },
+  ],
+  geoDistribution: [
+    { country: 'Norway',        members: 302, pct: 27.9 },
+    { country: 'Sweden',        members: 248, pct: 22.9 },
+    { country: 'Denmark',       members: 176, pct: 16.3 },
+    { country: 'Finland',       members: 138, pct: 12.8 },
+    { country: 'Germany',       members:  72, pct:  6.7 },
+    { country: 'United Kingdom',members:  54, pct:  5.0 },
+    { country: 'Netherlands',   members:  36, pct:  3.3 },
+    { country: 'Iceland',       members:  28, pct:  2.6 },
+    { country: 'Canada',        members:  16, pct:  1.5 },
+    { country: 'Other',         members:  12, pct:  1.1 },
+  ],
+  categoryRevenue: [
+    { category: 'Omega & Fish Oil', revenue: 897_400, units: 1_248, avgPrice: 719 },
+    { category: 'Vitamins',         revenue: 648_200, units: 2_160, avgPrice: 300 },
+    { category: 'Beauty & Skin',    revenue: 492_600, units:   694, avgPrice: 710 },
+    { category: 'Energy',           revenue: 316_800, units:   912, avgPrice: 347 },
+    { category: 'Greens',           revenue:  96_400, units:   602, avgPrice: 160 },
+    { category: 'Focus',            revenue:  46_200, units:   176, avgPrice: 263 },
+  ],
+}

@@ -417,6 +417,7 @@ export default function Overview() {
           { label: '⚡ Commission Runs', desc: 'History & manual triggers',     path: '/admin/runs' },
           { label: '💸 Payout Queue',    desc: 'Review withdrawal requests',    path: '/admin/payouts' },
           { label: '📊 Reports',         desc: 'Analytics & top earners',       path: '/admin/reports' },
+          { label: '📈 Analytics',       desc: 'Revenue, growth & funnel',      path: '/admin/analytics' },
           { label: '⚙️ Plan Config',     desc: 'Rank thresholds & rates',       path: '/admin/plan' },
           { label: '🏷️ Promo Codes',      desc: 'Create & manage discount codes', path: '/admin/promos' },
           { label: '🔗 Referrals',        desc: 'Track referral link performance', path: '/admin/referrals' },

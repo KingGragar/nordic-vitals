@@ -12,6 +12,7 @@ const navLinks = [
   { to: '/admin/runs',      label: '⚡ Commission Runs' },
   { to: '/admin/payouts',   label: '💸 Payout Queue' },
   { to: '/admin/reports',   label: '📊 Reports' },
+  { to: '/admin/analytics', label: '📈 Analytics' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
   { to: '/admin/referrals',     label: '🔗 Referrals' },
