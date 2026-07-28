@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import usePageTitle from '../hooks/usePageTitle'
 
 export default function Login() {
   usePageTitle('Member Login')
-  const { login } = useAuth()
+  const { login, pendingTwoFactor, completeTwoFactorLogin, logout } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -13,19 +13,41 @@ export default function Login() {
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [twoFactorCode, setTwoFactorCode] = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const userData = await login(email, password)
+      const result = await login(email, password)
       setLoading(false)
-      navigate(userData.role === 'admin' ? '/admin' : '/dashboard')
+      if (result.twoFactorRequired) return // stay on page, 2FA step rendered below
+      navigate(result.role === 'admin' ? '/admin' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err.message || 'Invalid email or password')
     }
+  }
+
+  async function handleTwoFactor(e) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const userData = await completeTwoFactorLogin(twoFactorCode)
+      setLoading(false)
+      navigate(userData.role === 'admin' ? '/admin' : '/dashboard')
+    } catch (err) {
+      setLoading(false)
+      setError(err.message || 'Invalid code — try again')
+    }
+  }
+
+  function cancelTwoFactor() {
+    logout()
+    setTwoFactorCode('')
+    setError('')
   }
 
   return (
@@ -62,7 +84,7 @@ export default function Login() {
             fontWeight: '800',
             letterSpacing: '-0.5px',
           }}>
-            Welcome back
+            {pendingTwoFactor ? 'Two-Factor Auth' : 'Welcome back'}
           </h2>
         </div>
 
@@ -87,6 +109,64 @@ export default function Login() {
             </div>
           )}
 
+          {/* 2FA verification step */}
+          {pendingTwoFactor ? (
+            <form onSubmit={handleTwoFactor}>
+              <div style={{
+                textAlign: 'center',
+                marginBottom: '24px',
+              }}>
+                <div style={{
+                  fontSize: '40px',
+                  marginBottom: '12px',
+                }}>🔐</div>
+                <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Enter the 6-digit code from your authenticator app to complete sign-in.
+                </p>
+              </div>
+              <div style={{ marginBottom: '24px' }}>
+                <label className="label-text">Authenticator Code</label>
+                <input
+                  className="input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={twoFactorCode}
+                  onChange={e => setTwoFactorCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  required
+                  autoFocus
+                  style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-gold"
+                disabled={loading || twoFactorCode.length !== 6}
+                style={{ width: '100%', justifyContent: 'center', fontSize: '15px', padding: '12px' }}
+              >
+                {loading ? 'Verifying…' : 'Verify Code'}
+              </button>
+              <button
+                type="button"
+                onClick={cancelTwoFactor}
+                style={{
+                  width: '100%',
+                  marginTop: '12px',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text2)',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                ← Back to login
+              </button>
+            </form>
+          ) : (
+          <>
           <form onSubmit={handleSubmit}>
             {/* Email */}
             <div style={{ marginBottom: '16px' }}>
@@ -198,6 +278,8 @@ export default function Login() {
               Join here →
             </Link>
           </div>
+          </>
+          )}
         </div>
 
         {/* Demo hint */}

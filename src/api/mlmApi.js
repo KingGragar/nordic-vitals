@@ -19,6 +19,11 @@ const MOCK = !BASE
 let AUTH_TOKEN = ''
 export function setAuthToken(token) { AUTH_TOKEN = token }
 
+// Tracks 2FA enabled state per userId in mock mode
+const _mock2FA = {}
+// Tracks pending login (userId awaiting 2FA) in mock mode
+let _mock2FAPendingUser = null
+
 async function request(method, path, body) {
   const headers = { 'Content-Type': 'application/json', 'x-api-key': KEY }
   if (AUTH_TOKEN) headers['Authorization'] = `Bearer ${AUTH_TOKEN}`
@@ -38,6 +43,10 @@ export async function loginUser(email, password) {
   if (MOCK) {
     const found = USERS.find(u => u.email === email && u.password === password)
     if (!found) throw new Error('Invalid email or password')
+    if (_mock2FA[found.userId]) {
+      _mock2FAPendingUser = found
+      return { twoFactorRequired: true, userId: found.userId }
+    }
     const { password: _pw, ...safe } = found
     return safe
   }
@@ -72,6 +81,63 @@ export async function resetPassword(token, newPassword) {
     return { ok: true }
   }
   return request('POST', '/v1/mlm/auth/reset-password', { token, password: newPassword })
+}
+
+// ── Two-Factor Authentication ─────────────────────────────────────────────────
+
+const MOCK_2FA_SECRET = 'JBSWY3DPEHPK3PXP'
+
+export async function setup2FA(userId, email) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const label = encodeURIComponent(`Nordic Vitals:${email || 'member@nordic.no'}`)
+    const issuer = encodeURIComponent('Nordic Vitals')
+    return {
+      secret: MOCK_2FA_SECRET,
+      qr_uri: `otpauth://totp/${label}?secret=${MOCK_2FA_SECRET}&issuer=${issuer}`,
+    }
+  }
+  return request('POST', '/v1/mlm/auth/2fa/setup', { user_id: userId })
+}
+
+export async function enable2FA(userId, code) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    if (!/^\d{6}$/.test(code)) throw new Error('Enter a valid 6-digit code')
+    if (code === '000000') throw new Error('Invalid code — try again')
+    _mock2FA[userId] = true
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/auth/2fa/enable', { code })
+}
+
+export async function disable2FA(userId, code) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    if (!/^\d{6}$/.test(code)) throw new Error('Enter a valid 6-digit code')
+    if (code === '000000') throw new Error('Invalid code — try again')
+    _mock2FA[userId] = false
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/auth/2fa/disable', { code })
+}
+
+export async function verify2FALogin(userId, code) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    if (!/^\d{6}$/.test(code)) throw new Error('Enter a valid 6-digit code')
+    if (code === '000000') throw new Error('Invalid code — try again')
+    const found = _mock2FAPendingUser
+    _mock2FAPendingUser = null
+    if (!found || found.userId !== userId) throw new Error('Session expired — please log in again')
+    const { password: _pw, ...safe } = found
+    return safe
+  }
+  return request('POST', '/v1/mlm/auth/2fa/verify', { user_id: userId, code })
+}
+
+export function isMock2FAEnabled(userId) {
+  return !!_mock2FA[userId]
 }
 
 // ── Genealogy ────────────────────────────────────────────────────────────────
