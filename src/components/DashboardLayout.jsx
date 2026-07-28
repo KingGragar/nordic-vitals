@@ -19,6 +19,7 @@ const navLinks = [
   { to: '/dashboard/milestones',         label: '🏅 Milestones' },
   { to: '/dashboard/resources',         label: '📂 Resources' },
   { to: '/dashboard/training',          label: '🎓 Training' },
+  { to: '/dashboard/announcements',     label: '📣 Announcements' },
   { to: '/dashboard/profile',            label: '👤 Profile' },
 ]
 

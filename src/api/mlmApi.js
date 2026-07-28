@@ -653,6 +653,20 @@ export async function deleteAnnouncement(id) {
   return request('DELETE', `/v1/mlm/admin/announcements/${id}`)
 }
 
+export async function getMemberAnnouncements(memberRank = 'all') {
+  if (MOCK) {
+    if (!_announcements) _announcements = [...ANNOUNCEMENTS].reverse()
+    const RANK_ORDER = ['all', 'bronze', 'silver', 'gold', 'platinum']
+    const memberIdx = RANK_ORDER.indexOf(memberRank)
+    const visible = _announcements.filter(a => {
+      const audIdx = RANK_ORDER.indexOf(a.audience)
+      return audIdx <= memberIdx || a.audience === 'all'
+    })
+    return { announcements: visible }
+  }
+  return request('GET', '/v1/mlm/announcements', { rank: memberRank })
+}
+
 // ── Audit Log ──────────────────────────────────────────────────────────────────
 
 export async function getAuditLog({ category, result, search, limit = 100 } = {}) {
