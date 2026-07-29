@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 const navLinks = [
   { to: '/dashboard',                    label: '🏠 Dashboard',       end: true },
   { to: '/dashboard/tree',               label: '🌳 My Tree' },
+  { to: '/dashboard/my-team',            label: '👥 My Team' },
   { to: '/dashboard/commissions',        label: '💰 Commissions' },
   { to: '/dashboard/earnings',           label: '📈 Earnings' },
   { to: '/dashboard/wallet',             label: '💳 Wallet' },

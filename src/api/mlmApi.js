@@ -1453,3 +1453,45 @@ export async function deleteComplianceDoc(id) {
   }
   return request('DELETE', `/v1/mlm/admin/compliance/docs/${id}`)
 }
+
+// Build a flat list of all members in a user's downline (BFS from sponsor chain)
+export async function getMyTeam(userId) {
+  if (MOCK) {
+    // Compute levels via BFS from sponsor chain
+    const all = ADMIN_MEMBERS
+    const levelMap = {}
+    const queue = [{ id: userId, level: 0 }]
+    while (queue.length) {
+      const { id, level } = queue.shift()
+      const directs = all.filter(m => m.sponsor === id)
+      directs.forEach(m => {
+        if (levelMap[m.id] === undefined) {
+          levelMap[m.id] = level + 1
+          queue.push({ id: m.id, level: level + 1 })
+        }
+      })
+    }
+    const LAST_ACTIVITY = {
+      'NV-10042': '2026-07-25', 'NV-10087': '2026-07-20', 'NV-10091': '2026-07-18',
+      'NV-10102': '2026-07-15', 'NV-10118': '2026-06-30', 'NV-10122': '2026-07-22',
+      'NV-10201': '2026-07-10', 'NV-10208': '2026-06-15', 'NV-10210': '2026-05-28',
+      'NV-10215': '2026-07-24', 'NV-10230': '2026-07-19', 'NV-10241': '2026-07-12',
+    }
+    const members = all
+      .filter(m => levelMap[m.id] !== undefined)
+      .map(m => ({ ...m, level: levelMap[m.id], lastActivity: LAST_ACTIVITY[m.id] ?? m.joined }))
+    return { members, totalGV: members.reduce((s, m) => s + m.gv, 0) }
+  }
+  // Live: use genealogy tree with depth=10 to get flat nodes list
+  const rootNode = await request('GET', `/v1/mlm/genealogy/node-by-user/${userId}`)
+  const tree = await request('GET', `/v1/mlm/genealogy/tree/${rootNode.id}?tree=placement&depth=10`)
+  const nodes = (tree.nodes ?? []).filter(n => n.user_id !== userId)
+  const members = nodes.map(n => ({
+    id: n.user_id, name: n.name ?? n.user_id, email: n.email ?? '',
+    sponsor: n.sponsor_user_id ?? '', rank: n.rank ?? 'Unranked',
+    pv: n.pv ?? 0, gv: n.gv ?? 0, status: n.status ?? 'Active',
+    level: n.depth ?? 1, joined: n.created_at?.slice(0, 10) ?? '',
+    lastActivity: n.last_activity?.slice(0, 10) ?? '',
+  }))
+  return { members, totalGV: members.reduce((s, m) => s + m.gv, 0) }
+}
