@@ -2,28 +2,58 @@ import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 
-const navLinks = [
-  { to: '/dashboard',                    label: '🏠 Dashboard',       end: true },
-  { to: '/dashboard/tree',               label: '🌳 My Tree' },
-  { to: '/dashboard/my-team',            label: '👥 My Team' },
-  { to: '/dashboard/commissions',        label: '💰 Commissions' },
-  { to: '/dashboard/earnings',           label: '📈 Earnings' },
-  { to: '/dashboard/wallet',             label: '💳 Wallet' },
-  { to: '/dashboard/rank-progress',      label: '📊 Rank Progress' },
-  { to: '/dashboard/leaderboard',        label: '🏆 Leaderboard' },
-  { to: '/dashboard/referral',           label: '🔗 Referral' },
-  { to: '/dashboard/orders',             label: '📦 My Orders' },
-  { to: '/dashboard/notifications',      label: '🔔 Notifications' },
-  { to: '/dashboard/calculator',         label: '🧮 Calculator' },
-  { to: '/dashboard/support',            label: '🎫 Support' },
-  { to: '/dashboard/autoship',           label: '♻️ Autoship' },
-  { to: '/dashboard/milestones',         label: '🏅 Milestones' },
-  { to: '/dashboard/resources',         label: '📂 Resources' },
-  { to: '/dashboard/training',          label: '🎓 Training' },
-  { to: '/dashboard/announcements',     label: '📣 Announcements' },
-  { to: '/dashboard/events',            label: '🎙️ Events' },
-  { to: '/dashboard/business-plan',     label: '📋 Business Plan' },
-  { to: '/dashboard/profile',            label: '👤 Profile' },
+const navSections = [
+  {
+    links: [
+      { to: '/dashboard', label: '🏠 Dashboard', end: true },
+    ],
+  },
+  {
+    heading: 'Network',
+    links: [
+      { to: '/dashboard/tree',         label: '🌳 My Tree' },
+      { to: '/dashboard/my-team',      label: '👥 My Team' },
+      { to: '/dashboard/referral',     label: '🔗 Referral' },
+      { to: '/dashboard/leaderboard',  label: '🏆 Leaderboard' },
+    ],
+  },
+  {
+    heading: 'Finances',
+    links: [
+      { to: '/dashboard/commissions',  label: '💰 Commissions' },
+      { to: '/dashboard/earnings',     label: '📈 Earnings' },
+      { to: '/dashboard/wallet',       label: '💳 Wallet' },
+      { to: '/dashboard/orders',       label: '📦 My Orders' },
+      { to: '/dashboard/autoship',     label: '♻️ Autoship' },
+    ],
+  },
+  {
+    heading: 'Grow',
+    links: [
+      { to: '/dashboard/rank-progress',  label: '📊 Rank Progress' },
+      { to: '/dashboard/milestones',     label: '🏅 Milestones' },
+      { to: '/dashboard/business-plan',  label: '📋 Business Plan' },
+      { to: '/dashboard/calculator',     label: '🧮 Calculator' },
+    ],
+  },
+  {
+    heading: 'Community',
+    links: [
+      { to: '/dashboard/announcements',  label: '📣 Announcements' },
+      { to: '/dashboard/events',         label: '🎙️ Events' },
+      { to: '/dashboard/training',       label: '🎓 Training' },
+      { to: '/dashboard/resources',      label: '📂 Resources' },
+    ],
+  },
+  {
+    heading: 'Account',
+    links: [
+      { to: '/dashboard/notifications',  label: '🔔 Notifications' },
+      { to: '/dashboard/support',        label: '🎫 Support' },
+      { to: '/dashboard/member-card',    label: '🪪 Member Card' },
+      { to: '/dashboard/profile',        label: '👤 Profile' },
+    ],
+  },
 ]
 
 const SIDEBAR_W = 220
@@ -111,27 +141,39 @@ export default function DashboardLayout({ children }) {
       </div>
 
       {/* Nav links */}
-      <nav style={{ flex: 1, padding: '0 8px', overflowY: 'auto' }}>
-        {navLinks.map(({ to, label, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            onClick={isMobile ? close : undefined}
-            style={({ isActive }) => ({
-              display: 'block',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              marginBottom: '2px',
-              fontSize: '13px',
-              fontWeight: 500,
-              color: isActive ? 'var(--gold)' : 'var(--text)',
-              background: isActive ? 'var(--navy3)' : 'transparent',
-              transition: 'all 0.15s',
-            })}
-          >
-            {label}
-          </NavLink>
+      <nav style={{ flex: 1, padding: '0 8px', overflowY: 'auto', paddingBottom: '8px' }}>
+        {navSections.map((section, si) => (
+          <div key={si} style={{ marginBottom: '4px' }}>
+            {section.heading && (
+              <div style={{
+                fontSize: '9px', fontWeight: 700, textTransform: 'uppercase',
+                letterSpacing: '1.2px', color: 'var(--text2)', padding: '10px 14px 4px',
+              }}>
+                {section.heading}
+              </div>
+            )}
+            {section.links.map(({ to, label, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                onClick={isMobile ? close : undefined}
+                style={({ isActive }) => ({
+                  display: 'block',
+                  padding: '9px 14px',
+                  borderRadius: '8px',
+                  marginBottom: '1px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: isActive ? 'var(--gold)' : 'var(--text)',
+                  background: isActive ? 'var(--navy3)' : 'transparent',
+                  transition: 'all 0.15s',
+                })}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
