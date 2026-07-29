@@ -26,6 +26,7 @@ const navLinks = [
   { to: '/admin/compliance',      label: '⚖️ Compliance' },
   { to: '/admin/events',          label: '🎙️ Events' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
+  { to: '/admin/import',          label: '📥 Bulk Import' },
   { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 

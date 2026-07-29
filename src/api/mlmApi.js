@@ -1806,3 +1806,23 @@ export async function getTaxSummary(userId, year) {
   }
   return request('GET', `/v1/mlm/tax-summary?user_id=${userId}&year=${year}`)
 }
+
+export async function importMembers(rows) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 900 + rows.length * 8))
+    const imported = []
+    const skipped  = []
+    const failed   = []
+    rows.forEach(row => {
+      // Simulate ~5% conflict rate (already exists) based on email hash
+      const code = row.email.charCodeAt(0) + row.email.charCodeAt(row.email.length - 1)
+      if (code % 20 === 0) {
+        skipped.push(row)
+      } else {
+        imported.push(row)
+      }
+    })
+    return { imported: imported.length, skipped: skipped.length, failed: 0, failedRows: [] }
+  }
+  return request('POST', '/v1/mlm/admin/members/import', { rows })
+}
