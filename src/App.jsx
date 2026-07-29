@@ -31,6 +31,7 @@ const DashEvents         = lazy(() => import('./pages/dashboard/Events'))
 const DashBusinessPlan   = lazy(() => import('./pages/dashboard/BusinessPlan'))
 const DashMemberCard     = lazy(() => import('./pages/dashboard/MemberCard'))
 const DashTaxSummary     = lazy(() => import('./pages/dashboard/TaxSummary'))
+const DashOnboarding     = lazy(() => import('./pages/dashboard/Onboarding'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -121,6 +122,7 @@ export default function App() {
         <Route path="/dashboard/business-plan" element={<RequireAuth><DashBusinessPlan /></RequireAuth>} />
         <Route path="/dashboard/member-card"   element={<RequireAuth><DashMemberCard /></RequireAuth>} />
         <Route path="/dashboard/tax-summary"   element={<RequireAuth><DashTaxSummary /></RequireAuth>} />
+        <Route path="/dashboard/onboarding"   element={<RequireAuth><DashOnboarding /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />

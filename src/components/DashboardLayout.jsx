@@ -53,6 +53,7 @@ const navSections = [
       { to: '/dashboard/support',        label: '🎫 Support' },
       { to: '/dashboard/member-card',    label: '🪪 Member Card' },
       { to: '/dashboard/profile',        label: '👤 Profile' },
+      { to: '/dashboard/onboarding',     label: '🚀 Setup Guide' },
     ],
   },
 ]

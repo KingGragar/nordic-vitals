@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+
+const ONBOARD_KEY = uid => `nv_onboarded_${uid}`
 import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline, getMilestones } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
@@ -169,6 +171,7 @@ export default function Home() {
     : []
 
   const recentCommissions = commissions.slice(0, 8)
+  const isOnboarded = user ? !!localStorage.getItem(ONBOARD_KEY(user.userId)) : true
 
   return (
     <DashboardLayout>
@@ -176,6 +179,31 @@ export default function Home() {
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '24px' }}>
         {greeting()}, {user?.name?.split(' ')[0] ?? 'Lars'} 👋
       </h1>
+
+      {/* Onboarding banner for new members */}
+      {!isOnboarded && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))',
+          border: '1px solid rgba(201,168,76,0.4)', borderRadius: 12, marginBottom: 28,
+        }}>
+          <span style={{ fontSize: 28 }}>🚀</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--gold)', marginBottom: 2 }}>
+              Complete your member setup
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text2)' }}>
+              Follow our quick 5-minute guide to activate your referral link, set an income goal, and start training.
+            </div>
+          </div>
+          <Link
+            to="/dashboard/onboarding"
+            style={{ padding: '9px 18px', background: 'var(--gold)', color: '#0a0d14', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}
+          >
+            Get Started →
+          </Link>
+        </div>
+      )}
 
       {/* 6 stat cards */}
       <div style={{
