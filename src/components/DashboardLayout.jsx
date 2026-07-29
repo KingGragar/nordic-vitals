@@ -22,6 +22,7 @@ const navLinks = [
   { to: '/dashboard/training',          label: '🎓 Training' },
   { to: '/dashboard/announcements',     label: '📣 Announcements' },
   { to: '/dashboard/events',            label: '🎙️ Events' },
+  { to: '/dashboard/business-plan',     label: '📋 Business Plan' },
   { to: '/dashboard/profile',            label: '👤 Profile' },
 ]
 
