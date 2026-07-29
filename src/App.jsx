@@ -54,6 +54,7 @@ const AdminRoles           = lazy(() => import('./pages/admin/Roles'))
 const AdminCompliance         = lazy(() => import('./pages/admin/Compliance'))
 const AdminEvents             = lazy(() => import('./pages/admin/Events'))
 const AdminCommissionPreview  = lazy(() => import('./pages/admin/CommissionPreview'))
+const AdminIntegrations       = lazy(() => import('./pages/admin/Integrations'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -141,6 +142,7 @@ export default function App() {
         <Route path="/admin/compliance"       element={<RequireAuth role="admin"><AdminCompliance /></RequireAuth>} />
         <Route path="/admin/events"              element={<RequireAuth role="admin"><AdminEvents /></RequireAuth>} />
         <Route path="/admin/commission-preview" element={<RequireAuth role="admin"><AdminCommissionPreview /></RequireAuth>} />
+        <Route path="/admin/integrations"       element={<RequireAuth role="admin"><AdminIntegrations /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

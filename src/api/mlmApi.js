@@ -1673,3 +1673,84 @@ export async function getCommissionPreview() {
   }
   return request('POST', '/v1/mlm/admin/commission-preview', { dry_run: true })
 }
+
+// ─── Integrations & Webhooks ──────────────────────────────────────────────────
+export async function getIntegrations() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const { INTEGRATIONS } = await import('../data/mock.js')
+    return JSON.parse(JSON.stringify(INTEGRATIONS))
+  }
+  return request('GET', '/v1/mlm/admin/integrations')
+}
+
+export async function saveIntegrations(payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return { ok: true }
+  }
+  return request('PUT', '/v1/mlm/admin/integrations', payload)
+}
+
+export async function testArccticoConnection(base_url, api_key) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 1200))
+    // Simulate: if url contains 'arctico.duckdns.org' return unreachable
+    if (!base_url) return { ok: false, error: 'No base URL configured' }
+    if (base_url.includes('arctico.duckdns.org')) return { ok: false, error: 'Connection refused (403 from egress proxy)' }
+    return { ok: true, latency_ms: 142, version: 'arctico-mlm v1.4.2' }
+  }
+  return request('POST', '/v1/mlm/admin/integrations/test-arctico', { base_url, api_key })
+}
+
+export async function getWebhooks() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const { WEBHOOKS } = await import('../data/mock.js')
+    return JSON.parse(JSON.stringify(WEBHOOKS))
+  }
+  return request('GET', '/v1/mlm/admin/webhooks')
+}
+
+export async function createWebhook(payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return { id: `wh-${Date.now()}`, ...payload, created_at: new Date().toISOString(), last_delivery: null }
+  }
+  return request('POST', '/v1/mlm/admin/webhooks', payload)
+}
+
+export async function updateWebhook(id, payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/webhooks/${id}`, payload)
+}
+
+export async function deleteWebhook(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/webhooks/${id}`)
+}
+
+export async function pingWebhook(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 800))
+    return { ok: true, http_code: 200, duration_ms: 145 }
+  }
+  return request('POST', `/v1/mlm/admin/webhooks/${id}/ping`)
+}
+
+export async function getWebhookLog() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const { WEBHOOK_LOG, WEBHOOKS } = await import('../data/mock.js')
+    const wmap = {}
+    WEBHOOKS.forEach(w => { wmap[w.id] = w.label })
+    return WEBHOOK_LOG.map(l => ({ ...l, webhook_label: wmap[l.webhook_id] || l.webhook_id }))
+  }
+  return request('GET', '/v1/mlm/admin/webhooks/log')
+}

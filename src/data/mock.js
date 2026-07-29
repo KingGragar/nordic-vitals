@@ -1235,3 +1235,61 @@ export const EVENTS = [
     recording_url: 'https://recordings.arctico.duckdns.org/evt-009',
   },
 ]
+
+export const INTEGRATIONS = {
+  arctico: {
+    base_url: '',
+    api_key: '',
+    last_tested: null,
+    last_status: 'untested',
+  },
+  gateways: {
+    stripe:  { enabled: false, publishable_key: '', secret_key: '' },
+    klarna:  { enabled: false, username: '',        password: '' },
+    vipps:   { enabled: false, client_id: '',       client_secret: '' },
+  },
+}
+
+export const WEBHOOKS = [
+  {
+    id: 'wh-001',
+    label: 'CRM Sync',
+    url: 'https://hooks.example.com/crm/nordic',
+    events: ['new_member', 'rank_change'],
+    secret: 'whsec_abc123',
+    enabled: true,
+    created_at: '2026-07-01T10:00:00Z',
+    last_delivery: { ts: '2026-07-29T08:12:00Z', status: 'success', http_code: 200 },
+  },
+  {
+    id: 'wh-002',
+    label: 'Slack #commissions',
+    url: 'https://hooks.slack.com/services/T00/B00/XXXXX',
+    events: ['commission_run'],
+    secret: '',
+    enabled: true,
+    created_at: '2026-07-10T14:00:00Z',
+    last_delivery: { ts: '2026-07-28T22:05:00Z', status: 'success', http_code: 200 },
+  },
+  {
+    id: 'wh-003',
+    label: 'Finance Export',
+    url: 'https://finance.internal/webhook/nv-payouts',
+    events: ['withdrawal_request', 'withdrawal_processed'],
+    secret: 'whsec_def456',
+    enabled: false,
+    created_at: '2026-07-15T09:00:00Z',
+    last_delivery: { ts: '2026-07-20T11:30:00Z', status: 'error', http_code: 503 },
+  },
+]
+
+export const WEBHOOK_LOG = [
+  { id: 'dl-001', webhook_id: 'wh-001', event: 'rank_change',         ts: '2026-07-29T08:12:00Z', status: 'success', http_code: 200, duration_ms: 142 },
+  { id: 'dl-002', webhook_id: 'wh-001', event: 'new_member',          ts: '2026-07-29T07:44:00Z', status: 'success', http_code: 200, duration_ms: 98  },
+  { id: 'dl-003', webhook_id: 'wh-002', event: 'commission_run',      ts: '2026-07-28T22:05:00Z', status: 'success', http_code: 200, duration_ms: 310 },
+  { id: 'dl-004', webhook_id: 'wh-003', event: 'withdrawal_request',  ts: '2026-07-20T11:30:00Z', status: 'error',   http_code: 503, duration_ms: 5000 },
+  { id: 'dl-005', webhook_id: 'wh-001', event: 'new_member',          ts: '2026-07-19T16:22:00Z', status: 'success', http_code: 200, duration_ms: 115 },
+  { id: 'dl-006', webhook_id: 'wh-002', event: 'commission_run',      ts: '2026-07-15T22:01:00Z', status: 'success', http_code: 200, duration_ms: 270 },
+  { id: 'dl-007', webhook_id: 'wh-001', event: 'rank_change',         ts: '2026-07-12T10:05:00Z', status: 'success', http_code: 200, duration_ms: 130 },
+  { id: 'dl-008', webhook_id: 'wh-003', event: 'withdrawal_processed',ts: '2026-07-10T14:20:00Z', status: 'error',   http_code: 500, duration_ms: 4800 },
+]

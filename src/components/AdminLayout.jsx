@@ -25,6 +25,7 @@ const navLinks = [
   { to: '/admin/roles',           label: '🔐 Roles & Permissions' },
   { to: '/admin/compliance',      label: '⚖️ Compliance' },
   { to: '/admin/events',          label: '🎙️ Events' },
+  { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 

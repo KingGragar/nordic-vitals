@@ -430,6 +430,7 @@ export default function Overview() {
           { label: '🌐 Network Tree',    desc: 'Interactive full-network genealogy', path: '/admin/network' },
           { label: '🔐 Roles & Permissions', desc: 'Admin users, roles, and access matrix', path: '/admin/roles' },
           { label: '⚖️ Compliance',       desc: 'IDS, regulatory checklist, doc vault', path: '/admin/compliance' },
+          { label: '🔌 Integrations',    desc: 'Arctico API, gateways & webhooks',    path: '/admin/integrations' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
         ].map(({ label, desc, path }) => (
           <div
