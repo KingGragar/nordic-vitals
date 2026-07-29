@@ -23,6 +23,7 @@ const navLinks = [
   { to: '/admin/tokens',          label: '🪙 Token Management' },
   { to: '/admin/roles',           label: '🔐 Roles & Permissions' },
   { to: '/admin/compliance',      label: '⚖️ Compliance' },
+  { to: '/admin/events',          label: '🎙️ Events' },
   { to: '/admin/settings',        label: '🔧 Settings' },
 ]
 

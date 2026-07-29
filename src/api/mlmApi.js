@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1494,4 +1494,122 @@ export async function getMyTeam(userId) {
     lastActivity: n.last_activity?.slice(0, 10) ?? '',
   }))
   return { members, totalGV: members.reduce((s, m) => s + m.gv, 0) }
+}
+
+// ── Events & Webinars ──────────────────────────────────────────────────────────
+
+let _events = null
+const _registeredEvents = new Set()
+let _evtSeq = 9
+
+function _initEvents() {
+  if (!_events) _events = EVENTS.map(e => ({ ...e }))
+}
+
+export async function getEvents({ type, status } = {}) {
+  if (MOCK) {
+    _initEvents()
+    let list = [..._events]
+    if (type && type !== 'all') list = list.filter(e => e.type === type)
+    if (status && status !== 'all') list = list.filter(e => e.status === status)
+    list.sort((a, b) => new Date(a.date) - new Date(b.date))
+    return { events: list.map(e => ({ ...e, isRegistered: _registeredEvents.has(e.id) })) }
+  }
+  const params = new URLSearchParams()
+  if (type && type !== 'all') params.set('type', type)
+  if (status && status !== 'all') params.set('status', status)
+  return request('GET', `/v1/mlm/events?${params}`)
+}
+
+export async function registerForEvent(eventId) {
+  if (MOCK) {
+    _initEvents()
+    await new Promise(r => setTimeout(r, 400))
+    const ev = _events.find(e => e.id === eventId)
+    if (!ev) throw new Error('Event not found')
+    if (ev.status !== 'upcoming') throw new Error('Event is not open for registration')
+    if (_registeredEvents.has(eventId)) throw new Error('Already registered')
+    if (ev.registered >= ev.capacity) throw new Error('Event is full')
+    _registeredEvents.add(eventId)
+    ev.registered += 1
+    return { ok: true, event_id: eventId }
+  }
+  return request('POST', `/v1/mlm/events/${eventId}/register`)
+}
+
+export async function unregisterFromEvent(eventId) {
+  if (MOCK) {
+    _initEvents()
+    await new Promise(r => setTimeout(r, 400))
+    const ev = _events.find(e => e.id === eventId)
+    if (!ev) throw new Error('Event not found')
+    if (!_registeredEvents.has(eventId)) throw new Error('Not registered')
+    _registeredEvents.delete(eventId)
+    ev.registered = Math.max(0, ev.registered - 1)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/events/${eventId}/register`)
+}
+
+export async function getAdminEvents({ type, status } = {}) {
+  if (MOCK) {
+    _initEvents()
+    let list = [..._events]
+    if (type && type !== 'all') list = list.filter(e => e.type === type)
+    if (status && status !== 'all') list = list.filter(e => e.status === status)
+    list.sort((a, b) => new Date(a.date) - new Date(b.date))
+    return { events: list }
+  }
+  const params = new URLSearchParams()
+  if (type && type !== 'all') params.set('type', type)
+  if (status && status !== 'all') params.set('status', status)
+  return request('GET', `/v1/mlm/admin/events?${params}`)
+}
+
+export async function createAdminEvent(data) {
+  if (MOCK) {
+    _initEvents()
+    await new Promise(r => setTimeout(r, 500))
+    const ev = {
+      id: `evt-0${String(++_evtSeq).padStart(2, '0')}`,
+      title: data.title,
+      type: data.type || 'webinar',
+      description: data.description || '',
+      speaker: data.speaker || '',
+      speakerRole: data.speakerRole || '',
+      date: data.date,
+      duration_min: Number(data.duration_min) || 60,
+      capacity: Number(data.capacity) || 100,
+      registered: 0,
+      status: new Date(data.date) > new Date() ? 'upcoming' : 'past',
+      tags: data.tags || [],
+      mlmt_reward: Number(data.mlmt_reward) || 0,
+      recording_url: data.recording_url || null,
+    }
+    _events = [ev, ..._events]
+    return { event: ev }
+  }
+  return request('POST', '/v1/mlm/admin/events', data)
+}
+
+export async function updateAdminEvent(eventId, data) {
+  if (MOCK) {
+    _initEvents()
+    await new Promise(r => setTimeout(r, 400))
+    const idx = _events.findIndex(e => e.id === eventId)
+    if (idx === -1) throw new Error('Event not found')
+    _events[idx] = { ..._events[idx], ...data }
+    return { event: _events[idx] }
+  }
+  return request('PATCH', `/v1/mlm/admin/events/${eventId}`, data)
+}
+
+export async function deleteAdminEvent(eventId) {
+  if (MOCK) {
+    _initEvents()
+    await new Promise(r => setTimeout(r, 300))
+    _events = _events.filter(e => e.id !== eventId)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/events/${eventId}`)
 }

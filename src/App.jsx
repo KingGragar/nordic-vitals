@@ -27,6 +27,7 @@ const DashRankProgress   = lazy(() => import('./pages/dashboard/RankProgress'))
 const DashTraining       = lazy(() => import('./pages/dashboard/Training'))
 const DashAnnouncements  = lazy(() => import('./pages/dashboard/Announcements'))
 const DashMyTeam         = lazy(() => import('./pages/dashboard/MyTeam'))
+const DashEvents         = lazy(() => import('./pages/dashboard/Events'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -49,6 +50,7 @@ const AdminNetwork         = lazy(() => import('./pages/admin/Network'))
 const AdminAnalytics       = lazy(() => import('./pages/admin/Analytics'))
 const AdminRoles           = lazy(() => import('./pages/admin/Roles'))
 const AdminCompliance      = lazy(() => import('./pages/admin/Compliance'))
+const AdminEvents          = lazy(() => import('./pages/admin/Events'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -109,6 +111,7 @@ export default function App() {
         <Route path="/dashboard/training"       element={<RequireAuth><DashTraining /></RequireAuth>} />
         <Route path="/dashboard/announcements" element={<RequireAuth><DashAnnouncements /></RequireAuth>} />
         <Route path="/dashboard/my-team"       element={<RequireAuth><DashMyTeam /></RequireAuth>} />
+        <Route path="/dashboard/events"        element={<RequireAuth><DashEvents /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -131,6 +134,7 @@ export default function App() {
         <Route path="/admin/analytics"        element={<RequireAuth role="admin"><AdminAnalytics /></RequireAuth>} />
         <Route path="/admin/roles"            element={<RequireAuth role="admin"><AdminRoles /></RequireAuth>} />
         <Route path="/admin/compliance"       element={<RequireAuth role="admin"><AdminCompliance /></RequireAuth>} />
+        <Route path="/admin/events"           element={<RequireAuth role="admin"><AdminEvents /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
