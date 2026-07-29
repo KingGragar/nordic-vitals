@@ -1409,3 +1409,47 @@ export async function getRolePermissions() {
   }
   return request('GET', '/v1/mlm/admin/roles/permissions')
 }
+
+export async function getComplianceStats() {
+  if (MOCK) {
+    const { COMPLIANCE_STATS } = await import('../data/mock.js')
+    return COMPLIANCE_STATS
+  }
+  return request('GET', '/v1/mlm/admin/compliance/stats')
+}
+
+export async function getComplianceChecklist() {
+  if (MOCK) {
+    const { COMPLIANCE_CHECKLIST } = await import('../data/mock.js')
+    return [...COMPLIANCE_CHECKLIST]
+  }
+  return request('GET', '/v1/mlm/admin/compliance/checklist')
+}
+
+export async function updateChecklistItem(id, updates) {
+  if (MOCK) {
+    const { COMPLIANCE_CHECKLIST } = await import('../data/mock.js')
+    const item = COMPLIANCE_CHECKLIST.find(i => i.id === id)
+    if (item) Object.assign(item, updates)
+    return item
+  }
+  return request('PATCH', `/v1/mlm/admin/compliance/checklist/${id}`, updates)
+}
+
+export async function getComplianceDocs() {
+  if (MOCK) {
+    const { COMPLIANCE_DOCS } = await import('../data/mock.js')
+    return [...COMPLIANCE_DOCS]
+  }
+  return request('GET', '/v1/mlm/admin/compliance/docs')
+}
+
+export async function deleteComplianceDoc(id) {
+  if (MOCK) {
+    const { COMPLIANCE_DOCS } = await import('../data/mock.js')
+    const idx = COMPLIANCE_DOCS.findIndex(d => d.id === id)
+    if (idx !== -1) COMPLIANCE_DOCS.splice(idx, 1)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/compliance/docs/${id}`)
+}

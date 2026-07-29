@@ -1037,3 +1037,54 @@ export const PERMISSION_LABELS = {
   promos: 'Promo Codes', referrals: 'Referrals', email_templates: 'Email Templates', autoships: 'Autoships',
   plan_config: 'Plan Config', settings: 'Settings', roles: 'Roles & Permissions',
 }
+
+export const COMPLIANCE_STATS = {
+  reportPeriod: '2025-Q4',
+  totalParticipants: 5312,
+  activeEarners: 2187,
+  medianAnnualEarnings: 1840,
+  avgAnnualEarnings: 4210,
+  topPercentEarnings: 48600,
+  incomeTiers: [
+    { label: 'No earnings',      minNok: 0,     maxNok: 0,      pctParticipants: 58.8, avgNok: 0 },
+    { label: '1 – 10 000 NOK',   minNok: 1,     maxNok: 10000,  pctParticipants: 21.4, avgNok: 3200 },
+    { label: '10 001 – 50 000',  minNok: 10001, maxNok: 50000,  pctParticipants: 13.2, avgNok: 24500 },
+    { label: '50 001 – 150 000', minNok: 50001, maxNok: 150000, pctParticipants: 5.1,  avgNok: 88000 },
+    { label: '150 001 – 500 000',minNok: 150001,maxNok: 500000, pctParticipants: 1.2,  avgNok: 260000 },
+    { label: '500 001 +',        minNok: 500001,maxNok: null,   pctParticipants: 0.3,  avgNok: 920000 },
+  ],
+  disclaimer: 'These figures represent gross earnings before personal business expenses. Individual results vary. Participation does not guarantee income.',
+}
+
+export const COMPLIANCE_CHECKLIST = [
+  { id: 'c1',  category: 'Documentation', label: 'Income Disclosure Statement published', status: 'done', notes: 'IDS generated from live member data each quarter.' },
+  { id: 'c2',  category: 'Documentation', label: 'Terms & Conditions up to date', status: 'done', notes: 'Last reviewed 2025-12-01.' },
+  { id: 'c3',  category: 'Documentation', label: 'Privacy Policy (GDPR) compliant', status: 'done', notes: 'DPA signed with Arctico. Last reviewed 2025-11-15.' },
+  { id: 'c4',  category: 'Documentation', label: 'Distributor Agreement template reviewed by legal', status: 'pending', notes: 'Awaiting sign-off from Veriton legal team.' },
+  { id: 'c5',  category: 'Marketing',     label: 'No income guarantees in marketing materials', status: 'done', notes: 'All creative reviewed Q4 2025.' },
+  { id: 'c6',  category: 'Marketing',     label: 'Product claims backed by documentation', status: 'done', notes: 'Omega-3 EFSA claims on file.' },
+  { id: 'c7',  category: 'Marketing',     label: 'IDS referenced in all recruitment materials', status: 'done', notes: '' },
+  { id: 'c8',  category: 'Marketing',     label: 'Social media guidelines distributed to members', status: 'pending', notes: 'Draft ready; pending final approval.' },
+  { id: 'c9',  category: 'Operations',    label: 'Cooling-off / 14-day return policy in place', status: 'done', notes: 'EU Consumer Rights Directive compliant.' },
+  { id: 'c10', category: 'Operations',    label: 'No pay-to-play enrollment (product purchase not required)', status: 'done', notes: 'Free join option available.' },
+  { id: 'c11', category: 'Operations',    label: '70% rule: majority of sales to non-members', status: 'review', notes: 'Q3 ratio was 64%. Monitoring improvement in Q4.' },
+  { id: 'c12', category: 'Operations',    label: 'Inventory loading prohibited in policy', status: 'done', notes: 'Buy-back guarantee clause in Distributor Agreement.' },
+  { id: 'c13', category: 'Financial',     label: 'Commissions paid only on verified product sales', status: 'done', notes: '' },
+  { id: 'c14', category: 'Financial',     label: 'No commissions on recruitment fees alone', status: 'done', notes: '' },
+  { id: 'c15', category: 'Financial',     label: 'AML / KYC checks for payouts above 10 000 NOK', status: 'review', notes: 'Manual review process in place; automation planned.' },
+  { id: 'c16', category: 'Financial',     label: 'VAT registered and reporting (Norway)', status: 'done', notes: 'MVA-nummer: 925 382 847 MVA.' },
+  { id: 'c17', category: 'Regulatory',    label: 'Registered with Forbrukerrådet (Norwegian Consumer Authority)', status: 'pending', notes: 'Application submitted 2026-01-10.' },
+  { id: 'c18', category: 'Regulatory',    label: 'GDPR Data Processing Agreement with all processors', status: 'done', notes: 'DPAs on file for Arctico, Vercel, Gmail.' },
+  { id: 'c19', category: 'Regulatory',    label: 'Annual compliance review scheduled', status: 'done', notes: 'Next review: 2026-Q1.' },
+]
+
+export const COMPLIANCE_DOCS = [
+  { id: 'doc1', name: 'Income Disclosure Statement 2025-Q4.pdf', category: 'IDS', size: '284 KB', uploadedAt: '2026-01-05', uploader: 'Bjørn V. Hauge', url: '#' },
+  { id: 'doc2', name: 'Privacy Policy v3.2.pdf',                 category: 'Legal', size: '156 KB', uploadedAt: '2025-11-15', uploader: 'Bjørn V. Hauge', url: '#' },
+  { id: 'doc3', name: 'Terms & Conditions v2.1.pdf',             category: 'Legal', size: '198 KB', uploadedAt: '2025-12-01', uploader: 'Gary Granello', url: '#' },
+  { id: 'doc4', name: 'Distributor Agreement Template DRAFT.docx',category: 'Legal', size: '91 KB',  uploadedAt: '2026-01-18', uploader: 'Gary Granello', url: '#' },
+  { id: 'doc5', name: 'GDPR DPA – Arctico (2025).pdf',           category: 'GDPR',  size: '122 KB', uploadedAt: '2025-10-01', uploader: 'Bjørn V. Hauge', url: '#' },
+  { id: 'doc6', name: 'GDPR DPA – Vercel (2025).pdf',            category: 'GDPR',  size: '88 KB',  uploadedAt: '2025-10-01', uploader: 'Bjørn V. Hauge', url: '#' },
+  { id: 'doc7', name: 'Product Claims – Omega-3 EFSA.pdf',       category: 'Product',size: '340 KB', uploadedAt: '2025-09-12', uploader: 'Bjørn V. Hauge', url: '#' },
+  { id: 'doc8', name: 'AML KYC Policy v1.0.pdf',                 category: 'Financial',size:'77 KB', uploadedAt: '2025-08-20', uploader: 'Gary Granello', url: '#' },
+]
