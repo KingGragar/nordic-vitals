@@ -1613,3 +1613,63 @@ export async function deleteAdminEvent(eventId) {
   }
   return request('DELETE', `/v1/mlm/admin/events/${eventId}`)
 }
+
+export async function getCommissionPreview() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 1200))
+    const { ADMIN_MEMBERS } = await import('../data/mock.js')
+    const members = ADMIN_MEMBERS
+
+    const memberMap = {}
+    members.forEach(m => { memberMap[m.id] = m })
+
+    const directDownline = {}
+    members.forEach(m => {
+      if (!directDownline[m.sponsor]) directDownline[m.sponsor] = []
+      directDownline[m.sponsor].push(m.id)
+    })
+
+    const rows = members.filter(m => m.status === 'Active').map(m => {
+      const directSalesBonus = Math.round(m.pv * 0.20)
+      const directs = (directDownline[m.id] || []).map(id => memberMap[id]).filter(Boolean)
+      const sponsorBonus = Math.round(directs.reduce((s, d) => s + (d.pv || 0), 0) * 0.10)
+      const l2 = directs.flatMap(d => (directDownline[d.id] || []).map(id => memberMap[id]).filter(Boolean))
+      const l3 = l2.flatMap(d => (directDownline[d.id] || []).map(id => memberMap[id]).filter(Boolean))
+      const levelCommission =
+        Math.round(l2.reduce((s, d) => s + (d.pv || 0), 0) * 0.05) +
+        Math.round(l3.reduce((s, d) => s + (d.pv || 0), 0) * 0.03)
+      const leftGV  = Math.round(m.gv * 0.45)
+      const rightGV = m.gv - leftGV
+      const weakLeg = Math.min(leftGV, rightGV)
+      const pairingBonus = m.rank === 'Silver' || m.rank === 'Gold' || m.rank === 'Platinum'
+        ? Math.round(weakLeg * 0.08)
+        : Math.round(weakLeg * 0.05)
+      const total = directSalesBonus + sponsorBonus + levelCommission + pairingBonus
+      return {
+        id: m.id,
+        name: m.name,
+        rank: m.rank,
+        pv: m.pv,
+        gv: m.gv,
+        directSalesBonus,
+        sponsorBonus,
+        levelCommission,
+        pairingBonus,
+        total,
+      }
+    })
+
+    rows.sort((a, b) => b.total - a.total)
+
+    const totals = rows.reduce((acc, r) => ({
+      directSalesBonus:  acc.directSalesBonus  + r.directSalesBonus,
+      sponsorBonus:      acc.sponsorBonus      + r.sponsorBonus,
+      levelCommission:   acc.levelCommission   + r.levelCommission,
+      pairingBonus:      acc.pairingBonus      + r.pairingBonus,
+      grandTotal:        acc.grandTotal        + r.total,
+    }), { directSalesBonus: 0, sponsorBonus: 0, levelCommission: 0, pairingBonus: 0, grandTotal: 0 })
+
+    return { rows, totals, members_in_preview: rows.length, currency: 'MLMT', generated_at: new Date().toISOString() }
+  }
+  return request('POST', '/v1/mlm/admin/commission-preview', { dry_run: true })
+}
