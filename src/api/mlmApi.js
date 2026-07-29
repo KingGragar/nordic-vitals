@@ -1754,3 +1754,55 @@ export async function getWebhookLog() {
   }
   return request('GET', '/v1/mlm/admin/webhooks/log')
 }
+
+export async function getTaxSummary(userId, year) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const NOK_RATE = 1.15 // 1 MLMT = 1.15 NOK (illustrative)
+    const allYears = {
+      2024: [
+        { type: 'Pairing Bonus',        count: 18, amount: 5850 },
+        { type: 'Sponsor Bonus',         count: 9,  amount: 1575 },
+        { type: 'Level Commission L1',   count: 14, amount: 1260 },
+        { type: 'Level Commission L2',   count: 8,  amount: 480  },
+        { type: 'Level Commission L3',   count: 4,  amount: 112  },
+        { type: 'Override Bonus',        count: 6,  amount: 210  },
+        { type: 'Pool Bonus',            count: 3,  amount: 620  },
+      ],
+      2025: [
+        { type: 'Pairing Bonus',        count: 24, amount: 9000 },
+        { type: 'Sponsor Bonus',         count: 14, amount: 2450 },
+        { type: 'Level Commission L1',   count: 19, amount: 1710 },
+        { type: 'Level Commission L2',   count: 11, amount: 660  },
+        { type: 'Level Commission L3',   count: 7,  amount: 196  },
+        { type: 'Override Bonus',        count: 9,  amount: 315  },
+        { type: 'Pool Bonus',            count: 5,  amount: 1050 },
+        { type: 'Rank Bonus',            count: 2,  amount: 500  },
+      ],
+      2026: [
+        { type: 'Pairing Bonus',        count: 9,  amount: 3600 },
+        { type: 'Sponsor Bonus',         count: 5,  amount: 875  },
+        { type: 'Level Commission L1',   count: 7,  amount: 630  },
+        { type: 'Level Commission L2',   count: 4,  amount: 240  },
+        { type: 'Level Commission L3',   count: 2,  amount: 56   },
+        { type: 'Override Bonus',        count: 3,  amount: 105  },
+        { type: 'Pool Bonus',            count: 2,  amount: 440  },
+      ],
+    }
+    const rows = allYears[year] || []
+    const totalMlmt = rows.reduce((s, r) => s + r.amount, 0)
+    const withdrawals = year === 2024 ? 3200 : year === 2025 ? 6400 : 1300
+    return {
+      year,
+      memberId: userId || 'NV-10042',
+      memberName: 'Lars Eriksen',
+      nok_rate: NOK_RATE,
+      rows: rows.map(r => ({ ...r, nok: Math.round(r.amount * NOK_RATE) })),
+      totalMlmt,
+      totalNok: Math.round(totalMlmt * NOK_RATE),
+      withdrawalsNok: Math.round(withdrawals * NOK_RATE),
+      pendingMlmt: year === 2026 ? 280 : 0,
+    }
+  }
+  return request('GET', `/v1/mlm/tax-summary?user_id=${userId}&year=${year}`)
+}
