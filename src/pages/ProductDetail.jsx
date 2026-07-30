@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
-import { getVpProducts, getProductReviews, submitProductReview } from '../api/mlmApi'
+import { getVpProducts, getProductReviews, submitProductReview, getWishlist, addToWishlist, removeFromWishlist } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import usePageTitle from '../hooks/usePageTitle'
 
@@ -42,6 +42,7 @@ export default function ProductDetail() {
   const [toast, setToast] = useState(false)
   const [reviews, setReviews] = useState([])
   const [reviewForm, setReviewForm] = useState({ open: false, rating: 5, comment: '', submitting: false, submitted: false })
+  const [inWishlist, setInWishlist] = useState(false)
 
   useEffect(() => {
     getVpProducts()
@@ -55,6 +56,13 @@ export default function ProductDetail() {
       .then(d => { if (d?.reviews) setReviews(d.reviews) })
       .catch(() => {})
   }, [id])
+
+  useEffect(() => {
+    if (!user || !id) return
+    getWishlist(user.userId)
+      .then(d => { if (d?.productIds) setInWishlist(d.productIds.includes(Number(id))) })
+      .catch(() => {})
+  }, [user, id])
 
   const product = products.find(p => p.id === Number(id))
 
@@ -87,6 +95,17 @@ export default function ProductDetail() {
     }
     setToast(true)
     setTimeout(() => setToast(false), 2000)
+  }
+
+  async function handleToggleWishlist() {
+    if (!user) return
+    if (inWishlist) {
+      await removeFromWishlist(user.userId, product.id).catch(() => {})
+      setInWishlist(false)
+    } else {
+      await addToWishlist(user.userId, product.id).catch(() => {})
+      setInWishlist(true)
+    }
   }
 
   function decQty() { setQty(q => Math.max(1, q - 1)) }
@@ -308,14 +327,33 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart */}
-            <button
-              onClick={handleAddToCart}
-              className="btn btn-gold"
-              style={{ width: '100%', justifyContent: 'center', fontSize: '15px', padding: '14px', marginBottom: '20px' }}
-            >
-              Add to Cart — NOK {product.price * qty}
-            </button>
+            {/* Add to Cart + Wishlist */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              <button
+                onClick={handleAddToCart}
+                className="btn btn-gold"
+                style={{ flex: 1, justifyContent: 'center', fontSize: '15px', padding: '14px' }}
+              >
+                Add to Cart — NOK {product.price * qty}
+              </button>
+              {user && (
+                <button
+                  onClick={handleToggleWishlist}
+                  title={inWishlist ? 'Remove from wishlist' : 'Save to wishlist'}
+                  style={{
+                    width: '52px', height: '52px', flexShrink: 0,
+                    background: 'var(--navy2)', border: '1px solid var(--border)',
+                    borderRadius: '10px', fontSize: '22px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background 0.18s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--navy3)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--navy2)'}
+                >
+                  {inWishlist ? '❤️' : '🤍'}
+                </button>
+              )}
+            </div>
 
             {/* Member upsell callout */}
             <div style={{

@@ -2121,3 +2121,34 @@ export async function getRetentionStats() {
   }
   return request('GET', '/v1/mlm/admin/retention')
 }
+
+// ─── Wishlist ────────────────────────────────────────────────────────────────
+const NV_WISHLIST_KEY = 'nv_wishlist'
+function _loadWishlistIds() { try { return JSON.parse(localStorage.getItem(NV_WISHLIST_KEY) || '[]') } catch { return [] } }
+function _saveWishlistIds(ids) { localStorage.setItem(NV_WISHLIST_KEY, JSON.stringify(ids)) }
+
+export async function getWishlist(userId) {
+  if (MOCK) {
+    const ids = _loadWishlistIds()
+    return { productIds: ids, products: PRODUCTS.filter(p => ids.includes(p.id)) }
+  }
+  return request('GET', `/v1/mlm/wishlist/${userId}`)
+}
+
+export async function addToWishlist(userId, productId) {
+  if (MOCK) {
+    const ids = _loadWishlistIds()
+    if (!ids.includes(productId)) { ids.push(productId); _saveWishlistIds(ids) }
+    return { productIds: ids }
+  }
+  return request('POST', `/v1/mlm/wishlist/${userId}`, { productId })
+}
+
+export async function removeFromWishlist(userId, productId) {
+  if (MOCK) {
+    const ids = _loadWishlistIds().filter(id => id !== productId)
+    _saveWishlistIds(ids)
+    return { productIds: ids }
+  }
+  return request('DELETE', `/v1/mlm/wishlist/${userId}/${productId}`)
+}

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
-import { getVpProducts } from '../api/mlmApi'
+import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import usePageTitle from '../hooks/usePageTitle'
 
@@ -28,18 +28,24 @@ const SORT_OPTIONS = [
 
 export default function Shop() {
   usePageTitle('Shop', 'Browse Nordic Vitals premium Arctic supplements — Omega-3, Collagen, Vitamin D3, Shilajit, Greens, and Focus Formula. Member pricing available.')
-  const { addToCart } = useAuth()
+  const { addToCart, user } = useAuth()
   const [products, setProducts] = useState(PRODUCTS)
   const [toast, setToast] = useState(false)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [sort, setSort] = useState('default')
+  const [wishlistIds, setWishlistIds] = useState([])
 
   useEffect(() => {
     getVpProducts()
       .then(d => { if (d?.products?.length) setProducts(d.products) })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    getWishlist(user.userId).then(d => { if (d?.productIds) setWishlistIds(d.productIds) }).catch(() => {})
+  }, [user])
 
   const categories = useMemo(() => {
     const cats = [...new Set(products.map(p => p.category).filter(Boolean))]
@@ -70,6 +76,20 @@ export default function Shop() {
     addToCart(product)
     setToast(true)
     setTimeout(() => setToast(false), 2000)
+  }
+
+  async function handleToggleWishlist(e, product) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!user) return
+    const inWishlist = wishlistIds.includes(product.id)
+    if (inWishlist) {
+      await removeFromWishlist(user.userId, product.id).catch(() => {})
+      setWishlistIds(ids => ids.filter(id => id !== product.id))
+    } else {
+      await addToWishlist(user.userId, product.id).catch(() => {})
+      setWishlistIds(ids => [...ids, product.id])
+    }
   }
 
   return (
@@ -254,6 +274,24 @@ export default function Shop() {
                     }}>
                       {p.category}
                     </span>
+                  )}
+                  {user && (
+                    <button
+                      onClick={e => handleToggleWishlist(e, p)}
+                      title={wishlistIds.includes(p.id) ? 'Remove from wishlist' : 'Save to wishlist'}
+                      style={{
+                        position: 'absolute', top: '10px', left: '10px',
+                        background: 'rgba(0,0,0,0.45)', border: 'none',
+                        borderRadius: '50%', width: '32px', height: '32px',
+                        fontSize: '15px', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'background 0.18s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.45)'}
+                    >
+                      {wishlistIds.includes(p.id) ? '❤️' : '🤍'}
+                    </button>
                   )}
                 </div>
 
