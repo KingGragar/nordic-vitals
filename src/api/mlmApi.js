@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1920,4 +1920,111 @@ export async function sendEmailCampaignNow(id) {
     return CAMPAIGNS_STATE.find(c => c.id === id)
   }
   return request('POST', `/v1/mlm/admin/campaigns/${id}/send`)
+}
+
+// ── KYC / Identity Verification ──────────────────────────────────────────────
+
+let KYC_STATE = KYC_SUBMISSIONS.map(k => ({ ...k, docs: k.docs.map(d => ({ ...d })) }))
+
+export async function getMyKyc(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const submission = KYC_STATE.find(k => k.userId === userId)
+    return submission || { userId, status: 'unverified', submitted_at: null, docs: [] }
+  }
+  return request('GET', `/v1/mlm/kyc/my`)
+}
+
+export async function submitKycDocument(userId, docType, filename) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    const now = new Date().toISOString()
+    const existing = KYC_STATE.find(k => k.userId === userId)
+    const newDoc = { type: docType, label: filename, filename, size_kb: Math.floor(200 + Math.random() * 400), uploaded_at: now, verified: false }
+    if (existing) {
+      existing.docs = existing.docs.filter(d => d.type !== docType)
+      existing.docs.push(newDoc)
+      if (existing.status === 'rejected') existing.status = 'draft'
+    } else {
+      KYC_STATE.push({ id: `kyc-${Date.now()}`, userId, memberId: 'NV-NEW', name: 'Member', email: '', country: '', status: 'draft', submitted_at: null, reviewed_at: null, reviewed_by: null, review_notes: '', docs: [newDoc] })
+    }
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/kyc/upload', { doc_type: docType, filename })
+}
+
+export async function submitKycForReview(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const now = new Date().toISOString()
+    const existing = KYC_STATE.find(k => k.userId === userId)
+    if (existing) {
+      existing.status = 'pending'
+      existing.submitted_at = now
+    }
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/kyc/submit')
+}
+
+export async function getAdminKycQueue({ status, search } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    let list = [...KYC_STATE]
+    if (status && status !== 'all') list = list.filter(k => k.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      list = list.filter(k => k.name.toLowerCase().includes(q) || k.memberId.toLowerCase().includes(q) || k.email.toLowerCase().includes(q))
+    }
+    list.sort((a, b) => {
+      const order = { pending: 0, rejected: 1, draft: 2, approved: 3, unverified: 4 }
+      return (order[a.status] ?? 5) - (order[b.status] ?? 5)
+    })
+    return list
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (search) params.set('search', search)
+  return request('GET', `/v1/mlm/admin/kyc?${params}`)
+}
+
+export async function approveKyc(id, notes) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const now = new Date().toISOString()
+    KYC_STATE = KYC_STATE.map(k =>
+      k.id === id
+        ? { ...k, status: 'approved', reviewed_at: now, reviewed_by: 'Admin', review_notes: notes || 'Verified.', docs: k.docs.map(d => ({ ...d, verified: true })) }
+        : k
+    )
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/kyc/${id}/approve`, { notes })
+}
+
+export async function rejectKyc(id, notes) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const now = new Date().toISOString()
+    KYC_STATE = KYC_STATE.map(k =>
+      k.id === id
+        ? { ...k, status: 'rejected', reviewed_at: now, reviewed_by: 'Admin', review_notes: notes }
+        : k
+    )
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/kyc/${id}/reject`, { notes })
+}
+
+export async function requestKycResubmission(id, notes) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    KYC_STATE = KYC_STATE.map(k =>
+      k.id === id
+        ? { ...k, status: 'rejected', review_notes: notes }
+        : k
+    )
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/kyc/${id}/resubmit`, { notes })
 }

@@ -32,6 +32,7 @@ const DashBusinessPlan   = lazy(() => import('./pages/dashboard/BusinessPlan'))
 const DashMemberCard     = lazy(() => import('./pages/dashboard/MemberCard'))
 const DashTaxSummary     = lazy(() => import('./pages/dashboard/TaxSummary'))
 const DashOnboarding     = lazy(() => import('./pages/dashboard/Onboarding'))
+const DashKyc            = lazy(() => import('./pages/dashboard/Kyc'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -59,6 +60,7 @@ const AdminCommissionPreview  = lazy(() => import('./pages/admin/CommissionPrevi
 const AdminIntegrations       = lazy(() => import('./pages/admin/Integrations'))
 const AdminImport             = lazy(() => import('./pages/admin/Import'))
 const AdminCampaigns          = lazy(() => import('./pages/admin/Campaigns'))
+const AdminKyc                = lazy(() => import('./pages/admin/Kyc'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -124,6 +126,7 @@ export default function App() {
         <Route path="/dashboard/member-card"   element={<RequireAuth><DashMemberCard /></RequireAuth>} />
         <Route path="/dashboard/tax-summary"   element={<RequireAuth><DashTaxSummary /></RequireAuth>} />
         <Route path="/dashboard/onboarding"   element={<RequireAuth><DashOnboarding /></RequireAuth>} />
+        <Route path="/dashboard/kyc"          element={<RequireAuth><DashKyc /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -151,6 +154,7 @@ export default function App() {
         <Route path="/admin/integrations"       element={<RequireAuth role="admin"><AdminIntegrations /></RequireAuth>} />
         <Route path="/admin/import"             element={<RequireAuth role="admin"><AdminImport /></RequireAuth>} />
         <Route path="/admin/campaigns"          element={<RequireAuth role="admin"><AdminCampaigns /></RequireAuth>} />
+        <Route path="/admin/kyc"               element={<RequireAuth role="admin"><AdminKyc /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

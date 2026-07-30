@@ -51,6 +51,7 @@ const navSections = [
     links: [
       { to: '/dashboard/notifications',  label: '🔔 Notifications' },
       { to: '/dashboard/support',        label: '🎫 Support' },
+      { to: '/dashboard/kyc',            label: '🔏 KYC Verification' },
       { to: '/dashboard/member-card',    label: '🪪 Member Card' },
       { to: '/dashboard/profile',        label: '👤 Profile' },
       { to: '/dashboard/onboarding',     label: '🚀 Setup Guide' },
