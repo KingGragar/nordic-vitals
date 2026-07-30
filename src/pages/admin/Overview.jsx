@@ -412,6 +412,7 @@ export default function Overview() {
         {[
           { label: '👥 Members',         desc: 'Browse & manage all members',   path: '/admin' },
           { label: '🛍️ Products',       desc: 'Manage Viking Peptides catalog', path: '/admin/products' },
+          { label: '🗃️ Inventory',      desc: 'Stock levels, reorder alerts & movements', path: '/admin/inventory' },
           { label: '📦 Orders',          desc: 'Track & update all orders',      path: '/admin/orders' },
           { label: '♻️ Autoships',       desc: 'Recurring subscription orders',  path: '/admin/autoships' },
           { label: '⚡ Commission Runs',    desc: 'History & manual triggers',        path: '/admin/runs' },

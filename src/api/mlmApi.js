@@ -7,6 +7,7 @@ import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
   TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
+  INVENTORY, STOCK_MOVEMENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2279,4 +2280,71 @@ export async function redeemLoyaltyPoints(userId, optionId) {
     return { success: true, newBalance: data.currentPoints, redemptionCode: `NV-LPR-${Math.random().toString(36).slice(2,8).toUpperCase()}` }
   }
   return request('POST', `/v1/mlm/loyalty/${userId}/redeem`, { optionId })
+}
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+
+const _inventoryKey = 'nv_admin_inventory'
+const _movementsKey = 'nv_admin_stock_movements'
+
+function _getInvStore() {
+  try { const r = localStorage.getItem(_inventoryKey); if (r) return JSON.parse(r) } catch (_) {}
+  return [...INVENTORY]
+}
+function _getMoveStore() {
+  try { const r = localStorage.getItem(_movementsKey); if (r) return JSON.parse(r) } catch (_) {}
+  return [...STOCK_MOVEMENTS]
+}
+
+export async function getInventory() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return _getInvStore()
+  }
+  return request('GET', '/v1/mlm/admin/inventory')
+}
+
+export async function adjustStock(productId, type, delta, note, batch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const inv = _getInvStore()
+    const moves = _getMoveStore()
+    const item = inv.find(i => i.id === productId)
+    if (!item) throw new Error('Product not found in inventory')
+    const appliedDelta = type === 'sale' || type === 'writeoff' ? -Math.abs(delta) : Math.abs(delta)
+    item.stock = Math.max(0, item.stock + appliedDelta)
+    item.status = item.stock === 0 ? 'out_of_stock' : item.stock <= item.reorderPoint ? 'low_stock' : 'in_stock'
+    const today = new Date().toISOString().slice(0, 10)
+    moves.unshift({
+      id: `sm-${Date.now()}`,
+      date: today,
+      productId: item.productId,
+      productName: item.name,
+      sku: item.sku,
+      type,
+      delta: appliedDelta,
+      newBalance: item.stock,
+      note: batch ? `${note} (batch: ${batch})` : note,
+    })
+    try {
+      localStorage.setItem(_inventoryKey, JSON.stringify(inv))
+      localStorage.setItem(_movementsKey, JSON.stringify(moves))
+    } catch (_) {}
+    return { success: true, newStock: item.stock }
+  }
+  return request('POST', `/v1/mlm/admin/inventory/${productId}/adjust`, { type, delta, note, batch })
+}
+
+export async function getStockMovements({ productId, type } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    let moves = _getMoveStore()
+    if (productId) moves = moves.filter(m => m.productId === productId)
+    if (type)      moves = moves.filter(m => m.type === type)
+    return moves
+  }
+  const qs = new URLSearchParams()
+  if (productId) qs.set('product_id', productId)
+  if (type)      qs.set('type', type)
+  return request('GET', `/v1/mlm/admin/inventory/movements?${qs}`)
 }

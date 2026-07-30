@@ -1679,3 +1679,32 @@ export const LOYALTY_DATA = {
     { id: 'sample',   name: 'Product Sample Pack', description: 'A curated sample pack of 3 Nordic Vitals products mailed to you.', pointsCost: 1500, value: 'Sample pack', category: 'product', icon: '🎁' },
   ],
 }
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+
+export const INVENTORY = [
+  { id: 1, productId: 1, sku: 'NV-OM3-001',  name: 'Omega-3 Arctic Pure',     category: 'Omega & Fish Oil', stock: 142, reorderPoint: 50, reorderQty: 200, unitCost: 89,  status: 'in_stock'    },
+  { id: 2, productId: 2, sku: 'NV-COL-001',  name: 'Nordic Collagen Complex',  category: 'Beauty & Skin',    stock: 38,  reorderPoint: 50, reorderQty: 150, unitCost: 115, status: 'low_stock'   },
+  { id: 3, productId: 3, sku: 'NV-D3K2-001', name: 'Vitamin D3 + K2',         category: 'Vitamins',         stock: 0,   reorderPoint: 50, reorderQty: 200, unitCost: 62,  status: 'out_of_stock'},
+  { id: 4, productId: 4, sku: 'NV-SHJ-001',  name: 'Arctic Shilajit',         category: 'Energy',           stock: 71,  reorderPoint: 30, reorderQty: 100, unitCost: 189, status: 'in_stock'    },
+  { id: 5, productId: 5, sku: 'NV-GRN-001',  name: 'Nordic Greens Blend',     category: 'Greens',           stock: 24,  reorderPoint: 40, reorderQty: 150, unitCost: 98,  status: 'low_stock'   },
+  { id: 6, productId: 6, sku: 'NV-FOC-001',  name: 'Focus Formula',           category: 'Focus',            stock: 95,  reorderPoint: 30, reorderQty: 120, unitCost: 132, status: 'in_stock'    },
+]
+
+export const STOCK_MOVEMENTS = [
+  { id: 'sm-001', date: '2026-07-30', productId: 1, productName: 'Omega-3 Arctic Pure',    sku: 'NV-OM3-001',  type: 'sale',       delta: -6,   newBalance: 142, note: 'Orders #0891–#0896 fulfilled' },
+  { id: 'sm-002', date: '2026-07-29', productId: 3, productName: 'Vitamin D3 + K2',        sku: 'NV-D3K2-001', type: 'sale',       delta: -12,  newBalance: 0,   note: 'Last units — OUT OF STOCK' },
+  { id: 'sm-003', date: '2026-07-28', productId: 2, productName: 'Nordic Collagen Complex', sku: 'NV-COL-001',  type: 'restock',    delta: 100,  newBalance: 108, note: 'Shipment received — batch NV-2026-B014' },
+  { id: 'sm-004', date: '2026-07-28', productId: 5, productName: 'Nordic Greens Blend',    sku: 'NV-GRN-001',  type: 'sale',       delta: -8,   newBalance: 24,  note: 'Autoship fulfillment batch' },
+  { id: 'sm-005', date: '2026-07-27', productId: 4, productName: 'Arctic Shilajit',        sku: 'NV-SHJ-001',  type: 'writeoff',   delta: -3,   newBalance: 71,  note: 'Damaged stock write-off — 3 broken seals' },
+  { id: 'sm-006', date: '2026-07-26', productId: 1, productName: 'Omega-3 Arctic Pure',    sku: 'NV-OM3-001',  type: 'restock',    delta: 200,  newBalance: 148, note: 'Shipment received — batch NV-2026-B013' },
+  { id: 'sm-007', date: '2026-07-25', productId: 6, productName: 'Focus Formula',          sku: 'NV-FOC-001',  type: 'sale',       delta: -9,   newBalance: 95,  note: 'Weekly order fulfillment' },
+  { id: 'sm-008', date: '2026-07-24', productId: 2, productName: 'Nordic Collagen Complex', sku: 'NV-COL-001',  type: 'sale',       delta: -14,  newBalance: 8,   note: 'Weekly order fulfillment' },
+  { id: 'sm-009', date: '2026-07-23', productId: 3, productName: 'Vitamin D3 + K2',        sku: 'NV-D3K2-001', type: 'sale',       delta: -7,   newBalance: 12,  note: 'Autoship + direct orders' },
+  { id: 'sm-010', date: '2026-07-22', productId: 5, productName: 'Nordic Greens Blend',    sku: 'NV-GRN-001',  type: 'restock',    delta: 150,  newBalance: 32,  note: 'Shipment received — batch NV-2026-B012' },
+  { id: 'sm-011', date: '2026-07-21', productId: 4, productName: 'Arctic Shilajit',        sku: 'NV-SHJ-001',  type: 'sale',       delta: -5,   newBalance: 74,  note: 'Weekly order fulfillment' },
+  { id: 'sm-012', date: '2026-07-20', productId: 6, productName: 'Focus Formula',          sku: 'NV-FOC-001',  type: 'writeoff',   delta: -2,   newBalance: 104, note: 'Expired batch — disposal' },
+  { id: 'sm-013', date: '2026-07-19', productId: 3, productName: 'Vitamin D3 + K2',        sku: 'NV-D3K2-001', type: 'restock',    delta: 200,  newBalance: 19,  note: 'Shipment received — batch NV-2026-B011' },
+  { id: 'sm-014', date: '2026-07-18', productId: 1, productName: 'Omega-3 Arctic Pure',    sku: 'NV-OM3-001',  type: 'adjustment', delta: -2,   newBalance: -52, note: 'Recount correction — shelf vs system' },
+  { id: 'sm-015', date: '2026-07-17', productId: 2, productName: 'Nordic Collagen Complex', sku: 'NV-COL-001',  type: 'sale',       delta: -11,  newBalance: 22,  note: 'Weekly order fulfillment' },
+]
