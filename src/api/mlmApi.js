@@ -2166,3 +2166,77 @@ export async function getNetworkAnalytics(userId) {
   ])
   return { summary, levelBreakdown: levels, growthWeekly: growth, topContributors: contributors, recentActivity: activity, legBalance: summary.legBalance }
 }
+
+// ── Prospect Tracker ──────────────────────────────────────────────────────────
+
+const NV_PROSPECTS_KEY = 'nv_prospects'
+
+function _loadProspects() {
+  try { return JSON.parse(localStorage.getItem(NV_PROSPECTS_KEY) || 'null') } catch { return null }
+}
+function _saveProspects(list) {
+  localStorage.setItem(NV_PROSPECTS_KEY, JSON.stringify(list))
+}
+
+const MOCK_PROSPECTS = [
+  { id: 'p1', name: 'Ingrid Solberg',    contact: 'WhatsApp', stage: 'Interested', phone: '+47 900 11 222', lastContact: '2026-07-28', followUp: '2026-08-01', notes: 'Interested in omega-3 products. Has 3 kids.' },
+  { id: 'p2', name: 'Lars Bjørnstad',    contact: 'In Person', stage: 'New',       phone: '+47 901 33 444', lastContact: '2026-07-29', followUp: '2026-07-31', notes: 'Met at gym. Curious about income opportunity.' },
+  { id: 'p3', name: 'Marte Haugen',      contact: 'Email',    stage: 'Presented',  phone: '+47 902 55 666', lastContact: '2026-07-25', followUp: '2026-08-03', notes: 'Sent product catalog and comp plan PDF. Awaiting reply.' },
+  { id: 'p4', name: 'Kristoffer Dahl',   contact: 'Instagram', stage: 'Enrolled',  phone: '+47 903 77 888', lastContact: '2026-07-20', followUp: null, notes: 'Enrolled Jul 20. Ordered starter pack.' },
+  { id: 'p5', name: 'Silje Andreassen',  contact: 'WhatsApp', stage: 'Declined',   phone: '+47 904 99 000', lastContact: '2026-07-15', followUp: null, notes: 'Not interested at this time. Follow up in 3 months.' },
+  { id: 'p6', name: 'Tor Eriksen',       contact: 'Phone',    stage: 'Interested', phone: '+47 905 12 345', lastContact: '2026-07-27', followUp: '2026-08-02', notes: 'Wants to try products first before committing.' },
+  { id: 'p7', name: 'Anette Moen',       contact: 'Facebook', stage: 'New',        phone: '+47 906 23 456', lastContact: '2026-07-30', followUp: '2026-08-05', notes: 'Reached out via FB group. Interested in health.' },
+  { id: 'p8', name: 'Henrik Vold',       contact: 'Email',    stage: 'Presented',  phone: '+47 907 34 567', lastContact: '2026-07-22', followUp: '2026-07-31', notes: 'Had 30-min call. Sharing comp plan with spouse.' },
+]
+
+export async function getProspects(userId) {
+  if (MOCK) {
+    const stored = _loadProspects()
+    return stored || MOCK_PROSPECTS
+  }
+  return request('GET', `/v1/mlm/prospects/${userId}`)
+}
+
+export async function createProspect(userId, data) {
+  if (MOCK) {
+    const stored = _loadProspects() || MOCK_PROSPECTS
+    const newP = { ...data, id: 'p' + Date.now(), stage: data.stage || 'New' }
+    const updated = [newP, ...stored]
+    _saveProspects(updated)
+    return newP
+  }
+  return request('POST', `/v1/mlm/prospects/${userId}`, data)
+}
+
+export async function updateProspect(userId, prospectId, updates) {
+  if (MOCK) {
+    const stored = _loadProspects() || MOCK_PROSPECTS
+    const updated = stored.map(p => p.id === prospectId ? { ...p, ...updates } : p)
+    _saveProspects(updated)
+    return updated.find(p => p.id === prospectId)
+  }
+  return request('PATCH', `/v1/mlm/prospects/${userId}/${prospectId}`, updates)
+}
+
+export async function deleteProspect(userId, prospectId) {
+  if (MOCK) {
+    const stored = _loadProspects() || MOCK_PROSPECTS
+    _saveProspects(stored.filter(p => p.id !== prospectId))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/prospects/${userId}/${prospectId}`)
+}
+
+export async function logProspectInteraction(userId, prospectId, { note, date }) {
+  if (MOCK) {
+    const stored = _loadProspects() || MOCK_PROSPECTS
+    const updated = stored.map(p =>
+      p.id === prospectId
+        ? { ...p, lastContact: date, notes: note ? `${date}: ${note}\n${p.notes || ''}`.trim() : p.notes }
+        : p
+    )
+    _saveProspects(updated)
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/prospects/${userId}/${prospectId}/interactions`, { note, date })
+}

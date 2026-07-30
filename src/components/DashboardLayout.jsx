@@ -14,6 +14,7 @@ const navSections = [
       { to: '/dashboard/tree',         label: '🌳 My Tree' },
       { to: '/dashboard/my-team',      label: '👥 My Team' },
       { to: '/dashboard/referral',     label: '🔗 Referral' },
+      { to: '/dashboard/prospects',    label: '🎯 Prospect Tracker' },
       { to: '/dashboard/leaderboard',         label: '🏆 Leaderboard' },
       { to: '/dashboard/network-analytics',  label: '📡 Network Analytics' },
     ],
