@@ -70,6 +70,7 @@ const Contact        = lazy(() => import('./pages/Contact'))
 const Terms          = lazy(() => import('./pages/Terms'))
 const Privacy        = lazy(() => import('./pages/Privacy'))
 const NotFound       = lazy(() => import('./pages/NotFound'))
+const RefLanding     = lazy(() => import('./pages/RefLanding'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -101,6 +102,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms"   element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/ref/:code" element={<RefLanding />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />

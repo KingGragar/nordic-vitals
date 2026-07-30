@@ -20,7 +20,7 @@ export default function Referral() {
   const qrRef = useRef(null)
 
   const memberId    = user?.memberId ?? 'NV-10042'
-  const referralUrl = `${SITE_BASE}/join?ref=${memberId}`
+  const referralUrl = `${SITE_BASE}/ref/${memberId}`
 
   useEffect(() => {
     getDirectDownline(memberId)

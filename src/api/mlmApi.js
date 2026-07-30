@@ -2028,3 +2028,25 @@ export async function requestKycResubmission(id, notes) {
   }
   return request('POST', `/v1/mlm/admin/kyc/${id}/resubmit`, { notes })
 }
+
+// ── Public affiliate profile (no auth required) ──────────────────────────────
+export async function getPublicMemberProfile(refCode) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const m = ADMIN_MEMBERS.find(x => x.id === refCode) || ADMIN_MEMBERS[0]
+    // Compute a stable team size from the mock downline tree
+    const directCount = ADMIN_MEMBERS.filter(x => x.sponsor === m.id).length
+    const totalCount  = ADMIN_MEMBERS.filter(x => x.sponsor === m.id || ADMIN_MEMBERS.some(s => s.id === m.id && x.sponsor === s.id)).length
+    return {
+      name:       m.name,
+      memberId:   m.id,
+      rank:       m.rank,
+      country:    m.country,
+      joinedDate: m.joined,
+      directTeam: directCount,
+      totalTeam:  Math.max(directCount, totalCount),
+      bio:        null,
+    }
+  }
+  return request('GET', `/v1/mlm/public/member/${encodeURIComponent(refCode)}`)
+}
