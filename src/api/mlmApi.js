@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1825,4 +1825,99 @@ export async function importMembers(rows) {
     return { imported: imported.length, skipped: skipped.length, failed: 0, failedRows: [] }
   }
   return request('POST', '/v1/mlm/admin/members/import', { rows })
+}
+
+let CAMPAIGNS_STATE = EMAIL_CAMPAIGNS.map(c => ({ ...c }))
+
+export async function getEmailCampaigns({ status, search } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    let list = [...CAMPAIGNS_STATE]
+    if (status && status !== 'all') list = list.filter(c => c.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      list = list.filter(c => c.name.toLowerCase().includes(q) || c.subject.toLowerCase().includes(q))
+    }
+    return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (search) params.set('search', search)
+  return request('GET', `/v1/mlm/admin/campaigns?${params}`)
+}
+
+export async function createEmailCampaign(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const now = new Date().toISOString()
+    const newCamp = {
+      id: `camp-${Date.now()}`,
+      ...data,
+      created_at: now,
+      created_by: 'gary@nordic',
+      stats: null,
+      sent_at: data.status === 'sent' ? now : null,
+    }
+    CAMPAIGNS_STATE = [newCamp, ...CAMPAIGNS_STATE]
+    return newCamp
+  }
+  return request('POST', '/v1/mlm/admin/campaigns', data)
+}
+
+export async function updateEmailCampaign(id, updates) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    CAMPAIGNS_STATE = CAMPAIGNS_STATE.map(c => c.id === id ? { ...c, ...updates } : c)
+    return CAMPAIGNS_STATE.find(c => c.id === id)
+  }
+  return request('PATCH', `/v1/mlm/admin/campaigns/${id}`, updates)
+}
+
+export async function cancelEmailCampaign(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    CAMPAIGNS_STATE = CAMPAIGNS_STATE.map(c => c.id === id ? { ...c, status: 'cancelled', scheduled_at: null } : c)
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/campaigns/${id}/cancel`)
+}
+
+export async function duplicateEmailCampaign(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const source = CAMPAIGNS_STATE.find(c => c.id === id)
+    if (!source) throw new Error('Campaign not found')
+    const copy = {
+      ...source,
+      id: `camp-${Date.now()}`,
+      name: `Copy of ${source.name}`,
+      status: 'draft',
+      scheduled_at: null,
+      sent_at: null,
+      stats: null,
+      created_at: new Date().toISOString(),
+    }
+    CAMPAIGNS_STATE = [copy, ...CAMPAIGNS_STATE]
+    return copy
+  }
+  return request('POST', `/v1/mlm/admin/campaigns/${id}/duplicate`)
+}
+
+export async function sendEmailCampaignNow(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 800))
+    const camp = CAMPAIGNS_STATE.find(c => c.id === id)
+    if (!camp) throw new Error('Campaign not found')
+    const now = new Date().toISOString()
+    const delivered = camp.recipient_count - Math.floor(camp.recipient_count * 0.01)
+    const opened = Math.floor(delivered * (0.45 + Math.random() * 0.25))
+    const clicked = Math.floor(opened * (0.35 + Math.random() * 0.2))
+    CAMPAIGNS_STATE = CAMPAIGNS_STATE.map(c =>
+      c.id === id
+        ? { ...c, status: 'sent', sent_at: now, scheduled_at: null, stats: { delivered, opened, clicked, unsubscribed: Math.floor(delivered * 0.005) } }
+        : c
+    )
+    return CAMPAIGNS_STATE.find(c => c.id === id)
+  }
+  return request('POST', `/v1/mlm/admin/campaigns/${id}/send`)
 }

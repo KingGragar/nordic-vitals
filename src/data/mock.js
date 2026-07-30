@@ -1293,3 +1293,192 @@ export const WEBHOOK_LOG = [
   { id: 'dl-007', webhook_id: 'wh-001', event: 'rank_change',         ts: '2026-07-12T10:05:00Z', status: 'success', http_code: 200, duration_ms: 130 },
   { id: 'dl-008', webhook_id: 'wh-003', event: 'withdrawal_processed',ts: '2026-07-10T14:20:00Z', status: 'error',   http_code: 500, duration_ms: 4800 },
 ]
+
+export const EMAIL_CAMPAIGNS = [
+  {
+    id: 'camp-001',
+    name: 'July Commission Results',
+    subject: 'Your July commissions are ready to view 🎉',
+    audience: 'all',
+    audience_label: 'All Members',
+    recipient_count: 312,
+    body: `Hi {{member_name}},
+
+Your July commission results are now available in your dashboard.
+
+Log in to see your full breakdown, request a withdrawal, or check your rank progress.
+
+Keep growing your team — August is shaping up to be a great month!
+
+The Nordic Vitals Team`,
+    status: 'sent',
+    scheduled_at: null,
+    sent_at: '2026-07-28T09:00:00Z',
+    created_at: '2026-07-27T14:30:00Z',
+    created_by: 'bjorn@arctico',
+    stats: { delivered: 308, opened: 189, clicked: 74, unsubscribed: 2 },
+  },
+  {
+    id: 'camp-002',
+    name: 'New Product Launch — Omega-3 Pro',
+    subject: 'Introducing Omega-3 Pro — available now for members ✨',
+    audience: 'rank:silver,gold,platinum',
+    audience_label: 'Silver, Gold & Platinum',
+    recipient_count: 87,
+    body: `Hi {{member_name}},
+
+We're thrilled to announce Omega-3 Pro — our most potent omega-3 formula yet, now available exclusively to Silver+ members.
+
+• 2000mg EPA+DHA per capsule
+• Wild-caught Norwegian sardine + anchovy
+• 60 capsules / 30-day supply
+
+Early-access price: 349 NOK (member) | 449 NOK (retail)
+
+Order today in your member shop.
+
+Nordic Vitals`,
+    status: 'sent',
+    scheduled_at: null,
+    sent_at: '2026-07-24T11:00:00Z',
+    created_at: '2026-07-23T16:00:00Z',
+    created_by: 'bjorn@arctico',
+    stats: { delivered: 86, opened: 64, clicked: 41, unsubscribed: 0 },
+  },
+  {
+    id: 'camp-003',
+    name: 'August Rank Push — Bronze Challenge',
+    subject: '🏅 You\'re this close to Silver — here\'s your August plan',
+    audience: 'rank:bronze',
+    audience_label: 'Bronze Members',
+    recipient_count: 143,
+    body: `Hi {{member_name}},
+
+You're already at Bronze rank — and Silver is closer than you think.
+
+To reach Silver you need:
+• 500 Personal Volume (PV) this month
+• 1,500 Group Volume (GV) across both legs
+• At least 2 active direct recruits
+
+Use your Commission Calculator to see what your Silver earnings could look like.
+
+Your rank progress tracker is in your dashboard — check it now and set your August targets.
+
+Go for it!
+Nordic Vitals`,
+    status: 'scheduled',
+    scheduled_at: '2026-08-01T08:00:00Z',
+    sent_at: null,
+    created_at: '2026-07-29T10:00:00Z',
+    created_by: 'gary@nordic',
+    stats: null,
+  },
+  {
+    id: 'camp-004',
+    name: 'Autoship Re-engagement',
+    subject: 'Your autoship is paused — resume and save 10%',
+    audience: 'status:paused_autoship',
+    audience_label: 'Paused Autoship Members',
+    recipient_count: 28,
+    body: `Hi {{member_name}},
+
+We noticed your autoship is currently paused. We'd love to have you back on your wellness journey!
+
+Resume your autoship this week and get 10% off your next order automatically applied.
+
+Head to your Autoship dashboard to resume in one click.
+
+Your health goals don't pause — neither should your supplements.
+
+Nordic Vitals`,
+    status: 'draft',
+    scheduled_at: null,
+    sent_at: null,
+    created_at: '2026-07-29T13:00:00Z',
+    created_by: 'gary@nordic',
+    stats: null,
+  },
+  {
+    id: 'camp-005',
+    name: 'Welcome Series — Week 2',
+    subject: 'Week 2 tip: How to balance your binary tree for maximum commissions',
+    audience: 'joined:last_14_days',
+    audience_label: 'New Members (last 14 days)',
+    recipient_count: 19,
+    body: `Hi {{member_name}},
+
+Welcome to week 2 of your Nordic Vitals journey!
+
+This week's focus: binary tree balancing.
+
+In a binary plan, your commissions are based on your *weaker leg* GV. The key to maximising earnings is keeping both legs as balanced as possible.
+
+Tip: place your strongest new recruits on the shorter leg, and encourage product orders from both sides.
+
+Check your Tree Visualiser in the dashboard to see your current balance.
+
+Questions? Our support team is always here.
+
+Nordic Vitals`,
+    status: 'sent',
+    scheduled_at: null,
+    sent_at: '2026-07-22T09:00:00Z',
+    created_at: '2026-07-21T15:00:00Z',
+    created_by: 'gary@nordic',
+    stats: { delivered: 19, opened: 15, clicked: 8, unsubscribed: 0 },
+  },
+  {
+    id: 'camp-006',
+    name: 'Summer Promo — SUMMER10',
+    subject: 'Summer sale is live — 10% off all orders this week only',
+    audience: 'all',
+    audience_label: 'All Members',
+    recipient_count: 312,
+    body: `Hi {{member_name}},
+
+Summer is here — and so is your discount!
+
+Use promo code SUMMER10 at checkout for 10% off any order this week (valid Jul 14–21).
+
+Stock up on your favourites or try something new.
+
+Shop now in your member dashboard.
+
+Nordic Vitals`,
+    status: 'sent',
+    scheduled_at: null,
+    sent_at: '2026-07-14T08:00:00Z',
+    created_at: '2026-07-13T17:00:00Z',
+    created_by: 'bjorn@arctico',
+    stats: { delivered: 305, opened: 221, clicked: 134, unsubscribed: 1 },
+  },
+  {
+    id: 'camp-007',
+    name: 'Inactive Member Win-Back',
+    subject: 'We miss you, {{member_name}} — here\'s what\'s new at Nordic Vitals',
+    audience: 'inactive:60_days',
+    audience_label: 'Inactive 60+ Days',
+    recipient_count: 54,
+    body: `Hi {{member_name}},
+
+It's been a while — and we want to catch you up on what's new!
+
+Since you last logged in:
+• We launched 2 new products (Omega-3 Pro + Magnesium Glycinate)
+• Over 40 new members joined our Nordic network
+• Commission rates for Gold rank were increased
+
+Log back in to your dashboard and see what you've been missing.
+
+We'd love to have you active again!
+
+Nordic Vitals`,
+    status: 'cancelled',
+    scheduled_at: '2026-07-18T10:00:00Z',
+    sent_at: null,
+    created_at: '2026-07-17T11:00:00Z',
+    created_by: 'gary@nordic',
+    stats: null,
+  },
+]
