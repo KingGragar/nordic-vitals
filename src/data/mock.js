@@ -1643,3 +1643,39 @@ export const NETWORK_ANALYTICS = {
     { date: '2026-07-15', type: 'pv',      member: 'Erik Solberg',  note: 'Placed a 90 PV order' },
   ],
 }
+
+export const LOYALTY_DATA = {
+  currentPoints: 3480,
+  lifetimePoints: 8950,
+  tier: 'Silver',
+  tierThresholds: [
+    { tier: 'Bronze',   min: 0,     max: 2499,  color: '#cd7f32', perks: ['1x earn rate', 'Birthday bonus 100pts'] },
+    { tier: 'Silver',   min: 2500,  max: 7499,  color: '#94a3b8', perks: ['1.25x earn rate', 'Free shipping on orders >500 NOK', 'Birthday bonus 250pts'] },
+    { tier: 'Gold',     min: 7500,  max: 19999, color: '#f59e0b', perks: ['1.5x earn rate', 'Free shipping always', 'Exclusive product access', 'Birthday bonus 500pts'] },
+    { tier: 'Platinum', min: 20000, max: null,  color: '#a855f7', perks: ['2x earn rate', 'Free shipping always', 'Priority support', 'VIP product previews', 'Birthday bonus 1000pts'] },
+  ],
+  expiringPoints: { amount: 450, date: '2026-09-15' },
+  history: [
+    { id: 'lp-001', date: '2026-07-28', type: 'earned',   category: 'purchase',  description: 'Order #NV-2026-0891 — Omega-3 Arctic Pure',       points: 350 },
+    { id: 'lp-002', date: '2026-07-25', type: 'earned',   category: 'recruit',   description: 'New recruit: Bjorn Lie (NV-10215)',                 points: 500 },
+    { id: 'lp-003', date: '2026-07-22', type: 'earned',   category: 'autoship',  description: 'Autoship bonus — Nordic Greens Blend',              points: 570 },
+    { id: 'lp-004', date: '2026-07-20', type: 'redeemed', category: 'discount',  description: 'Redeemed 5% discount coupon (NV-DISC-7821)',         points: -500 },
+    { id: 'lp-005', date: '2026-07-15', type: 'earned',   category: 'training',  description: 'Completed: Advanced MLM Strategy module',            points: 200 },
+    { id: 'lp-006', date: '2026-07-10', type: 'earned',   category: 'purchase',  description: 'Order #NV-2026-0835 — Focus Formula + Vitamin D3',   points: 710 },
+    { id: 'lp-007', date: '2026-07-05', type: 'earned',   category: 'rank',      description: 'Rank-up bonus — Promoted to Silver',                 points: 1000 },
+    { id: 'lp-008', date: '2026-06-28', type: 'earned',   category: 'purchase',  description: 'Order #NV-2026-0812 — Arctic Shilajit',              points: 600 },
+    { id: 'lp-009', date: '2026-06-20', type: 'redeemed', category: 'mlmt',      description: 'Redeemed for 10 MLMT tokens',                        points: -1000 },
+    { id: 'lp-010', date: '2026-06-14', type: 'earned',   category: 'recruit',   description: 'New recruit: Anna Lund (NV-10230)',                  points: 500 },
+    { id: 'lp-011', date: '2026-06-01', type: 'earned',   category: 'birthday',  description: 'Birthday bonus 🎂',                                  points: 250 },
+    { id: 'lp-012', date: '2026-05-22', type: 'earned',   category: 'purchase',  description: 'Order #NV-2026-0771 — Nordic Collagen Complex',      points: 430 },
+  ],
+  redeemOptions: [
+    { id: 'disc-5',   name: '5% Order Discount',   description: 'One-time 5% discount on your next shop order. Discount code emailed instantly.', pointsCost: 500,  value: '5% off', category: 'discount', icon: '🏷️' },
+    { id: 'disc-10',  name: '10% Order Discount',  description: 'One-time 10% discount on your next shop order.', pointsCost: 900,  value: '10% off', category: 'discount', icon: '🏷️' },
+    { id: 'mlmt-5',   name: '5 MLMT Tokens',       description: 'Convert points to MLMT tokens, deposited directly to your Wallet.', pointsCost: 500,  value: '5 MLMT', category: 'mlmt', icon: '🪙' },
+    { id: 'mlmt-10',  name: '10 MLMT Tokens',      description: 'Convert points to MLMT tokens, deposited directly to your Wallet.', pointsCost: 1000, value: '10 MLMT', category: 'mlmt', icon: '🪙' },
+    { id: 'mlmt-25',  name: '25 MLMT Tokens',      description: 'Convert points to MLMT tokens, deposited directly to your Wallet.', pointsCost: 2500, value: '25 MLMT', category: 'mlmt', icon: '🪙' },
+    { id: 'ship-free', name: 'Free Shipping',      description: 'Free shipping on your next order (standard delivery, valid 30 days).', pointsCost: 200, value: 'Free ship', category: 'shipping', icon: '📦' },
+    { id: 'sample',   name: 'Product Sample Pack', description: 'A curated sample pack of 3 Nordic Vitals products mailed to you.', pointsCost: 1500, value: 'Sample pack', category: 'product', icon: '🎁' },
+  ],
+}

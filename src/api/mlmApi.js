@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2239,4 +2239,44 @@ export async function logProspectInteraction(userId, prospectId, { note, date })
     return { ok: true }
   }
   return request('POST', `/v1/mlm/prospects/${userId}/${prospectId}/interactions`, { note, date })
+}
+
+// ── Loyalty Points ────────────────────────────────────────────────────────────
+
+const _loyaltyKey = uid => `nv_loyalty_${uid}`
+
+export async function getLoyaltyPoints(userId) {
+  if (MOCK) {
+    try {
+      const raw = localStorage.getItem(_loyaltyKey(userId))
+      if (raw) return JSON.parse(raw)
+    } catch (_) {}
+    return LOYALTY_DATA
+  }
+  return request('GET', `/v1/mlm/loyalty/${userId}`)
+}
+
+export async function redeemLoyaltyPoints(userId, optionId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    const option = LOYALTY_DATA.redeemOptions.find(o => o.id === optionId)
+    if (!option) throw new Error('Invalid redemption option')
+    let data
+    try {
+      const raw = localStorage.getItem(_loyaltyKey(userId))
+      data = raw ? JSON.parse(raw) : { ...LOYALTY_DATA, history: [...LOYALTY_DATA.history] }
+    } catch (_) {
+      data = { ...LOYALTY_DATA, history: [...LOYALTY_DATA.history] }
+    }
+    if (data.currentPoints < option.pointsCost) throw new Error('Insufficient points')
+    data.currentPoints -= option.pointsCost
+    const today = new Date().toISOString().slice(0, 10)
+    data.history = [
+      { id: `lp-r-${Date.now()}`, date: today, type: 'redeemed', category: option.category, description: `Redeemed: ${option.name}`, points: -option.pointsCost },
+      ...data.history,
+    ]
+    localStorage.setItem(_loyaltyKey(userId), JSON.stringify(data))
+    return { success: true, newBalance: data.currentPoints, redemptionCode: `NV-LPR-${Math.random().toString(36).slice(2,8).toUpperCase()}` }
+  }
+  return request('POST', `/v1/mlm/loyalty/${userId}/redeem`, { optionId })
 }

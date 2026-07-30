@@ -36,6 +36,7 @@ const DashKyc            = lazy(() => import('./pages/dashboard/Kyc'))
 const DashWishlist           = lazy(() => import('./pages/dashboard/Wishlist'))
 const DashNetworkAnalytics   = lazy(() => import('./pages/dashboard/NetworkAnalytics'))
 const DashProspects          = lazy(() => import('./pages/dashboard/Prospects'))
+const DashLoyalty            = lazy(() => import('./pages/dashboard/Loyalty'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -136,6 +137,7 @@ export default function App() {
         <Route path="/dashboard/wishlist"           element={<RequireAuth><DashWishlist /></RequireAuth>} />
         <Route path="/dashboard/network-analytics" element={<RequireAuth><DashNetworkAnalytics /></RequireAuth>} />
         <Route path="/dashboard/prospects"        element={<RequireAuth><DashProspects /></RequireAuth>} />
+        <Route path="/dashboard/loyalty"           element={<RequireAuth><DashLoyalty /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
