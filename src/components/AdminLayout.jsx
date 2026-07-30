@@ -14,6 +14,7 @@ const navLinks = [
   { to: '/admin/payouts',            label: '💸 Payout Queue' },
   { to: '/admin/reports',   label: '📊 Reports' },
   { to: '/admin/analytics', label: '📈 Analytics' },
+  { to: '/admin/retention', label: '📉 Retention & Churn' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
   { to: '/admin/referrals',     label: '🔗 Referrals' },

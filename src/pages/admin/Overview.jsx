@@ -419,6 +419,7 @@ export default function Overview() {
           { label: '💸 Payout Queue',       desc: 'Review withdrawal requests',       path: '/admin/payouts' },
           { label: '📊 Reports',         desc: 'Analytics & top earners',       path: '/admin/reports' },
           { label: '📈 Analytics',       desc: 'Revenue, growth & funnel',      path: '/admin/analytics' },
+          { label: '📉 Retention & Churn', desc: 'Activity scores, cohorts & at-risk', path: '/admin/retention' },
           { label: '⚙️ Plan Config',     desc: 'Rank thresholds & rates',       path: '/admin/plan' },
           { label: '🏷️ Promo Codes',      desc: 'Create & manage discount codes', path: '/admin/promos' },
           { label: '🔗 Referrals',        desc: 'Track referral link performance', path: '/admin/referrals' },

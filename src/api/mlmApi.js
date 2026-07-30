@@ -2050,3 +2050,74 @@ export async function getPublicMemberProfile(refCode) {
   }
   return request('GET', `/v1/mlm/public/member/${encodeURIComponent(refCode)}`)
 }
+
+// ── Retention & Churn Analytics ───────────────────────────────────────────────
+export async function getRetentionStats() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    const members = ADMIN_MEMBERS
+    const now = new Date()
+
+    // Compute per-member activity score (mock: based on id hash + joined recency)
+    const scored = members.map(m => {
+      const daysSince = Math.floor((now - new Date(m.joined)) / 86400000)
+      const base = ((m.id.charCodeAt(0) * 37 + m.id.charCodeAt(m.id.length - 1) * 13) % 60) + 20
+      const recencyBonus = m.rank === 'platinum' ? 25 : m.rank === 'gold' ? 18 : m.rank === 'silver' ? 10 : 0
+      const score = Math.min(100, Math.max(0, base + recencyBonus - (daysSince > 180 ? 15 : 0)))
+      const lastActive = new Date(now - Math.floor(((100 - score) / 100) * 90 * 86400000)).toISOString().slice(0, 10)
+      return { ...m, activityScore: score, lastActive, daysSinceActive: Math.floor((100 - score) / 100 * 90) }
+    })
+
+    const activeRate = Math.round((scored.filter(m => m.activityScore >= 40).length / scored.length) * 100)
+    const avgScore = Math.round(scored.reduce((s, m) => s + m.activityScore, 0) / scored.length)
+    const atRisk = scored.filter(m => m.activityScore < 35).length
+    const retention30 = Math.round((scored.filter(m => m.activityScore >= 50).length / scored.length) * 100)
+
+    // Cohort retention data: 4 cohorts, 8 weeks
+    const cohorts = ['Jan', 'Feb', 'Mar', 'Apr'].map((month, ci) => {
+      const base = 100 - ci * 3
+      return { month, weeks: Array.from({ length: 8 }, (_, w) => Math.max(30, Math.round(base - w * (7 + ci))) ) }
+    })
+    const cohortChart = Array.from({ length: 8 }, (_, w) => {
+      const obj = { week: `Wk ${w + 1}` }
+      cohorts.forEach(c => { obj[c.month] = c.weeks[w] })
+      return obj
+    })
+
+    // Activity distribution buckets
+    const buckets = [
+      { range: '0–20',  count: 0, color: '#ef4444' },
+      { range: '21–40', count: 0, color: '#f97316' },
+      { range: '41–60', count: 0, color: '#eab308' },
+      { range: '61–80', count: 0, color: '#22c55e' },
+      { range: '81–100',count: 0, color: '#3b82f6' },
+    ]
+    scored.forEach(m => {
+      if (m.activityScore <= 20) buckets[0].count++
+      else if (m.activityScore <= 40) buckets[1].count++
+      else if (m.activityScore <= 60) buckets[2].count++
+      else if (m.activityScore <= 80) buckets[3].count++
+      else buckets[4].count++
+    })
+
+    const atRiskMembers = scored
+      .filter(m => m.activityScore < 40)
+      .sort((a, b) => a.activityScore - b.activityScore)
+      .slice(0, 20)
+      .map(m => ({
+        id: m.id, name: m.name, email: m.email, rank: m.rank,
+        activityScore: m.activityScore, lastActive: m.lastActive,
+        daysSinceActive: m.daysSinceActive, country: m.country,
+        churnRisk: m.activityScore < 20 ? 'High' : m.activityScore < 30 ? 'Medium' : 'Low',
+      }))
+
+    const topEngaged = scored
+      .filter(m => m.activityScore >= 75)
+      .sort((a, b) => b.activityScore - a.activityScore)
+      .slice(0, 10)
+      .map(m => ({ id: m.id, name: m.name, rank: m.rank, activityScore: m.activityScore, lastActive: m.lastActive }))
+
+    return { activeRate, retention30, avgScore, atRisk, cohortChart, activityDistribution: buckets, atRiskMembers, topEngaged, totalMembers: members.length }
+  }
+  return request('GET', '/v1/mlm/admin/retention')
+}

@@ -61,6 +61,7 @@ const AdminIntegrations       = lazy(() => import('./pages/admin/Integrations'))
 const AdminImport             = lazy(() => import('./pages/admin/Import'))
 const AdminCampaigns          = lazy(() => import('./pages/admin/Campaigns'))
 const AdminKyc                = lazy(() => import('./pages/admin/Kyc'))
+const AdminRetention          = lazy(() => import('./pages/admin/Retention'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -157,6 +158,7 @@ export default function App() {
         <Route path="/admin/import"             element={<RequireAuth role="admin"><AdminImport /></RequireAuth>} />
         <Route path="/admin/campaigns"          element={<RequireAuth role="admin"><AdminCampaigns /></RequireAuth>} />
         <Route path="/admin/kyc"               element={<RequireAuth role="admin"><AdminKyc /></RequireAuth>} />
+        <Route path="/admin/retention"        element={<RequireAuth role="admin"><AdminRetention /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
