@@ -1588,3 +1588,58 @@ export const KYC_SUBMISSIONS = [
     docs: [],
   },
 ]
+
+export const NETWORK_ANALYTICS = {
+  summary: {
+    totalMembers: 12,
+    activeMembers: 8,
+    inactiveMembers: 4,
+    networkDepth: 5,
+    newLast30d: 3,
+    newLast7d: 1,
+    avgPvPerMember: 97,
+    totalNetworkGv: 5510,
+  },
+  levelBreakdown: [
+    { level: 1, label: 'L1 (Direct)',  total: 3, active: 3, inactive: 0, gv: 3340 },
+    { level: 2, label: 'L2',           total: 4, active: 3, inactive: 1, gv: 1390 },
+    { level: 3, label: 'L3',           total: 3, active: 2, inactive: 1, gv: 680  },
+    { level: 4, label: 'L4',           total: 1, active: 0, inactive: 1, gv: 10   },
+    { level: 5, label: 'L5+',          total: 1, active: 0, inactive: 1, gv: 25   },
+  ],
+  legBalance: {
+    leftGv: 2850,
+    rightGv: 2660,
+    leftLabel: 'Left Leg',
+    rightLabel: 'Right Leg',
+  },
+  growthWeekly: [
+    { week: 'Feb W3', recruits: 1 },
+    { week: 'Mar W1', recruits: 0 },
+    { week: 'Mar W3', recruits: 2 },
+    { week: 'Apr W1', recruits: 1 },
+    { week: 'Apr W3', recruits: 0 },
+    { week: 'May W1', recruits: 1 },
+    { week: 'May W3', recruits: 0 },
+    { week: 'Jun W1', recruits: 1 },
+    { week: 'Jun W3', recruits: 0 },
+    { week: 'Jul W1', recruits: 2 },
+    { week: 'Jul W2', recruits: 1 },
+    { week: 'Jul W3', recruits: 1 },
+  ],
+  topContributors: [
+    { id: 'NV-10042', name: 'Lars Eriksen',  rank: 'Silver',   gv: 3050, pv: 320, directRecruits: 3, level: 1 },
+    { id: 'NV-10087', name: 'Mia Andersen',  rank: 'Bronze',   gv: 1240, pv: 180, directRecruits: 2, level: 2 },
+    { id: 'NV-10230', name: 'Sigrid Voss',   rank: 'Bronze',   gv: 340,  pv: 120, directRecruits: 0, level: 2 },
+    { id: 'NV-10091', name: 'Erik Solberg',  rank: 'Unranked', gv: 600,  pv: 90,  directRecruits: 2, level: 2 },
+    { id: 'NV-10215', name: 'Bjorn Lie',     rank: 'Unranked', gv: 25,   pv: 25,  directRecruits: 0, level: 3 },
+  ],
+  recentActivity: [
+    { date: '2026-07-28', type: 'recruit', member: 'Bjorn Lie',     note: 'L3 new member joined' },
+    { date: '2026-07-25', type: 'pv',      member: 'Lars Eriksen',  note: 'Placed a 320 PV order' },
+    { date: '2026-07-22', type: 'recruit', member: 'Anna Lund',     note: 'L3 new member joined' },
+    { date: '2026-07-20', type: 'rank',    member: 'Mia Andersen',  note: 'Promoted to Bronze' },
+    { date: '2026-07-18', type: 'pv',      member: 'Sigrid Voss',   note: 'Placed a 120 PV order' },
+    { date: '2026-07-15', type: 'pv',      member: 'Erik Solberg',  note: 'Placed a 90 PV order' },
+  ],
+}

@@ -6,7 +6,7 @@
 import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
-  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS,
+  TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2151,4 +2151,18 @@ export async function removeFromWishlist(userId, productId) {
     return { productIds: ids }
   }
   return request('DELETE', `/v1/mlm/wishlist/${userId}/${productId}`)
+}
+
+// ── Network Analytics ─────────────────────────────────────────────────────────
+
+export async function getNetworkAnalytics(userId) {
+  if (MOCK) return NETWORK_ANALYTICS
+  const [summary, levels, growth, contributors, activity] = await Promise.all([
+    request('GET', `/v1/mlm/network/${userId}/summary`),
+    request('GET', `/v1/mlm/network/${userId}/levels`),
+    request('GET', `/v1/mlm/network/${userId}/growth?weeks=12`),
+    request('GET', `/v1/mlm/network/${userId}/top-contributors`),
+    request('GET', `/v1/mlm/network/${userId}/activity`),
+  ])
+  return { summary, levelBreakdown: levels, growthWeekly: growth, topContributors: contributors, recentActivity: activity, legBalance: summary.legBalance }
 }
