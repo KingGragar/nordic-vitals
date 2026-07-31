@@ -902,6 +902,62 @@ export const ANALYTICS_DATA = {
   ],
 }
 
+// Monthly P&L — COGS ~54%, commissions from analytics, platform fee 3%, fixed admin 25 000 NOK/mo
+const _rev = [148200,174600,203400,241800,318500,402100,287400,312800,395200,428600,467400,512200,294000]
+const _com = [42130,49640,57770,68670,90460,114200,81680,88840,112230,121730,132740,145470,83500]
+const _months = ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26']
+export const FINANCIAL_DATA = {
+  summary: {
+    ytdRevenue:      2_497_600,
+    ytdGrossProfit:  1_148_900,
+    ytdNetProfit:      562_140,
+    grossMarginPct:       46.0,
+    netMarginPct:         22.5,
+    mrr:              512_200,
+    arr:            6_146_400,
+    ltv:             14_820,
+    cac:              1_240,
+    ltvCacRatio:      11.95,
+    commissionRatio:    28.4,
+  },
+  monthly: _months.map((month, i) => {
+    const revenue    = _rev[i]
+    const cogs       = Math.round(revenue * 0.536)
+    const grossProfit = revenue - cogs
+    const commissions = _com[i]
+    const platformFee = Math.round(revenue * 0.03)
+    const adminOverhead = 25_000
+    const netProfit  = grossProfit - commissions - platformFee - adminOverhead
+    return {
+      month,
+      revenue,
+      cogs,
+      grossProfit,
+      commissions,
+      platformFee,
+      adminOverhead,
+      netProfit,
+      grossMarginPct: +((grossProfit / revenue) * 100).toFixed(1),
+      netMarginPct:   +((netProfit   / revenue) * 100).toFixed(1),
+      partial: i === 12,
+    }
+  }),
+  expenseBreakdown: [
+    { name: 'COGS',            value: 1_348_700, color: '#3b82f6' },
+    { name: 'Commissions',     value:   988_060, color: '#f59e0b' },
+    { name: 'Platform Fees',   value:    74_928, color: '#8b5cf6' },
+    { name: 'Admin Overhead',  value:   325_000, color: '#ef4444' },
+    { name: 'Net Profit',      value:   562_140, color: '#10b981' },
+  ],
+  quarters: [
+    { quarter: 'Q3 2025', revenue: 526_200, grossProfit: 240_500, netProfit: 85_400, netMarginPct: 16.2 },
+    { quarter: 'Q4 2025', revenue: 962_400, grossProfit: 440_800, netProfit: 167_200, netMarginPct: 17.4 },
+    { quarter: 'Q1 2026', revenue: 995_400, grossProfit: 458_000, netProfit: 182_800, netMarginPct: 18.4 },
+    { quarter: 'Q2 2026', revenue: 1_408_200, grossProfit: 651_000, netProfit: 291_400, netMarginPct: 20.7 },
+    { quarter: 'Q3 2026 (partial)', revenue: 294_000, grossProfit: 136_000, netProfit: 52_100, netMarginPct: 17.7 },
+  ],
+}
+
 export const TRAINING_MODULES = [
   {
     id: 'module-1',
