@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useState, useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
 import CookieConsent from './components/CookieConsent'
+import { readMaintenanceMode } from './api/mlmApi'
 
 const Landing     = lazy(() => import('./pages/Landing'))
 const Shop        = lazy(() => import('./pages/Shop'))
@@ -79,8 +80,9 @@ const FAQ            = lazy(() => import('./pages/FAQ'))
 const Contact        = lazy(() => import('./pages/Contact'))
 const Terms          = lazy(() => import('./pages/Terms'))
 const Privacy        = lazy(() => import('./pages/Privacy'))
-const NotFound       = lazy(() => import('./pages/NotFound'))
-const RefLanding     = lazy(() => import('./pages/RefLanding'))
+const NotFound         = lazy(() => import('./pages/NotFound'))
+const RefLanding       = lazy(() => import('./pages/RefLanding'))
+const MaintenancePage  = lazy(() => import('./pages/MaintenancePage'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -192,11 +194,43 @@ function AppRoutes() {
   )
 }
 
+const ADMIN_BANNER_STYLE = {
+  position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+  background: '#b45309', color: '#fff',
+  fontSize: 12, fontWeight: 700, textAlign: 'center', padding: '6px 16px',
+  letterSpacing: '0.05em',
+}
+
 export default function App() {
+  const { user } = useAuth()
+  const [maint, setMaint] = useState(() => readMaintenanceMode())
+
+  useEffect(() => {
+    const id = setInterval(() => { setMaint(readMaintenanceMode()) }, 5000)
+    return () => clearInterval(id)
+  }, [])
+
+  const isAdmin = user?.role === 'admin'
+
+  if (maint.active && !isAdmin) {
+    return (
+      <Suspense fallback={<div />}>
+        <MaintenancePage />
+      </Suspense>
+    )
+  }
+
   return (
     <>
-      <AppRoutes />
-      <CookieConsent />
+      {maint.active && isAdmin && (
+        <div style={ADMIN_BANNER_STYLE}>
+          🔧 MAINTENANCE MODE ACTIVE — Only you can see this site. Visitors see the maintenance page.
+        </div>
+      )}
+      <div style={maint.active && isAdmin ? { paddingTop: 32 } : {}}>
+        <AppRoutes />
+        <CookieConsent />
+      </div>
     </>
   )
 }

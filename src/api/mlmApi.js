@@ -302,20 +302,42 @@ export async function triggerCommissionRun({ type = 'manual' } = {}) {
 
 // ── Admin Settings ────────────────────────────────────────────────────────────
 
+const SETTINGS_DEFAULTS = {
+  company_name: 'Nordic Vitals AS',
+  currency: 'NOK',
+  timezone: 'Europe/Oslo',
+  language: 'Norwegian',
+  notifications: { new_member: true, rank_change: true, commission_run: true, sms_withdrawal: false },
+  maintenance_mode: false,
+  maintenance_message: "We're performing scheduled maintenance. Back soon!",
+  maintenance_return: '',
+}
+
 export async function getAdminSettings() {
-  if (MOCK) return {
-    company_name: 'Nordic Vitals AS',
-    currency: 'NOK',
-    timezone: 'Europe/Oslo',
-    language: 'Norwegian',
-    notifications: { new_member: true, rank_change: true, commission_run: true, sms_withdrawal: false },
+  if (MOCK) {
+    try {
+      const saved = localStorage.getItem('nv_admin_settings')
+      return saved ? { ...SETTINGS_DEFAULTS, ...JSON.parse(saved) } : { ...SETTINGS_DEFAULTS }
+    } catch { return { ...SETTINGS_DEFAULTS } }
   }
   return request('GET', '/v1/mlm/admin/settings')
 }
 
 export async function saveAdminSettings(settings) {
-  if (MOCK) return { ok: true }
+  if (MOCK) {
+    try { localStorage.setItem('nv_admin_settings', JSON.stringify(settings)) } catch {}
+    return { ok: true }
+  }
   return request('POST', '/v1/mlm/admin/settings', settings)
+}
+
+export function readMaintenanceMode() {
+  try {
+    const saved = localStorage.getItem('nv_admin_settings')
+    if (!saved) return { active: false, message: '', returnTime: '' }
+    const s = JSON.parse(saved)
+    return { active: !!s.maintenance_mode, message: s.maintenance_message || '', returnTime: s.maintenance_return || '' }
+  } catch { return { active: false, message: '', returnTime: '' } }
 }
 
 // ── Plan Config ───────────────────────────────────────────────────────────────

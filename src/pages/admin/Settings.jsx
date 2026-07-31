@@ -83,6 +83,11 @@ export default function Settings() {
     smsWithdrawal:   false,
   })
 
+  // Maintenance mode
+  const [maintenance, setMaintenance] = useState(false)
+  const [maintMsg, setMaintMsg]       = useState("We're performing scheduled maintenance. Back soon!")
+  const [maintReturn, setMaintReturn] = useState('')
+
   // Danger zone modals
   const [showResetConfirm, setShowResetConfirm]   = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -105,6 +110,9 @@ export default function Settings() {
           smsWithdrawal: s.notifications.sms_withdrawal,
         })
       }
+      if (s.maintenance_mode !== undefined) setMaintenance(!!s.maintenance_mode)
+      if (s.maintenance_message) setMaintMsg(s.maintenance_message)
+      if (s.maintenance_return !== undefined) setMaintReturn(s.maintenance_return)
     }).catch(() => {})
   }, [])
 
@@ -135,6 +143,32 @@ export default function Settings() {
       showToast('General settings saved ✓')
     } catch {
       showToast('Failed to save settings')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function saveSiteStatus() {
+    setSaving(true)
+    try {
+      await saveAdminSettings({
+        company_name: companyName,
+        currency,
+        timezone,
+        language,
+        notifications: {
+          new_member:     notifs.newMember,
+          rank_change:    notifs.rankChange,
+          commission_run: notifs.commissionRun,
+          sms_withdrawal: notifs.smsWithdrawal,
+        },
+        maintenance_mode:    maintenance,
+        maintenance_message: maintMsg,
+        maintenance_return:  maintReturn,
+      })
+      showToast(maintenance ? '🔧 Maintenance mode activated — site is now hidden from visitors' : '✅ Site is live — maintenance mode deactivated')
+    } catch {
+      showToast('Failed to save site status')
     } finally {
       setSaving(false)
     }
@@ -277,6 +311,71 @@ export default function Settings() {
             {saving ? 'Saving…' : 'Save Preferences'}
           </button>
         </div>
+      </div>
+
+      {/* Site Status / Maintenance Mode card */}
+      <div className="card" style={{
+        maxWidth: '560px', marginBottom: '20px',
+        borderColor: maintenance ? '#b45309' : 'var(--border)',
+        borderWidth: '1px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--cream)', margin: 0 }}>
+            Site Status
+          </h2>
+          <span style={{
+            fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+            background: maintenance ? 'rgba(180,83,9,0.2)' : 'rgba(34,197,94,0.15)',
+            color: maintenance ? '#f59e0b' : 'var(--green2)',
+            border: `1px solid ${maintenance ? '#b45309' : 'var(--green2)'}`,
+          }}>
+            {maintenance ? '🔧 MAINTENANCE' : '✅ LIVE'}
+          </span>
+        </div>
+        <p style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '20px' }}>
+          When maintenance mode is active, visitors see a branded maintenance page. Admins always have full access.
+        </p>
+
+        <ToggleSwitch
+          checked={maintenance}
+          onChange={() => setMaintenance(v => !v)}
+          label="Maintenance mode"
+        />
+
+        <div style={{ marginBottom: '14px' }}>
+          <label className="label-text" style={{ display: 'block', marginBottom: 6 }}>
+            Maintenance message
+          </label>
+          <textarea
+            className="input"
+            rows={2}
+            style={{ width: '100%', resize: 'vertical' }}
+            value={maintMsg}
+            onChange={e => setMaintMsg(e.target.value)}
+            placeholder="We're performing scheduled maintenance. Back soon!"
+          />
+        </div>
+
+        <div style={{ marginBottom: '18px' }}>
+          <label className="label-text" style={{ display: 'block', marginBottom: 6 }}>
+            Estimated return time <span style={{ color: 'var(--text3)' }}>(optional)</span>
+          </label>
+          <input
+            className="input"
+            style={{ maxWidth: '280px' }}
+            value={maintReturn}
+            onChange={e => setMaintReturn(e.target.value)}
+            placeholder="e.g. Thursday 14:00 CET"
+          />
+        </div>
+
+        <button
+          className={`btn btn-sm ${maintenance ? 'btn-danger' : 'btn-gold'}`}
+          onClick={saveSiteStatus}
+          disabled={saving}
+        >
+          {saving ? 'Saving…' : maintenance ? '🔧 Save & Activate Maintenance' : '✅ Save — Keep Site Live'}
+        </button>
       </div>
 
       {/* Danger zone card */}
