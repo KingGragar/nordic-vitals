@@ -7,7 +7,7 @@ import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
   TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
-  INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS, FINANCIAL_DATA,
+  INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS, FINANCIAL_DATA, ACTIVITY_LOG, ACTIVITY_GOALS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2470,4 +2470,59 @@ export async function cancelNotification(id) {
 export async function getAdminFinancials() {
   if (MOCK) return FINANCIAL_DATA
   return request('GET', '/v1/mlm/admin/financials')
+}
+
+// Daily Activity Tracker
+const ACTIVITY_STORAGE_KEY = 'nv_activity_log'
+function _getActivityStore(userId) {
+  try {
+    const raw = localStorage.getItem(`${ACTIVITY_STORAGE_KEY}_${userId}`)
+    if (raw) return JSON.parse(raw)
+  } catch (_) { /* ignore */ }
+  return [...ACTIVITY_LOG]
+}
+function _saveActivityStore(userId, store) {
+  try { localStorage.setItem(`${ACTIVITY_STORAGE_KEY}_${userId}`, JSON.stringify(store)) } catch (_) { /* ignore */ }
+}
+
+export async function getActivityLog(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    return { log: _getActivityStore(userId), goals: ACTIVITY_GOALS }
+  }
+  return request('GET', `/v1/mlm/activity/${userId}`)
+}
+
+export async function saveActivityDay(userId, date, counts) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const store = _getActivityStore(userId)
+    const idx = store.findIndex(d => d.date === date)
+    if (idx !== -1) {
+      store[idx] = { ...store[idx], ...counts }
+    } else {
+      store.unshift({ date, calls: 0, presentations: 0, followUps: 0, prospectsAdded: 0, enrollments: 0, shares: 0, ...counts })
+    }
+    _saveActivityStore(userId, store)
+    return { success: true }
+  }
+  return request('POST', `/v1/mlm/activity/${userId}`, { date, ...counts })
+}
+
+export async function getActivityGoals(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const raw = localStorage.getItem(`nv_activity_goals_${userId}`)
+    return raw ? JSON.parse(raw) : { ...ACTIVITY_GOALS }
+  }
+  return request('GET', `/v1/mlm/activity/${userId}/goals`)
+}
+
+export async function saveActivityGoals(userId, goals) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    try { localStorage.setItem(`nv_activity_goals_${userId}`, JSON.stringify(goals)) } catch (_) { /* ignore */ }
+    return { success: true }
+  }
+  return request('PUT', `/v1/mlm/activity/${userId}/goals`, goals)
 }

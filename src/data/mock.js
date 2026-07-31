@@ -1857,3 +1857,59 @@ export const ADMIN_NOTIFICATIONS = [
     scheduled_at: '2026-08-28T09:00:00Z',
   },
 ]
+
+// Daily Activity Tracker — 30-day history (relative to 2026-07-31)
+function _makeActivityDay(daysAgo, calls, presentations, followUps, prospectsAdded, enrollments, shares) {
+  const d = new Date('2026-07-31T12:00:00Z')
+  d.setDate(d.getDate() - daysAgo)
+  return {
+    date: d.toISOString().slice(0, 10),
+    calls,
+    presentations,
+    followUps,
+    prospectsAdded,
+    enrollments,
+    shares,
+  }
+}
+export const ACTIVITY_LOG = [
+  _makeActivityDay(0,  4, 1, 3, 2, 0, 5),
+  _makeActivityDay(1,  6, 2, 4, 3, 1, 8),
+  _makeActivityDay(2,  3, 0, 2, 1, 0, 3),
+  _makeActivityDay(3,  0, 0, 0, 0, 0, 0),
+  _makeActivityDay(4,  5, 1, 3, 2, 0, 6),
+  _makeActivityDay(5,  7, 2, 5, 3, 1, 9),
+  _makeActivityDay(6,  4, 1, 2, 1, 0, 4),
+  _makeActivityDay(7,  6, 2, 4, 2, 1, 7),
+  _makeActivityDay(8,  3, 1, 3, 1, 0, 5),
+  _makeActivityDay(9,  0, 0, 0, 0, 0, 0),
+  _makeActivityDay(10, 5, 1, 4, 2, 0, 6),
+  _makeActivityDay(11, 8, 3, 5, 4, 2, 10),
+  _makeActivityDay(12, 4, 1, 3, 2, 0, 5),
+  _makeActivityDay(13, 2, 0, 1, 0, 0, 2),
+  _makeActivityDay(14, 6, 2, 4, 3, 1, 8),
+  _makeActivityDay(15, 5, 1, 3, 2, 0, 7),
+  _makeActivityDay(16, 0, 0, 0, 0, 0, 0),
+  _makeActivityDay(17, 3, 1, 2, 1, 0, 4),
+  _makeActivityDay(18, 7, 2, 5, 3, 1, 9),
+  _makeActivityDay(19, 4, 1, 3, 2, 0, 5),
+  _makeActivityDay(20, 6, 2, 4, 3, 1, 8),
+  _makeActivityDay(21, 5, 1, 3, 2, 0, 6),
+  _makeActivityDay(22, 0, 0, 0, 0, 0, 0),
+  _makeActivityDay(23, 4, 1, 3, 1, 0, 5),
+  _makeActivityDay(24, 8, 3, 6, 4, 2, 11),
+  _makeActivityDay(25, 5, 2, 4, 3, 1, 7),
+  _makeActivityDay(26, 3, 0, 2, 1, 0, 3),
+  _makeActivityDay(27, 6, 2, 4, 2, 1, 8),
+  _makeActivityDay(28, 4, 1, 3, 2, 0, 5),
+  _makeActivityDay(29, 0, 0, 0, 0, 0, 0),
+]
+
+export const ACTIVITY_GOALS = {
+  calls: 5,
+  presentations: 2,
+  followUps: 4,
+  prospectsAdded: 3,
+  enrollments: 1,
+  shares: 8,
+}

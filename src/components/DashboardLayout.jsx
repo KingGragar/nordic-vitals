@@ -39,6 +39,7 @@ const navSections = [
       { to: '/dashboard/milestones',     label: '🏅 Milestones' },
       { to: '/dashboard/business-plan',  label: '📋 Business Plan' },
       { to: '/dashboard/calculator',     label: '🧮 Calculator' },
+      { to: '/dashboard/activity',       label: '📅 Activity Tracker' },
     ],
   },
   {
