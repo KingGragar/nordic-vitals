@@ -429,6 +429,7 @@ export default function Overview() {
           { label: '🎫 Support',         desc: 'Manage member help tickets',      path: '/admin/support' },
           { label: '✉️ Email Templates',  desc: 'Edit transactional email templates', path: '/admin/email-templates' },
           { label: '📧 Email Campaigns',  desc: 'Targeted bulk email blasts to segments', path: '/admin/campaigns' },
+          { label: '🔔 Notification Broadcast', desc: 'Send in-app notifications to segments', path: '/admin/notifications' },
           { label: '🪙 Token Management', desc: 'Mint, airdrop, burn MLMT + ledger', path: '/admin/tokens' },
           { label: '🌐 Network Tree',    desc: 'Interactive full-network genealogy', path: '/admin/network' },
           { label: '🔐 Roles & Permissions', desc: 'Admin users, roles, and access matrix', path: '/admin/roles' },

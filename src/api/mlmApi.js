@@ -7,7 +7,7 @@ import {
   USERS, COMMISSIONS, WALLET_TXS, TREE_DATA,
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
   TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
-  INVENTORY, STOCK_MOVEMENTS,
+  INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2390,4 +2390,57 @@ export async function updateConsentPreferences(userId, prefs) {
     return { success: true }
   }
   return request('PUT', `/v1/mlm/privacy/consent/${userId}`, prefs)
+}
+
+// Admin Notifications
+let _mockNotifications = null
+function _getNotifStore() {
+  if (_mockNotifications) return _mockNotifications
+  _mockNotifications = [...ADMIN_NOTIFICATIONS]
+  return _mockNotifications
+}
+
+export async function getAdminNotifications() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    return [..._getNotifStore()].sort((a, b) => {
+      const da = a.sent_at || a.scheduled_at || ''
+      const db = b.sent_at || b.scheduled_at || ''
+      return db.localeCompare(da)
+    })
+  }
+  return request('GET', '/v1/mlm/admin/notifications')
+}
+
+export async function sendNotification({ type, title, body, audience, recipient_count, scheduled_at }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const isScheduled = !!scheduled_at
+    const notif = {
+      id: `notif-${Date.now()}`,
+      type,
+      title,
+      body,
+      audience,
+      recipient_count,
+      read_count: 0,
+      status: isScheduled ? 'scheduled' : 'sent',
+      sent_at:      isScheduled ? undefined  : new Date().toISOString(),
+      scheduled_at: isScheduled ? scheduled_at : undefined,
+    }
+    _getNotifStore().unshift(notif)
+    return notif
+  }
+  return request('POST', '/v1/mlm/admin/notifications', { type, title, body, audience, scheduled_at })
+}
+
+export async function cancelNotification(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const store = _getNotifStore()
+    const idx = store.findIndex(n => n.id === id)
+    if (idx !== -1) store[idx] = { ...store[idx], status: 'cancelled' }
+    return { success: true }
+  }
+  return request('POST', `/v1/mlm/admin/notifications/${id}/cancel`)
 }
