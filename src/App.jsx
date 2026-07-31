@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { Suspense, lazy } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
+import CookieConsent from './components/CookieConsent'
 
 const Landing     = lazy(() => import('./pages/Landing'))
 const Shop        = lazy(() => import('./pages/Shop'))
@@ -38,6 +39,7 @@ const DashWishlist           = lazy(() => import('./pages/dashboard/Wishlist'))
 const DashNetworkAnalytics   = lazy(() => import('./pages/dashboard/NetworkAnalytics'))
 const DashProspects          = lazy(() => import('./pages/dashboard/Prospects'))
 const DashLoyalty            = lazy(() => import('./pages/dashboard/Loyalty'))
+const DashDataPrivacy        = lazy(() => import('./pages/dashboard/DataPrivacy'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -149,6 +151,7 @@ function AppRoutes() {
         <Route path="/dashboard/network-analytics" element={<RequireAuth><DashNetworkAnalytics /></RequireAuth>} />
         <Route path="/dashboard/prospects"        element={<RequireAuth><DashProspects /></RequireAuth>} />
         <Route path="/dashboard/loyalty"           element={<RequireAuth><DashLoyalty /></RequireAuth>} />
+        <Route path="/dashboard/data-privacy"     element={<RequireAuth><DashDataPrivacy /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -188,5 +191,10 @@ function AppRoutes() {
 }
 
 export default function App() {
-  return <AppRoutes />
+  return (
+    <>
+      <AppRoutes />
+      <CookieConsent />
+    </>
+  )
 }

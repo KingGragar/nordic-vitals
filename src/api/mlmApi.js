@@ -2348,3 +2348,46 @@ export async function getStockMovements({ productId, type } = {}) {
   if (type)      qs.set('type', type)
   return request('GET', `/v1/mlm/admin/inventory/movements?${qs}`)
 }
+
+// GDPR / Data Privacy
+export async function getMyDataSummary(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      categories: [
+        { name: 'Account & Profile', items: ['Name', 'Email', 'Phone', 'Country', 'Password hash'], retained: 'Duration of membership + 5 years' },
+        { name: 'Transaction Records', items: ['Orders', 'Commission history', 'Wallet transactions', 'Withdrawals'], retained: '10 years (accounting law)' },
+        { name: 'Network & Referrals', items: ['Sponsor ID', 'Downline structure', 'Referral links used'], retained: 'Duration of membership' },
+        { name: 'Activity Logs', items: ['Login timestamps', 'Page views (anonymised)', 'Support ticket history'], retained: '12 months' },
+        { name: 'Communications', items: ['Email opt-in/out status', 'Notification preferences', 'Announcement reads'], retained: '24 months' },
+      ],
+      lastExport: null,
+      pendingDeletion: false,
+    }
+  }
+  return request('GET', `/v1/mlm/privacy/my-data/${userId}`)
+}
+
+export async function requestDataExport(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 800))
+    return { requestId: `exp-${Date.now()}`, estimatedReadyAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString() }
+  }
+  return request('POST', `/v1/mlm/privacy/export`, { userId })
+}
+
+export async function requestAccountDeletion(userId, reason) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    return { requestId: `del-${Date.now()}`, scheduledAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(), gracePeriodDays: 30 }
+  }
+  return request('POST', `/v1/mlm/privacy/delete-account`, { userId, reason })
+}
+
+export async function updateConsentPreferences(userId, prefs) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return { success: true }
+  }
+  return request('PUT', `/v1/mlm/privacy/consent/${userId}`, prefs)
+}

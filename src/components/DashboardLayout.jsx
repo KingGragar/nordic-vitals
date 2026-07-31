@@ -58,6 +58,7 @@ const navSections = [
       { to: '/dashboard/kyc',            label: '🔏 KYC Verification' },
       { to: '/dashboard/member-card',    label: '🪪 Member Card' },
       { to: '/dashboard/profile',        label: '👤 Profile' },
+      { to: '/dashboard/data-privacy',   label: '🛡️ Data Privacy' },
       { to: '/dashboard/onboarding',     label: '🚀 Setup Guide' },
     ],
   },
