@@ -38,6 +38,7 @@ const navLinks = [
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/import',          label: '📥 Bulk Import' },
   { to: '/admin/settings',        label: '🔧 Settings' },
+  { to: '/admin/launch',          label: '🚀 Launch Checklist' },
 ]
 
 const SIDEBAR_W = 220

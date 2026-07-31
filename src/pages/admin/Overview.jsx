@@ -439,6 +439,7 @@ export default function Overview() {
           { label: '🔌 Integrations',    desc: 'Arctico API, gateways & webhooks',    path: '/admin/integrations' },
           { label: '📥 Bulk Import',     desc: 'CSV member import for launch seeding', path: '/admin/import' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
+          { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
         ].map(({ label, desc, path }) => (
           <div
             key={path}

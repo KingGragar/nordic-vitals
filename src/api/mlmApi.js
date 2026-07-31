@@ -2526,3 +2526,84 @@ export async function saveActivityGoals(userId, goals) {
   }
   return request('PUT', `/v1/mlm/activity/${userId}/goals`, goals)
 }
+
+// ─── Launch Checklist ────────────────────────────────────────────────────────
+const LAUNCH_STORAGE_KEY = 'nv_launch_checklist'
+
+const DEFAULT_CHECKLIST = [
+  // Infrastructure
+  { id: 'infra-1', category: 'infrastructure', label: 'Vercel production deployment configured', description: 'Project connected to GitHub, auto-deploy on main branch push', owner: 'gary', status: 'not_started', notes: '', link: null },
+  { id: 'infra-2', category: 'infrastructure', label: 'Custom domain connected', description: 'e.g. nordicvitals.no — add to Vercel + DNS records updated', owner: 'both', status: 'not_started', notes: '', link: null },
+  { id: 'infra-3', category: 'infrastructure', label: 'Environment variables set in Vercel', description: 'VITE_MLM_API_URL, VITE_MLM_API_KEY, VITE_SITE_URL', owner: 'gary', status: 'not_started', notes: '', link: '/admin/integrations' },
+  { id: 'infra-4', category: 'infrastructure', label: 'SSL/HTTPS verified on live domain', description: 'Check that https:// is active and no mixed-content warnings', owner: 'gary', status: 'not_started', notes: '', link: null },
+  { id: 'infra-5', category: 'infrastructure', label: 'PWA service worker active on production', description: 'Visit live site → DevTools → Application → Service Workers', owner: 'gary', status: 'not_started', notes: '', link: null },
+
+  // API & Integrations
+  { id: 'api-1', category: 'api', label: 'Arctico API base URL configured', description: 'Enter base URL in Admin → Integrations → Arctico API section', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/integrations' },
+  { id: 'api-2', category: 'api', label: 'Arctico API key entered and connection tested', description: 'Use the "Test Connection" button — must return green status badge', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/integrations' },
+  { id: 'api-3', category: 'api', label: 'Payment gateway enabled (Stripe/Klarna/Vipps)', description: 'At least one gateway active with live credentials', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/integrations' },
+  { id: 'api-4', category: 'api', label: 'Outgoing webhooks configured for key events', description: 'commission_run, member_enrolled, payout_processed at minimum', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/integrations' },
+  { id: 'api-5', category: 'api', label: 'Transactional email delivery verified', description: 'Send test email from Email Templates for welcome + commission_run', owner: 'gary', status: 'not_started', notes: '', link: '/admin/email-templates' },
+
+  // Legal & Compliance
+  { id: 'legal-1', category: 'legal', label: 'Privacy Policy reviewed and approved', description: 'Legal review of /privacy page content — Bjørn to sign off', owner: 'bjorn', status: 'not_started', notes: '', link: null },
+  { id: 'legal-2', category: 'legal', label: 'Terms & Conditions reviewed and approved', description: 'Legal review of /terms page content — Bjørn to sign off', owner: 'bjorn', status: 'not_started', notes: '', link: null },
+  { id: 'legal-3', category: 'legal', label: 'Income Disclosure Statement (IDS) published', description: 'Verify IDS tab in Compliance Center is accurate before launch', owner: 'both', status: 'not_started', notes: '', link: '/admin/compliance' },
+  { id: 'legal-4', category: 'legal', label: 'GDPR cookie consent banner active', description: 'Verify banner appears on first visit at /. nv_cookie_consent in localStorage', owner: 'gary', status: 'not_started', notes: '', link: null },
+  { id: 'legal-5', category: 'legal', label: 'Compliance checklist completed', description: 'All 19 items in Compliance Center → Checklist tab marked Done', owner: 'both', status: 'not_started', notes: '', link: '/admin/compliance' },
+
+  // Products & Inventory
+  { id: 'prod-1', category: 'products', label: 'Product catalog finalized', description: 'Descriptions, taglines and categories approved for all 6 SKUs', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/products' },
+  { id: 'prod-2', category: 'products', label: 'Pricing confirmed (retail + member prices)', description: 'NOK retail and member prices set and margin reviewed', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/products' },
+  { id: 'prod-3', category: 'products', label: 'Product images uploaded and approved', description: 'High-res images for all 6 products in shop + product detail pages', owner: 'gary', status: 'not_started', notes: '', link: '/admin/products' },
+  { id: 'prod-4', category: 'products', label: 'Initial inventory stock entered', description: 'Opening stock counts in Admin → Inventory for all SKUs', owner: 'gary', status: 'not_started', notes: '', link: '/admin/inventory' },
+
+  // Commission & Payouts
+  { id: 'comm-1', category: 'commission', label: 'MLM plan type selected and configured', description: 'Binary/Unilevel/Breakaway — rates and rank thresholds set', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/plan' },
+  { id: 'comm-2', category: 'commission', label: 'Dry-run commission preview completed', description: 'Run a preview with test members — verify per-member payouts look correct', owner: 'both', status: 'not_started', notes: '', link: '/admin/commission-preview' },
+  { id: 'comm-3', category: 'commission', label: 'Minimum payout threshold set', description: 'Confirm minimum withdrawal amount in Settings', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/settings' },
+  { id: 'comm-4', category: 'commission', label: 'Withdrawal methods configured', description: 'Bank Transfer / SEPA / Crypto options confirmed active', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/integrations' },
+
+  // Member Experience
+  { id: 'mem-1', category: 'member', label: 'Admin accounts created for Gary + Bjørn', description: 'Both admins can log in with correct roles in Roles & Permissions', owner: 'bjorn', status: 'not_started', notes: '', link: '/admin/roles' },
+  { id: 'mem-2', category: 'member', label: 'Onboarding wizard tested end-to-end', description: 'Create a test member account and complete the 7-step wizard', owner: 'gary', status: 'not_started', notes: '', link: null },
+  { id: 'mem-3', category: 'member', label: 'KYC verification workflow enabled', description: 'Submit a test KYC doc and approve it through admin queue', owner: 'gary', status: 'not_started', notes: '', link: '/admin/kyc' },
+  { id: 'mem-4', category: 'member', label: 'At least 5 test member accounts enrolled', description: 'Creates realistic data for tree, commission preview, and leaderboard', owner: 'both', status: 'not_started', notes: '', link: '/admin/import' },
+
+  // Marketing
+  { id: 'mkt-1', category: 'marketing', label: 'Landing page copy approved', description: 'Product claims, testimonials, and CTAs reviewed by Bjørn', owner: 'bjorn', status: 'not_started', notes: '', link: null },
+  { id: 'mkt-2', category: 'marketing', label: 'Social media accounts ready', description: 'Instagram/Facebook/TikTok for Nordic Vitals — bios + profile pics set', owner: 'gary', status: 'not_started', notes: '', link: null },
+  { id: 'mkt-3', category: 'marketing', label: 'Launch announcement drafted', description: 'First broadcast to members created in Admin → Announcements', owner: 'both', status: 'not_started', notes: '', link: '/admin/announcements' },
+  { id: 'mkt-4', category: 'marketing', label: 'Referral campaign active', description: 'Test a full referral: /ref/<memberId> → /join?ref= → enrolled', owner: 'gary', status: 'not_started', notes: '', link: '/admin/referrals' },
+]
+
+function _getLaunchStore() {
+  try {
+    const raw = localStorage.getItem(LAUNCH_STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch (_) { /* ignore */ }
+  return DEFAULT_CHECKLIST.map(i => ({ ...i }))
+}
+function _saveLaunchStore(store) {
+  try { localStorage.setItem(LAUNCH_STORAGE_KEY, JSON.stringify(store)) } catch (_) { /* ignore */ }
+}
+
+export async function getLaunchChecklist() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    return _getLaunchStore()
+  }
+  return request('GET', '/v1/mlm/admin/launch-checklist')
+}
+
+export async function updateLaunchItem(id, patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 100))
+    const store = _getLaunchStore()
+    const idx = store.findIndex(i => i.id === id)
+    if (idx !== -1) store[idx] = { ...store[idx], ...patch }
+    _saveLaunchStore(store)
+    return { success: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/launch-checklist/${id}`, patch)
+}
