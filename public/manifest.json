@@ -1,0 +1,35 @@
+{
+  "name": "Nordic Vitals",
+  "short_name": "Nordic Vitals",
+  "description": "Premium Arctic-sourced supplements & member rewards programme",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d1b2a",
+  "theme_color": "#c9a84c",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["health", "fitness", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop",
+      "short_name": "Shop",
+      "description": "Browse supplements",
+      "url": "/shop"
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Member dashboard",
+      "url": "/dashboard"
+    }
+  ]
+}

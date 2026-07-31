@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { Suspense, lazy } from 'react'
+import ErrorBoundary from './components/ErrorBoundary'
 
 const Landing     = lazy(() => import('./pages/Landing'))
 const Shop        = lazy(() => import('./pages/Shop'))
@@ -86,15 +87,24 @@ function RequireAuth({ children, role }) {
 }
 
 const Loading = () => (
-  <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', color:'var(--text2)' }}>
-    Loading…
+  <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100vh', gap:16 }}>
+    <div style={{
+      width: 40, height: 40, borderRadius: '50%',
+      border: '3px solid var(--border)',
+      borderTopColor: 'var(--gold)',
+      animation: 'nv-spin 0.8s linear infinite'
+    }} />
+    <style>{`@keyframes nv-spin { to { transform: rotate(360deg) } }`}</style>
+    <span style={{ color:'var(--text2)', fontSize:13 }}>Loading…</span>
   </div>
 )
 
-export default function App() {
+function AppRoutes() {
+  const location = useLocation()
   return (
-    <Suspense fallback={<Loading />}>
-      <Routes>
+    <ErrorBoundary key={location.pathname} onReset={() => window.location.reload()}>
+      <Suspense fallback={<Loading />}>
+        <Routes>
         <Route path="/"        element={<Landing />} />
         <Route path="/shop"    element={<Shop />} />
         <Route path="/shop/:id" element={<ProductDetail />} />
@@ -171,7 +181,12 @@ export default function App() {
         <Route path="/admin/inventory"        element={<RequireAuth role="admin"><AdminInventory /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   )
+}
+
+export default function App() {
+  return <AppRoutes />
 }
