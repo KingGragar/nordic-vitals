@@ -8,6 +8,7 @@ import {
   ADMIN_MEMBERS, PAYOUT_QUEUE, ORDERS, COMMISSION_RUNS, PRODUCTS, PRODUCT_REVIEWS, ADMIN_ORDERS, ANNOUNCEMENTS, AUDIT_LOG, SUPPORT_TICKETS, AUTOSHIPS, RESOURCES, PROMO_CODES, REFERRAL_STATS, EMAIL_TEMPLATES,
   TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
   INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS, FINANCIAL_DATA, ACTIVITY_LOG, ACTIVITY_GOALS,
+  BUNDLES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2586,6 +2587,70 @@ function _getLaunchStore() {
 }
 function _saveLaunchStore(store) {
   try { localStorage.setItem(LAUNCH_STORAGE_KEY, JSON.stringify(store)) } catch (_) { /* ignore */ }
+}
+
+// ── Product Bundles ──────────────────────────────────────────────────────
+const BUNDLES_KEY = 'nv_bundles'
+function _getBundleStore() {
+  try { const d = localStorage.getItem(BUNDLES_KEY); if (d) return JSON.parse(d) } catch {}
+  return BUNDLES.map(b => ({ ...b }))
+}
+function _saveBundleStore(data) {
+  try { localStorage.setItem(BUNDLES_KEY, JSON.stringify(data)) } catch {}
+}
+
+export async function getBundles({ activeOnly = false } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const store = _getBundleStore()
+    return activeOnly ? store.filter(b => b.active) : store
+  }
+  return request('GET', `/v1/mlm/admin/bundles${activeOnly ? '?active=true' : ''}`)
+}
+
+export async function createBundle(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const store = _getBundleStore()
+    const newBundle = { ...data, id: Date.now(), totalSold: 0, createdAt: new Date().toISOString().slice(0,10), active: true }
+    store.push(newBundle)
+    _saveBundleStore(store)
+    return newBundle
+  }
+  return request('POST', '/v1/mlm/admin/bundles', data)
+}
+
+export async function updateBundle(id, patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const store = _getBundleStore()
+    const idx = store.findIndex(b => b.id === id)
+    if (idx !== -1) store[idx] = { ...store[idx], ...patch }
+    _saveBundleStore(store)
+    return idx !== -1 ? store[idx] : null
+  }
+  return request('PATCH', `/v1/mlm/admin/bundles/${id}`, patch)
+}
+
+export async function deleteBundle(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    _saveBundleStore(_getBundleStore().filter(b => b.id !== id))
+    return { success: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/bundles/${id}`)
+}
+
+export async function toggleBundleActive(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    const store = _getBundleStore()
+    const idx = store.findIndex(b => b.id === id)
+    if (idx !== -1) store[idx].active = !store[idx].active
+    _saveBundleStore(store)
+    return { active: idx !== -1 ? store[idx].active : false }
+  }
+  return request('POST', `/v1/mlm/admin/bundles/${id}/toggle`)
 }
 
 export async function getLaunchChecklist() {

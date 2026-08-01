@@ -11,6 +11,7 @@ const navLinks = [
   { to: '/admin',           label: '👥 Members',         end: true },
   { to: '/admin/network',   label: '🌐 Network Tree' },
   { to: '/admin/products',   label: '🛍️ Products' },
+  { to: '/admin/bundles',    label: '📦 Starter Packs' },
   { to: '/admin/inventory',  label: '🗃️ Inventory' },
   { to: '/admin/orders',     label: '📦 Orders' },
   { to: '/admin/autoships',  label: '♻️ Autoships' },

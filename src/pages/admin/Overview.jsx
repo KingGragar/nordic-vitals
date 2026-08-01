@@ -437,6 +437,7 @@ export default function Overview() {
           { label: '⚖️ Compliance',       desc: 'IDS, regulatory checklist, doc vault', path: '/admin/compliance' },
           { label: '🔏 KYC Queue',        desc: 'Review member identity verifications',  path: '/admin/kyc' },
           { label: '🔌 Integrations',    desc: 'Arctico API, gateways & webhooks',    path: '/admin/integrations' },
+          { label: '📦 Starter Packs',   desc: 'Product bundles shown in the shop', path: '/admin/bundles' },
           { label: '📥 Bulk Import',     desc: 'CSV member import for launch seeding', path: '/admin/import' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },

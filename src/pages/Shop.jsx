@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
-import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist } from '../api/mlmApi'
+import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist, getBundles } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import usePageTitle from '../hooks/usePageTitle'
 
@@ -30,7 +30,9 @@ export default function Shop() {
   usePageTitle('Shop', 'Browse Nordic Vitals premium Arctic supplements — Omega-3, Collagen, Vitamin D3, Shilajit, Greens, and Focus Formula. Member pricing available.')
   const { addToCart, user } = useAuth()
   const [products, setProducts] = useState(PRODUCTS)
+  const [bundles, setBundles] = useState([])
   const [toast, setToast] = useState(false)
+  const [bundleToast, setBundleToast] = useState(null)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [sort, setSort] = useState('default')
@@ -40,12 +42,22 @@ export default function Shop() {
     getVpProducts()
       .then(d => { if (d?.products?.length) setProducts(d.products) })
       .catch(() => {})
+    getBundles({ activeOnly: true })
+      .then(d => { if (Array.isArray(d)) setBundles(d) })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
     if (!user) return
     getWishlist(user.userId).then(d => { if (d?.productIds) setWishlistIds(d.productIds) }).catch(() => {})
   }, [user])
+
+  function handleAddBundle(bundle) {
+    const included = products.filter(p => bundle.productIds?.includes(p.id))
+    included.forEach(p => addToCart(p))
+    setBundleToast(bundle.name)
+    setTimeout(() => setBundleToast(null), 2500)
+  }
 
   const categories = useMemo(() => {
     const cats = [...new Set(products.map(p => p.category).filter(Boolean))]
@@ -113,6 +125,78 @@ export default function Shop() {
             Science-backed supplements from the cleanest Nordic sources.
           </p>
         </div>
+
+        {/* Starter Packs / Bundles */}
+        {bundles.length > 0 && (
+          <div style={{ marginBottom: '48px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <h2 style={{ color: 'var(--cream)', fontSize: '20px', fontWeight: '800', margin: 0 }}>Starter Packs</h2>
+              <span style={{ background: 'rgba(196,148,41,0.15)', color: 'var(--gold)', fontSize: '12px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', border: '1px solid rgba(196,148,41,0.3)' }}>
+                Save more with bundles
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
+              {bundles.map(b => {
+                const included = products.filter(p => b.productIds?.includes(p.id))
+                const discount = b.retailPrice && b.bundlePrice ? Math.round((1 - b.bundlePrice / b.retailPrice) * 100) : 0
+                const price = user ? (b.memberBundlePrice || b.bundlePrice) : b.bundlePrice
+                return (
+                  <div key={b.id} style={{ background: 'linear-gradient(160deg, var(--navy2) 0%, rgba(26,26,46,0.95) 100%)', border: '1px solid rgba(196,148,41,0.35)', borderRadius: '14px', overflow: 'hidden', position: 'relative' }}>
+                    {b.badge && (
+                      <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'var(--gold)', color: '#000', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '12px', zIndex: 1 }}>
+                        {b.badge}
+                      </div>
+                    )}
+                    <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ fontSize: '36px' }}>{b.emoji}</span>
+                      <div>
+                        <div style={{ fontSize: '11px', color: 'var(--gold)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{b.tagline}</div>
+                        <h3 style={{ color: 'var(--cream)', fontSize: '16px', fontWeight: '800', margin: '2px 0 0' }}>{b.name}</h3>
+                      </div>
+                    </div>
+                    <div style={{ padding: '12px 20px' }}>
+                      <div style={{ marginBottom: '12px' }}>
+                        {included.map(p => (
+                          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text2)', padding: '2px 0' }}>
+                            <span>✓ {p.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '8px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                            <span style={{ color: 'var(--text2)', fontSize: '12px', textDecoration: 'line-through' }}>NOK {b.retailPrice}</span>
+                            <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontSize: '11px', fontWeight: '700', padding: '1px 7px', borderRadius: '8px' }}>-{discount}%</span>
+                          </div>
+                          <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--cream)', lineHeight: 1 }}>NOK {price}</div>
+                          {user && b.memberBundlePrice && (
+                            <div style={{ fontSize: '11px', color: 'var(--gold)', fontWeight: '600' }}>★ Member price</div>
+                          )}
+                          <div style={{ fontSize: '11px', color: 'var(--text2)', marginTop: '2px' }}>{b.totalPv} PV</div>
+                        </div>
+                        <button
+                          onClick={() => handleAddBundle(b)}
+                          style={{ padding: '10px 18px', background: 'var(--gold)', border: 'none', borderRadius: '8px', color: '#000', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >
+                          Add Bundle 🛒
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Divider */}
+        {bundles.length > 0 && (
+          <div style={{ borderTop: '1px solid var(--border)', marginBottom: '40px', position: 'relative' }}>
+            <span style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: 'var(--navy)', padding: '0 14px', color: 'var(--text2)', fontSize: '12px', fontWeight: '600' }}>
+              Individual Products
+            </span>
+          </div>
+        )}
 
         {/* Search + Sort row */}
         <div style={{
@@ -368,6 +452,13 @@ export default function Shop() {
           </div>
         )}
       </div>
+
+      {/* Bundle toast */}
+      {bundleToast && (
+        <div className="toast" style={{ bottom: '80px' }}>
+          {bundleToast} added to cart! 🛒
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
