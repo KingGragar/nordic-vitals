@@ -25,6 +25,7 @@ const navLinks = [
   { to: '/admin/retention',  label: '📉 Retention & Churn' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
+  { to: '/admin/challenges',    label: '🏅 Challenges' },
   { to: '/admin/reviews',       label: '⭐ Product Reviews' },
   { to: '/admin/referrals',     label: '🔗 Referrals' },
   { to: '/admin/announcements', label: '📣 Announcements' },

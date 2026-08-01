@@ -10,6 +10,7 @@ import {
   INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS, FINANCIAL_DATA, ACTIVITY_LOG, ACTIVITY_GOALS,
   BUNDLES,
   PRODUCT_LOOKUP, ADMIN_ORDER_NOTES,
+  CHALLENGES, CHALLENGE_LEADERBOARDS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -2997,4 +2998,80 @@ export async function getSocialProofEvents() {
     return SOCIAL_PROOF_EVENTS
   }
   return request('GET', '/v1/mlm/public/social-proof')
+}
+
+const _CHALLENGES_KEY = 'nv_challenges'
+function _getChallengeStore() {
+  try { return JSON.parse(localStorage.getItem(_CHALLENGES_KEY)) || [...CHALLENGES] } catch { return [...CHALLENGES] }
+}
+function _saveChallengeStore(data) {
+  try { localStorage.setItem(_CHALLENGES_KEY, JSON.stringify(data)) } catch {}
+}
+
+export async function getChallenges() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    return _getChallengeStore()
+  }
+  return request('GET', '/v1/mlm/admin/challenges')
+}
+
+export async function createChallenge(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const store = _getChallengeStore()
+    const entry = { ...data, id: `chal-${Date.now()}`, participant_count: 0, winner_announced: false, winner_id: null, created_at: new Date().toISOString() }
+    store.unshift(entry)
+    _saveChallengeStore(store)
+    return entry
+  }
+  return request('POST', '/v1/mlm/admin/challenges', data)
+}
+
+export async function updateChallenge(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const store = _getChallengeStore()
+    const idx = store.findIndex(c => c.id === id)
+    if (idx !== -1) store[idx] = { ...store[idx], ...data }
+    _saveChallengeStore(store)
+    return store[idx]
+  }
+  return request('PATCH', `/v1/mlm/admin/challenges/${id}`, data)
+}
+
+export async function deleteChallenge(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const store = _getChallengeStore().filter(c => c.id !== id)
+    _saveChallengeStore(store)
+    return { success: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/challenges/${id}`)
+}
+
+export async function getChallengeLeaderboard(challengeId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 100))
+    return CHALLENGE_LEADERBOARDS[challengeId] || []
+  }
+  return request('GET', `/v1/mlm/challenges/${challengeId}/leaderboard`)
+}
+
+export async function getMyChallenges(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 130))
+    const store = _getChallengeStore()
+    const active = store.filter(c => c.status === 'active' || c.status === 'upcoming')
+    const IS_LARS = !userId || userId === 'NV-10002'
+    return active.map(c => {
+      const lb = CHALLENGE_LEADERBOARDS[c.id] || []
+      const myEntry = IS_LARS ? lb.find(e => e.member_id === 'NV-10002') : null
+      const myValue = myEntry ? myEntry.value : 0
+      const myRank  = myEntry ? myEntry.rank : null
+      const myPct   = myEntry ? myEntry.progress_pct : 0
+      return { ...c, my_value: myValue, my_rank: myRank, my_progress_pct: myPct }
+    })
+  }
+  return request('GET', `/v1/mlm/member/${userId}/challenges`)
 }

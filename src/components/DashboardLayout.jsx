@@ -16,6 +16,7 @@ const navSections = [
       { to: '/dashboard/referral',     label: '🔗 Referral' },
       { to: '/dashboard/prospects',    label: '🎯 Prospect Tracker' },
       { to: '/dashboard/leaderboard',         label: '🏆 Leaderboard' },
+      { to: '/dashboard/challenges',         label: '🏅 Challenges' },
       { to: '/dashboard/network-analytics',  label: '📡 Network Analytics' },
       { to: '/dashboard/team-broadcast',    label: '📣 Team Broadcast' },
     ],

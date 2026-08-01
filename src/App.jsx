@@ -45,6 +45,7 @@ const DashDataPrivacy        = lazy(() => import('./pages/dashboard/DataPrivacy'
 const DashActivityTracker    = lazy(() => import('./pages/dashboard/ActivityTracker'))
 const DashNotifPrefs         = lazy(() => import('./pages/dashboard/NotificationPreferences'))
 const DashTeamBroadcast      = lazy(() => import('./pages/dashboard/TeamBroadcast'))
+const DashChallenges         = lazy(() => import('./pages/dashboard/Challenges'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -80,6 +81,7 @@ const AdminFinancials         = lazy(() => import('./pages/admin/Financials'))
 const AdminLaunchChecklist    = lazy(() => import('./pages/admin/LaunchChecklist'))
 const AdminBundles            = lazy(() => import('./pages/admin/Bundles'))
 const AdminReviews            = lazy(() => import('./pages/admin/Reviews'))
+const AdminChallenges         = lazy(() => import('./pages/admin/Challenges'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -169,6 +171,7 @@ function AppRoutes() {
         <Route path="/dashboard/activity"                  element={<RequireAuth><DashActivityTracker /></RequireAuth>} />
         <Route path="/dashboard/notification-preferences" element={<RequireAuth><DashNotifPrefs /></RequireAuth>} />
         <Route path="/dashboard/team-broadcast"         element={<RequireAuth><DashTeamBroadcast /></RequireAuth>} />
+        <Route path="/dashboard/challenges"            element={<RequireAuth><DashChallenges /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -204,6 +207,7 @@ function AppRoutes() {
         <Route path="/admin/launch"           element={<RequireAuth role="admin"><AdminLaunchChecklist /></RequireAuth>} />
         <Route path="/admin/bundles"          element={<RequireAuth role="admin"><AdminBundles /></RequireAuth>} />
         <Route path="/admin/reviews"          element={<RequireAuth role="admin"><AdminReviews /></RequireAuth>} />
+        <Route path="/admin/challenges"       element={<RequireAuth role="admin"><AdminChallenges /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>
