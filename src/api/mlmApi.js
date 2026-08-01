@@ -2683,3 +2683,28 @@ export async function updateLaunchItem(id, patch) {
   }
   return request('PATCH', `/v1/mlm/admin/launch-checklist/${id}`, patch)
 }
+
+export async function getMyReferralStats(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    return {
+      totalClicks: 124,
+      totalSignups: 12,
+      conversionRate: 9.7,
+      activeFromLink: 8,
+      thisMonthClicks: 37,
+      thisMonthSignups: 3,
+      topReferralCountry: 'Norway',
+      lifetimeEarned: 840,
+    }
+  }
+  return request('GET', `/v1/mlm/referrals/stats/${userId}`)
+}
+
+export async function trackReferralShare(userId, platform) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 100))
+    return { success: true }
+  }
+  return request('POST', `/v1/mlm/referrals/share`, { userId, platform })
+}
