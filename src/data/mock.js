@@ -12,6 +12,19 @@ export const PRODUCTS = [
   { id: 6, name: 'Focus Formula',            category: 'Focus',            tagline: 'Lion\'s mane + Bacopa + L-Theanine',      price: 459, memberPrice: 369, pv: 46, img: 'from-violet-900 to-purple-900', desc: "Nootropic stack combining Lion's Mane mushroom, Bacopa Monnieri, and L-Theanine for sustained mental clarity, memory support, and calm focus.", ingredients: ["Lion's Mane extract (30% polysaccharides)", 'Bacopa Monnieri extract', 'L-Theanine', 'Phosphatidylserine'] },
 ]
 
+export const PRODUCT_LOOKUP = {
+  'Omega-3 Arctic Pure':          { price: 349, pv: 35 },
+  'Nordic Collagen Complex':      { price: 429, pv: 43 },
+  'Vitamin D3+K2':                { price: 249, pv: 25 },
+  'Vitamin D3 + K2':              { price: 249, pv: 25 },
+  'Arctic Shilajit':              { price: 599, pv: 60 },
+  'Nordic Greens Blend':          { price: 379, pv: 38 },
+  'Focus Formula':                { price: 459, pv: 46 },
+  'Executive Enrollment Package': { price: 1499, pv: 150 },
+}
+
+export let ADMIN_ORDER_NOTES = {}
+
 export const COMMISSIONS = [
   { id: 1, date: '2026-07-13', type: 'Pairing Bonus',       from: 'Mia Andersen',  leg: 'Weak leg',  amount: 450,  status: 'Paid' },
   { id: 2, date: '2026-07-12', type: 'Sponsor Bonus',       from: 'Erik Solberg',  leg: 'Direct',    amount: 175,  status: 'Paid' },

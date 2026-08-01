@@ -9,6 +9,7 @@ import {
   TOKEN_STATS, TOKEN_EVENTS, RANK_HISTORY, ANALYTICS_DATA, TRAINING_MODULES, EVENTS, EMAIL_CAMPAIGNS, KYC_SUBMISSIONS, NETWORK_ANALYTICS, LOYALTY_DATA,
   INVENTORY, STOCK_MOVEMENTS, ADMIN_NOTIFICATIONS, FINANCIAL_DATA, ACTIVITY_LOG, ACTIVITY_GOALS,
   BUNDLES,
+  PRODUCT_LOOKUP, ADMIN_ORDER_NOTES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -695,6 +696,74 @@ export async function updateOrderStatus(orderId, status) {
     return { order: _adminOrders.find(o => o.id === orderId) }
   }
   return request('PATCH', `/api/viking-peptides/admin/orders/${orderId}`, { status })
+}
+
+export async function getAdminOrderDetail(orderId) {
+  if (MOCK) {
+    if (!_adminOrders) _adminOrders = [...ADMIN_ORDERS]
+    const order = _adminOrders.find(o => o.id === orderId)
+    if (!order) throw new Error('Order not found')
+    const member = ADMIN_MEMBERS.find(m => m.id === order.memberId) || {}
+    const cityByCountry = { Norway: 'Oslo', Sweden: 'Stockholm', Denmark: 'Copenhagen', Finland: 'Helsinki' }
+    const postalByCountry = { Norway: '0150', Sweden: '111 20', Denmark: '1050', Finland: '00100' }
+    const streetsByMember = {
+      'NV-10042': 'Karl Johans gate 12', 'NV-10087': 'Drottninggatan 34', 'NV-10091': 'Storgata 8',
+      'NV-10102': 'Nordre gate 5', 'NV-10118': 'Bergstien 21', 'NV-10122': 'Vasagatan 17',
+      'NV-10201': 'Lillestrøm vei 3', 'NV-10208': 'Tverrveien 7', 'NV-10210': 'Bredgade 22',
+      'NV-10215': 'Drammensveien 44', 'NV-10230': 'Majorstuen 19', 'NV-10241': 'Frognerveien 56',
+    }
+    const shipping = {
+      name: order.member,
+      address1: streetsByMember[order.memberId] || 'Storgata 1',
+      city: cityByCountry[order.shippingCountry] || 'Oslo',
+      postalCode: postalByCountry[order.shippingCountry] || '0150',
+      country: order.shippingCountry || 'Norway',
+    }
+    const lineItems = order.items.map(str => {
+      const m = str.match(/^(.+?)\s*[×x](\d+)$/)
+      const name = m ? m[1].trim() : str
+      const qty = m ? parseInt(m[2]) : 1
+      const product = PRODUCT_LOOKUP[name] || { price: 0, pv: 0 }
+      return { name, qty, unitPrice: product.price, pv: product.pv, subtotal: product.price * qty, pvSubtotal: product.pv * qty }
+    })
+    const statusOrder = ['Pending', 'Processing', 'Shipped', 'Delivered']
+    const statusIdx = Math.max(0, statusOrder.indexOf(order.status))
+    const baseDate = new Date(order.date + 'T10:00:00Z')
+    const events = statusOrder.slice(0, statusIdx + 1).map((s, i) => {
+      const d = new Date(baseDate)
+      d.setDate(d.getDate() + i)
+      return { status: s, timestamp: d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC', note: s === 'Shipped' ? 'Carrier: Posten Norge / PostNord' : '' }
+    })
+    if (order.status === 'Cancelled') {
+      const d = new Date(baseDate)
+      d.setDate(d.getDate() + 1)
+      events.push({ status: 'Cancelled', timestamp: d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC', note: 'Cancelled by customer request' })
+    }
+    const notes = ADMIN_ORDER_NOTES[orderId] || []
+    return {
+      ...order,
+      email: member.email || '',
+      phone: member.phone || '',
+      memberRank: member.rank || '',
+      lineItems,
+      shipping,
+      paymentMethod: order.method || 'Bank Transfer',
+      paymentRef: 'BT-' + orderId.replace('NV-ORD-', '') + '00',
+      events,
+      notes,
+    }
+  }
+  return request('GET', `/api/viking-peptides/admin/orders/${orderId}`)
+}
+
+export async function addOrderNote(orderId, note) {
+  if (MOCK) {
+    if (!ADMIN_ORDER_NOTES[orderId]) ADMIN_ORDER_NOTES[orderId] = []
+    const entry = { note, author: 'Admin', timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC' }
+    ADMIN_ORDER_NOTES[orderId] = [entry, ...ADMIN_ORDER_NOTES[orderId]]
+    return { note: entry }
+  }
+  return request('POST', `/api/viking-peptides/admin/orders/${orderId}/notes`, { note })
 }
 
 // ── Withdrawals ───────────────────────────────────────────────────────────────
