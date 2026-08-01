@@ -429,14 +429,95 @@ export async function getAdminNetworkVolume() {
 
 // ── Product Reviews ───────────────────────────────────────────────────────────
 
+const REVIEWS_KEY = 'nv_reviews'
+
+function _getReviewStore() {
+  try {
+    const d = localStorage.getItem(REVIEWS_KEY)
+    if (d) return JSON.parse(d)
+  } catch (_) {}
+  const flat = []
+  Object.entries(PRODUCT_REVIEWS).forEach(([pid, reviews]) => {
+    reviews.forEach(r => flat.push({ ...r, productId: Number(pid) }))
+  })
+  return flat
+}
+
+function _saveReviewStore(data) {
+  try { localStorage.setItem(REVIEWS_KEY, JSON.stringify(data)) } catch (_) {}
+}
+
 export async function getProductReviews(productId) {
-  if (MOCK) return { reviews: PRODUCT_REVIEWS[productId] || [] }
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    const store = _getReviewStore()
+    const reviews = store.filter(r => r.productId === Number(productId) && r.status !== 'rejected')
+    return { reviews }
+  }
   return request('GET', `/api/viking-peptides/products/${productId}/reviews`)
 }
 
-export async function submitProductReview(productId, { rating, comment }) {
-  if (MOCK) return { ok: true }
+export async function submitProductReview(productId, { rating, comment, reviewer }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const store = _getReviewStore()
+    const newReview = {
+      id: `r${productId}-${Date.now()}`,
+      productId: Number(productId),
+      reviewer: reviewer || 'Anonymous',
+      rating,
+      comment,
+      date: new Date().toISOString().slice(0, 10),
+      verified: true,
+      status: 'pending',
+    }
+    store.push(newReview)
+    _saveReviewStore(store)
+    return { ok: true }
+  }
   return request('POST', `/api/viking-peptides/products/${productId}/reviews`, { rating, comment })
+}
+
+export async function getAdminReviews({ status = 'all', productId = null, search = '', limit = 50, offset = 0 } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    let store = _getReviewStore()
+    if (status !== 'all') store = store.filter(r => r.status === status)
+    if (productId) store = store.filter(r => r.productId === Number(productId))
+    if (search) {
+      const q = search.toLowerCase()
+      store = store.filter(r =>
+        r.reviewer.toLowerCase().includes(q) || r.comment.toLowerCase().includes(q)
+      )
+    }
+    store = [...store].sort((a, b) => b.date.localeCompare(a.date))
+    return { reviews: store.slice(offset, offset + limit), total: store.length }
+  }
+  const params = new URLSearchParams({ status, limit, offset })
+  if (productId) params.set('productId', productId)
+  if (search) params.set('search', search)
+  return request('GET', `/v1/mlm/admin/reviews?${params}`)
+}
+
+export async function moderateReview(reviewId, status) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const store = _getReviewStore()
+    const idx = store.findIndex(r => r.id === reviewId)
+    if (idx !== -1) store[idx].status = status
+    _saveReviewStore(store)
+    return { success: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/reviews/${reviewId}`, { status })
+}
+
+export async function deleteAdminReview(reviewId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    _saveReviewStore(_getReviewStore().filter(r => r.id !== reviewId))
+    return { success: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/reviews/${reviewId}`)
 }
 
 // ── Leaderboard ───────────────────────────────────────────────────────────────

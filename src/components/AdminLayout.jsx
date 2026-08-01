@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import {
   getAdminKycQueue, getAdminTickets, getInventory,
-  getWebhookLog, getPayoutQueue,
+  getWebhookLog, getPayoutQueue, getAdminReviews,
 } from '../api/mlmApi'
 
 const navLinks = [
@@ -24,6 +24,7 @@ const navLinks = [
   { to: '/admin/retention',  label: '📉 Retention & Churn' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
+  { to: '/admin/reviews',       label: '⭐ Product Reviews' },
   { to: '/admin/referrals',     label: '🔗 Referrals' },
   { to: '/admin/announcements', label: '📣 Announcements' },
   { to: '/admin/audit-log',       label: '🔍 Audit Log' },
@@ -48,12 +49,13 @@ const BANNER_H = 33
 const ALERT_POLL_MS = 60_000
 
 async function fetchOpsAlerts() {
-  const [kycRes, ticketsRes, invRes, whRes, payoutsRes] = await Promise.allSettled([
+  const [kycRes, ticketsRes, invRes, whRes, payoutsRes, reviewsRes] = await Promise.allSettled([
     getAdminKycQueue({ status: 'pending' }),
     getAdminTickets({ status: 'open' }),
     getInventory(),
     getWebhookLog(),
     getPayoutQueue(),
+    getAdminReviews({ status: 'pending' }),
   ])
   const kycCount = kycRes.status === 'fulfilled' ? (kycRes.value || []).length : 0
   const ticketCount = ticketsRes.status === 'fulfilled' ? (ticketsRes.value || []).length : 0
@@ -63,9 +65,12 @@ async function fetchOpsAlerts() {
     ? (whRes.value || []).filter(w => w.status === 'failed').length : 0
   const pendingPayouts = payoutsRes.status === 'fulfilled'
     ? (payoutsRes.value || []).filter(p => p.status === 'pending').length : 0
+  const pendingReviews = reviewsRes.status === 'fulfilled'
+    ? (reviewsRes.value?.total || 0) : 0
   return [
     { label: 'KYC pending review', count: kycCount, link: '/admin/kyc', icon: '🔏' },
     { label: 'Open support tickets', count: ticketCount, link: '/admin/support', icon: '🎫' },
+    { label: 'Reviews pending moderation', count: pendingReviews, link: '/admin/reviews', icon: '⭐' },
     { label: 'Low / out-of-stock SKUs', count: lowStockCount, link: '/admin/inventory', icon: '🗃️' },
     { label: 'Failed webhook deliveries', count: webhookFails, link: '/admin/integrations', icon: '🔌' },
     { label: 'Pending payouts', count: pendingPayouts, link: '/admin/payouts', icon: '💸' },
