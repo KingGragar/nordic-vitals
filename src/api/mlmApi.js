@@ -2789,3 +2789,33 @@ export async function trackReferralShare(userId, platform) {
   }
   return request('POST', `/v1/mlm/referrals/share`, { userId, platform })
 }
+
+const _NOTIF_PREFS_KEY = 'nv_notification_prefs'
+
+function _getNotifPrefsStore(userId) {
+  try {
+    const raw = localStorage.getItem(`${_NOTIF_PREFS_KEY}_${userId}`)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function _saveNotifPrefsStore(userId, prefs) {
+  try { localStorage.setItem(`${_NOTIF_PREFS_KEY}_${userId}`, JSON.stringify(prefs)) } catch {}
+}
+
+export async function getNotificationPrefs(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    return _getNotifPrefsStore(userId) || null
+  }
+  return request('GET', `/v1/mlm/members/${userId}/notification-prefs`)
+}
+
+export async function saveNotificationPrefs(userId, prefs) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    _saveNotifPrefsStore(userId, prefs)
+    return { success: true }
+  }
+  return request('PUT', `/v1/mlm/members/${userId}/notification-prefs`, prefs)
+}
