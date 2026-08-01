@@ -458,7 +458,7 @@ export async function getProductReviews(productId) {
   return request('GET', `/api/viking-peptides/products/${productId}/reviews`)
 }
 
-export async function submitProductReview(productId, { rating, comment, reviewer }) {
+export async function submitProductReview(productId, { rating, comment, reviewer, userId }) {
   if (MOCK) {
     await new Promise(r => setTimeout(r, 200))
     const store = _getReviewStore()
@@ -466,6 +466,7 @@ export async function submitProductReview(productId, { rating, comment, reviewer
       id: `r${productId}-${Date.now()}`,
       productId: Number(productId),
       reviewer: reviewer || 'Anonymous',
+      userId: userId || null,
       rating,
       comment,
       date: new Date().toISOString().slice(0, 10),
@@ -477,6 +478,41 @@ export async function submitProductReview(productId, { rating, comment, reviewer
     return { ok: true }
   }
   return request('POST', `/api/viking-peptides/products/${productId}/reviews`, { rating, comment })
+}
+
+export async function getMyReviews(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const store = _getReviewStore()
+    const mine = store.filter(r =>
+      r.userId === userId || r.reviewer?.toLowerCase().startsWith('lars e')
+    ).sort((a, b) => b.date.localeCompare(a.date))
+    return { reviews: mine }
+  }
+  return request('GET', `/v1/mlm/reviews/my?userId=${userId}`)
+}
+
+export async function updateMyReview(reviewId, { rating, comment }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const store = _getReviewStore()
+    const idx = store.findIndex(r => r.id === reviewId)
+    if (idx !== -1) {
+      store[idx] = { ...store[idx], rating, comment, status: 'pending' }
+      _saveReviewStore(store)
+    }
+    return { success: true }
+  }
+  return request('PATCH', `/v1/mlm/reviews/${reviewId}`, { rating, comment })
+}
+
+export async function deleteMyReview(reviewId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    _saveReviewStore(_getReviewStore().filter(r => r.id !== reviewId))
+    return { success: true }
+  }
+  return request('DELETE', `/v1/mlm/reviews/${reviewId}`)
 }
 
 export async function getAdminReviews({ status = 'all', productId = null, search = '', limit = 50, offset = 0 } = {}) {

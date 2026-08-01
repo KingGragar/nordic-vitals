@@ -36,6 +36,7 @@ const DashMemberCard     = lazy(() => import('./pages/dashboard/MemberCard'))
 const DashTaxSummary     = lazy(() => import('./pages/dashboard/TaxSummary'))
 const DashOnboarding     = lazy(() => import('./pages/dashboard/Onboarding'))
 const DashKyc            = lazy(() => import('./pages/dashboard/Kyc'))
+const DashMyReviews          = lazy(() => import('./pages/dashboard/MyReviews'))
 const DashWishlist           = lazy(() => import('./pages/dashboard/Wishlist'))
 const DashNetworkAnalytics   = lazy(() => import('./pages/dashboard/NetworkAnalytics'))
 const DashProspects          = lazy(() => import('./pages/dashboard/Prospects'))
@@ -159,6 +160,7 @@ function AppRoutes() {
         <Route path="/dashboard/tax-summary"   element={<RequireAuth><DashTaxSummary /></RequireAuth>} />
         <Route path="/dashboard/onboarding"   element={<RequireAuth><DashOnboarding /></RequireAuth>} />
         <Route path="/dashboard/kyc"          element={<RequireAuth><DashKyc /></RequireAuth>} />
+        <Route path="/dashboard/my-reviews"         element={<RequireAuth><DashMyReviews /></RequireAuth>} />
         <Route path="/dashboard/wishlist"           element={<RequireAuth><DashWishlist /></RequireAuth>} />
         <Route path="/dashboard/network-analytics" element={<RequireAuth><DashNetworkAnalytics /></RequireAuth>} />
         <Route path="/dashboard/prospects"        element={<RequireAuth><DashProspects /></RequireAuth>} />

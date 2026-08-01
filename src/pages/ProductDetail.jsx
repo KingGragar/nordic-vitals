@@ -115,7 +115,7 @@ export default function ProductDetail() {
     e.preventDefault()
     setReviewForm(f => ({ ...f, submitting: true }))
     try {
-      await submitProductReview(Number(id), { rating: reviewForm.rating, comment: reviewForm.comment })
+      await submitProductReview(Number(id), { rating: reviewForm.rating, comment: reviewForm.comment, reviewer: user?.name, userId: user?.userId })
       const newReview = {
         id: `local-${Date.now()}`,
         reviewer: user.name || 'You',

@@ -28,6 +28,7 @@ const navSections = [
       { to: '/dashboard/wallet',       label: '💳 Wallet' },
       { to: '/dashboard/orders',       label: '📦 My Orders' },
       { to: '/dashboard/wishlist',     label: '❤️ Wishlist' },
+      { to: '/dashboard/my-reviews',   label: '⭐ My Reviews' },
       { to: '/dashboard/loyalty',      label: '⭐ Loyalty Points' },
       { to: '/dashboard/autoship',     label: '♻️ Autoship' },
       { to: '/dashboard/tax-summary',  label: '🧾 Tax Summary' },
