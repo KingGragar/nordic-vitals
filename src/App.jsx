@@ -84,9 +84,10 @@ const FAQ            = lazy(() => import('./pages/FAQ'))
 const Contact        = lazy(() => import('./pages/Contact'))
 const Terms          = lazy(() => import('./pages/Terms'))
 const Privacy        = lazy(() => import('./pages/Privacy'))
-const NotFound         = lazy(() => import('./pages/NotFound'))
-const RefLanding       = lazy(() => import('./pages/RefLanding'))
-const MaintenancePage  = lazy(() => import('./pages/MaintenancePage'))
+const NotFound            = lazy(() => import('./pages/NotFound'))
+const RefLanding          = lazy(() => import('./pages/RefLanding'))
+const MaintenancePage     = lazy(() => import('./pages/MaintenancePage'))
+const CompensationPlan    = lazy(() => import('./pages/CompensationPlan'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -128,6 +129,7 @@ function AppRoutes() {
         <Route path="/terms"   element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/ref/:code" element={<RefLanding />} />
+        <Route path="/plan"    element={<CompensationPlan />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />

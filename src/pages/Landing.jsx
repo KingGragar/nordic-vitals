@@ -548,10 +548,10 @@ export default function Landing() {
                   onMouseEnter={e => e.target.style.color = 'var(--gold)'}
                   onMouseLeave={e => e.target.style.color = 'var(--text2)'}
                 >Dashboard</Link>
-                <Link to="/join" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                <Link to="/plan" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
                   onMouseEnter={e => e.target.style.color = 'var(--gold)'}
                   onMouseLeave={e => e.target.style.color = 'var(--text2)'}
-                >Earn</Link>
+                >Compensation Plan</Link>
               </div>
             </div>
 

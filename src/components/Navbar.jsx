@@ -69,6 +69,15 @@ export default function Navbar() {
             onMouseEnter={e => e.target.style.color = 'var(--gold)'}
             onMouseLeave={e => e.target.style.color = 'var(--text)'}
           >About</a>
+          <Link to="/plan" style={{
+            color: 'var(--text)',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'color 0.18s',
+          }}
+            onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+            onMouseLeave={e => e.target.style.color = 'var(--text)'}
+          >Earn</Link>
           <Link to="/join" style={{
             color: 'var(--text)',
             fontSize: '14px',
@@ -185,6 +194,7 @@ export default function Navbar() {
         }} className="nav-mobile-menu">
           <Link to="/shop" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', fontSize: '15px' }}>Shop</Link>
           <a href="/#about" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', fontSize: '15px' }}>About</a>
+          <Link to="/plan" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', fontSize: '15px' }}>Earn</Link>
           <Link to="/join" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text)', fontSize: '15px' }}>Join Us</Link>
           {user ? (
             <>
