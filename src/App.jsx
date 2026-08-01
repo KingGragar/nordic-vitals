@@ -43,6 +43,7 @@ const DashLoyalty            = lazy(() => import('./pages/dashboard/Loyalty'))
 const DashDataPrivacy        = lazy(() => import('./pages/dashboard/DataPrivacy'))
 const DashActivityTracker    = lazy(() => import('./pages/dashboard/ActivityTracker'))
 const DashNotifPrefs         = lazy(() => import('./pages/dashboard/NotificationPreferences'))
+const DashTeamBroadcast      = lazy(() => import('./pages/dashboard/TeamBroadcast'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -165,6 +166,7 @@ function AppRoutes() {
         <Route path="/dashboard/data-privacy"     element={<RequireAuth><DashDataPrivacy /></RequireAuth>} />
         <Route path="/dashboard/activity"                  element={<RequireAuth><DashActivityTracker /></RequireAuth>} />
         <Route path="/dashboard/notification-preferences" element={<RequireAuth><DashNotifPrefs /></RequireAuth>} />
+        <Route path="/dashboard/team-broadcast"         element={<RequireAuth><DashTeamBroadcast /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />

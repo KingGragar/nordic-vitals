@@ -2819,3 +2819,69 @@ export async function saveNotificationPrefs(userId, prefs) {
   }
   return request('PUT', `/v1/mlm/members/${userId}/notification-prefs`, prefs)
 }
+
+// ── Team Broadcast ───────────────────────────────────────────────────────────
+const _BROADCAST_KEY = 'nv_team_broadcasts'
+
+function _getBroadcastStore(userId) {
+  try {
+    const raw = localStorage.getItem(`${_BROADCAST_KEY}_${userId}`)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+function _saveBroadcastStore(userId, data) {
+  try { localStorage.setItem(`${_BROADCAST_KEY}_${userId}`, JSON.stringify(data)) } catch {}
+}
+
+function _getFullDownline(sponsorId, all, depth = 0, maxDepth = 10) {
+  if (depth >= maxDepth) return []
+  const directs = all.filter(m => m.sponsor === sponsorId)
+  return directs.flatMap(m => [m, ..._getFullDownline(m.id, all, depth + 1, maxDepth)])
+}
+
+export async function getTeamBroadcastRecipients(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const memberId = ADMIN_MEMBERS.find(m => m.id === userId) ? userId
+      : (ADMIN_MEMBERS.find(m => m.id === 'NV-10042') ? 'NV-10042' : null)
+    const direct = ADMIN_MEMBERS.filter(m => m.sponsor === memberId)
+    const full = _getFullDownline(memberId, ADMIN_MEMBERS)
+    return {
+      direct: direct.map(m => ({ id: m.id, name: m.name, rank: m.rank, status: m.status })),
+      full: full.map(m => ({ id: m.id, name: m.name, rank: m.rank, status: m.status })),
+    }
+  }
+  return request('GET', `/v1/mlm/team/${userId}/broadcast-recipients`)
+}
+
+export async function sendTeamBroadcast(userId, { subject, body, audience }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    const store = _getBroadcastStore(userId)
+    const memberId = ADMIN_MEMBERS.find(m => m.id === userId) ? userId : 'NV-10042'
+    const all = _getFullDownline(memberId, ADMIN_MEMBERS)
+    const direct = ADMIN_MEMBERS.filter(m => m.sponsor === memberId)
+    const recipients = audience === 'direct' ? direct : all
+    const entry = {
+      id: `bcast-${Date.now()}`,
+      subject,
+      body,
+      audience,
+      recipientCount: recipients.length,
+      sentAt: new Date().toISOString(),
+      status: 'delivered',
+    }
+    store.unshift(entry)
+    _saveBroadcastStore(userId, store)
+    return { success: true, recipientCount: recipients.length, broadcastId: entry.id }
+  }
+  return request('POST', `/v1/mlm/team/${userId}/broadcast`, { subject, body, audience })
+}
+
+export async function getTeamBroadcasts(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    return _getBroadcastStore(userId)
+  }
+  return request('GET', `/v1/mlm/team/${userId}/broadcasts`)
+}
