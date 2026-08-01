@@ -272,12 +272,23 @@ export async function getOrders(userId) {
   return request('GET', `/api/viking-peptides/orders?user_id=${userId}`)
 }
 
-export async function placeOrder({ userId, items, shippingAddress, orderRef }) {
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0)
+export async function placeOrder({ userId, items, shippingAddress, orderRef, promoCode, discount, total: orderTotal }) {
+  const total = orderTotal ?? items.reduce((s, i) => s + i.price * i.qty, 0)
   const pv    = items.reduce((s, i) => s + (i.pv || i.price) * i.qty, 0)
   if (MOCK) return { order: { id: orderRef, status: 'pending', total, pv } }
   return request('POST', '/api/viking-peptides/orders', {
-    user_id: userId, items, shipping_address: shippingAddress, order_ref: orderRef, total, pv,
+    user_id: userId, items, shipping_address: shippingAddress, order_ref: orderRef,
+    promo_code: promoCode, discount, total, pv,
+  })
+}
+
+export async function processPayment({ orderRef, method, amount, currency = 'NOK', paymentDetails }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 1200))
+    return { success: true, transactionId: 'TXN-' + Math.random().toString(36).slice(2,10).toUpperCase(), method, amount }
+  }
+  return request('POST', '/api/viking-peptides/payments', {
+    order_ref: orderRef, method, amount, currency, payment_details: paymentDetails,
   })
 }
 
