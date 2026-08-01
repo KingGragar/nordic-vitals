@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import SocialProofTicker from '../components/SocialProofTicker'
 import { getPublicMemberProfile } from '../api/mlmApi'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
@@ -260,6 +261,7 @@ export default function RefLanding() {
           <Link to="/compliance" className="underline">Income Disclosure</Link>
         </p>
       </footer>
+    <SocialProofTicker />
     </>
   )
 }

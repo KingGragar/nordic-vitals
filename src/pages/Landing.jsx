@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { getVpProducts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import SocialProofTicker from '../components/SocialProofTicker'
 import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
@@ -590,6 +591,7 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+    <SocialProofTicker />
     </>
   )
 }

@@ -1980,3 +1980,21 @@ export const BUNDLES = [
     createdAt: '2026-06-15',
   },
 ]
+
+export const SOCIAL_PROOF_EVENTS = [
+  { type: 'join',     message: 'Lars from Bergen just joined Nordic Vitals!',          time_ago: 'Just now' },
+  { type: 'purchase', message: 'Ingrid from Oslo purchased Omega-3 MAX.',              time_ago: '2 min ago' },
+  { type: 'rank_up',  message: 'Marte from Trondheim reached Silver rank! 🥈',         time_ago: '5 min ago' },
+  { type: 'join',     message: 'Kristoffer from Stavanger just joined Nordic Vitals!', time_ago: '8 min ago' },
+  { type: 'purchase', message: 'Silje from Tromsø purchased Collagen PLUS.',           time_ago: '11 min ago' },
+  { type: 'milestone',message: 'Tor from Drammen earned his first 1 000 MLMT! ⭐',     time_ago: '14 min ago' },
+  { type: 'rank_up',  message: 'Anette from Ålesund reached Gold rank! 🥇',            time_ago: '18 min ago' },
+  { type: 'join',     message: 'Henrik from Kristiansand just joined Nordic Vitals!',  time_ago: '22 min ago' },
+  { type: 'purchase', message: 'Camilla from Fredrikstad purchased Vitamin D3+K2.',    time_ago: '25 min ago' },
+  { type: 'join',     message: 'Petter from Bodø just joined Nordic Vitals!',          time_ago: '29 min ago' },
+  { type: 'rank_up',  message: 'Nina from Hamar reached Bronze rank! 🥉',              time_ago: '33 min ago' },
+  { type: 'purchase', message: 'Erlend from Tønsberg purchased Arctic Shilajit.',      time_ago: '36 min ago' },
+  { type: 'withdrawal', message: 'Solveig from Molde withdrew 2 500 MLMT today! 💸',  time_ago: '40 min ago' },
+  { type: 'join',     message: 'Bjørg from Skien just joined Nordic Vitals!',          time_ago: '44 min ago' },
+  { type: 'purchase', message: 'Magnus from Lillehammer purchased Nordic Greens.',     time_ago: '47 min ago' },
+]

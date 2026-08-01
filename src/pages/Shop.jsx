@@ -4,6 +4,7 @@ import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
 import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist, getBundles } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
+import SocialProofTicker from '../components/SocialProofTicker'
 import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
@@ -467,6 +468,7 @@ export default function Shop() {
         </div>
       )}
     </div>
+    <SocialProofTicker />
     </>
   )
 }

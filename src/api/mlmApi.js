@@ -2885,3 +2885,11 @@ export async function getTeamBroadcasts(userId) {
   }
   return request('GET', `/v1/mlm/team/${userId}/broadcasts`)
 }
+
+export async function getSocialProofEvents() {
+  if (MOCK) {
+    const { SOCIAL_PROOF_EVENTS } = await import('../data/mock.js')
+    return SOCIAL_PROOF_EVENTS
+  }
+  return request('GET', '/v1/mlm/public/social-proof')
+}
