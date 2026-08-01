@@ -5,6 +5,7 @@ import {
   getAdminKycQueue, getAdminTickets, getInventory,
   getWebhookLog, getPayoutQueue, getAdminReviews,
 } from '../api/mlmApi'
+import AdminGlobalSearch from './AdminGlobalSearch'
 
 const navLinks = [
   { to: '/admin/overview',  label: '📋 Overview' },
@@ -234,6 +235,7 @@ export default function AdminLayout({ children }) {
           </button>
         )}
         ⚙ ADMIN PANEL — Nordic Vitals
+        <AdminGlobalSearch />
         <OpsAlertBell navigate={navigate} />
       </div>
 
