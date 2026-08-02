@@ -48,6 +48,7 @@ const DashTeamBroadcast      = lazy(() => import('./pages/dashboard/TeamBroadcas
 const DashChallenges         = lazy(() => import('./pages/dashboard/Challenges'))
 const DashOrderDetail        = lazy(() => import('./pages/dashboard/OrderDetail'))
 const DashTeamReport         = lazy(() => import('./pages/dashboard/TeamReport'))
+const DashForecast            = lazy(() => import('./pages/dashboard/Forecast'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -181,6 +182,7 @@ function AppRoutes() {
         <Route path="/dashboard/challenges"            element={<RequireAuth><DashChallenges /></RequireAuth>} />
         <Route path="/dashboard/orders/:orderId"       element={<RequireAuth><DashOrderDetail /></RequireAuth>} />
         <Route path="/dashboard/team-report"           element={<RequireAuth><DashTeamReport /></RequireAuth>} />
+        <Route path="/dashboard/forecast"             element={<RequireAuth><DashForecast /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />

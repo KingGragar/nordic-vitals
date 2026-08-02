@@ -40,6 +40,7 @@ const navSections = [
     heading: 'Grow',
     links: [
       { to: '/dashboard/rank-progress',  label: '📊 Rank Progress' },
+      { to: '/dashboard/forecast',       label: '📈 Earnings Forecast' },
       { to: '/dashboard/milestones',     label: '🏅 Milestones' },
       { to: '/dashboard/business-plan',  label: '📋 Business Plan' },
       { to: '/dashboard/calculator',     label: '🧮 Calculator' },

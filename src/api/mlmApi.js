@@ -3436,3 +3436,144 @@ export async function getTeamReport(userId, period = 'month') {
   const params = new URLSearchParams({ period })
   return request('GET', `/v1/mlm/team-report/${userId}?${params}`)
 }
+
+// ── Member Earnings Forecast ──────────────────────────────────────────────────
+
+export async function getMemberForecast(userId, { horizon = 6, recruitsPerMonth = null } = {}) {
+  if (!MOCK) {
+    const params = new URLSearchParams({ horizon, ...(recruitsPerMonth != null && { recruits_per_month: recruitsPerMonth }) })
+    return request('GET', `/v1/mlm/forecast/${userId}?${params}`)
+  }
+
+  const me = ADMIN_MEMBERS.find(m => m.id === userId) || ADMIN_MEMBERS[0]
+  const RANK_ORDER = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum']
+  const RANK_REQS = {
+    Unranked: { pv: 0,   leftGV: 0,    rightGV: 0,   recruits: 0 },
+    Bronze:   { pv: 100, leftGV: 500,  rightGV: 500,  recruits: 2 },
+    Silver:   { pv: 200, leftGV: 1500, rightGV: 1500, recruits: 5 },
+    Gold:     { pv: 300, leftGV: 4000, rightGV: 4000, recruits: 10 },
+    Platinum: { pv: 500, leftGV: 10000,rightGV: 10000,recruits: 20 },
+  }
+  const COMM_RATES = { Unranked: 0.10, Bronze: 0.14, Silver: 0.18, Gold: 0.22, Platinum: 0.27 }
+
+  const currentRankIdx = RANK_ORDER.indexOf(me.rank) === -1 ? 0 : RANK_ORDER.indexOf(me.rank)
+  const nextRankIdx    = Math.min(currentRankIdx + 1, RANK_ORDER.length - 1)
+  const nextRank       = RANK_ORDER[nextRankIdx]
+
+  // Historical actuals (last 3 months, synthetic from member stats)
+  const basePV    = me.pv   || 150
+  const baseGV    = me.gv   || 1200
+  const baseComm  = Math.round(baseGV * COMM_RATES[me.rank || 'Bronze'])
+  const HISTORICAL = [
+    { month: 'May 26', pv: Math.round(basePV * 0.82), gv: Math.round(baseGV * 0.78), commission: Math.round(baseComm * 0.76), recruits: 1 },
+    { month: 'Jun 26', pv: Math.round(basePV * 0.91), gv: Math.round(baseGV * 0.89), commission: Math.round(baseComm * 0.88), recruits: 1 },
+    { month: 'Jul 26', pv: basePV,                    gv: baseGV,                    commission: baseComm,                    recruits: 2 },
+  ]
+
+  // Default recruit rate from historical avg
+  const defaultRecruits = recruitsPerMonth != null ? recruitsPerMonth : 2
+  const SCENARIOS = {
+    current:     { recruitMult: 1.0, pvMult: 1.03, label: 'Current Pace',   color: '#3b82f6' },
+    accelerated: { recruitMult: 1.8, pvMult: 1.08, label: 'Accelerated',    color: '#c9a84c' },
+  }
+
+  const MONTH_NAMES = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+
+  // Track running state per scenario for rank progression
+  const state = {
+    current:     { pv: basePV, gv: baseGV, recruits: me.recruits || 3, rank: me.rank || 'Bronze' },
+    accelerated: { pv: basePV, gv: baseGV, recruits: me.recruits || 3, rank: me.rank || 'Bronze' },
+  }
+
+  const months = []
+
+  // Include historical
+  HISTORICAL.forEach(h => {
+    months.push({ month: h.month, projected: false, current: h.commission, accelerated: h.commission, pv: h.pv, gv: h.gv })
+  })
+
+  let rankUpMonth = { current: null, accelerated: null }
+  let nextRankReqs = RANK_REQS[nextRank] || RANK_REQS['Platinum']
+
+  // Project forward
+  for (let i = 0; i < horizon; i++) {
+    const label = MONTH_NAMES[i % 12] + ' ' + (26 + Math.floor((7 + i) / 12))
+    const row = { month: label, projected: true }
+
+    Object.entries(SCENARIOS).forEach(([sc, cfg]) => {
+      const newRecruits = Math.round(defaultRecruits * cfg.recruitMult)
+      state[sc].recruits += newRecruits
+      state[sc].pv       = Math.round(state[sc].pv * cfg.pvMult)
+      state[sc].gv       = Math.round(state[sc].gv * cfg.pvMult * (1 + newRecruits * 0.05))
+
+      // Check rank-up
+      if (state[sc].rank !== 'Platinum') {
+        const req = RANK_REQS[nextRank]
+        if (
+          state[sc].pv >= req.pv &&
+          state[sc].gv * 0.45 >= req.leftGV &&
+          state[sc].gv * 0.55 >= req.rightGV &&
+          state[sc].recruits >= req.recruits
+        ) {
+          if (!rankUpMonth[sc]) rankUpMonth[sc] = label
+          state[sc].rank = nextRank
+        }
+      }
+
+      const commRate = COMM_RATES[state[sc].rank]
+      row[sc] = Math.round(state[sc].gv * commRate)
+    })
+
+    months.push(row)
+  }
+
+  // KPIs
+  const projMonths = months.filter(m => m.projected)
+  const nextMonthEarnings = {
+    current:     projMonths[0]?.current     || 0,
+    accelerated: projMonths[0]?.accelerated || 0,
+  }
+  const sixMonthTotal = {
+    current:     projMonths.reduce((s, m) => s + (m.current || 0), 0),
+    accelerated: projMonths.reduce((s, m) => s + (m.accelerated || 0), 0),
+  }
+
+  // Rank progress toward next rank (current scenario, end of horizon)
+  const endState = state.current
+  const progressToNext = nextRank === 'Platinum' && me.rank === 'Platinum' ? null : {
+    rank:     nextRank,
+    pvPct:    Math.min(100, Math.round((endState.pv / nextRankReqs.pv) * 100)),
+    gvPct:    Math.min(100, Math.round(((endState.gv * 0.45) / nextRankReqs.leftGV) * 100)),
+    recPct:   Math.min(100, Math.round((endState.recruits / nextRankReqs.recruits) * 100)),
+    pvNeed:   Math.max(0, nextRankReqs.pv - endState.pv),
+    gvNeed:   Math.max(0, nextRankReqs.leftGV - Math.round(endState.gv * 0.45)),
+    recNeed:  Math.max(0, nextRankReqs.recruits - endState.recruits),
+    rankUpMonthCurrent:     rankUpMonth.current,
+    rankUpMonthAccelerated: rankUpMonth.accelerated,
+  }
+
+  // Action recommendations
+  const actions = []
+  if (me.pv < 200)  actions.push({ icon: '📦', text: `Add ${200 - me.pv} PV of personal orders this month to reach Silver PV threshold` })
+  if ((me.recruits || 3) < 5) actions.push({ icon: '👥', text: `Recruit ${5 - (me.recruits || 3)} more direct members to qualify for Silver rank` })
+  actions.push({ icon: '🔗', text: 'Share your referral link on 3 social platforms to boost sign-up rate' })
+  actions.push({ icon: '🎯', text: 'Re-engage 1–2 inactive downline members to increase group volume' })
+  if (me.rank === 'Bronze' || me.rank === 'Unranked') {
+    actions.push({ icon: '🛒', text: 'Set up an Autoship subscription to lock in consistent monthly PV' })
+  }
+
+  return {
+    months,
+    nextMonthEarnings,
+    sixMonthTotal,
+    progressToNext,
+    currentRank: me.rank || 'Bronze',
+    nextRank,
+    currentPV:      basePV,
+    currentGV:      baseGV,
+    currentRecruits: me.recruits || 3,
+    defaultRecruits,
+    actions,
+    scenarios: SCENARIOS,
+  }
+}
