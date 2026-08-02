@@ -97,6 +97,7 @@ const NotFound            = lazy(() => import('./pages/NotFound'))
 const RefLanding          = lazy(() => import('./pages/RefLanding'))
 const MaintenancePage     = lazy(() => import('./pages/MaintenancePage'))
 const CompensationPlan    = lazy(() => import('./pages/CompensationPlan'))
+const Compare             = lazy(() => import('./pages/Compare'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -139,6 +140,7 @@ function AppRoutes() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/ref/:code" element={<RefLanding />} />
         <Route path="/plan"    element={<CompensationPlan />} />
+        <Route path="/compare" element={<Compare />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
 import { useAuth } from '../context/AuthContext'
 import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist, getBundles } from '../api/mlmApi'
@@ -31,6 +31,7 @@ const SORT_OPTIONS = [
 export default function Shop() {
   usePageTitle('Shop', 'Browse Nordic Vitals premium Arctic supplements — Omega-3, Collagen, Vitamin D3, Shilajit, Greens, and Focus Formula. Member pricing available.')
   const { addToCart, user } = useAuth()
+  const navigate = useNavigate()
   const [products, setProducts] = useState(PRODUCTS)
   const [bundles, setBundles] = useState([])
   const [toast, setToast] = useState(false)
@@ -39,6 +40,7 @@ export default function Shop() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [sort, setSort] = useState('default')
   const [wishlistIds, setWishlistIds] = useState([])
+  const [compareIds, setCompareIds] = useState([])
 
   useEffect(() => {
     getVpProducts()
@@ -90,6 +92,20 @@ export default function Shop() {
     addToCart(product)
     setToast(true)
     setTimeout(() => setToast(false), 2000)
+  }
+
+  function handleToggleCompare(e, product) {
+    e.preventDefault()
+    e.stopPropagation()
+    setCompareIds(ids => {
+      if (ids.includes(product.id)) return ids.filter(id => id !== product.id)
+      if (ids.length >= 3) return ids
+      return [...ids, product.id]
+    })
+  }
+
+  function handleCompareNow() {
+    navigate(`/compare?ids=${compareIds.join(',')}`)
   }
 
   async function handleToggleWishlist(e, product) {
@@ -448,6 +464,26 @@ export default function Shop() {
                     >
                       Learn more →
                     </Link>
+                    <button
+                      onClick={e => handleToggleCompare(e, p)}
+                      title={compareIds.includes(p.id) ? 'Remove from comparison' : compareIds.length >= 3 ? 'Max 3 products' : 'Add to compare'}
+                      style={{
+                        marginLeft: 'auto',
+                        background: compareIds.includes(p.id) ? 'rgba(196,148,41,0.2)' : 'transparent',
+                        border: compareIds.includes(p.id) ? '1px solid var(--gold)' : '1px solid var(--border)',
+                        borderRadius: '6px',
+                        color: compareIds.includes(p.id) ? 'var(--gold)' : 'var(--text2)',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        padding: '4px 9px',
+                        cursor: compareIds.length >= 3 && !compareIds.includes(p.id) ? 'not-allowed' : 'pointer',
+                        opacity: compareIds.length >= 3 && !compareIds.includes(p.id) ? 0.4 : 1,
+                        transition: 'all 0.15s',
+                        letterSpacing: '0.2px',
+                      }}
+                    >
+                      {compareIds.includes(p.id) ? '✓ Compare' : '⊕ Compare'}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -471,6 +507,105 @@ export default function Shop() {
       )}
     </div>
     <SocialProofTicker />
+
+    {/* Floating compare bar */}
+    {compareIds.length > 0 && (
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        background: 'var(--navy2)',
+        borderTop: '1px solid rgba(196,148,41,0.5)',
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.5)',
+        padding: '14px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ color: 'var(--text2)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', flexShrink: 0 }}>
+          Compare ({compareIds.length}/3)
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flex: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          {compareIds.map(id => {
+            const p = products.find(x => x.id === id)
+            if (!p) return null
+            const emojis = { 1: '🐟', 2: '🦐', 3: '☀️', 4: '🪨', 5: '🌿', 6: '🧠' }
+            return (
+              <div key={id} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(196,148,41,0.1)',
+                border: '1px solid rgba(196,148,41,0.3)',
+                borderRadius: '8px',
+                padding: '6px 10px',
+              }}>
+                <span style={{ fontSize: '18px' }}>{emojis[id] || '💊'}</span>
+                <span style={{ color: 'var(--cream)', fontSize: '13px', fontWeight: '600', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                <button
+                  onClick={() => setCompareIds(ids => ids.filter(x => x !== id))}
+                  style={{ background: 'none', border: 'none', color: 'var(--text2)', fontSize: '15px', cursor: 'pointer', padding: '0', lineHeight: 1 }}
+                  title="Remove"
+                >
+                  ×
+                </button>
+              </div>
+            )
+          })}
+          {[...Array(3 - compareIds.length)].map((_, i) => (
+            <div key={i} style={{
+              width: '120px',
+              height: '36px',
+              border: '1px dashed var(--border)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text2)',
+              fontSize: '12px',
+            }}>
+              + Add product
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+          <button
+            onClick={() => setCompareIds([])}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text2)',
+              fontSize: '13px',
+              fontWeight: '600',
+              padding: '8px 16px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear
+          </button>
+          <button
+            onClick={handleCompareNow}
+            disabled={compareIds.length < 2}
+            style={{
+              background: compareIds.length >= 2 ? 'var(--gold)' : 'var(--border)',
+              border: 'none',
+              borderRadius: '8px',
+              color: compareIds.length >= 2 ? '#000' : 'var(--text2)',
+              fontSize: '13px',
+              fontWeight: '700',
+              padding: '8px 20px',
+              cursor: compareIds.length >= 2 ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Compare Now →
+          </button>
+        </div>
+      </div>
+    )}
     </>
   )
 }
