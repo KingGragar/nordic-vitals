@@ -444,6 +444,7 @@ export default function Overview() {
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
           { label: '💱 Exchange Rates',   desc: 'MLMT→NOK/EUR/USD rates for Tax + P&L reports', path: '/admin/exchange-rates' },
           { label: '📢 Banners',          desc: 'Promotional banners on Landing + Shop pages', path: '/admin/banners' },
+          { label: '🔮 Revenue Forecast', desc: 'Growth & commission sustainability projections', path: '/admin/forecast' },
         ].map(({ label, desc, path }) => (
           <div
             key={path}

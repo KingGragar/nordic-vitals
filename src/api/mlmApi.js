@@ -3240,3 +3240,106 @@ export async function deleteBanner(id) {
 export async function toggleBannerActive(id, active) {
   return updateBanner(id, { active })
 }
+
+// ── Revenue & Growth Forecast ─────────────────────────────────────────────────
+export async function getAdminForecast({ horizon = 6, recruitRate = 8, avgOrder = 950 } = {}) {
+  if (!MOCK) return request('GET', `/v1/mlm/admin/forecast?horizon=${horizon}&recruit_rate=${recruitRate}&avg_order=${avgOrder}`)
+
+  // Historical actuals (last 3 months, fixed)
+  const HISTORICAL = [
+    { month: 'May 26', members: 38, revenue: 28500,  commission: 8700,  cogs: 11400 },
+    { month: 'Jun 26', members: 44, revenue: 33200,  commission: 10100, cogs: 13280 },
+    { month: 'Jul 26', members: 52, revenue: 41600,  commission: 12650, cogs: 16640 },
+  ]
+
+  // Project forward from current state
+  const MULTIPLIERS = { conservative: 0.6, base: 1.0, optimistic: 1.6 }
+  const COGS_RATE   = 0.40  // 40% of revenue = COGS
+  const COMM_RATE   = { conservative: 0.28, base: 0.31, optimistic: 0.34 } // scaling with size
+
+  let cumulativeProfit = { conservative: -5000, base: -5000, optimistic: -5000 }
+
+  const months = []
+
+  // Include last 3 historical months
+  HISTORICAL.forEach(h => {
+    const scenarios = {}
+    Object.keys(MULTIPLIERS).forEach(sc => {
+      const commission = h.commission
+      const revenue    = h.revenue
+      const cogs       = h.cogs
+      const netProfit  = revenue - commission - cogs
+      cumulativeProfit[sc] += netProfit
+      scenarios[sc] = {
+        members:    h.members,
+        revenue,
+        commission,
+        cogs,
+        netProfit,
+        commRatio:  (commission / revenue) * 100,
+        cumProfit:  cumulativeProfit[sc],
+      }
+    })
+    months.push({ month: h.month, projected: false, scenarios })
+  })
+
+  // Generate projected months
+  let baseMembers = HISTORICAL[HISTORICAL.length - 1].members
+  const MONTH_NAMES = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+  let monthIdx = 0
+
+  for (let i = 0; i < horizon; i++) {
+    const label = MONTH_NAMES[monthIdx % 12] + ' ' + (26 + Math.floor((7 + monthIdx) / 12))
+    monthIdx++
+
+    const scenarios = {}
+    Object.entries(MULTIPLIERS).forEach(([sc, mult]) => {
+      const newMembers = Math.round(recruitRate * mult)
+      const scMembers  = baseMembers + newMembers * (sc === 'conservative' ? 0.6 : sc === 'optimistic' ? 1.6 : 1.0)
+      const ordersPerMember = 0.65 // avg orders per member per month
+      const revenue    = Math.round(scMembers * ordersPerMember * avgOrder * mult)
+      const cogs       = Math.round(revenue * COGS_RATE)
+      const commRateVal = COMM_RATE[sc] + (i * 0.003) // ratio grows slightly as team deepens
+      const commission = Math.round(revenue * Math.min(commRateVal, 0.55))
+      const netProfit  = revenue - commission - cogs
+      cumulativeProfit[sc] += netProfit
+      scenarios[sc] = {
+        members:   Math.round(scMembers),
+        revenue,
+        commission,
+        cogs,
+        netProfit,
+        commRatio: (commission / revenue) * 100,
+        cumProfit: cumulativeProfit[sc],
+      }
+    })
+
+    if (scenarios.base) baseMembers = scenarios.base.members
+
+    months.push({ month: label, projected: true, scenarios })
+  }
+
+  // KPI summary per scenario
+  const kpi = {}
+  Object.keys(MULTIPLIERS).forEach(sc => {
+    const projRows = months.filter(m => m.projected)
+    const totalRevenue    = projRows.reduce((s, m) => s + m.scenarios[sc].revenue, 0)
+    const totalCommission = projRows.reduce((s, m) => s + m.scenarios[sc].commission, 0)
+    const totalCogs       = projRows.reduce((s, m) => s + m.scenarios[sc].cogs, 0)
+    const avgCommRatio    = projRows.length ? projRows.reduce((s, m) => s + m.scenarios[sc].commRatio, 0) / projRows.length : 0
+    const startMembers    = HISTORICAL[0].members
+    const endMembers      = projRows.length ? projRows[projRows.length - 1].scenarios[sc].members : startMembers
+
+    // Find break-even month (cumulative profit turns positive)
+    let breakEvenMonth = null
+    let cum = HISTORICAL.reduce((s, h) => s + h.revenue - h.commission - h.cogs, -5000)
+    for (const m of projRows) {
+      cum += m.scenarios[sc].netProfit
+      if (cum >= 0 && !breakEvenMonth) { breakEvenMonth = m.month; break }
+    }
+
+    kpi[sc] = { totalRevenue, totalCommission, totalCogs, avgCommRatio, startMembers, endMembers, breakEvenMonth }
+  })
+
+  return { months, kpi }
+}
