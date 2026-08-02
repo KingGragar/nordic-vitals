@@ -3343,3 +3343,96 @@ export async function getAdminForecast({ horizon = 6, recruitRate = 8, avgOrder 
 
   return { months, kpi }
 }
+
+// ── Team Performance Report ───────────────────────────────────────────────────
+
+export async function getTeamReport(userId, period = 'month') {
+  if (MOCK) {
+    const all = ADMIN_MEMBERS
+    // Build downline via BFS from sponsor chain
+    const levelMap = {}
+    const queue = [{ id: userId, level: 0 }]
+    while (queue.length) {
+      const { id, level } = queue.shift()
+      const directs = all.filter(m => m.sponsor === id)
+      directs.forEach(m => {
+        if (levelMap[m.id] === undefined) {
+          levelMap[m.id] = level + 1
+          queue.push({ id: m.id, level: level + 1 })
+        }
+      })
+    }
+    const teamMembers = all
+      .filter(m => levelMap[m.id] !== undefined)
+      .map(m => ({ ...m, level: levelMap[m.id] }))
+
+    // Simulate period-based data deterministically
+    const PERIOD_MULT = { week: 0.25, month: 1, last_month: 0.9 }
+    const mult = PERIOD_MULT[period] ?? 1
+
+    // Team commissions: ~18% of team GV
+    const totalTeamGV = teamMembers.reduce((s, m) => s + m.gv, 0)
+    const teamCommissions = Math.round(totalTeamGV * 0.18 * mult)
+
+    // New recruits this period (simulate based on period)
+    const newRecruits = period === 'week' ? 1 : period === 'last_month' ? 3 : 2
+    const recruitNames = ['Ingrid Bakken', 'Tor Gresseth', 'Camilla Neset']
+    const recentRecruits = recruitNames.slice(0, newRecruits).map((name, i) => ({
+      id: `NV-10${300 + i}`, name,
+      joinedAgo: period === 'week' ? `${i + 2} days ago` : `${6 + i * 5} days ago`,
+      sponsor: teamMembers[i % teamMembers.length]?.name ?? 'Unknown',
+    }))
+
+    // Rank-ups this period
+    const rankUps = period === 'week' ? [] : [
+      { name: 'Mia Andersen', from: 'Unranked', to: 'Bronze', daysAgo: 8 },
+      ...(period === 'month' ? [{ name: 'Sigrid Voss', from: 'Bronze', to: 'Silver', daysAgo: 22 }] : []),
+    ]
+
+    // At-risk members (inactive or low PV)
+    const atRisk = teamMembers.filter(m => m.status === 'Inactive' || m.pv < 50)
+
+    // Top performers by GV
+    const topPerformers = [...teamMembers]
+      .sort((a, b) => b.gv - a.gv)
+      .slice(0, 5)
+      .map(m => ({
+        id: m.id, name: m.name, rank: m.rank, gv: Math.round(m.gv * mult),
+        pv: Math.round(m.pv * mult), level: m.level,
+        commEarned: Math.round(m.gv * 0.05 * mult),
+      }))
+
+    // Commission breakdown by bonus type
+    const commBreakdown = [
+      { type: 'Sponsor Bonus',       amount: Math.round(teamCommissions * 0.28), color: '#c9a84c' },
+      { type: 'Pairing Bonus',       amount: Math.round(teamCommissions * 0.38), color: '#3b82f6' },
+      { type: 'Level Commission',    amount: Math.round(teamCommissions * 0.22), color: '#22c55e' },
+      { type: 'Override / Pool',     amount: Math.round(teamCommissions * 0.12), color: '#a78bfa' },
+    ]
+
+    // Weekly sparkline (8 weeks of commission flow, ending now)
+    const weeklyData = Array.from({ length: 8 }, (_, i) => ({
+      week: `W${i + 1}`,
+      commissions: Math.round((teamCommissions / 4) * (0.6 + Math.sin(i * 0.9) * 0.4 + i * 0.05)),
+      recruits: i === 3 ? 1 : i === 6 ? 1 : 0,
+    }))
+
+    return {
+      period,
+      teamSize: teamMembers.length,
+      activeCount: teamMembers.filter(m => m.status === 'Active').length,
+      totalTeamGV: Math.round(totalTeamGV * mult),
+      totalTeamPV: Math.round(teamMembers.reduce((s, m) => s + m.pv, 0) * mult),
+      teamCommissions,
+      newRecruits: recentRecruits.length,
+      recentRecruits,
+      rankUps,
+      atRisk,
+      topPerformers,
+      commBreakdown,
+      weeklyData,
+    }
+  }
+  const params = new URLSearchParams({ period })
+  return request('GET', `/v1/mlm/team-report/${userId}?${params}`)
+}

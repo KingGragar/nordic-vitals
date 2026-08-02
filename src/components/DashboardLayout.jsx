@@ -19,6 +19,7 @@ const navSections = [
       { to: '/dashboard/challenges',         label: '🏅 Challenges' },
       { to: '/dashboard/network-analytics',  label: '📡 Network Analytics' },
       { to: '/dashboard/team-broadcast',    label: '📣 Team Broadcast' },
+      { to: '/dashboard/team-report',      label: '📊 Team Report' },
     ],
   },
   {
