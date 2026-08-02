@@ -11,6 +11,7 @@ import {
   BUNDLES,
   PRODUCT_LOOKUP, ADMIN_ORDER_NOTES,
   CHALLENGES, CHALLENGE_LEADERBOARDS,
+  EXCHANGE_RATES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -1980,7 +1981,7 @@ export async function getWebhookLog() {
 export async function getTaxSummary(userId, year) {
   if (MOCK) {
     await new Promise(r => setTimeout(r, 400))
-    const NOK_RATE = 1.15 // 1 MLMT = 1.15 NOK (illustrative)
+    const NOK_RATE = readCurrentMlmtToNok()
     const allYears = {
       2024: [
         { type: 'Pairing Bonus',        count: 18, amount: 5850 },
@@ -3074,4 +3075,66 @@ export async function getMyChallenges(userId) {
     })
   }
   return request('GET', `/v1/mlm/member/${userId}/challenges`)
+}
+
+// ── Exchange Rates ────────────────────────────────────────────────────────────
+const RATES_KEY = 'nv_exchange_rates'
+
+function loadRates() {
+  try {
+    const stored = localStorage.getItem(RATES_KEY)
+    if (stored) return JSON.parse(stored)
+  } catch {}
+  return EXCHANGE_RATES
+}
+
+function saveRates(data) {
+  try { localStorage.setItem(RATES_KEY, JSON.stringify(data)) } catch {}
+}
+
+export async function getExchangeRates() {
+  await delay(200)
+  if (!MOCK) return request('GET', '/v1/mlm/admin/exchange-rates')
+  return loadRates()
+}
+
+export async function updateExchangeRate({ mlmt_nok, mlmt_eur, mlmt_usd, note, effective_date }) {
+  await delay(300)
+  if (!MOCK) return request('POST', '/v1/mlm/admin/exchange-rates', { mlmt_nok, mlmt_eur, mlmt_usd, note, effective_date })
+  const stored = loadRates()
+  const now = new Date().toISOString()
+  const id = `er-${Date.now()}`
+  const newEntry = {
+    id,
+    effective_date: effective_date || now.slice(0, 10),
+    mlmt_nok: parseFloat(mlmt_nok),
+    mlmt_eur: parseFloat(mlmt_eur),
+    mlmt_usd: parseFloat(mlmt_usd),
+    changed_by: 'Gary',
+    note: note || '',
+  }
+  const updated = {
+    current: {
+      mlmt_nok: parseFloat(mlmt_nok),
+      mlmt_eur: parseFloat(mlmt_eur),
+      mlmt_usd: parseFloat(mlmt_usd),
+      updated_at: now,
+      updated_by: 'Gary',
+      source: 'manual',
+    },
+    history: [newEntry, ...stored.history].slice(0, 20),
+  }
+  saveRates(updated)
+  return updated
+}
+
+export function readCurrentMlmtToNok() {
+  try {
+    const stored = localStorage.getItem(RATES_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      return parsed.current?.mlmt_nok ?? 1.15
+    }
+  } catch {}
+  return 1.15
 }

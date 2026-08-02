@@ -442,6 +442,7 @@ export default function Overview() {
           { label: '📥 Bulk Import',     desc: 'CSV member import for launch seeding', path: '/admin/import' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
+          { label: '💱 Exchange Rates',   desc: 'MLMT→NOK/EUR/USD rates for Tax + P&L reports', path: '/admin/exchange-rates' },
         ].map(({ label, desc, path }) => (
           <div
             key={path}

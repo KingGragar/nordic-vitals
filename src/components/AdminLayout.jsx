@@ -35,6 +35,7 @@ const navLinks = [
   { to: '/admin/campaigns',       label: '📧 Email Campaigns' },
   { to: '/admin/notifications',   label: '🔔 Notification Broadcast' },
   { to: '/admin/tokens',          label: '🪙 Token Management' },
+  { to: '/admin/exchange-rates',  label: '💱 Exchange Rates' },
   { to: '/admin/roles',           label: '🔐 Roles & Permissions' },
   { to: '/admin/compliance',      label: '⚖️ Compliance' },
   { to: '/admin/kyc',             label: '🔏 KYC Queue' },

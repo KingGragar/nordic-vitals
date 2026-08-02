@@ -2149,3 +2149,21 @@ export const CHALLENGE_LEADERBOARDS = {
     { rank: 5, member_id: 'NV-10006', name: 'Marte H.',member_rank: 'bronze', value: 760,  progress_pct: 76 },
   ],
 }
+
+export const EXCHANGE_RATES = {
+  current: {
+    mlmt_nok: 1.15,
+    mlmt_eur: 0.10,
+    mlmt_usd: 0.11,
+    updated_at: '2026-08-01T09:00:00Z',
+    updated_by: 'Gary',
+    source: 'manual',
+  },
+  history: [
+    { id: 'er-001', effective_date: '2026-08-01', mlmt_nok: 1.15, mlmt_eur: 0.10, mlmt_usd: 0.11, changed_by: 'Gary', note: 'Pre-launch baseline rate' },
+    { id: 'er-002', effective_date: '2026-07-15', mlmt_nok: 1.10, mlmt_eur: 0.095, mlmt_usd: 0.105, changed_by: 'Bjørn', note: 'Adjusted after token release' },
+    { id: 'er-003', effective_date: '2026-07-01', mlmt_nok: 1.00, mlmt_eur: 0.087, mlmt_usd: 0.096, changed_by: 'Bjørn', note: 'Initial listing rate' },
+    { id: 'er-004', effective_date: '2026-06-15', mlmt_nok: 0.90, mlmt_eur: 0.079, mlmt_usd: 0.087, changed_by: 'Bjørn', note: 'Pre-listing estimate' },
+    { id: 'er-005', effective_date: '2026-06-01', mlmt_nok: 0.85, mlmt_eur: 0.074, mlmt_usd: 0.082, changed_by: 'Gary', note: 'Beta test rate' },
+  ],
+}
