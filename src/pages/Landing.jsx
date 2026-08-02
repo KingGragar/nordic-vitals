@@ -4,6 +4,7 @@ import { PRODUCTS } from '../data/mock'
 import { getVpProducts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import SocialProofTicker from '../components/SocialProofTicker'
+import PromoBanner from '../components/PromoBanner'
 import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
@@ -30,6 +31,7 @@ export default function Landing() {
   return (
     <>
     <Navbar />
+    <PromoBanner page="landing" />
     <div style={{ background: 'var(--navy)', color: 'var(--text)' }}>
 
       {/* ── HERO ── */}

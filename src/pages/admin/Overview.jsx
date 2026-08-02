@@ -443,6 +443,7 @@ export default function Overview() {
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
           { label: '💱 Exchange Rates',   desc: 'MLMT→NOK/EUR/USD rates for Tax + P&L reports', path: '/admin/exchange-rates' },
+          { label: '📢 Banners',          desc: 'Promotional banners on Landing + Shop pages', path: '/admin/banners' },
         ].map(({ label, desc, path }) => (
           <div
             key={path}

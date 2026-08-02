@@ -12,6 +12,7 @@ import {
   PRODUCT_LOOKUP, ADMIN_ORDER_NOTES,
   CHALLENGES, CHALLENGE_LEADERBOARDS,
   EXCHANGE_RATES,
+  BANNERS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3137,4 +3138,73 @@ export function readCurrentMlmtToNok() {
     }
   } catch {}
   return 1.15
+}
+
+// ── Storefront Banners ────────────────────────────────────────────────────────
+const BANNERS_KEY = 'nv_banners'
+
+function _loadBanners() {
+  try {
+    const s = localStorage.getItem(BANNERS_KEY)
+    if (s) return JSON.parse(s)
+  } catch {}
+  return BANNERS
+}
+
+function _saveBanners(data) {
+  try { localStorage.setItem(BANNERS_KEY, JSON.stringify(data)) } catch {}
+}
+
+export async function getAdminBanners() {
+  await delay(180)
+  if (!MOCK) return request('GET', '/v1/mlm/admin/banners')
+  return _loadBanners()
+}
+
+export async function getActiveBanners(page) {
+  await delay(100)
+  if (!MOCK) return request('GET', `/v1/mlm/banners/active?page=${page}`)
+  const today = new Date().toISOString().slice(0, 10)
+  const all = _loadBanners()
+  return all.filter(b =>
+    b.active &&
+    (!b.start_date || b.start_date <= today) &&
+    (!b.end_date   || b.end_date   >= today) &&
+    (b.pages.includes('all') || b.pages.includes(page))
+  )
+}
+
+export async function createBanner(data) {
+  await delay(250)
+  if (!MOCK) return request('POST', '/v1/mlm/admin/banners', data)
+  const banners = _loadBanners()
+  const newBanner = {
+    id: `ban-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    dismiss_count: 0,
+    impression_count: 0,
+    ...data,
+  }
+  _saveBanners([newBanner, ...banners])
+  return newBanner
+}
+
+export async function updateBanner(id, data) {
+  await delay(220)
+  if (!MOCK) return request('PATCH', `/v1/mlm/admin/banners/${id}`, data)
+  const banners = _loadBanners().map(b => b.id === id ? { ...b, ...data } : b)
+  _saveBanners(banners)
+  return banners.find(b => b.id === id)
+}
+
+export async function deleteBanner(id) {
+  await delay(200)
+  if (!MOCK) return request('DELETE', `/v1/mlm/admin/banners/${id}`)
+  const banners = _loadBanners().filter(b => b.id !== id)
+  _saveBanners(banners)
+  return { ok: true }
+}
+
+export async function toggleBannerActive(id, active) {
+  return updateBanner(id, { active })
 }

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { getVpProducts, getWishlist, addToWishlist, removeFromWishlist, getBundles } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import SocialProofTicker from '../components/SocialProofTicker'
+import PromoBanner from '../components/PromoBanner'
 import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
@@ -108,6 +109,7 @@ export default function Shop() {
   return (
     <>
     <Navbar />
+    <PromoBanner page="shop" />
     <div style={{ background: 'var(--navy)', minHeight: '100vh', padding: '48px 24px 80px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 

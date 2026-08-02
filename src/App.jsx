@@ -83,6 +83,7 @@ const AdminBundles            = lazy(() => import('./pages/admin/Bundles'))
 const AdminReviews            = lazy(() => import('./pages/admin/Reviews'))
 const AdminChallenges         = lazy(() => import('./pages/admin/Challenges'))
 const AdminExchangeRates      = lazy(() => import('./pages/admin/ExchangeRates'))
+const AdminBanners            = lazy(() => import('./pages/admin/Banners'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -210,6 +211,7 @@ function AppRoutes() {
         <Route path="/admin/reviews"          element={<RequireAuth role="admin"><AdminReviews /></RequireAuth>} />
         <Route path="/admin/challenges"       element={<RequireAuth role="admin"><AdminChallenges /></RequireAuth>} />
         <Route path="/admin/exchange-rates"   element={<RequireAuth role="admin"><AdminExchangeRates /></RequireAuth>} />
+        <Route path="/admin/banners"          element={<RequireAuth role="admin"><AdminBanners /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>
