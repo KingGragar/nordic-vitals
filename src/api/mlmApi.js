@@ -276,6 +276,38 @@ export async function getOrders(userId) {
   return request('GET', `/api/viking-peptides/orders?user_id=${userId}`)
 }
 
+export async function getOrderDetail(orderId) {
+  if (MOCK) {
+    const order = ORDERS.find(o => o.id === orderId)
+    if (!order) throw new Error('Order not found')
+    const lineItems = order.items.map(str => {
+      const m = str.match(/^(.+?)\s*[×x](\d+)$/)
+      const name = m ? m[1].trim() : str.trim()
+      const qty  = m ? parseInt(m[2]) : 1
+      const lk   = PRODUCT_LOOKUP[name] || { price: Math.round(order.total / order.items.length), pv: 0 }
+      return { name, qty, unitPrice: lk.price, pv: lk.pv, total: lk.price * qty }
+    })
+    const subtotalExMva = Math.round(order.total / 1.25)
+    const mvaAmount     = order.total - subtotalExMva
+    return {
+      ...order,
+      lineItems,
+      subtotalExMva,
+      mvaAmount,
+      mvaRate: 25,
+      payment: { method: 'Bankoverføring', ref: `BT-${order.id.replace('NV-ORD-', '')}` },
+      shipping: { name: 'Lars Eriksen', address: 'Storgata 14', city: 'Oslo', postalCode: '0182', country: 'Norge' },
+      billing:  { name: 'Lars Eriksen', memberId: 'NV-10042', address: 'Storgata 14', city: 'Oslo', postalCode: '0182', country: 'Norge' },
+      company: {
+        name: 'Nordic Vitals AS', orgNo: '925 812 456',
+        address: 'Drammensveien 40', city: 'Oslo', postalCode: '0255', country: 'Norge',
+        email: 'support@nordicvitals.no', vatNo: 'NO 925 812 456 MVA',
+      },
+    }
+  }
+  return request('GET', `/api/viking-peptides/orders/${orderId}`)
+}
+
 export async function placeOrder({ userId, items, shippingAddress, orderRef, promoCode, discount, total: orderTotal }) {
   const total = orderTotal ?? items.reduce((s, i) => s + i.price * i.qty, 0)
   const pv    = items.reduce((s, i) => s + (i.pv || i.price) * i.qty, 0)

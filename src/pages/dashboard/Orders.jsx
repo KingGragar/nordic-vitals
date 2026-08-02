@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import DashboardLayout from '../../components/DashboardLayout'
 import { useAuth } from '../../context/AuthContext'
 import { getOrders } from '../../api/mlmApi'
@@ -7,13 +8,13 @@ const STATUS_BADGE = {
   Delivered:  'badge-green',
   Shipped:    'badge-blue',
   Processing: 'badge-yellow',
+  Cancelled:  'badge-red',
 }
 
 export default function Orders() {
   const { user } = useAuth()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
-  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     getOrders(user?.memberId)
@@ -22,20 +23,10 @@ export default function Orders() {
       .finally(() => setLoading(false))
   }, [user?.memberId])
 
-  function showToast(msg) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 2500)
-  }
-
-  function handleInvoiceDownload(e, orderId) {
-    e.preventDefault()
-    showToast(`Invoice ${orderId} downloaded`)
-  }
-
   return (
     <DashboardLayout>
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--cream)', marginBottom: '24px' }}>
-        My Orders
+        Mine ordrer
       </h1>
 
       <div style={{
@@ -47,32 +38,39 @@ export default function Orders() {
         <table>
           <thead>
             <tr>
-              <th>Order #</th>
-              <th>Date</th>
-              <th>Items</th>
-              <th>Total</th>
+              <th>Ordrenr.</th>
+              <th>Dato</th>
+              <th>Varer</th>
+              <th>Totalt</th>
               <th>Status</th>
-              <th>Invoice</th>
+              <th>Faktura</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text2)', padding: '40px', fontSize: '14px' }}>
-                  Loading orders…
+                  Laster ordrer…
                 </td>
               </tr>
             ) : orders.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text2)', padding: '40px' }}>
                   <div style={{ fontSize: '32px', marginBottom: '12px' }}>📦</div>
-                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--cream)', marginBottom: '6px' }}>No orders yet</div>
-                  <div style={{ fontSize: '13px' }}>Your Viking Peptides orders will appear here once placed.</div>
+                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--cream)', marginBottom: '6px' }}>Ingen ordrer ennå</div>
+                  <div style={{ fontSize: '13px' }}>Viking Peptides-ordrene dine vises her etter kjøp.</div>
                 </td>
               </tr>
             ) : orders.map(order => (
               <tr key={order.id}>
-                <td style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '13px' }}>{order.id}</td>
+                <td>
+                  <Link
+                    to={`/dashboard/orders/${order.id}`}
+                    style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '13px', textDecoration: 'none' }}
+                  >
+                    {order.id}
+                  </Link>
+                </td>
                 <td style={{ color: 'var(--text2)', fontSize: '13px' }}>{order.date}</td>
                 <td style={{ fontSize: '13px', color: 'var(--text)', maxWidth: '240px' }}>
                   {order.items.join(', ')}
@@ -86,20 +84,19 @@ export default function Orders() {
                   </span>
                 </td>
                 <td>
-                  <button
+                  <Link
+                    to={`/dashboard/orders/${order.id}`}
                     className="btn btn-outline btn-sm"
-                    onClick={e => handleInvoiceDownload(e, order.id)}
+                    style={{ textDecoration: 'none', display: 'inline-block' }}
                   >
-                    Download PDF
-                  </button>
+                    Vis faktura
+                  </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {toast && <div className="toast">{toast}</div>}
     </DashboardLayout>
   )
 }
