@@ -13,6 +13,8 @@ import {
   CHALLENGES, CHALLENGE_LEADERBOARDS,
   EXCHANGE_RATES,
   BANNERS,
+  CONVERSATIONS,
+  DIRECT_MESSAGES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3576,4 +3578,156 @@ export async function getMemberForecast(userId, { horizon = 6, recruitsPerMonth 
     actions,
     scenarios: SCENARIOS,
   }
+}
+
+// ── Direct Messages ───────────────────────────────────────────────────────────
+
+let _convState = null
+let _msgState  = null
+
+function initMsgState() {
+  if (_convState) return
+  const saved = localStorage.getItem('nv_conversations')
+  const savedMsgs = localStorage.getItem('nv_direct_messages')
+  _convState = saved     ? JSON.parse(saved)     : JSON.parse(JSON.stringify(CONVERSATIONS))
+  _msgState  = savedMsgs ? JSON.parse(savedMsgs) : JSON.parse(JSON.stringify(DIRECT_MESSAGES))
+}
+
+function saveMsgState() {
+  localStorage.setItem('nv_conversations', JSON.stringify(_convState))
+  localStorage.setItem('nv_direct_messages', JSON.stringify(_msgState))
+}
+
+export async function getConversations(userId) {
+  if (MOCK) {
+    initMsgState()
+    const convs = _convState
+      .filter(c => c.participant_ids.includes(userId) || c.participant_ids.includes('admin'))
+      .sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at))
+    return convs.map(c => ({
+      ...c,
+      unread_count: (c.unread_by && c.unread_by[userId]) || 0,
+      partner: c.participants.find(p => p.id !== userId) || c.participants[0],
+    }))
+  }
+  return request('GET', `/v1/mlm/messages/${userId}/conversations`)
+}
+
+export async function getConversation(conversationId, userId) {
+  if (MOCK) {
+    initMsgState()
+    const conv = _convState.find(c => c.id === conversationId)
+    const messages = (_msgState[conversationId] || []).sort(
+      (a, b) => new Date(a.sent_at) - new Date(b.sent_at)
+    )
+    return { conv, messages }
+  }
+  return request('GET', `/v1/mlm/messages/${userId}/conversations/${conversationId}`)
+}
+
+export async function sendDirectMessage(conversationId, senderId, senderName, body) {
+  if (MOCK) {
+    initMsgState()
+    const msg = {
+      id:              `msg-${Date.now()}`,
+      conversation_id: conversationId,
+      sender_id:       senderId,
+      sender_name:     senderName,
+      body,
+      sent_at:         new Date().toISOString(),
+      read_by:         [senderId],
+    }
+    if (!_msgState[conversationId]) _msgState[conversationId] = []
+    _msgState[conversationId].push(msg)
+    const conv = _convState.find(c => c.id === conversationId)
+    if (conv) {
+      conv.last_message    = body.slice(0, 80)
+      conv.last_message_at = msg.sent_at
+      conv.participant_ids.forEach(pid => {
+        if (pid !== senderId) {
+          conv.unread_by = conv.unread_by || {}
+          conv.unread_by[pid] = (conv.unread_by[pid] || 0) + 1
+        }
+      })
+    }
+    saveMsgState()
+    return msg
+  }
+  return request('POST', `/v1/mlm/messages/${senderId}/conversations/${conversationId}/send`, { body })
+}
+
+export async function markConversationRead(conversationId, userId) {
+  if (MOCK) {
+    initMsgState()
+    const conv = _convState.find(c => c.id === conversationId)
+    if (conv && conv.unread_by) conv.unread_by[userId] = 0
+    const msgs = _msgState[conversationId] || []
+    msgs.forEach(m => { if (!m.read_by.includes(userId)) m.read_by.push(userId) })
+    saveMsgState()
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/messages/${userId}/conversations/${conversationId}/read`)
+}
+
+export async function startConversation(userId, userName, partnerId, partnerName, partnerRole, subject, body) {
+  if (MOCK) {
+    initMsgState()
+    const convId = `conv-${Date.now()}`
+    const newConv = {
+      id:   convId,
+      participant_ids: [userId, partnerId],
+      participants: [
+        { id: userId,    name: userName,    role: 'member',     avatar: userName.split(' ').map(w => w[0]).join('').slice(0,2) },
+        { id: partnerId, name: partnerName, role: partnerRole,  avatar: partnerName.split(' ').map(w => w[0]).join('').slice(0,2) },
+      ],
+      subject,
+      last_message:    body.slice(0, 80),
+      last_message_at: new Date().toISOString(),
+      unread_by:       { [partnerId]: 1 },
+      created_at:      new Date().toISOString(),
+    }
+    _convState.unshift(newConv)
+    _msgState[convId] = [{
+      id:              `msg-${Date.now()}`,
+      conversation_id: convId,
+      sender_id:       userId,
+      sender_name:     userName,
+      body,
+      sent_at:         new Date().toISOString(),
+      read_by:         [userId],
+    }]
+    saveMsgState()
+    return newConv
+  }
+  return request('POST', `/v1/mlm/messages/${userId}/conversations`, { partner_id: partnerId, subject, body })
+}
+
+// Admin messaging
+export async function getAdminConversations(search = '') {
+  if (MOCK) {
+    initMsgState()
+    let convs = JSON.parse(JSON.stringify(_convState))
+      .sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at))
+    if (search) {
+      const q = search.toLowerCase()
+      convs = convs.filter(c =>
+        c.participants.some(p => p.name.toLowerCase().includes(q)) ||
+        c.subject.toLowerCase().includes(q)
+      )
+    }
+    return convs.map(c => ({
+      ...c,
+      unread_count: Object.values(c.unread_by || {}).reduce((s, v) => s + v, 0),
+      member: c.participants.find(p => p.role === 'member') || c.participants[0],
+    }))
+  }
+  return request('GET', '/v1/mlm/admin/messages')
+}
+
+export async function sendAdminMessage(conversationId, body) {
+  return sendDirectMessage(conversationId, 'admin', 'Nordic Vitals', body)
+}
+
+export async function startAdminConversation(memberId, memberName, subject, body) {
+  return startConversation('admin', 'Nordic Vitals', memberId, memberName, 'member', subject, body)
 }

@@ -2218,3 +2218,137 @@ export const BANNERS = [
     impression_count: 0,
   },
 ]
+
+// ── Direct Messages ───────────────────────────────────────────────────────────
+
+export const CONVERSATIONS = [
+  {
+    id: 'conv-001',
+    participant_ids: ['NV-10042', 'NV-10001'], // member ↔ sponsor
+    participants: [
+      { id: 'NV-10042', name: 'Lars Eriksen',  role: 'member',  avatar: 'LE' },
+      { id: 'NV-10001', name: 'Anna Bjørnsen', role: 'member',  avatar: 'AB' },
+    ],
+    subject: 'Tips for recruiting in Oslo',
+    last_message: 'Takk, det var svært nyttig! Jeg prøver dette i helgen.',
+    last_message_at: '2026-08-02T16:45:00Z',
+    unread_by: {},
+    created_at: '2026-07-30T09:00:00Z',
+  },
+  {
+    id: 'conv-002',
+    participant_ids: ['NV-10042', 'admin'],
+    participants: [
+      { id: 'NV-10042', name: 'Lars Eriksen',   role: 'member', avatar: 'LE' },
+      { id: 'admin',    name: 'Nordic Vitals',   role: 'admin',  avatar: 'NV' },
+    ],
+    subject: 'Autoship and commission question',
+    last_message: "Great question! Your autoship PV counts fully toward your monthly commission run.",
+    last_message_at: '2026-08-01T11:20:00Z',
+    unread_by: { 'NV-10042': 1 },
+    created_at: '2026-07-31T14:00:00Z',
+  },
+  {
+    id: 'conv-003',
+    participant_ids: ['NV-10042', 'NV-10007'],
+    participants: [
+      { id: 'NV-10042', name: 'Lars Eriksen',   role: 'member', avatar: 'LE' },
+      { id: 'NV-10007', name: 'Ingrid Hauge',   role: 'member', avatar: 'IH' },
+    ],
+    subject: 'Welcome to the team!',
+    last_message: 'Gleder meg til å komme i gang! Hva er det første jeg bør gjøre?',
+    last_message_at: '2026-08-02T08:10:00Z',
+    unread_by: { 'NV-10042': 2 },
+    created_at: '2026-08-02T07:55:00Z',
+  },
+]
+
+export const DIRECT_MESSAGES = {
+  'conv-001': [
+    {
+      id: 'msg-001-1',
+      conversation_id: 'conv-001',
+      sender_id: 'NV-10042',
+      sender_name: 'Lars Eriksen',
+      body: 'Hei Anna! Jeg lurte på om du hadde noen gode tips for å rekruttere folk i Oslo-området. Har du erfaring fra den regionen?',
+      sent_at: '2026-07-30T09:00:00Z',
+      read_by: ['NV-10042', 'NV-10001'],
+    },
+    {
+      id: 'msg-001-2',
+      conversation_id: 'conv-001',
+      sender_id: 'NV-10001',
+      sender_name: 'Anna Bjørnsen',
+      body: 'Hei Lars! Ja, absolutt! Jeg bruker mye Facebook-grupper for lokale helse-interesserte, og arrangerer små informasjonsmøter hjemme. De uformelle settingene fungerer veldig bra. Prøv å fokusere på produktopplevelsen, ikke kommisjonssystemet, i første møte.',
+      sent_at: '2026-07-30T10:30:00Z',
+      read_by: ['NV-10042', 'NV-10001'],
+    },
+    {
+      id: 'msg-001-3',
+      conversation_id: 'conv-001',
+      sender_id: 'NV-10042',
+      sender_name: 'Lars Eriksen',
+      body: 'Det gir mye mening! Har du noen ferdig-lagde presentasjonsmaterialer jeg kan bruke? Jeg så at det lå noe i Resources-seksjonen, men er usikker på hva som er best å starte med.',
+      sent_at: '2026-08-02T15:50:00Z',
+      read_by: ['NV-10042', 'NV-10001'],
+    },
+    {
+      id: 'msg-001-4',
+      conversation_id: 'conv-001',
+      sender_id: 'NV-10001',
+      sender_name: 'Anna Bjørnsen',
+      body: 'Start med "New Member Guide" og "Rank Roadmap" fra Resources — de er korte og lette å forstå. For møter bruker jeg alltid produktbrosjyrene for Omega-3 og D3+K2, de er de mest populære produktene. Lykke til i helgen!',
+      sent_at: '2026-08-02T16:15:00Z',
+      read_by: ['NV-10042', 'NV-10001'],
+    },
+    {
+      id: 'msg-001-5',
+      conversation_id: 'conv-001',
+      sender_id: 'NV-10042',
+      sender_name: 'Lars Eriksen',
+      body: 'Takk, det var svært nyttig! Jeg prøver dette i helgen.',
+      sent_at: '2026-08-02T16:45:00Z',
+      read_by: ['NV-10042', 'NV-10001'],
+    },
+  ],
+  'conv-002': [
+    {
+      id: 'msg-002-1',
+      conversation_id: 'conv-002',
+      sender_id: 'NV-10042',
+      sender_name: 'Lars Eriksen',
+      body: 'Hei! Jeg har satt opp autoship for Omega-3 og D3+K2. Teller PV fra autoship med i månedskommisjonene?',
+      sent_at: '2026-07-31T14:00:00Z',
+      read_by: ['NV-10042', 'admin'],
+    },
+    {
+      id: 'msg-002-2',
+      conversation_id: 'conv-002',
+      sender_id: 'admin',
+      sender_name: 'Nordic Vitals',
+      body: "Great question! Your autoship PV counts fully toward your monthly commission run. Autoship orders are processed on the 1st of each month and the PV is credited to the same commission period. You'll see it reflected in your Earnings Dashboard after the monthly run.",
+      sent_at: '2026-08-01T11:20:00Z',
+      read_by: ['admin'],
+    },
+  ],
+  'conv-003': [
+    {
+      id: 'msg-003-1',
+      conversation_id: 'conv-003',
+      sender_id: 'NV-10042',
+      sender_name: 'Lars Eriksen',
+      body: 'Hei Ingrid, velkommen til teamet! Veldig glad for å ha deg med. Jeg er sponsoren din og er her for å hjelpe deg å komme godt i gang.',
+      sent_at: '2026-08-02T07:55:00Z',
+      read_by: ['NV-10042', 'NV-10007'],
+    },
+    {
+      id: 'msg-003-2',
+      conversation_id: 'conv-003',
+      sender_id: 'NV-10007',
+      sender_name: 'Ingrid Hauge',
+      body: 'Hei Lars! Tusen takk, jeg er veldig spent! Gleder meg til å komme i gang! Hva er det første jeg bør gjøre?',
+      sent_at: '2026-08-02T08:10:00Z',
+      read_by: ['NV-10007'],
+    },
+  ],
+}

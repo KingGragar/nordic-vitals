@@ -50,6 +50,7 @@ const navSections = [
   {
     heading: 'Community',
     links: [
+      { to: '/dashboard/messages',       label: '✉️ Messages' },
       { to: '/dashboard/announcements',  label: '📣 Announcements' },
       { to: '/dashboard/events',         label: '🎙️ Events' },
       { to: '/dashboard/training',       label: '🎓 Training' },

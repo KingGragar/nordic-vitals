@@ -428,6 +428,7 @@ export default function Overview() {
           { label: '📣 Announcements',    desc: 'Broadcast messages to members',  path: '/admin/announcements' },
           { label: '🔍 Audit Log',       desc: 'Immutable record of all actions', path: '/admin/audit-log' },
           { label: '🎫 Support',         desc: 'Manage member help tickets',      path: '/admin/support' },
+          { label: '💬 Direct Messages', desc: 'One-to-one conversations with members', path: '/admin/messages' },
           { label: '✉️ Email Templates',  desc: 'Edit transactional email templates', path: '/admin/email-templates' },
           { label: '📧 Email Campaigns',  desc: 'Targeted bulk email blasts to segments', path: '/admin/campaigns' },
           { label: '🔔 Notification Broadcast', desc: 'Send in-app notifications to segments', path: '/admin/notifications' },
