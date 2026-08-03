@@ -846,6 +846,32 @@ export async function addOrderNote(orderId, note) {
   return request('POST', `/api/viking-peptides/admin/orders/${orderId}/notes`, { note })
 }
 
+export async function createManualOrder({ memberId, memberName, items, shippingAddress, paymentMethod }) {
+  if (MOCK) {
+    if (!_adminOrders) _adminOrders = [...ADMIN_ORDERS]
+    const maxNum = _adminOrders.reduce((m, o) => Math.max(m, parseInt(o.id.replace('NV-ORD-', '')) || 1000), 1000)
+    const orderId = `NV-ORD-${maxNum + 1}`
+    const total = items.reduce((s, i) => s + i.price * i.qty, 0)
+    const pv    = items.reduce((s, i) => s + i.pv   * i.qty, 0)
+    const order = {
+      id: orderId,
+      memberId,
+      member: memberName,
+      date: new Date().toISOString().slice(0, 10),
+      items: items.map(i => `${i.name} ×${i.qty}`),
+      total,
+      pv,
+      status: 'Pending',
+      method: paymentMethod,
+      shippingCountry: shippingAddress.country,
+      _shipping: shippingAddress,
+    }
+    _adminOrders = [order, ..._adminOrders]
+    return { order }
+  }
+  return request('POST', '/api/viking-peptides/admin/orders', { memberId, memberName, items, shippingAddress, paymentMethod })
+}
+
 // ── Withdrawals ───────────────────────────────────────────────────────────────
 
 let _withdrawalSeq = 91

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import AdminLayout from '../../components/AdminLayout'
-import { getAdminOrders, updateOrderStatus, getAdminOrderDetail, addOrderNote } from '../../api/mlmApi'
+import { getAdminOrders, updateOrderStatus, getAdminOrderDetail, addOrderNote, createManualOrder, getAdminMembers } from '../../api/mlmApi'
 
 const PAGE_SIZE = 20
 const ALL_STATUSES = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']
@@ -275,6 +275,311 @@ function OrderDetailDrawer({ orderId, onClose, onStatusChange }) {
   )
 }
 
+const MANUAL_ORDER_PRODUCTS = [
+  { id: 1, name: 'Omega-3 Arctic Pure',     price: 349, memberPrice: 279, pv: 35 },
+  { id: 2, name: 'Nordic Collagen Complex', price: 429, memberPrice: 339, pv: 43 },
+  { id: 3, name: 'Vitamin D3 + K2',         price: 249, memberPrice: 199, pv: 25 },
+  { id: 4, name: 'Arctic Shilajit',         price: 599, memberPrice: 479, pv: 60 },
+  { id: 5, name: 'Nordic Greens Blend',     price: 379, memberPrice: 299, pv: 38 },
+  { id: 6, name: 'Focus Formula',           price: 459, memberPrice: 369, pv: 46 },
+]
+
+const PAYMENT_METHODS = ['Bank Transfer', 'Card', 'Vipps', 'Klarna', 'Cash on Delivery']
+const COUNTRIES = ['Norway', 'Sweden', 'Denmark', 'Finland', 'Germany', 'Netherlands', 'United Kingdom']
+const STEPS = ['Member', 'Products', 'Shipping', 'Payment', 'Confirm']
+
+function NewOrderModal({ onClose, onCreated }) {
+  const [step, setStep] = useState(0)
+  const [memberSearch, setMemberSearch] = useState('')
+  const [allMembers, setAllMembers] = useState([])
+  const [selectedMember, setSelectedMember] = useState(null)
+  const [quantities, setQuantities] = useState({})
+  const [shipping, setShipping] = useState({ name: '', address: '', city: '', postcode: '', country: 'Norway' })
+  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    getAdminMembers().then(d => setAllMembers(Array.isArray(d) ? d : (d.members || [])))
+  }, [])
+
+  const filteredMembers = useMemo(() => {
+    const q = memberSearch.toLowerCase()
+    const list = q
+      ? allMembers.filter(m => m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q))
+      : allMembers
+    return list.slice(0, 8)
+  }, [allMembers, memberSearch])
+
+  function setQty(id, delta) {
+    setQuantities(prev => {
+      const next = Math.max(0, (prev[id] || 0) + delta)
+      const copy = { ...prev }
+      if (next === 0) delete copy[id]
+      else copy[id] = next
+      return copy
+    })
+  }
+
+  const cartItems = MANUAL_ORDER_PRODUCTS.filter(p => (quantities[p.id] || 0) > 0).map(p => ({
+    ...p,
+    qty: quantities[p.id],
+    unitPrice: p.memberPrice,
+  }))
+  const cartTotal = cartItems.reduce((s, i) => s + i.memberPrice * i.qty, 0)
+  const cartPV    = cartItems.reduce((s, i) => s + i.pv * i.qty, 0)
+
+  const canNext = step === 0 ? !!selectedMember
+    : step === 1 ? cartItems.length > 0
+    : step === 2 ? shipping.name.trim() && shipping.city.trim() && shipping.country
+    : step === 3 ? !!paymentMethod
+    : true
+
+  async function handleSubmit() {
+    setSubmitting(true)
+    setError('')
+    try {
+      const items = cartItems.map(i => ({ name: i.name, qty: i.qty, price: i.memberPrice, pv: i.pv }))
+      const { order } = await createManualOrder({
+        memberId: selectedMember.id,
+        memberName: selectedMember.name,
+        items,
+        shippingAddress: shipping,
+        paymentMethod,
+      })
+      onCreated(order)
+      onClose()
+    } catch (e) {
+      setError('Failed to create order. Please try again.')
+    }
+    setSubmitting(false)
+  }
+
+  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }
+  const modal   = { background: 'var(--navy)', border: '1px solid var(--border)', borderRadius: '16px', width: '100%', maxWidth: '580px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }
+  const inp     = { width: '100%', background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '8px', padding: '9px 12px', color: 'var(--text)', fontSize: '14px', boxSizing: 'border-box' }
+  const label   = { fontSize: '12px', color: 'var(--text2)', marginBottom: '4px', display: 'block' }
+
+  return (
+    <div style={overlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={modal}>
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '17px', marginBottom: '12px' }}>New Manual Order</div>
+            {/* Step indicators */}
+            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              {STEPS.map((s, i) => (
+                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{
+                    width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '11px', fontWeight: 700,
+                    background: i < step ? 'var(--gold)' : i === step ? 'var(--cyan)' : 'var(--navy3)',
+                    color: i <= step ? '#000' : 'var(--text2)',
+                    border: i === step ? '2px solid var(--cyan)' : '1px solid var(--border)',
+                  }}>{i < step ? '✓' : i + 1}</div>
+                  <span style={{ fontSize: '11px', color: i === step ? 'var(--cyan)' : 'var(--text2)', whiteSpace: 'nowrap' }}>{s}</span>
+                  {i < STEPS.length - 1 && <div style={{ width: 16, height: 1, background: 'var(--border)', marginLeft: 2 }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text2)', fontSize: '22px', cursor: 'pointer', lineHeight: 1, marginTop: '-4px' }}>×</button>
+        </div>
+
+        {/* Body */}
+        <div style={{ overflowY: 'auto', padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+          {/* Step 0: Member */}
+          {step === 0 && (
+            <>
+              <input
+                value={memberSearch}
+                onChange={e => setMemberSearch(e.target.value)}
+                placeholder="Search by name or member ID…"
+                autoFocus
+                style={inp}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '320px', overflowY: 'auto' }}>
+                {filteredMembers.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => { setSelectedMember(m); if (shipping.name === '') setShipping(s => ({ ...s, name: m.name })) }}
+                    style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '10px 14px', borderRadius: '8px', cursor: 'pointer', textAlign: 'left',
+                      background: selectedMember?.id === m.id ? 'rgba(34,197,94,0.12)' : 'var(--navy2)',
+                      border: selectedMember?.id === m.id ? '1px solid #22c55e' : '1px solid var(--border)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, color: 'var(--cream)', fontSize: '14px' }}>{m.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text2)' }}>{m.id} · {m.rank} · {m.country}</div>
+                    </div>
+                    {selectedMember?.id === m.id && <span style={{ color: '#22c55e', fontSize: '18px' }}>✓</span>}
+                  </button>
+                ))}
+                {filteredMembers.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text2)', fontSize: '13px' }}>No members found</div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Step 1: Products */}
+          {step === 1 && (
+            <>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '4px' }}>
+                Member pricing applied for <strong style={{ color: 'var(--gold)' }}>{selectedMember?.name}</strong>
+              </div>
+              {MANUAL_ORDER_PRODUCTS.map(p => (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px 14px', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--cream)' }}>{p.name}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)' }}>NOK {p.memberPrice} · {p.pv} PV/unit</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button onClick={() => setQty(p.id, -1)} style={{ width: 28, height: 28, borderRadius: '6px', background: 'var(--navy3)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                    <span style={{ minWidth: 24, textAlign: 'center', fontWeight: 700, fontSize: '15px', color: (quantities[p.id] || 0) > 0 ? 'var(--gold)' : 'var(--text2)' }}>
+                      {quantities[p.id] || 0}
+                    </span>
+                    <button onClick={() => setQty(p.id, 1)} style={{ width: 28, height: 28, borderRadius: '6px', background: 'var(--navy3)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                  </div>
+                </div>
+              ))}
+              {cartItems.length > 0 && (
+                <div style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid var(--gold)', borderRadius: '8px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text2)', fontSize: '13px' }}>{cartItems.length} product{cartItems.length !== 1 ? 's' : ''}, {cartItems.reduce((s,i) => s+i.qty,0)} units</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--gold)' }}>NOK {cartTotal.toLocaleString()}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--cyan)', marginLeft: '8px' }}>{cartPV} PV</span>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Step 2: Shipping */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <span style={label}>Full Name *</span>
+                <input style={inp} value={shipping.name} onChange={e => setShipping(s => ({ ...s, name: e.target.value }))} placeholder="Lars Eriksen" />
+              </div>
+              <div>
+                <span style={label}>Street Address</span>
+                <input style={inp} value={shipping.address} onChange={e => setShipping(s => ({ ...s, address: e.target.value }))} placeholder="Karl Johans gate 12" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <span style={label}>City *</span>
+                  <input style={inp} value={shipping.city} onChange={e => setShipping(s => ({ ...s, city: e.target.value }))} placeholder="Oslo" />
+                </div>
+                <div>
+                  <span style={label}>Postcode</span>
+                  <input style={inp} value={shipping.postcode} onChange={e => setShipping(s => ({ ...s, postcode: e.target.value }))} placeholder="0150" />
+                </div>
+              </div>
+              <div>
+                <span style={label}>Country *</span>
+                <select style={inp} value={shipping.country} onChange={e => setShipping(s => ({ ...s, country: e.target.value }))}>
+                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Payment */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '4px' }}>Select payment method</div>
+              {PAYMENT_METHODS.map(m => (
+                <button
+                  key={m}
+                  onClick={() => setPaymentMethod(m)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '12px 16px', borderRadius: '8px', cursor: 'pointer', textAlign: 'left',
+                    background: paymentMethod === m ? 'rgba(96,165,250,0.12)' : 'var(--navy2)',
+                    border: paymentMethod === m ? '1px solid var(--cyan)' : '1px solid var(--border)',
+                    color: 'var(--text)', fontWeight: paymentMethod === m ? 600 : 400, fontSize: '14px',
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>
+                    { m === 'Bank Transfer' ? '🏦' : m === 'Card' ? '💳' : m === 'Vipps' ? '📱' : m === 'Klarna' ? '🛍️' : '💵' }
+                  </span>
+                  {m}
+                  {paymentMethod === m && <span style={{ marginLeft: 'auto', color: 'var(--cyan)' }}>✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Step 4: Confirm */}
+          {step === 4 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 16px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '8px' }}>Member</div>
+                <div style={{ fontWeight: 700, color: 'var(--cream)' }}>{selectedMember?.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text2)' }}>{selectedMember?.id} · {selectedMember?.rank}</div>
+              </div>
+              <div style={{ background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 16px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '8px' }}>Items</div>
+                {cartItems.map(i => (
+                  <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
+                    <span>{i.name} ×{i.qty}</span>
+                    <span style={{ color: 'var(--gold)' }}>NOK {(i.memberPrice * i.qty).toLocaleString()}</span>
+                  </div>
+                ))}
+                <div style={{ borderTop: '1px solid var(--border)', marginTop: '8px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                  <span>Total</span>
+                  <span style={{ color: 'var(--gold)' }}>NOK {cartTotal.toLocaleString()} <span style={{ color: 'var(--cyan)', fontWeight: 400, fontSize: '12px' }}>· {cartPV} PV</span></span>
+                </div>
+              </div>
+              <div style={{ background: 'var(--navy2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 16px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '8px' }}>Shipping & Payment</div>
+                <div style={{ fontSize: '13px', color: 'var(--text)' }}>{shipping.name}, {shipping.city}, {shipping.country}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text2)', marginTop: '4px' }}>
+                  { paymentMethod === 'Bank Transfer' ? '🏦' : paymentMethod === 'Card' ? '💳' : paymentMethod === 'Vipps' ? '📱' : paymentMethod === 'Klarna' ? '🛍️' : '💵' }
+                  {' '}{paymentMethod}
+                </div>
+              </div>
+              {error && <div style={{ background: '#7f1d1d33', border: '1px solid #f87171', borderRadius: '8px', padding: '10px 14px', color: '#f87171', fontSize: '13px' }}>{error}</div>}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', flexShrink: 0 }}>
+          <button
+            onClick={() => step === 0 ? onClose() : setStep(s => s - 1)}
+            style={{ background: 'var(--navy3)', border: '1px solid var(--border)', color: 'var(--text)', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}
+          >
+            {step === 0 ? 'Cancel' : '← Back'}
+          </button>
+          {step < STEPS.length - 1 ? (
+            <button
+              onClick={() => setStep(s => s + 1)}
+              disabled={!canNext}
+              style={{ background: canNext ? 'var(--gold)' : 'var(--navy3)', border: 'none', color: canNext ? '#000' : 'var(--text2)', padding: '9px 24px', borderRadius: '8px', cursor: canNext ? 'pointer' : 'default', fontSize: '14px', fontWeight: 600, opacity: canNext ? 1 : 0.5 }}
+            >
+              Next →
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              style={{ background: 'var(--gold)', border: 'none', color: '#000', padding: '9px 24px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 700, opacity: submitting ? 0.6 : 1 }}
+            >
+              {submitting ? 'Creating…' : '✓ Create Order'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminOrders() {
   const [orders, setOrders]   = useState([])
   const [loading, setLoading] = useState(true)
@@ -284,6 +589,7 @@ export default function AdminOrders() {
   const [page, setPage]       = useState(1)
   const [toast, setToast]     = useState(null)
   const [drawerOrderId, setDrawerOrderId] = useState(null)
+  const [showNewOrder, setShowNewOrder]   = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -298,6 +604,12 @@ export default function AdminOrders() {
   const handleStatusChange = useCallback((orderId, newStatus) => {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
     showToast(`Order ${orderId} updated to ${newStatus}`)
+  }, [])
+
+  const handleOrderCreated = useCallback((order) => {
+    setOrders(prev => [order, ...prev])
+    showToast(`Order ${order.id} created for ${order.member}`)
+    setDrawerOrderId(order.id)
   }, [])
 
   const filtered = useMemo(() => {
@@ -347,12 +659,20 @@ export default function AdminOrders() {
       <div style={{ padding: '24px', maxWidth: '1200px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 700 }}>Orders</h1>
-          <button
-            onClick={() => exportCsv(filtered)}
-            style={{ background: 'var(--navy3)', border: '1px solid var(--border)', color: 'var(--text)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}
-          >
-            ⬇ Export CSV
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setShowNewOrder(true)}
+              style={{ background: 'var(--gold)', border: 'none', color: '#000', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 700 }}
+            >
+              + New Order
+            </button>
+            <button
+              onClick={() => exportCsv(filtered)}
+              style={{ background: 'var(--navy3)', border: '1px solid var(--border)', color: 'var(--text)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}
+            >
+              ⬇ Export CSV
+            </button>
+          </div>
         </div>
 
         {/* KPI cards */}
@@ -482,6 +802,13 @@ export default function AdminOrders() {
           orderId={drawerOrderId}
           onClose={() => setDrawerOrderId(null)}
           onStatusChange={handleStatusChange}
+        />
+      )}
+
+      {showNewOrder && (
+        <NewOrderModal
+          onClose={() => setShowNewOrder(false)}
+          onCreated={handleOrderCreated}
         />
       )}
     </AdminLayout>
