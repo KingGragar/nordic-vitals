@@ -18,6 +18,7 @@ import {
   SOCIAL_EVENTS,
   SYSTEM_STATUS,
   INCIDENT_LOG,
+  CERTIFICATES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3831,4 +3832,14 @@ export async function createMaintenanceWindow(form) {
     return window
   }
   return request('POST', '/v1/mlm/admin/maintenance-windows', form)
+}
+
+// ── Achievement Certificates ──────────────────────────────────────────────────
+
+export async function getCertificates(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    return CERTIFICATES.map(c => ({ ...c, recipient_name: userId ? c.recipient_name : c.recipient_name }))
+  }
+  return request('GET', `/v1/mlm/certificates/${userId}`)
 }
