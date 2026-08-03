@@ -2761,3 +2761,68 @@ export const RETAIL_CUSTOMER_ORDERS = {
     { id: 'RC-ORD-9003', date: '2026-06-15', items: ['Omega-3 Arctic Pure ×2'], total: 698 },
   ],
 }
+
+export const PAYMENT_METHODS = {
+  withdrawalAccounts: [
+    {
+      id: 'wa-1',
+      type: 'Bank Transfer',
+      alias: 'DNB Brukskonto',
+      bank: 'DNB Bank ASA',
+      iban: 'NO93 1234 5678 901',
+      bic: 'DNBANOKK',
+      currency: 'NOK',
+      isDefault: true,
+      addedAt: '2026-03-15',
+    },
+    {
+      id: 'wa-2',
+      type: 'SEPA Transfer',
+      alias: 'N26 Euro Account',
+      bank: '',
+      iban: 'DE89 3704 0044 0532 0130 00',
+      bic: 'COBADEFFXXX',
+      currency: 'EUR',
+      isDefault: false,
+      addedAt: '2026-05-01',
+    },
+    {
+      id: 'wa-3',
+      type: 'Crypto',
+      alias: 'USDT TRC-20',
+      network: 'TRON (TRC-20)',
+      address: 'TYxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      currency: 'USDT',
+      isDefault: false,
+      addedAt: '2026-06-20',
+    },
+  ],
+  paymentCards: [
+    {
+      id: 'pc-1',
+      type: 'Visa',
+      alias: 'Visa Debit',
+      last4: '4242',
+      expiry: '12/27',
+      isDefault: true,
+      addedAt: '2026-03-15',
+    },
+    {
+      id: 'pc-2',
+      type: 'Mastercard',
+      alias: 'MC Business',
+      last4: '5555',
+      expiry: '08/26',
+      isDefault: false,
+      addedAt: '2026-04-10',
+    },
+    {
+      id: 'pc-3',
+      type: 'Vipps',
+      alias: 'Vipps Mobile Pay',
+      phone: '98765432',
+      isDefault: false,
+      addedAt: '2026-05-22',
+    },
+  ],
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import DashboardLayout from '../../components/DashboardLayout'
-import { getUserTransactions, getCommissions, requestWithdrawal } from '../../api/mlmApi'
+import { getUserTransactions, getCommissions, requestWithdrawal, getPaymentMethods } from '../../api/mlmApi'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Wallet() {
@@ -14,9 +15,11 @@ export default function Wallet() {
   const [toast, setToast] = useState(null)
   const [txs, setTxs] = useState([])
   const [pendingBalance, setPendingBalance] = useState(0)
+  const [savedMethods, setSavedMethods] = useState([])
 
   useEffect(() => {
-    getUserTransactions(user?.memberId || 'NV-10042').then(d => {
+    const uid = user?.memberId || 'NV-10042'
+    getUserTransactions(uid).then(d => {
       const loaded = d.transactions || []
       setTxs(loaded)
       if (loaded.length > 0 && loaded[0].balance !== undefined) {
@@ -31,6 +34,16 @@ export default function Wallet() {
         setPendingBalance(pending)
       })
       .catch(() => {})
+    getPaymentMethods(uid).then(d => {
+      const accounts = d.withdrawalAccounts || []
+      setSavedMethods(accounts)
+      const def = accounts.find(a => a.isDefault)
+      if (def) {
+        setWithdrawMethod(def.type)
+        if (def.type !== 'Bank Transfer' && def.address) setWithdrawAddress(def.address)
+        else if (def.type === 'SEPA Transfer' && def.iban) setWithdrawAddress(def.iban)
+      }
+    }).catch(() => {})
   }, [user])
 
   const availableBalance = txs.length > 0 && txs[0].balance !== undefined ? txs[0].balance : 1150
@@ -176,6 +189,32 @@ export default function Wallet() {
                 Withdraw Funds
               </h2>
 
+              {savedMethods.length > 0 && (
+                <div style={{ marginBottom: '16px', background: 'var(--navy)', borderRadius: '8px', padding: '12px 14px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Saved Accounts</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {savedMethods.map(m => (
+                      <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input type="radio" name="savedMethod" checked={withdrawMethod === m.type && (m.type === 'Bank Transfer' || withdrawAddress === (m.address || m.iban || ''))}
+                          onChange={() => {
+                            setWithdrawMethod(m.type)
+                            setWithdrawAddress(m.type === 'Crypto' ? (m.address || '') : (m.type === 'SEPA Transfer' ? (m.iban || '') : ''))
+                            setWithdrawError('')
+                          }}
+                          style={{ accentColor: 'var(--gold)' }}
+                        />
+                        <span style={{ fontSize: '13px', color: 'var(--cream)' }}>{m.alias}</span>
+                        {m.isDefault && <span style={{ fontSize: '10px', color: 'var(--gold)' }}>DEFAULT</span>}
+                        <span style={{ fontSize: '11px', color: 'var(--text2)', marginLeft: 'auto' }}>{m.type}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <Link to="/dashboard/payment-methods" style={{ fontSize: '11px', color: 'var(--gold)', textDecoration: 'none', marginTop: '8px', display: 'inline-block' }}>
+                    Manage payment methods →
+                  </Link>
+                </div>
+              )}
+
               <div style={{ marginBottom: '16px' }}>
                 <label className="label-text">Method</label>
                 <select
@@ -227,10 +266,12 @@ export default function Wallet() {
                   fontSize: '13px',
                   color: 'var(--text2)',
                 }}>
-                  <div style={{ marginBottom: '6px' }}>
-                    🏦 Bank account on file: IBAN ending <strong style={{ color: 'var(--cream)' }}>****4521</strong>
-                  </div>
-                  <div>⏱ Estimated: 2–3 business days</div>
+                  {(() => {
+                    const def = savedMethods.find(m => m.isDefault && m.type === 'Bank Transfer') || savedMethods.find(m => m.type === 'Bank Transfer')
+                    return def
+                      ? <><div style={{ marginBottom: '6px' }}>🏦 <strong style={{ color: 'var(--cream)' }}>{def.alias}</strong> — {def.bank} · IBAN ending ****{(def.iban || '').replace(/\s/g,'').slice(-4)}</div><div>⏱ Estimated: 2–3 business days</div></>
+                      : <><div style={{ marginBottom: '6px' }}>🏦 No bank account saved yet</div><Link to="/dashboard/payment-methods" style={{ color: 'var(--gold)', fontSize: '12px' }}>Add a bank account →</Link></>
+                  })()}
                 </div>
               )}
 

@@ -21,6 +21,7 @@ import {
   CERTIFICATES,
   RETAIL_CUSTOMERS,
   RETAIL_CUSTOMER_ORDERS,
+  PAYMENT_METHODS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3905,4 +3906,70 @@ export async function sendCustomerEmail(customerId, { subject, body }) {
     return { ok: true, sent_at: new Date().toISOString() }
   }
   return request('POST', `/v1/mlm/admin/retail-customers/${customerId}/email`, { subject, body })
+}
+
+// ── Payment Methods (saved withdrawal accounts + payment cards) ───────────────
+const PM_KEY = 'nv_payment_methods'
+
+function loadPM(userId) {
+  try {
+    const stored = localStorage.getItem(`${PM_KEY}_${userId}`)
+    if (stored) return JSON.parse(stored)
+  } catch {}
+  return { withdrawalAccounts: [...PAYMENT_METHODS.withdrawalAccounts], paymentCards: [...PAYMENT_METHODS.paymentCards] }
+}
+
+function savePM(userId, data) {
+  try { localStorage.setItem(`${PM_KEY}_${userId}`, JSON.stringify(data)) } catch {}
+  return data
+}
+
+export async function getPaymentMethods(userId) {
+  if (MOCK) return loadPM(userId)
+  return request('GET', `/v1/mlm/payment-methods/${userId}`)
+}
+
+export async function addPaymentMethod(userId, { tab, ...fields }) {
+  if (MOCK) {
+    const data = loadPM(userId)
+    const listKey = tab === 'withdrawal' ? 'withdrawalAccounts' : 'paymentCards'
+    const id = `${tab === 'withdrawal' ? 'wa' : 'pc'}-${Date.now()}`
+    const list = data[listKey]
+    const isDefault = list.length === 0
+    list.push({ ...fields, id, isDefault, addedAt: new Date().toISOString().slice(0, 10) })
+    return savePM(userId, data)
+  }
+  return request('POST', `/v1/mlm/payment-methods/${userId}`, { tab, ...fields })
+}
+
+export async function updatePaymentMethod(userId, methodId, { tab, ...fields }) {
+  if (MOCK) {
+    const data = loadPM(userId)
+    const listKey = tab === 'withdrawal' ? 'withdrawalAccounts' : 'paymentCards'
+    data[listKey] = data[listKey].map(m => m.id === methodId ? { ...m, ...fields, id: methodId } : m)
+    return savePM(userId, data)
+  }
+  return request('PATCH', `/v1/mlm/payment-methods/${userId}/${methodId}`, { tab, ...fields })
+}
+
+export async function deletePaymentMethod(userId, methodId, tab) {
+  if (MOCK) {
+    const data = loadPM(userId)
+    const listKey = tab === 'withdrawal' ? 'withdrawalAccounts' : 'paymentCards'
+    const list = data[listKey].filter(m => m.id !== methodId)
+    if (list.length > 0 && !list.some(m => m.isDefault)) list[0] = { ...list[0], isDefault: true }
+    data[listKey] = list
+    return savePM(userId, data)
+  }
+  return request('DELETE', `/v1/mlm/payment-methods/${userId}/${methodId}?tab=${tab}`)
+}
+
+export async function setDefaultPaymentMethod(userId, methodId, tab) {
+  if (MOCK) {
+    const data = loadPM(userId)
+    const listKey = tab === 'withdrawal' ? 'withdrawalAccounts' : 'paymentCards'
+    data[listKey] = data[listKey].map(m => ({ ...m, isDefault: m.id === methodId }))
+    return savePM(userId, data)
+  }
+  return request('POST', `/v1/mlm/payment-methods/${userId}/${methodId}/set-default`, { tab })
 }

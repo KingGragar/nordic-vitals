@@ -27,8 +27,9 @@ const navSections = [
     links: [
       { to: '/dashboard/commissions',  label: '💰 Commissions' },
       { to: '/dashboard/earnings',     label: '📈 Earnings' },
-      { to: '/dashboard/wallet',       label: '💳 Wallet' },
-      { to: '/dashboard/orders',       label: '📦 My Orders' },
+      { to: '/dashboard/wallet',           label: '💳 Wallet' },
+      { to: '/dashboard/payment-methods', label: '🏦 Payment Methods' },
+      { to: '/dashboard/orders',           label: '📦 My Orders' },
       { to: '/dashboard/wishlist',     label: '❤️ Wishlist' },
       { to: '/dashboard/my-reviews',   label: '⭐ My Reviews' },
       { to: '/dashboard/loyalty',      label: '⭐ Loyalty Points' },

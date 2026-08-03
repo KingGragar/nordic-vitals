@@ -52,6 +52,7 @@ const DashForecast            = lazy(() => import('./pages/dashboard/Forecast'))
 const DashMessages            = lazy(() => import('./pages/dashboard/Messages'))
 const DashSocialFeed          = lazy(() => import('./pages/dashboard/SocialFeed'))
 const DashCertificates        = lazy(() => import('./pages/dashboard/Certificates'))
+const DashPaymentMethods      = lazy(() => import('./pages/dashboard/PaymentMethods'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -192,6 +193,7 @@ function AppRoutes() {
         <Route path="/dashboard/messages"             element={<RequireAuth><DashMessages /></RequireAuth>} />
         <Route path="/dashboard/social"              element={<RequireAuth><DashSocialFeed /></RequireAuth>} />
         <Route path="/dashboard/certificates"        element={<RequireAuth><DashCertificates /></RequireAuth>} />
+        <Route path="/dashboard/payment-methods"    element={<RequireAuth><DashPaymentMethods /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
