@@ -45,6 +45,7 @@ const navLinks = [
   { to: '/admin/roles',           label: '🔐 Roles & Permissions' },
   { to: '/admin/compliance',      label: '⚖️ Compliance' },
   { to: '/admin/kyc',             label: '🔏 KYC Queue' },
+  { to: '/admin/gdpr',            label: '🛡️ GDPR Requests' },
   { to: '/admin/events',          label: '🎙️ Events' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

@@ -439,6 +439,7 @@ export default function Overview() {
           { label: '🔐 Roles & Permissions', desc: 'Admin users, roles, and access matrix', path: '/admin/roles' },
           { label: '⚖️ Compliance',       desc: 'IDS, regulatory checklist, doc vault', path: '/admin/compliance' },
           { label: '🔏 KYC Queue',        desc: 'Review member identity verifications',  path: '/admin/kyc' },
+          { label: '🛡️ GDPR Requests',   desc: 'Data subject rights requests (Art. 15–22)', path: '/admin/gdpr' },
           { label: '🔌 Integrations',    desc: 'Arctico API, gateways & webhooks',    path: '/admin/integrations' },
           { label: '📦 Starter Packs',   desc: 'Product bundles shown in the shop', path: '/admin/bundles' },
           { label: '⭐ Product Reviews',  desc: 'Approve, reject, and moderate member reviews', path: '/admin/reviews' },

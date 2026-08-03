@@ -27,6 +27,7 @@ import {
   FAST_START_LEADERBOARD,
   COMMISSION_APPEALS,
   RETURN_REQUESTS,
+  GDPR_REQUESTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4288,4 +4289,123 @@ export async function reviewReturn(returnId, { action, adminNote, refundAmount }
     return all[idx]
   }
   return request('POST', `/v1/mlm/admin/returns/${returnId}/review`, { action, adminNote, refundAmount })
+}
+
+// ── GDPR Data Subject Requests ───────────────────────────────────────────────
+
+const GDPR_KEY = 'nv_gdpr_requests'
+function loadGdpr() {
+  try { return JSON.parse(localStorage.getItem(GDPR_KEY)) || GDPR_REQUESTS } catch { return GDPR_REQUESTS }
+}
+function saveGdpr(data) {
+  try { localStorage.setItem(GDPR_KEY, JSON.stringify(data)) } catch {}
+}
+
+export async function getGdprRequests({ status, type } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    let all = loadGdpr()
+    if (status && status !== 'all') all = all.filter(r => r.status === status)
+    if (type && type !== 'all') all = all.filter(r => r.type === type)
+    return all
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (type && type !== 'all') params.set('type', type)
+  return request('GET', `/v1/mlm/admin/gdpr?${params}`)
+}
+
+export async function getGdprRequestDetail(requestId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const all = loadGdpr()
+    return all.find(r => r.id === requestId) || null
+  }
+  return request('GET', `/v1/mlm/admin/gdpr/${requestId}`)
+}
+
+export async function processGdprRequest(requestId, { action, adminNote, denyReason, extendedDeadline }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const all = loadGdpr()
+    const idx = all.findIndex(r => r.id === requestId)
+    if (idx === -1) throw new Error('Request not found')
+    const statusMap = {
+      fulfill: 'fulfilled',
+      deny: 'denied',
+      start_processing: 'processing',
+      extend: all[idx].status,
+    }
+    const now = new Date().toISOString()
+    const prev = all[idx]
+    const entry = {
+      ts: now,
+      actor: 'Admin',
+      action: action === 'fulfill'
+        ? 'Request marked fulfilled.'
+        : action === 'deny'
+          ? `Request denied. Reason: ${denyReason || 'not specified'}.`
+          : action === 'start_processing'
+            ? 'Status updated to Processing.'
+            : `Deadline extended to ${extendedDeadline}.`,
+    }
+    all[idx] = {
+      ...prev,
+      status: statusMap[action] || prev.status,
+      adminNote: adminNote ?? prev.adminNote,
+      processedAt: action === 'fulfill' || action === 'deny' ? now : prev.processedAt,
+      processedBy: action === 'fulfill' || action === 'deny' ? 'Admin' : prev.processedBy,
+      denyReason: action === 'deny' ? (denyReason || 'not_specified') : prev.denyReason,
+      extendedDeadline: action === 'extend' ? extendedDeadline : prev.extendedDeadline,
+      auditTrail: [...prev.auditTrail, entry],
+    }
+    saveGdpr(all)
+    return all[idx]
+  }
+  return request('POST', `/v1/mlm/admin/gdpr/${requestId}/process`, { action, adminNote, denyReason, extendedDeadline })
+}
+
+export async function generateDataExport(memberId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 800))
+    return {
+      downloadUrl: `#mock-export-${memberId}-${Date.now()}`,
+      generatedAt: new Date().toISOString(),
+      sizeKb: Math.floor(Math.random() * 200) + 50,
+      fileName: `nordic-vitals-data-${memberId}-${new Date().toISOString().slice(0, 10)}.zip`,
+    }
+  }
+  return request('POST', `/v1/mlm/admin/gdpr/export`, { memberId })
+}
+
+export async function submitMemberGdprRequest(userId, { type, description }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const all = loadGdpr()
+    const now = new Date().toISOString()
+    const deadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    const newReq = {
+      id: `GDPR-${String(all.length + 1).padStart(4, '0')}`,
+      type,
+      memberName: 'Member',
+      memberId: userId,
+      memberEmail: '',
+      submittedAt: now,
+      deadline,
+      status: 'pending',
+      description,
+      adminNote: '',
+      processedAt: null,
+      processedBy: null,
+      denyReason: null,
+      extendedDeadline: null,
+      auditTrail: [
+        { ts: now, actor: 'member', action: 'Request submitted via Data Privacy Centre.' },
+      ],
+    }
+    all.unshift(newReq)
+    saveGdpr(all)
+    return newReq
+  }
+  return request('POST', `/v1/mlm/gdpr/${userId}`, { type, description })
 }
