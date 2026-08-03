@@ -25,6 +25,7 @@ import {
   FAST_START_TIERS,
   FAST_START_PROGRESS,
   FAST_START_LEADERBOARD,
+  COMMISSION_APPEALS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4047,4 +4048,127 @@ export async function getFastStartLeaderboard() {
     return FAST_START_LEADERBOARD
   }
   return request('GET', '/v1/mlm/fast-start/leaderboard')
+}
+
+// ── Commission Appeals ────────────────────────────────────────────────────────
+const APPEALS_KEY = 'nv_commission_appeals'
+
+function loadAppeals() {
+  try {
+    const stored = localStorage.getItem(APPEALS_KEY)
+    if (stored) return JSON.parse(stored)
+  } catch {}
+  return JSON.parse(JSON.stringify(COMMISSION_APPEALS))
+}
+
+function saveAppeals(data) {
+  try { localStorage.setItem(APPEALS_KEY, JSON.stringify(data)) } catch {}
+  return data
+}
+
+export async function getAppealQueue(filters = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    let appeals = loadAppeals()
+    if (filters.status && filters.status !== 'all') {
+      appeals = appeals.filter(a => a.status === filters.status)
+    }
+    if (filters.search) {
+      const q = filters.search.toLowerCase()
+      appeals = appeals.filter(a =>
+        a.memberName.toLowerCase().includes(q) ||
+        a.memberId.toLowerCase().includes(q) ||
+        a.commissionRunId.toLowerCase().includes(q) ||
+        a.id.toLowerCase().includes(q)
+      )
+    }
+    return appeals.sort((a, b) => new Date(b.filedAt) - new Date(a.filedAt))
+  }
+  const params = new URLSearchParams(filters).toString()
+  return request('GET', `/v1/mlm/admin/appeals?${params}`)
+}
+
+export async function getMyAppeals(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const appeals = loadAppeals()
+    return appeals
+      .filter(a => a.memberId === 'NV-10042')
+      .sort((a, b) => new Date(b.filedAt) - new Date(a.filedAt))
+  }
+  return request('GET', `/v1/mlm/appeals/${userId}`)
+}
+
+export async function submitAppeal(userId, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const appeals = loadAppeals()
+    const newId = `APP-${String(100 + appeals.length).padStart(3, '0')}`
+    const newAppeal = {
+      id: newId,
+      memberId: 'NV-10042',
+      memberName: 'Lars Eriksen',
+      memberEmail: 'lars.eriksen@example.no',
+      commissionRunId: data.commissionRunId,
+      commissionRunDate: data.commissionRunDate || new Date().toISOString().slice(0, 10),
+      category: data.category,
+      disputedAmount: Number(data.disputedAmount) || 0,
+      expectedAmount: Number(data.expectedAmount) || 0,
+      explanation: data.explanation,
+      filedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'open',
+      priority: 'medium',
+      notes: [{ author: 'Lars Eriksen', role: 'member', text: data.explanation, ts: new Date().toISOString() }],
+      resolution: null,
+    }
+    appeals.unshift(newAppeal)
+    saveAppeals(appeals)
+    return newAppeal
+  }
+  return request('POST', `/v1/mlm/appeals/${userId}`, data)
+}
+
+export async function addAppealNote(appealId, note) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const appeals = loadAppeals()
+    const idx = appeals.findIndex(a => a.id === appealId)
+    if (idx === -1) throw new Error('Appeal not found')
+    appeals[idx].notes.push({ author: 'Admin', role: 'admin', text: note, ts: new Date().toISOString() })
+    appeals[idx].updatedAt = new Date().toISOString()
+    if (appeals[idx].status === 'open') appeals[idx].status = 'under_review'
+    saveAppeals(appeals)
+    return appeals[idx]
+  }
+  return request('POST', `/v1/mlm/admin/appeals/${appealId}/note`, { note })
+}
+
+export async function resolveAppeal(appealId, decision) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const appeals = loadAppeals()
+    const idx = appeals.findIndex(a => a.id === appealId)
+    if (idx === -1) throw new Error('Appeal not found')
+    const statusMap = { upheld: 'resolved_upheld', adjusted: 'resolved_adjusted', rejected: 'resolved_rejected' }
+    appeals[idx].status = statusMap[decision.verdict] || 'resolved_upheld'
+    appeals[idx].resolution = {
+      decision: decision.verdict,
+      adjustedAmount: decision.adjustedAmount || null,
+      correctionAmount: decision.correctionAmount || 0,
+      resolvedAt: new Date().toISOString(),
+      resolvedBy: 'Admin',
+      note: decision.note,
+    }
+    appeals[idx].notes.push({
+      author: 'Admin',
+      role: 'admin',
+      text: `Appeal resolved (${decision.verdict}): ${decision.note}`,
+      ts: new Date().toISOString(),
+    })
+    appeals[idx].updatedAt = new Date().toISOString()
+    saveAppeals(appeals)
+    return appeals[idx]
+  }
+  return request('POST', `/v1/mlm/admin/appeals/${appealId}/resolve`, decision)
 }

@@ -35,6 +35,7 @@ const navSections = [
       { to: '/dashboard/loyalty',      label: '⭐ Loyalty Points' },
       { to: '/dashboard/autoship',     label: '♻️ Autoship' },
       { to: '/dashboard/tax-summary',  label: '🧾 Tax Summary' },
+      { to: '/dashboard/appeals',      label: '⚖️ Commission Appeals' },
     ],
   },
   {

@@ -33,6 +33,7 @@ const navLinks = [
   { to: '/admin/referrals',     label: '🔗 Referrals' },
   { to: '/admin/announcements', label: '📣 Announcements' },
   { to: '/admin/audit-log',       label: '🔍 Audit Log' },
+  { to: '/admin/appeals',         label: '⚖️ Commission Appeals' },
   { to: '/admin/support',         label: '🎫 Support' },
   { to: '/admin/messages',        label: '💬 Direct Messages' },
   { to: '/admin/email-templates', label: '✉️ Email Templates' },
