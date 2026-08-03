@@ -16,6 +16,8 @@ import {
   CONVERSATIONS,
   DIRECT_MESSAGES,
   SOCIAL_EVENTS,
+  SYSTEM_STATUS,
+  INCIDENT_LOG,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3779,4 +3781,54 @@ export async function reactToSocialEvent(eventId, emoji) {
     return { eventId, myReaction: myReactions[eventId] || null }
   }
   return request('POST', `/v1/mlm/social/feed/${eventId}/react`, { emoji })
+}
+
+// ── System Status ──────────────────────────────────────────────────────────────
+
+const _systemStatusState = {
+  data: JSON.parse(JSON.stringify(SYSTEM_STATUS)),
+  incidents: JSON.parse(JSON.stringify(INCIDENT_LOG)),
+}
+
+export async function getSystemStatus() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return JSON.parse(JSON.stringify(_systemStatusState.data))
+  }
+  return request('GET', '/v1/mlm/admin/system-status')
+}
+
+export async function getIncidentLog() {
+  if (MOCK) {
+    return JSON.parse(JSON.stringify(_systemStatusState.incidents))
+  }
+  return request('GET', '/v1/mlm/admin/incidents')
+}
+
+export async function resolveIncident(incidentId) {
+  if (MOCK) {
+    const inc = _systemStatusState.incidents.find(i => i.id === incidentId)
+    if (inc) {
+      inc.status = 'resolved'
+      inc.resolved_at = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+    }
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/incidents/${incidentId}/resolve`, {})
+}
+
+export async function createMaintenanceWindow(form) {
+  if (MOCK) {
+    const window = {
+      id: `mw-${Date.now()}`,
+      title: form.title,
+      component: form.component,
+      starts_at: form.starts_at,
+      ends_at: form.ends_at,
+      description: form.description || '',
+    }
+    _systemStatusState.data.maintenance_windows.push(window)
+    return window
+  }
+  return request('POST', '/v1/mlm/admin/maintenance-windows', form)
 }

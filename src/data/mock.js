@@ -2477,3 +2477,132 @@ export const SOCIAL_EVENTS = [
     reactions: { '🎉': 5, '👏': 3, '❤️': 4 },
   },
 ]
+
+// ── System Status ─────────────────────────────────────────────────────────────
+function make90DayHistory(baseline) {
+  const days = []
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date('2026-08-03')
+    d.setDate(d.getDate() - i)
+    const jitter = (Math.sin(i * 7.3) + 1) * 0.04
+    const uptime = i % 17 === 0 ? baseline - 1.8 : i % 43 === 0 ? baseline - 0.5 : Math.min(100, baseline + jitter)
+    days.push({ date: d.toISOString().slice(0, 10), uptime: parseFloat(uptime.toFixed(2)) })
+  }
+  return days
+}
+
+export const SYSTEM_STATUS = {
+  metrics: {
+    api_p50_ms:      42,
+    api_p99_ms:      187,
+    error_rate_1h:   0.08,
+    rpm:             312,
+    active_sessions: 47,
+  },
+  components: [
+    {
+      name: 'Frontend (Vercel)',
+      icon: '🌐',
+      description: 'React SPA — nordic-vitals.vercel.app',
+      status: 'operational',
+      uptime_90d: 99.98,
+      latency_ms: 38,
+      last_checked: 'just now',
+      uptime_history: make90DayHistory(99.98),
+    },
+    {
+      name: 'Arctico API',
+      icon: '⚡',
+      description: 'MLM engine — arctico.duckdns.org/v1/mlm',
+      status: 'operational',
+      uptime_90d: 99.71,
+      latency_ms: 112,
+      last_checked: 'just now',
+      uptime_history: make90DayHistory(99.71),
+    },
+    {
+      name: 'Database',
+      icon: '🗄️',
+      description: 'PostgreSQL — Hetzner CX41',
+      status: 'operational',
+      uptime_90d: 99.95,
+      latency_ms: 8,
+      last_checked: 'just now',
+      uptime_history: make90DayHistory(99.95),
+    },
+    {
+      name: 'Email Service',
+      icon: '✉️',
+      description: 'Transactional mail via SMTP relay',
+      status: 'operational',
+      uptime_90d: 99.83,
+      latency_ms: null,
+      last_checked: '2 min ago',
+      uptime_history: make90DayHistory(99.83),
+    },
+    {
+      name: 'Webhooks',
+      icon: '🔔',
+      description: 'Outgoing webhook delivery queue',
+      status: 'operational',
+      uptime_90d: 99.62,
+      latency_ms: null,
+      last_checked: '1 min ago',
+      uptime_history: make90DayHistory(99.62),
+    },
+    {
+      name: 'Payment Gateway',
+      icon: '💳',
+      description: 'Stripe / Klarna / Vipps integration',
+      status: 'operational',
+      uptime_90d: 99.90,
+      latency_ms: 245,
+      last_checked: '3 min ago',
+      uptime_history: make90DayHistory(99.90),
+    },
+  ],
+  maintenance_windows: [],
+}
+
+export const INCIDENT_LOG = [
+  {
+    id: 'inc-003',
+    title: 'Elevated API latency — genealogy tree endpoint',
+    affected_components: ['Arctico API'],
+    status: 'resolved',
+    started_at: '2026-07-28 14:22 UTC',
+    resolved_at: '2026-07-28 15:47 UTC',
+    duration_min: 85,
+    updates: [
+      { time: '14:22', message: 'Investigating elevated P99 latency on GET /v1/mlm/genealogy/tree.' },
+      { time: '14:55', message: 'Root cause identified: unindexed query on placement_parent_id column.' },
+      { time: '15:47', message: 'Index added and deployed. Latency returned to baseline. Monitoring.' },
+    ],
+  },
+  {
+    id: 'inc-002',
+    title: 'Email delivery delays — welcome emails',
+    affected_components: ['Email Service'],
+    status: 'resolved',
+    started_at: '2026-07-22 09:05 UTC',
+    resolved_at: '2026-07-22 10:30 UTC',
+    duration_min: 85,
+    updates: [
+      { time: '09:05', message: 'Welcome emails queued but not delivered. SMTP relay returning 421.' },
+      { time: '10:30', message: 'SMTP relay provider resolved upstream issue. Queued emails flushed.' },
+    ],
+  },
+  {
+    id: 'inc-001',
+    title: 'Commission run processing timeout',
+    affected_components: ['Arctico API', 'Database'],
+    status: 'resolved',
+    started_at: '2026-07-15 02:00 UTC',
+    resolved_at: '2026-07-15 02:38 UTC',
+    duration_min: 38,
+    updates: [
+      { time: '02:00', message: 'Scheduled commission run timed out after 5 min. Retrying with extended timeout.' },
+      { time: '02:38', message: 'Commission run completed successfully with extended 15-min timeout. Root cause: large tree (all members). Fix: pagination for tree walks.' },
+    ],
+  },
+]

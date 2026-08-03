@@ -88,6 +88,7 @@ const AdminBundles            = lazy(() => import('./pages/admin/Bundles'))
 const AdminReviews            = lazy(() => import('./pages/admin/Reviews'))
 const AdminChallenges         = lazy(() => import('./pages/admin/Challenges'))
 const AdminExchangeRates      = lazy(() => import('./pages/admin/ExchangeRates'))
+const AdminSystemStatus       = lazy(() => import('./pages/admin/SystemStatus'))
 const AdminBanners            = lazy(() => import('./pages/admin/Banners'))
 const AdminForecast           = lazy(() => import('./pages/admin/Forecast'))
 const AdminMessages           = lazy(() => import('./pages/admin/Messages'))
@@ -225,6 +226,7 @@ function AppRoutes() {
         <Route path="/admin/reviews"          element={<RequireAuth role="admin"><AdminReviews /></RequireAuth>} />
         <Route path="/admin/challenges"       element={<RequireAuth role="admin"><AdminChallenges /></RequireAuth>} />
         <Route path="/admin/exchange-rates"   element={<RequireAuth role="admin"><AdminExchangeRates /></RequireAuth>} />
+        <Route path="/admin/system-status"   element={<RequireAuth role="admin"><AdminSystemStatus /></RequireAuth>} />
         <Route path="/admin/banners"          element={<RequireAuth role="admin"><AdminBanners /></RequireAuth>} />
         <Route path="/admin/forecast"         element={<RequireAuth role="admin"><AdminForecast /></RequireAuth>} />
         <Route path="/admin/messages"         element={<RequireAuth role="admin"><AdminMessages /></RequireAuth>} />

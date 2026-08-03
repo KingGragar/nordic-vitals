@@ -46,6 +46,7 @@ const navLinks = [
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/import',          label: '📥 Bulk Import' },
   { to: '/admin/settings',        label: '🔧 Settings' },
+  { to: '/admin/system-status',  label: '🖥️ System Status' },
   { to: '/admin/launch',          label: '🚀 Launch Checklist' },
 ]
 

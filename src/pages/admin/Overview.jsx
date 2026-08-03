@@ -443,6 +443,7 @@ export default function Overview() {
           { label: '📥 Bulk Import',     desc: 'CSV member import for launch seeding', path: '/admin/import' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
+          { label: '🖥️ System Status',   desc: 'Real-time health of all platform components', path: '/admin/system-status' },
           { label: '💱 Exchange Rates',   desc: 'MLMT→NOK/EUR/USD rates for Tax + P&L reports', path: '/admin/exchange-rates' },
           { label: '📢 Banners',          desc: 'Promotional banners on Landing + Shop pages', path: '/admin/banners' },
           { label: '🔮 Revenue Forecast', desc: 'Growth & commission sustainability projections', path: '/admin/forecast' },
