@@ -15,6 +15,7 @@ import {
   BANNERS,
   CONVERSATIONS,
   DIRECT_MESSAGES,
+  SOCIAL_EVENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3730,4 +3731,52 @@ export async function sendAdminMessage(conversationId, body) {
 
 export async function startAdminConversation(memberId, memberName, subject, body) {
   return startConversation('admin', 'Nordic Vitals', memberId, memberName, 'member', subject, body)
+}
+
+// ── Social Activity Feed ──────────────────────────────────────────────────────
+
+const SOCIAL_STORAGE_KEY = 'nv_social_reactions'
+
+function loadReactions() {
+  try { return JSON.parse(localStorage.getItem(SOCIAL_STORAGE_KEY) || '{}') } catch { return {} }
+}
+
+function saveReactions(data) {
+  localStorage.setItem(SOCIAL_STORAGE_KEY, JSON.stringify(data))
+}
+
+export async function getSocialFeed({ typeFilter = 'all', page = 1, pageSize = 10 } = {}) {
+  if (MOCK) {
+    const myReactions = loadReactions()
+    let events = JSON.parse(JSON.stringify(SOCIAL_EVENTS))
+    if (typeFilter !== 'all') events = events.filter(e => e.type === typeFilter)
+    const total = events.length
+    const slice = events.slice((page - 1) * pageSize, page * pageSize)
+    return {
+      events: slice.map(e => ({
+        ...e,
+        reactions: { ...e.reactions, ...(myReactions[e.id] ? {} : {}) },
+        myReaction: myReactions[e.id] || null,
+      })),
+      total,
+      hasMore: page * pageSize < total,
+    }
+  }
+  const params = new URLSearchParams({ type: typeFilter, page, page_size: pageSize })
+  return request('GET', `/v1/mlm/social/feed?${params}`)
+}
+
+export async function reactToSocialEvent(eventId, emoji) {
+  if (MOCK) {
+    const myReactions = loadReactions()
+    const prev = myReactions[eventId]
+    if (prev === emoji) {
+      delete myReactions[eventId]
+    } else {
+      myReactions[eventId] = emoji
+    }
+    saveReactions(myReactions)
+    return { eventId, myReaction: myReactions[eventId] || null }
+  }
+  return request('POST', `/v1/mlm/social/feed/${eventId}/react`, { emoji })
 }
