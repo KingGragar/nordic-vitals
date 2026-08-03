@@ -2723,3 +2723,41 @@ export const CERTIFICATES = [
     signer_2_title: 'Head of Member Success',
   },
 ]
+
+// ── Retail Customers (non-member buyers) ──────────────────────────────────────
+export const RETAIL_CUSTOMERS = [
+  { id: 'RC-0001', name: 'Silje Bergstrom', email: 'silje.bergstrom@gmail.com', phone: '+47 910 22 334', country: 'NO', city: 'Oslo', orders: 7, total_nok: 4823, first_purchase: '2026-01-14', last_purchase: '2026-07-28', tags: ['vip', 'repeat'], referred_by: 'NV-10042', notes: [] },
+  { id: 'RC-0002', name: 'Tobias Nygaard', email: 'tobias.nygaard@hotmail.com', phone: '+47 924 55 110', country: 'NO', city: 'Bergen', orders: 1, total_nok: 599, first_purchase: '2026-07-01', last_purchase: '2026-07-01', tags: ['new'], referred_by: null, notes: [] },
+  { id: 'RC-0003', name: 'Marit Solberg', email: 'marit.solberg@icloud.com', phone: '+47 951 33 204', country: 'NO', city: 'Trondheim', orders: 4, total_nok: 2196, first_purchase: '2026-03-08', last_purchase: '2026-05-30', tags: ['at-risk'], referred_by: 'NV-10087', notes: [] },
+  { id: 'RC-0004', name: 'Henrik Lund', email: 'henrik.lund@outlook.com', phone: '+47 982 77 453', country: 'NO', city: 'Stavanger', orders: 12, total_nok: 8940, first_purchase: '2025-11-20', last_purchase: '2026-07-31', tags: ['vip', 'repeat', 'loyal'], referred_by: 'NV-10042', notes: [] },
+  { id: 'RC-0005', name: 'Ingrid Halvorsen', email: 'ingrid.h@yahoo.no', phone: '+47 932 14 889', country: 'NO', city: 'Kristiansand', orders: 2, total_nok: 828, first_purchase: '2026-06-10', last_purchase: '2026-06-22', tags: ['new'], referred_by: null, notes: [] },
+  { id: 'RC-0006', name: 'Klaus Muller', email: 'k.muller@web.de', phone: '+49 151 234 5678', country: 'DE', city: 'Hamburg', orders: 3, total_nok: 1437, first_purchase: '2026-04-19', last_purchase: '2026-07-15', tags: ['repeat'], referred_by: null, notes: [] },
+  { id: 'RC-0007', name: 'Anna Lindqvist', email: 'anna.lindqvist@live.se', phone: '+46 70 123 4567', country: 'SE', city: 'Stockholm', orders: 1, total_nok: 379, first_purchase: '2026-02-28', last_purchase: '2026-02-28', tags: ['churned'], referred_by: null, notes: [] },
+  { id: 'RC-0008', name: 'Per-Erik Dahl', email: 'per.erik.dahl@gmail.com', phone: '+47 901 66 721', country: 'NO', city: 'Tromsø', orders: 5, total_nok: 3015, first_purchase: '2026-02-10', last_purchase: '2026-07-20', tags: ['repeat'], referred_by: 'NV-10102', notes: [] },
+  { id: 'RC-0009', name: 'Camilla Iversen', email: 'camilla.iversen@me.com', phone: '+47 941 28 653', country: 'NO', city: 'Fredrikstad', orders: 8, total_nok: 5392, first_purchase: '2025-12-01', last_purchase: '2026-07-29', tags: ['vip', 'repeat'], referred_by: 'NV-10042', notes: [] },
+  { id: 'RC-0010', name: 'Rolf Christiansen', email: 'rolf.chr@protonmail.com', phone: '+47 912 44 017', country: 'NO', city: 'Drammen', orders: 1, total_nok: 249, first_purchase: '2026-07-25', last_purchase: '2026-07-25', tags: ['new'], referred_by: null, notes: [] },
+  { id: 'RC-0011', name: 'Else Magnusson', email: 'else.m@gmail.com', phone: '+47 966 30 112', country: 'NO', city: 'Ålesund', orders: 6, total_nok: 2974, first_purchase: '2026-01-30', last_purchase: '2026-06-14', tags: ['at-risk', 'repeat'], referred_by: 'NV-10087', notes: [] },
+  { id: 'RC-0012', name: 'Thomas Wold', email: 'thomas.wold@outlook.no', phone: '+47 921 55 788', country: 'NO', city: 'Bodø', orders: 3, total_nok: 1377, first_purchase: '2026-05-01', last_purchase: '2026-07-08', tags: ['repeat'], referred_by: null, notes: [] },
+]
+
+export const RETAIL_CUSTOMER_ORDERS = {
+  'RC-0001': [
+    { id: 'RC-ORD-1001', date: '2026-07-28', items: ['Omega-3 Arctic Pure ×2'], total: 698 },
+    { id: 'RC-ORD-1002', date: '2026-07-05', items: ['Focus Formula ×1'], total: 459 },
+    { id: 'RC-ORD-1003', date: '2026-06-11', items: ['Vitamin D3 + K2 ×2'], total: 498 },
+    { id: 'RC-ORD-1004', date: '2026-05-22', items: ['Nordic Greens Blend ×1', 'Nordic Collagen Complex ×1'], total: 808 },
+    { id: 'RC-ORD-1005', date: '2026-04-30', items: ['Omega-3 Arctic Pure ×1'], total: 349 },
+    { id: 'RC-ORD-1006', date: '2026-03-14', items: ['Focus Formula ×1'], total: 459 },
+    { id: 'RC-ORD-1007', date: '2026-02-01', items: ['Nordic Greens Blend ×2'], total: 758 },
+  ],
+  'RC-0004': [
+    { id: 'RC-ORD-4001', date: '2026-07-31', items: ['Omega-3 Arctic Pure ×2', 'Focus Formula ×1'], total: 1157 },
+    { id: 'RC-ORD-4002', date: '2026-07-12', items: ['Arctic Shilajit ×1'], total: 599 },
+    { id: 'RC-ORD-4003', date: '2026-06-28', items: ['Nordic Collagen Complex ×2'], total: 858 },
+  ],
+  'RC-0009': [
+    { id: 'RC-ORD-9001', date: '2026-07-29', items: ['Vitamin D3 + K2 ×1', 'Nordic Greens Blend ×1'], total: 628 },
+    { id: 'RC-ORD-9002', date: '2026-07-03', items: ['Focus Formula ×1'], total: 459 },
+    { id: 'RC-ORD-9003', date: '2026-06-15', items: ['Omega-3 Arctic Pure ×2'], total: 698 },
+  ],
+}

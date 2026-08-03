@@ -10,6 +10,7 @@ import AdminGlobalSearch from './AdminGlobalSearch'
 const navLinks = [
   { to: '/admin/overview',  label: '📋 Overview' },
   { to: '/admin',           label: '👥 Members',         end: true },
+  { to: '/admin/customers', label: '🛒 Retail Customers' },
   { to: '/admin/network',   label: '🌐 Network Tree' },
   { to: '/admin/products',   label: '🛍️ Products' },
   { to: '/admin/bundles',    label: '📦 Starter Packs' },

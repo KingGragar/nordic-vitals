@@ -19,6 +19,8 @@ import {
   SYSTEM_STATUS,
   INCIDENT_LOG,
   CERTIFICATES,
+  RETAIL_CUSTOMERS,
+  RETAIL_CUSTOMER_ORDERS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3842,4 +3844,65 @@ export async function getCertificates(userId) {
     return CERTIFICATES.map(c => ({ ...c, recipient_name: userId ? c.recipient_name : c.recipient_name }))
   }
   return request('GET', `/v1/mlm/certificates/${userId}`)
+}
+
+// ── Retail Customers ──────────────────────────────────────────────────────────
+
+let _retailCustomers = RETAIL_CUSTOMERS.map(c => ({ ...c, notes: [] }))
+
+export async function getRetailCustomers({ search = '', tag = 'all' } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    let list = _retailCustomers
+    if (tag !== 'all') list = list.filter(c => c.tags.includes(tag))
+    if (search) {
+      const q = search.toLowerCase()
+      list = list.filter(c => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
+    }
+    return list
+  }
+  return request('GET', '/v1/mlm/admin/retail-customers', { search, tag })
+}
+
+export async function getRetailCustomerDetail(customerId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const customer = _retailCustomers.find(c => c.id === customerId)
+    if (!customer) throw new Error('Customer not found')
+    const orders = RETAIL_CUSTOMER_ORDERS[customerId] || []
+    return { ...customer, orders }
+  }
+  return request('GET', `/v1/mlm/admin/retail-customers/${customerId}`)
+}
+
+export async function addRetailCustomerNote(customerId, note) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const customer = _retailCustomers.find(c => c.id === customerId)
+    if (!customer) throw new Error('Customer not found')
+    const entry = { id: `note-${Date.now()}`, text: note, created_at: new Date().toISOString(), author: 'Admin' }
+    customer.notes = [entry, ...(customer.notes || [])]
+    return entry
+  }
+  return request('POST', `/v1/mlm/admin/retail-customers/${customerId}/notes`, { note })
+}
+
+export async function convertCustomerToMember(customerId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    const customer = _retailCustomers.find(c => c.id === customerId)
+    if (!customer) throw new Error('Customer not found')
+    customer.tags = [...new Set([...customer.tags, 'converted'])]
+    const newMemberId = `NV-${Math.floor(10000 + Math.random() * 90000)}`
+    return { ok: true, member_id: newMemberId, email: customer.email }
+  }
+  return request('POST', `/v1/mlm/admin/retail-customers/${customerId}/convert`, {})
+}
+
+export async function sendCustomerEmail(customerId, { subject, body }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return { ok: true, sent_at: new Date().toISOString() }
+  }
+  return request('POST', `/v1/mlm/admin/retail-customers/${customerId}/email`, { subject, body })
 }
