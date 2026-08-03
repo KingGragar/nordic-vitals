@@ -55,6 +55,7 @@ const DashCertificates        = lazy(() => import('./pages/dashboard/Certificate
 const DashPaymentMethods      = lazy(() => import('./pages/dashboard/PaymentMethods'))
 const DashFastStart           = lazy(() => import('./pages/dashboard/FastStart'))
 const DashAppeals             = lazy(() => import('./pages/dashboard/Appeals'))
+const DashReturns             = lazy(() => import('./pages/dashboard/Returns'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -98,6 +99,7 @@ const AdminForecast           = lazy(() => import('./pages/admin/Forecast'))
 const AdminMessages           = lazy(() => import('./pages/admin/Messages'))
 const AdminCustomers          = lazy(() => import('./pages/admin/Customers'))
 const AdminAppeals            = lazy(() => import('./pages/admin/Appeals'))
+const AdminReturns            = lazy(() => import('./pages/admin/Returns'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -199,6 +201,7 @@ function AppRoutes() {
         <Route path="/dashboard/payment-methods"    element={<RequireAuth><DashPaymentMethods /></RequireAuth>} />
         <Route path="/dashboard/fast-start"          element={<RequireAuth><DashFastStart /></RequireAuth>} />
         <Route path="/dashboard/appeals"            element={<RequireAuth><DashAppeals /></RequireAuth>} />
+        <Route path="/dashboard/returns"            element={<RequireAuth><DashReturns /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -242,6 +245,7 @@ function AppRoutes() {
         <Route path="/admin/messages"         element={<RequireAuth role="admin"><AdminMessages /></RequireAuth>} />
         <Route path="/admin/customers"        element={<RequireAuth role="admin"><AdminCustomers /></RequireAuth>} />
         <Route path="/admin/appeals"          element={<RequireAuth role="admin"><AdminAppeals /></RequireAuth>} />
+        <Route path="/admin/returns"          element={<RequireAuth role="admin"><AdminReturns /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>

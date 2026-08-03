@@ -26,6 +26,7 @@ import {
   FAST_START_PROGRESS,
   FAST_START_LEADERBOARD,
   COMMISSION_APPEALS,
+  RETURN_REQUESTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4171,4 +4172,120 @@ export async function resolveAppeal(appealId, decision) {
     return appeals[idx]
   }
   return request('POST', `/v1/mlm/admin/appeals/${appealId}/resolve`, decision)
+}
+
+// ── Returns & Refunds ────────────────────────────────────────────────────────
+
+const RETURNS_KEY = 'nv_return_requests'
+
+function loadReturns() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RETURNS_KEY) || 'null')
+    if (stored) return stored
+  } catch {}
+  return [...RETURN_REQUESTS]
+}
+
+function saveReturns(list) {
+  localStorage.setItem(RETURNS_KEY, JSON.stringify(list))
+}
+
+export async function getAdminReturns({ status, search } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    let items = loadReturns()
+    if (status && status !== 'all') items = items.filter(r => r.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      items = items.filter(r =>
+        r.memberName.toLowerCase().includes(q) ||
+        r.orderId.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q)
+      )
+    }
+    return items
+  }
+  const params = new URLSearchParams()
+  if (status && status !== 'all') params.set('status', status)
+  if (search) params.set('search', search)
+  return request('GET', `/v1/mlm/admin/returns?${params}`)
+}
+
+export async function getMyReturns(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = loadReturns()
+    return all.filter(r => r.memberId === userId)
+  }
+  return request('GET', `/v1/mlm/returns/${userId}`)
+}
+
+export async function submitReturn(userId, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const all = loadReturns()
+    const id = `RET-${String(all.length + 1).padStart(4, '0')}`
+    const newReturn = {
+      id,
+      orderId: data.orderId,
+      memberId: userId,
+      memberName: data.memberName || 'Member',
+      memberEmail: data.memberEmail || '',
+      items: data.items || [],
+      orderTotal: data.orderTotal || 0,
+      refundAmount: null,
+      reason: data.reason,
+      description: data.description,
+      status: 'pending',
+      filedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      pvDeducted: null,
+      adminNote: '',
+      resolvedAt: null,
+      resolvedBy: null,
+    }
+    all.unshift(newReturn)
+    saveReturns(all)
+    return newReturn
+  }
+  return request('POST', `/v1/mlm/returns/${userId}`, data)
+}
+
+export async function cancelReturn(returnId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const all = loadReturns()
+    const idx = all.findIndex(r => r.id === returnId)
+    if (idx === -1) throw new Error('Return not found')
+    all[idx].status = 'cancelled'
+    all[idx].updatedAt = new Date().toISOString()
+    saveReturns(all)
+    return all[idx]
+  }
+  return request('POST', `/v1/mlm/returns/${returnId}/cancel`)
+}
+
+export async function reviewReturn(returnId, { action, adminNote, refundAmount }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const all = loadReturns()
+    const idx = all.findIndex(r => r.id === returnId)
+    if (idx === -1) throw new Error('Return not found')
+    const statusMap = { approve: 'approved', reject: 'rejected', review: 'under_review' }
+    all[idx].status = statusMap[action] || action
+    all[idx].adminNote = adminNote || ''
+    if (action === 'approve') {
+      all[idx].refundAmount = refundAmount ?? all[idx].orderTotal
+      all[idx].resolvedAt = new Date().toISOString()
+      all[idx].resolvedBy = 'Admin'
+    } else if (action === 'reject') {
+      all[idx].refundAmount = 0
+      all[idx].resolvedAt = new Date().toISOString()
+      all[idx].resolvedBy = 'Admin'
+    }
+    all[idx].updatedAt = new Date().toISOString()
+    saveReturns(all)
+    return all[idx]
+  }
+  return request('POST', `/v1/mlm/admin/returns/${returnId}/review`, { action, adminNote, refundAmount })
 }

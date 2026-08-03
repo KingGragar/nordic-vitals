@@ -16,6 +16,7 @@ const navLinks = [
   { to: '/admin/bundles',    label: '📦 Starter Packs' },
   { to: '/admin/inventory',  label: '🗃️ Inventory' },
   { to: '/admin/orders',     label: '📦 Orders' },
+  { to: '/admin/returns',    label: '↩️ Returns & Refunds' },
   { to: '/admin/autoships',  label: '♻️ Autoships' },
   { to: '/admin/runs',               label: '⚡ Commission Runs' },
   { to: '/admin/commission-preview', label: '🧮 Commission Preview' },

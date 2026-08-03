@@ -36,6 +36,7 @@ const navSections = [
       { to: '/dashboard/autoship',     label: '♻️ Autoship' },
       { to: '/dashboard/tax-summary',  label: '🧾 Tax Summary' },
       { to: '/dashboard/appeals',      label: '⚖️ Commission Appeals' },
+      { to: '/dashboard/returns',      label: '↩️ Returns & Refunds' },
     ],
   },
   {
