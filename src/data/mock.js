@@ -2826,3 +2826,66 @@ export const PAYMENT_METHODS = {
     },
   ],
 }
+
+// ── Fast Start Bonus ──────────────────────────────────────────────────────────
+// joinedAt is set to 45 days ago so the demo user is mid-Fast-Start period
+const FS_JOIN_OFFSET_DAYS = 45
+const fsJoinDate = new Date(Date.now() - FS_JOIN_OFFSET_DAYS * 86400000).toISOString().slice(0, 10)
+
+export const FAST_START_TIERS = [
+  {
+    id: 'fs-bronze',
+    name: 'Bronze Start',
+    emoji: '🥉',
+    deadlineDays: 30,
+    requirements: { pv: 100, directRecruits: 1, activeTeamMembers: 0 },
+    bonusMlmt: 500,
+    color: '#cd7f32',
+    description: 'Hit 100 PV and enroll your first member within 30 days.',
+  },
+  {
+    id: 'fs-silver',
+    name: 'Silver Start',
+    emoji: '🥈',
+    deadlineDays: 60,
+    requirements: { pv: 250, directRecruits: 2, activeTeamMembers: 1 },
+    bonusMlmt: 1500,
+    color: '#c0c0c0',
+    description: 'Hit 250 PV, enroll 2 members, and keep 1 active within 60 days.',
+  },
+  {
+    id: 'fs-gold',
+    name: 'Gold Start',
+    emoji: '🥇',
+    deadlineDays: 90,
+    requirements: { pv: 500, directRecruits: 5, activeTeamMembers: 3 },
+    bonusMlmt: 5000,
+    color: '#c9a84c',
+    description: 'Hit 500 PV, build a team of 5 with 3 active members within 90 days.',
+  },
+]
+
+export const FAST_START_PROGRESS = {
+  joinedAt: fsJoinDate,
+  currentPv: 320,
+  directRecruits: 3,
+  activeTeamMembers: 2,
+  tiers: [
+    { tierId: 'fs-bronze', status: 'claimed',  earnedAt: new Date(Date.now() - 15 * 86400000).toISOString().slice(0, 10), claimedAt: new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10) },
+    { tierId: 'fs-silver', status: 'earned',   earnedAt: new Date(Date.now() - 2  * 86400000).toISOString().slice(0, 10), claimedAt: null },
+    { tierId: 'fs-gold',   status: 'active',   earnedAt: null, claimedAt: null },
+  ],
+}
+
+export const FAST_START_LEADERBOARD = [
+  { rank: 1, name: 'Ingrid Solberg',   memberId: 'NV-10015', pv: 580, recruits: 6, tier: 'Gold Start',   emoji: '🥇', country: '🇳🇴' },
+  { rank: 2, name: 'Mikael Lindgren',  memberId: 'NV-10023', pv: 510, recruits: 5, tier: 'Gold Start',   emoji: '🥇', country: '🇸🇪' },
+  { rank: 3, name: 'Lars Eriksen',     memberId: 'NV-10042', pv: 320, recruits: 3, tier: 'Silver Start', emoji: '🥈', country: '🇳🇴', isYou: true },
+  { rank: 4, name: 'Astrid Bergman',   memberId: 'NV-10031', pv: 290, recruits: 3, tier: 'Silver Start', emoji: '🥈', country: '🇩🇰' },
+  { rank: 5, name: 'Bjarne Haugen',    memberId: 'NV-10055', pv: 240, recruits: 2, tier: 'Silver Start', emoji: '🥈', country: '🇳🇴' },
+  { rank: 6, name: 'Silje Moen',       memberId: 'NV-10061', pv: 185, recruits: 2, tier: 'Bronze Start', emoji: '🥉', country: '🇳🇴' },
+  { rank: 7, name: 'Ola Nordmann',     memberId: 'NV-10074', pv: 140, recruits: 1, tier: 'Bronze Start', emoji: '🥉', country: '🇳🇴' },
+  { rank: 8, name: 'Kari Hansen',      memberId: 'NV-10088', pv: 110, recruits: 1, tier: 'Bronze Start', emoji: '🥉', country: '🇳🇴' },
+  { rank: 9, name: 'Tor Eriksen',      memberId: 'NV-10092', pv: 75,  recruits: 0, tier: 'In Progress',  emoji: '⏳', country: '🇳🇴' },
+  { rank: 10, name: 'Helene Vik',      memberId: 'NV-10097', pv: 50,  recruits: 0, tier: 'In Progress',  emoji: '⏳', country: '🇩🇰' },
+]

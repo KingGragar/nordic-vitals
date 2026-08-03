@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 const ONBOARD_KEY = uid => `nv_onboarded_${uid}`
-import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline, getMilestones } from '../../api/mlmApi'
+import { getCommissions, getUserTransactions, getAdminMembers, getDirectDownline, getMilestones, getFastStartProgress } from '../../api/mlmApi'
 import { COMMISSIONS } from '../../data/mock'
 import DashboardLayout from '../../components/DashboardLayout'
 
@@ -77,6 +77,9 @@ export default function Home() {
   const [teamSize, setTeamSize] = useState(null)
   const [activeRecruits, setActiveRecruits] = useState(null)
   const [claimableCount, setClaimableCount] = useState(0)
+  const [fastStartActive, setFastStartActive] = useState(false)
+  const [fastStartDaysLeft, setFastStartDaysLeft] = useState(null)
+  const [fastStartUnclaimedCount, setFastStartUnclaimedCount] = useState(0)
 
   useEffect(() => {
     const uid = user?.userId || user?.memberId || 'NV-10042'
@@ -101,6 +104,18 @@ export default function Home() {
       .catch(() => {})
     getMilestones(uid)
       .then(d => setClaimableCount((d?.milestones || []).filter(m => m.status === 'claimable').length))
+      .catch(() => {})
+    getFastStartProgress(uid)
+      .then(d => {
+        if (!d?.progress?.joinedAt) return
+        const joined = new Date(d.progress.joinedAt + 'T00:00:00Z')
+        const daysPast = Math.floor((Date.now() - joined.getTime()) / 86400000)
+        const daysLeft = Math.max(0, 90 - daysPast)
+        setFastStartActive(daysPast <= 90)
+        setFastStartDaysLeft(daysLeft)
+        const unclaimed = (d.progress.tiers || []).filter(t => t.status === 'earned').length
+        setFastStartUnclaimedCount(unclaimed)
+      })
       .catch(() => {})
   }, [user])
 
@@ -201,6 +216,35 @@ export default function Home() {
             style={{ padding: '9px 18px', background: 'var(--gold)', color: '#0a0d14', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}
           >
             Get Started →
+          </Link>
+        </div>
+      )}
+
+      {/* Fast Start banner */}
+      {fastStartActive && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px',
+          background: 'linear-gradient(135deg, rgba(201,168,76,0.12), rgba(234,179,8,0.05))',
+          border: `1px solid ${fastStartUnclaimedCount > 0 ? 'rgba(201,168,76,0.7)' : 'rgba(201,168,76,0.3)'}`,
+          borderRadius: 12, marginBottom: 20,
+        }}>
+          <span style={{ fontSize: 26 }}>⚡</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: '#c9a84c', marginBottom: 2 }}>
+              Fast Start Bonus — {fastStartDaysLeft}d remaining
+              {fastStartUnclaimedCount > 0 && <span style={{ marginLeft: 8, fontSize: 12, background: '#c9a84c', color: '#000', padding: '1px 8px', borderRadius: 10 }}>{fastStartUnclaimedCount} to claim</span>}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text2)' }}>
+              {fastStartUnclaimedCount > 0
+                ? 'You\'ve unlocked a bonus tier — claim your MLMT reward now!'
+                : 'Keep building! Hit your PV and recruit targets to unlock bonus MLMT.'}
+            </div>
+          </div>
+          <Link
+            to="/dashboard/fast-start"
+            style={{ padding: '8px 16px', background: fastStartUnclaimedCount > 0 ? '#c9a84c' : 'rgba(201,168,76,0.15)', color: fastStartUnclaimedCount > 0 ? '#000' : '#c9a84c', border: '1px solid rgba(201,168,76,0.4)', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap' }}
+          >
+            {fastStartUnclaimedCount > 0 ? 'Claim Now →' : 'View Progress →'}
           </Link>
         </div>
       )}

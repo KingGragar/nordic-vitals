@@ -22,6 +22,9 @@ import {
   RETAIL_CUSTOMERS,
   RETAIL_CUSTOMER_ORDERS,
   PAYMENT_METHODS,
+  FAST_START_TIERS,
+  FAST_START_PROGRESS,
+  FAST_START_LEADERBOARD,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -3998,4 +4001,50 @@ export async function setDefaultPaymentMethod(userId, methodId, tab) {
     return savePM(userId, data)
   }
   return request('POST', `/v1/mlm/payment-methods/${userId}/${methodId}/set-default`, { tab })
+}
+
+// ── Fast Start Bonus ──────────────────────────────────────────────────────────
+const FS_KEY = 'nv_fast_start'
+
+function loadFS(userId) {
+  try {
+    const stored = localStorage.getItem(`${FS_KEY}_${userId}`)
+    if (stored) return JSON.parse(stored)
+  } catch {}
+  return JSON.parse(JSON.stringify(FAST_START_PROGRESS))
+}
+
+function saveFS(userId, data) {
+  try { localStorage.setItem(`${FS_KEY}_${userId}`, JSON.stringify(data)) } catch {}
+  return data
+}
+
+export async function getFastStartProgress(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    return { tiers: FAST_START_TIERS, progress: loadFS(userId) }
+  }
+  return request('GET', `/v1/mlm/fast-start/${userId}`)
+}
+
+export async function claimFastStartBonus(userId, tierId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const data = loadFS(userId)
+    data.tiers = data.tiers.map(t =>
+      t.tierId === tierId ? { ...t, status: 'claimed', claimedAt: new Date().toISOString().slice(0, 10) } : t
+    )
+    saveFS(userId, data)
+    const tier = FAST_START_TIERS.find(t => t.id === tierId)
+    return { ok: true, bonusMlmt: tier?.bonusMlmt ?? 0 }
+  }
+  return request('POST', `/v1/mlm/fast-start/${userId}/claim`, { tierId })
+}
+
+export async function getFastStartLeaderboard() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return FAST_START_LEADERBOARD
+  }
+  return request('GET', '/v1/mlm/fast-start/leaderboard')
 }
