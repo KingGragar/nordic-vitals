@@ -47,6 +47,7 @@ const navLinks = [
   { to: '/admin/kyc',             label: '🔏 KYC Queue' },
   { to: '/admin/gdpr',            label: '🛡️ GDPR Requests' },
   { to: '/admin/blog',            label: '📝 Blog' },
+  { to: '/admin/newsletter',      label: '📨 Newsletter Subscribers' },
   { to: '/admin/events',          label: '🎙️ Events' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

@@ -56,6 +56,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://nordic-vitals.vercel.app/unsubscribe</loc>
+    <changefreq>never</changefreq>
+    <priority>0.1</priority>
+  </url>
+  <url>
     <loc>https://nordic-vitals.vercel.app/faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

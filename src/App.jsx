@@ -102,6 +102,7 @@ const AdminAppeals            = lazy(() => import('./pages/admin/Appeals'))
 const AdminReturns            = lazy(() => import('./pages/admin/Returns'))
 const AdminGdprRequests       = lazy(() => import('./pages/admin/GdprRequests'))
 const AdminBlog               = lazy(() => import('./pages/admin/Blog'))
+const AdminNewsletterSubs     = lazy(() => import('./pages/admin/NewsletterSubscribers'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -117,6 +118,7 @@ const CompensationPlan    = lazy(() => import('./pages/CompensationPlan'))
 const Compare             = lazy(() => import('./pages/Compare'))
 const Blog                = lazy(() => import('./pages/Blog'))
 const BlogPost            = lazy(() => import('./pages/BlogPost'))
+const Unsubscribe         = lazy(() => import('./pages/Unsubscribe'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -254,6 +256,9 @@ function AppRoutes() {
         <Route path="/admin/returns"          element={<RequireAuth role="admin"><AdminReturns /></RequireAuth>} />
         <Route path="/admin/gdpr"             element={<RequireAuth role="admin"><AdminGdprRequests /></RequireAuth>} />
         <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />
+        <Route path="/admin/newsletter"       element={<RequireAuth role="admin"><AdminNewsletterSubs /></RequireAuth>} />
+
+        <Route path="/unsubscribe" element={<Unsubscribe />} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>

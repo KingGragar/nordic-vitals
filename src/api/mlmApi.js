@@ -29,6 +29,7 @@ import {
   RETURN_REQUESTS,
   GDPR_REQUESTS,
   BLOG_POSTS,
+  NEWSLETTER_SUBSCRIBERS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4513,4 +4514,110 @@ export async function toggleBlogPostStatus(id) {
     return all[idx]
   }
   return request('PATCH', `/v1/admin/blog/${id}/toggle`)
+}
+
+// ─── Newsletter Subscribers ───────────────────────────────────────────────────
+
+const NL_KEY = 'nv_newsletter_subscribers'
+function loadSubs() {
+  try { return JSON.parse(localStorage.getItem(NL_KEY)) || [...NEWSLETTER_SUBSCRIBERS] } catch { return [...NEWSLETTER_SUBSCRIBERS] }
+}
+function saveSubs(data) { try { localStorage.setItem(NL_KEY, JSON.stringify(data)) } catch {} }
+
+export async function subscribeNewsletter({ email, name = '', source = 'landing', segments = ['blog'], consent = true }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    const all = loadSubs()
+    const existing = all.find(s => s.email.toLowerCase() === email.toLowerCase())
+    if (existing) {
+      if (existing.status === 'unsubscribed') {
+        existing.status = 'active'
+        existing.unsubscribed_at = null
+        existing.consented_at = new Date().toISOString()
+        saveSubs(all)
+        return { ok: true, resubscribed: true }
+      }
+      return { ok: true, already: true }
+    }
+    const next = {
+      id: `ns-${String(all.length + 1).padStart(3, '0')}`,
+      email, name, source, status: 'active', segments,
+      consented_at: consent ? new Date().toISOString() : null,
+      unsubscribed_at: null, opens: 0, clicks: 0,
+    }
+    all.push(next)
+    saveSubs(all)
+    return { ok: true, resubscribed: false, already: false }
+  }
+  return request('POST', '/v1/newsletter/subscribe', { email, name, source, segments, consent })
+}
+
+export async function getNewsletterSubscribers({ status, source, segment, search, page = 1, limit = 20 } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let rows = loadSubs()
+    if (status && status !== 'all') rows = rows.filter(s => s.status === status)
+    if (source && source !== 'all') rows = rows.filter(s => s.source === source)
+    if (segment && segment !== 'all') rows = rows.filter(s => s.segments.includes(segment))
+    if (search) {
+      const q = search.toLowerCase()
+      rows = rows.filter(s => s.email.toLowerCase().includes(q) || (s.name || '').toLowerCase().includes(q))
+    }
+    rows = [...rows].sort((a, b) => new Date(b.consented_at) - new Date(a.consented_at))
+    const total = rows.length
+    const items = rows.slice((page - 1) * limit, page * limit)
+    const allSubs = loadSubs()
+    const active = allSubs.filter(s => s.status === 'active').length
+    const thisMonth = allSubs.filter(s => {
+      const d = new Date(s.consented_at)
+      const now = new Date()
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+    }).length
+    return { items, total, page, pages: Math.ceil(total / limit), stats: { total: allSubs.length, active, unsubscribed: allSubs.length - active, thisMonth } }
+  }
+  return request('GET', '/v1/newsletter/subscribers', { status, source, segment, search, page, limit })
+}
+
+export async function updateSubscriberStatus(id, status) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = loadSubs()
+    const idx = all.findIndex(s => s.id === id)
+    if (idx === -1) throw new Error('Subscriber not found')
+    all[idx].status = status
+    if (status === 'unsubscribed') all[idx].unsubscribed_at = new Date().toISOString()
+    else all[idx].unsubscribed_at = null
+    saveSubs(all)
+    return all[idx]
+  }
+  return request('PATCH', `/v1/newsletter/subscribers/${id}`, { status })
+}
+
+export async function deleteNewsletterSubscriber(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = loadSubs().filter(s => s.id !== id)
+    saveSubs(all)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/newsletter/subscribers/${id}`)
+}
+
+export async function unsubscribeNewsletter(token) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const all = loadSubs()
+    const decoded = atob(token || '')
+    const idx = all.findIndex(s => s.email === decoded)
+    if (idx === -1) return { ok: false, error: 'invalid_token' }
+    all[idx].status = 'unsubscribed'
+    all[idx].unsubscribed_at = new Date().toISOString()
+    saveSubs(all)
+    return { ok: true, email: all[idx].email }
+  }
+  return request('POST', `/v1/newsletter/unsubscribe`, { token })
+}
+
+export async function addNewsletterSubscriberManual({ email, name, source = 'manual', segments = ['blog'] }) {
+  return subscribeNewsletter({ email, name, source, segments, consent: true })
 }

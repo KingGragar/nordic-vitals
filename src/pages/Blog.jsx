@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getBlogPosts } from '../api/mlmApi'
 import usePageTitle from '../hooks/usePageTitle'
+import NewsletterWidget from '../components/NewsletterWidget'
 
 const CATEGORIES = ['All', 'News', 'Products', 'Success Stories', 'Compliance', 'Training']
 
@@ -195,6 +196,9 @@ export default function Blog() {
           </>
         )}
       </main>
+
+      {/* Newsletter subscription */}
+      <NewsletterWidget source="blog" />
 
       {/* Footer CTA */}
       <div style={{ background: 'var(--navy2)', borderTop: '1px solid var(--border)', padding: '48px 24px', textAlign: 'center' }}>

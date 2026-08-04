@@ -5,6 +5,7 @@ import { getVpProducts, getBlogPosts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import SocialProofTicker from '../components/SocialProofTicker'
 import PromoBanner from '../components/PromoBanner'
+import NewsletterWidget from '../components/NewsletterWidget'
 import usePageTitle from '../hooks/usePageTitle'
 
 const productGradients = {
@@ -521,6 +522,9 @@ export default function Landing() {
 
       {/* ── BLOG PREVIEW ── */}
       <BlogPreview />
+
+      {/* ── NEWSLETTER ── */}
+      <NewsletterWidget source="landing" />
 
       {/* ── FOOTER ── */}
       <footer style={{

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getBlogPost, getBlogPosts } from '../api/mlmApi'
+import NewsletterWidget from '../components/NewsletterWidget'
 
 function markdownToHtml(text) {
   return text
@@ -185,6 +186,11 @@ export default function BlogPost() {
               𝕏 Twitter
             </button>
           </div>
+        </div>
+
+        {/* Newsletter widget */}
+        <div style={{ marginBottom: '32px' }}>
+          <NewsletterWidget source="blog" compact />
         </div>
 
         {/* CTA */}
