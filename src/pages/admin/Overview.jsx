@@ -449,6 +449,7 @@ export default function Overview() {
           { label: '🖥️ System Status',   desc: 'Real-time health of all platform components', path: '/admin/system-status' },
           { label: '💱 Exchange Rates',   desc: 'MLMT→NOK/EUR/USD rates for Tax + P&L reports', path: '/admin/exchange-rates' },
           { label: '📢 Banners',          desc: 'Promotional banners on Landing + Shop pages', path: '/admin/banners' },
+          { label: '📝 Blog',             desc: 'Publish articles, success stories & product guides', path: '/admin/blog' },
           { label: '🔮 Revenue Forecast', desc: 'Growth & commission sustainability projections', path: '/admin/forecast' },
         ].map(({ label, desc, path }) => (
           <div

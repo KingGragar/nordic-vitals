@@ -101,6 +101,7 @@ const AdminCustomers          = lazy(() => import('./pages/admin/Customers'))
 const AdminAppeals            = lazy(() => import('./pages/admin/Appeals'))
 const AdminReturns            = lazy(() => import('./pages/admin/Returns'))
 const AdminGdprRequests       = lazy(() => import('./pages/admin/GdprRequests'))
+const AdminBlog               = lazy(() => import('./pages/admin/Blog'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -114,6 +115,8 @@ const RefLanding          = lazy(() => import('./pages/RefLanding'))
 const MaintenancePage     = lazy(() => import('./pages/MaintenancePage'))
 const CompensationPlan    = lazy(() => import('./pages/CompensationPlan'))
 const Compare             = lazy(() => import('./pages/Compare'))
+const Blog                = lazy(() => import('./pages/Blog'))
+const BlogPost            = lazy(() => import('./pages/BlogPost'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -157,6 +160,8 @@ function AppRoutes() {
         <Route path="/ref/:code" element={<RefLanding />} />
         <Route path="/plan"    element={<CompensationPlan />} />
         <Route path="/compare" element={<Compare />} />
+        <Route path="/blog"       element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
 
         <Route path="/dashboard" element={<RequireAuth><DashHome /></RequireAuth>} />
         <Route path="/dashboard/tree"        element={<RequireAuth><DashTree /></RequireAuth>} />
@@ -248,6 +253,7 @@ function AppRoutes() {
         <Route path="/admin/appeals"          element={<RequireAuth role="admin"><AdminAppeals /></RequireAuth>} />
         <Route path="/admin/returns"          element={<RequireAuth role="admin"><AdminReturns /></RequireAuth>} />
         <Route path="/admin/gdpr"             element={<RequireAuth role="admin"><AdminGdprRequests /></RequireAuth>} />
+        <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>

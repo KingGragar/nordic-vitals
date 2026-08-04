@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCTS } from '../data/mock'
-import { getVpProducts } from '../api/mlmApi'
+import { getVpProducts, getBlogPosts } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import SocialProofTicker from '../components/SocialProofTicker'
 import PromoBanner from '../components/PromoBanner'
@@ -14,6 +14,55 @@ const productGradients = {
   4: 'linear-gradient(135deg, #1c1917, #27272a)',
   5: 'linear-gradient(135deg, #14532d, #065f46)',
   6: 'linear-gradient(135deg, #3b0764, #4a044e)',
+}
+
+function BlogPreview() {
+  const [posts, setPosts] = useState([])
+  useEffect(() => {
+    getBlogPosts({ limit: 3 }).then(ps => setPosts(ps.slice(0, 3))).catch(() => {})
+  }, [])
+  if (!posts.length) return null
+  return (
+    <section style={{ padding: '72px 24px', background: 'var(--navy2)' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '32px' }}>
+          <div>
+            <div style={{ fontSize: '12px', color: 'var(--gold)', fontWeight: '600', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>
+              From the Blog
+            </div>
+            <h2 style={{ color: 'var(--cream)', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: '800', margin: 0 }}>
+              Health Insights & Stories
+            </h2>
+          </div>
+          <Link to="/blog" className="btn btn-outline btn-sm">All Articles →</Link>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {posts.map(post => (
+            <Link key={post.id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
+              <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', transition: 'border-color 0.2s', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '24px' }}>{post.coverEmoji}</span>
+                  <span style={{ background: 'rgba(201,168,76,0.15)', color: 'var(--gold)', borderRadius: '20px', padding: '3px 10px', fontSize: '11px', fontWeight: '600' }}>
+                    {post.category}
+                  </span>
+                </div>
+                <div style={{ color: 'var(--cream)', fontSize: '15px', fontWeight: '700', lineHeight: '1.4' }}>{post.title}</div>
+                <p style={{ color: 'var(--text2)', fontSize: '13px', lineHeight: '1.6', margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {post.excerpt}
+                </p>
+                <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: 'auto', paddingTop: '8px' }}>
+                  {post.readMinutes} min read · {new Date(post.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export default function Landing() {
@@ -470,6 +519,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── BLOG PREVIEW ── */}
+      <BlogPreview />
+
       {/* ── FOOTER ── */}
       <footer style={{
         background: '#080f18',
@@ -528,6 +580,10 @@ export default function Landing() {
                   onMouseEnter={e => e.target.style.color = 'var(--gold)'}
                   onMouseLeave={e => e.target.style.color = 'var(--text2)'}
                 >About</a>
+                <Link to="/blog" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
+                  onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.target.style.color = 'var(--text2)'}
+                >Blog</Link>
                 <Link to="/terms" style={{ color: 'var(--text2)', fontSize: '14px', transition: 'color 0.18s' }}
                   onMouseEnter={e => e.target.style.color = 'var(--gold)'}
                   onMouseLeave={e => e.target.style.color = 'var(--text2)'}

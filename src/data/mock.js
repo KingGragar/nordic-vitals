@@ -3343,3 +3343,207 @@ export const GDPR_REQUESTS = [
     ],
   },
 ]
+
+export const BLOG_POSTS = [
+  {
+    id: 'bp-001',
+    slug: 'omega-3-guide-nordic-health',
+    title: 'The Nordic Guide to Omega-3: Why Cold-Water Fish Oil Is Different',
+    excerpt: 'Not all omega-3 supplements are created equal. We explain why the source and processing method of fish oil dramatically affects bioavailability and how Nordic Vitals sources only from MSC-certified cold-water fisheries.',
+    body: `Cold-water fish — salmon, mackerel, herring, and anchovies from the Norwegian and Barents seas — produce omega-3 fatty acids with exceptionally high EPA and DHA content. The cold forces their cell membranes to remain fluid, which means higher concentrations of the phospholipid-bound fatty acids your body absorbs most efficiently.
+
+**Why source matters**
+
+Fish oil quality degrades quickly through oxidation. Look for products with a TOTOX value below 10 mEq/kg — Nordic Vitals Cold Water Omega-3 is consistently tested at 6–8. We work exclusively with MSC-certified (Marine Stewardship Council) fisheries operating under Norwegian fisheries law, which mandates strict traceability from sea to capsule.
+
+**EPA vs DHA — what's the difference?**
+
+EPA (eicosapentaenoic acid) primarily supports cardiovascular and inflammatory pathways. DHA (docosahexaenoic acid) is the dominant structural fat in brain tissue and the retina. A balanced 3:2 EPA:DHA ratio — as found in our Cold Water Omega-3 — supports both.
+
+**Who benefits most?**
+
+Research published in the European Journal of Clinical Nutrition consistently shows benefits for:
+- Adults over 40 with elevated triglycerides
+- Pregnant women (DHA is critical for fetal brain development)
+- Athletes using omega-3 for recovery (anti-inflammatory pathway)
+- Anyone eating fewer than two servings of oily fish per week
+
+**Dosage guidance**
+
+For general wellness: 1–2g EPA+DHA per day. For therapeutic cardiovascular support (always consult your doctor): 2–4g per day under medical supervision.
+
+Our 60-capsule bottle provides a 30-day supply at the optimal 2g dose.`,
+    category: 'Products',
+    tags: ['omega-3', 'fish oil', 'heart health', 'Nordic wellness'],
+    author: 'Nordic Vitals Science Team',
+    publishedAt: '2026-07-15T09:00:00Z',
+    updatedAt: '2026-07-15T09:00:00Z',
+    status: 'published',
+    featured: true,
+    readMinutes: 4,
+    coverEmoji: '🐟',
+  },
+  {
+    id: 'bp-002',
+    slug: 'member-success-maja-bergen',
+    title: 'From Part-Time Nurse to Full-Time Freedom: Maja\'s Story',
+    excerpt: 'Maja Eriksen from Bergen joined Nordic Vitals 18 months ago with a simple goal: earn enough to cut back to 3 hospital shifts per week. Today she runs a team of 47 and is approaching Gold rank.',
+    body: `Maja Eriksen is exactly the kind of person Nordic Vitals was built for.
+
+A paediatric nurse in Bergen, she spent years watching colleagues burn out on 12-hour shifts while juggling family life. "I didn't want to quit nursing," she tells us. "I love the work. I just wanted *control* over my time."
+
+**The first 90 days**
+
+Maja's approach was methodical — fitting her nursing background. She started by becoming a genuine product advocate. "I used the Omega-3 and the Collagen Marine Complex every day for 60 days before I recommended them to anyone," she says. "When patients or colleagues asked about supplements I'd already tried it myself. That authenticity made all the difference."
+
+Her first month: 3 sign-ups from colleagues. Month two: 7 more. By month three she had earned back her starter kit cost and was in profit.
+
+**Building her team**
+
+Maja used the Team Broadcast feature to keep her downline motivated with weekly tips and product science. "I send a quick voice note on Sunday evenings and a written tip via the app. Nothing fancy. Consistency matters more than polish."
+
+She reached Silver rank at month 11 and is projected to hit Gold before the end of the year.
+
+**The bigger picture**
+
+Today Maja works four hospital shifts per fortnight — half what she used to. "I still feel like a nurse. I still contribute. But I have Thursday and Friday for my kids. That's priceless."
+
+*Ready to start your own story? [Join Nordic Vitals today →](/join)*`,
+    category: 'Success Stories',
+    tags: ['success story', 'MLM', 'network marketing', 'Norway'],
+    author: 'Nordic Vitals Team',
+    publishedAt: '2026-07-22T10:00:00Z',
+    updatedAt: '2026-07-22T10:00:00Z',
+    status: 'published',
+    featured: true,
+    readMinutes: 3,
+    coverEmoji: '⭐',
+  },
+  {
+    id: 'bp-003',
+    slug: 'norway-mlm-regulations-2026',
+    title: 'What Norway\'s Pyramid Scheme Law Means for Legitimate Network Marketing',
+    excerpt: 'Following the 2023 amendments to the Norwegian Marketing Control Act, many network marketers are confused about what is and isn\'t permitted. We explain the rules and how Nordic Vitals is structured to comply.',
+    body: `Norway has some of Europe's strictest regulations around multi-level marketing — and that's a good thing. Clear rules protect consumers and separate legitimate direct-sales businesses from pyramid schemes.
+
+**The key law: Markedsføringsloven § 17**
+
+The Norwegian Marketing Control Act prohibits pyramid schemes (pyramidespill) defined as systems where:
+1. Participants pay to join
+2. The primary reward for participants is recruiting new participants (not selling products to end consumers)
+3. The system's sustainability depends on continued recruitment
+
+Nordic Vitals is structured to comply on every point. Here's how.
+
+**Retail ratio compliance**
+
+The Norwegian Consumer Authority (Forbrukerrådet) monitors whether MLM companies sell the majority of their products to genuine end consumers (not just internal members). Nordic Vitals maintains a minimum 70% retail-to-member sales ratio by design. Our Retail Customers module tracks every non-member purchase.
+
+**No pay-to-play recruitment bonuses**
+
+Our compensation plan does not pay bonuses for recruiting new members. Commission is earned only on product sales volume (PV) that flows up the sponsor tree. A member who recruits 100 people but those people buy nothing earns nothing from those recruits.
+
+**Income Disclosure Statement**
+
+As required by the EU Unfair Commercial Practices Directive (which Norway implements via EØS), we publish an annual Income Disclosure Statement (IDS) showing the actual earnings distribution across all ranks. The IDS is available in our Compliance Centre.
+
+**What this means for you as a member**
+
+You can confidently recommend Nordic Vitals products because you're operating under a compliant structure. When promoting the business opportunity, always lead with product benefits — not earnings claims. Use the Resources section for compliant marketing materials.
+
+*Questions? Contact our compliance team at compliance@nordicvitals.no*`,
+    category: 'Compliance',
+    tags: ['MLM regulations', 'Norway law', 'compliance', 'pyramid scheme law'],
+    author: 'Nordic Vitals Legal & Compliance',
+    publishedAt: '2026-07-28T08:00:00Z',
+    updatedAt: '2026-07-28T08:00:00Z',
+    status: 'published',
+    featured: false,
+    readMinutes: 5,
+    coverEmoji: '⚖️',
+  },
+  {
+    id: 'bp-004',
+    slug: 'collagen-marine-vs-bovine',
+    title: 'Marine Collagen vs Bovine Collagen: A Science-Based Comparison',
+    excerpt: 'Both marine and bovine collagen have compelling research behind them — but they differ in key ways that affect which is right for you. Here\'s what the latest studies say.',
+    body: `Collagen is the most abundant protein in the human body, making up roughly 30% of total protein content. After age 25, natural collagen synthesis declines at approximately 1% per year. Supplementation has moved from niche to mainstream — but the source of collagen matters more than most brands admit.
+
+**What's the difference?**
+
+*Marine collagen* is extracted from fish skin, scales, and bones. It is predominantly Type I collagen — the same type that dominates human skin (80%), tendons, and bone matrix. Its smaller peptide size (around 500 Daltons vs 2000 for bovine) means it absorbs faster and reaches higher plasma concentrations.
+
+*Bovine collagen* comes from cattle hide and connective tissue. It contains both Type I and Type III collagen — Type III is found in skin (supporting elasticity) and blood vessel walls. Bovine is often considered the better option for gut health.
+
+**What does the research show?**
+
+A 2021 meta-analysis in *Nutrients* covering 19 randomised controlled trials found that both types improved skin hydration and elasticity at doses of 2.5–10g per day. Marine collagen showed faster absorption kinetics. A 2023 Norwegian study on post-menopausal women found that 5g/day marine collagen peptides over 12 weeks significantly improved skin elasticity versus placebo.
+
+**Nordic Vitals Collagen Marine Complex**
+
+Our formula uses Type I marine collagen from MSC-certified cod skin, cold-extracted (no heat processing that degrades peptide structure), 5g per serving, with added Vitamin C (required co-factor for collagen synthesis) and Hyaluronic Acid.
+
+**Who should choose which?**
+
+- Skin, hair, nails → Marine collagen wins (faster absorption, Type I dominant)
+- Joint support + gut health → Consider bovine for Type III
+- Pescatarian/halal-certified diet requirements → Marine collagen only
+
+*Shop Nordic Vitals Collagen Marine Complex [here →](/shop)*`,
+    category: 'Products',
+    tags: ['collagen', 'marine collagen', 'skin health', 'product science'],
+    author: 'Nordic Vitals Science Team',
+    publishedAt: '2026-08-01T09:00:00Z',
+    updatedAt: '2026-08-01T09:00:00Z',
+    status: 'published',
+    featured: false,
+    readMinutes: 5,
+    coverEmoji: '🧬',
+  },
+  {
+    id: 'bp-005',
+    slug: 'nordic-vitals-summer-launch-2026',
+    title: 'Nordic Vitals Is Live: Welcome to the Next Chapter',
+    excerpt: 'After 18 months of development, product testing, and regulatory compliance work, Nordic Vitals officially launches today. Here\'s what\'s new, what\'s next, and how you can be part of it.',
+    body: `Today marks a milestone we've been building toward for a long time.
+
+Nordic Vitals is officially live.
+
+**What we've built**
+
+Starting from a simple belief — that Scandinavian health products and transparent network marketing can coexist — we've built:
+
+- A curated range of 6 premium supplements sourced from certified Norwegian and Nordic suppliers
+- A fully transparent MLM compensation plan (binary structure, verified by external auditors)
+- A member platform with real-time genealogy tracking, earnings dashboard, and training resources
+- Full Norwegian and EU regulatory compliance (GDPR, Forbrukerrådet, EU UCPD)
+
+**Our founding members**
+
+Thank you to the 847 founding members who joined during our soft-launch phase. Your feedback shaped the platform you're using today. The Autoship requests, the commission calculator tweaks, the mobile sidebar — all of it came from your suggestions.
+
+**What's coming next**
+
+- Q3 2026: Arctico live API integration (real-time commission engine goes live)
+- Q3 2026: First monthly commission run
+- Q4 2026: Expand to Sweden and Denmark
+- Q1 2027: Add 2 new product lines (immunity and cognitive performance)
+
+**Join us**
+
+If you're reading this and you're not yet a member, we'd love to have you. Whether you want to buy Nordic supplements at member pricing, build an income alongside your main career, or both — [start here →](/join).
+
+To our existing members: you built this with us. Let's keep going.
+
+*— The Nordic Vitals Team*`,
+    category: 'News',
+    tags: ['launch', 'company news', 'Nordic Vitals', 'announcement'],
+    author: 'Nordic Vitals Team',
+    publishedAt: '2026-08-04T08:00:00Z',
+    updatedAt: '2026-08-04T08:00:00Z',
+    status: 'published',
+    featured: true,
+    readMinutes: 3,
+    coverEmoji: '🚀',
+  },
+]

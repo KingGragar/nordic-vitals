@@ -28,6 +28,7 @@ import {
   COMMISSION_APPEALS,
   RETURN_REQUESTS,
   GDPR_REQUESTS,
+  BLOG_POSTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4408,4 +4409,108 @@ export async function submitMemberGdprRequest(userId, { type, description }) {
     return newReq
   }
   return request('POST', `/v1/mlm/gdpr/${userId}`, { type, description })
+}
+
+// ─── Blog API ───────────────────────────────────────────────────────────────
+
+const BLOG_KEY = 'nv_blog_posts'
+function loadBlog() {
+  try { return JSON.parse(localStorage.getItem(BLOG_KEY)) || BLOG_POSTS } catch { return [...BLOG_POSTS] }
+}
+function saveBlog(posts) { try { localStorage.setItem(BLOG_KEY, JSON.stringify(posts)) } catch {} }
+
+export async function getBlogPosts({ category, search, limit } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let posts = loadBlog().filter(p => p.status === 'published')
+    if (category && category !== 'All') posts = posts.filter(p => p.category === category)
+    if (search) {
+      const q = search.toLowerCase()
+      posts = posts.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.excerpt.toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      )
+    }
+    posts = posts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+    if (limit) posts = posts.slice(0, limit)
+    return posts
+  }
+  const params = new URLSearchParams()
+  if (category && category !== 'All') params.set('category', category)
+  if (search) params.set('search', search)
+  if (limit) params.set('limit', limit)
+  return request('GET', `/v1/blog?${params}`)
+}
+
+export async function getBlogPost(slug) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const post = loadBlog().find(p => p.slug === slug && p.status === 'published')
+    if (!post) throw new Error('Post not found')
+    return post
+  }
+  return request('GET', `/v1/blog/${slug}`)
+}
+
+export async function getAdminBlogPosts() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    return loadBlog().sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+  }
+  return request('GET', '/v1/admin/blog')
+}
+
+export async function createBlogPost(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const all = loadBlog()
+    const newPost = {
+      ...data,
+      id: `bp-${String(all.length + 1).padStart(3, '0')}`,
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      readMinutes: Math.max(1, Math.ceil(data.body.split(' ').length / 200)),
+    }
+    all.unshift(newPost)
+    saveBlog(all)
+    return newPost
+  }
+  return request('POST', '/v1/admin/blog', data)
+}
+
+export async function updateBlogPost(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const all = loadBlog()
+    const idx = all.findIndex(p => p.id === id)
+    if (idx === -1) throw new Error('Post not found')
+    all[idx] = { ...all[idx], ...data, updatedAt: new Date().toISOString(), readMinutes: Math.max(1, Math.ceil((data.body || all[idx].body).split(' ').length / 200)) }
+    saveBlog(all)
+    return all[idx]
+  }
+  return request('PUT', `/v1/admin/blog/${id}`, data)
+}
+
+export async function deleteBlogPost(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = loadBlog().filter(p => p.id !== id)
+    saveBlog(all)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/admin/blog/${id}`)
+}
+
+export async function toggleBlogPostStatus(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = loadBlog()
+    const idx = all.findIndex(p => p.id === id)
+    if (idx === -1) throw new Error('Post not found')
+    all[idx] = { ...all[idx], status: all[idx].status === 'published' ? 'draft' : 'published', updatedAt: new Date().toISOString() }
+    saveBlog(all)
+    return all[idx]
+  }
+  return request('PATCH', `/v1/admin/blog/${id}/toggle`)
 }
