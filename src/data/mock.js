@@ -3574,3 +3574,106 @@ export const NEWSLETTER_SUBSCRIBERS = [
   { id: 'ns-023', email: 'ruth.berg@yahoo.no',             name: 'Ruth Berg',            source: 'blog',     status: 'active',       segments: ['blog'],                       consented_at: '2026-08-03T10:40:00Z', unsubscribed_at: null,                    opens: 0, clicks: 0 },
   { id: 'ns-024', email: 'torbjorn.saether@gmail.com',     name: 'Torbjørn Sæther',      source: 'checkout', status: 'active',       segments: ['customers'],                  consented_at: '2026-08-04T07:15:00Z', unsubscribed_at: null,                    opens: 0, clicks: 0 },
 ]
+
+export const MEMBER_SEGMENTS = [
+  {
+    id: 'seg-001',
+    name: 'High-PV Active Members',
+    description: 'Active members with PV ≥ 200 — top performers',
+    rules: [
+      { field: 'status', op: 'equals', value: 'Active' },
+      { field: 'pv', op: 'gte', value: 200 },
+    ],
+    logic: 'ALL',
+    memberCount: 2,
+    createdAt: '2026-07-15T10:00:00Z',
+    updatedAt: '2026-07-15T10:00:00Z',
+  },
+  {
+    id: 'seg-002',
+    name: 'Inactive Win-Back',
+    description: 'Inactive members — target for re-engagement campaigns',
+    rules: [
+      { field: 'status', op: 'equals', value: 'Inactive' },
+    ],
+    logic: 'ALL',
+    memberCount: 3,
+    createdAt: '2026-07-18T09:00:00Z',
+    updatedAt: '2026-07-18T09:00:00Z',
+  },
+  {
+    id: 'seg-003',
+    name: 'Norway Silver+ Leaders',
+    description: 'Norwegian Silver, Gold, or Platinum ranked members',
+    rules: [
+      { field: 'country', op: 'in', value: ['Norway'] },
+      { field: 'rank', op: 'in', value: ['Silver', 'Gold', 'Platinum'] },
+    ],
+    logic: 'ALL',
+    memberCount: 1,
+    createdAt: '2026-07-22T14:30:00Z',
+    updatedAt: '2026-07-22T14:30:00Z',
+  },
+  {
+    id: 'seg-004',
+    name: 'New Members (Last 90 Days)',
+    description: 'Members who joined within the past 90 days — prime for onboarding campaigns',
+    rules: [
+      { field: 'joined_after', op: 'gte', value: '2026-05-07' },
+    ],
+    logic: 'ALL',
+    memberCount: 5,
+    createdAt: '2026-07-25T11:00:00Z',
+    updatedAt: '2026-07-25T11:00:00Z',
+  },
+  {
+    id: 'seg-005',
+    name: 'Upgrade Opportunity (Unranked Active)',
+    description: 'Active unranked members — coaching targets for Bronze upgrade',
+    rules: [
+      { field: 'rank', op: 'in', value: ['Unranked'] },
+      { field: 'status', op: 'equals', value: 'Active' },
+    ],
+    logic: 'ALL',
+    memberCount: 7,
+    createdAt: '2026-07-28T08:00:00Z',
+    updatedAt: '2026-07-28T08:00:00Z',
+  },
+  {
+    id: 'seg-006',
+    name: 'International Members',
+    description: 'Non-Norwegian members — localised campaign targets',
+    rules: [
+      { field: 'country', op: 'not_in', value: ['Norway'] },
+    ],
+    logic: 'ALL',
+    memberCount: 3,
+    createdAt: '2026-07-30T09:00:00Z',
+    updatedAt: '2026-07-30T09:00:00Z',
+  },
+  {
+    id: 'seg-007',
+    name: 'Bronze Rank Members',
+    description: 'All Bronze-ranked members — rank-up motivation campaigns',
+    rules: [
+      { field: 'rank', op: 'in', value: ['Bronze'] },
+    ],
+    logic: 'ALL',
+    memberCount: 2,
+    createdAt: '2026-08-01T07:30:00Z',
+    updatedAt: '2026-08-01T07:30:00Z',
+  },
+  {
+    id: 'seg-008',
+    name: 'Low PV Active (< 100 PV)',
+    description: 'Active members with less than 100 PV — target for product volume campaigns',
+    rules: [
+      { field: 'status', op: 'equals', value: 'Active' },
+      { field: 'pv', op: 'lte', value: 99 },
+    ],
+    logic: 'ALL',
+    memberCount: 6,
+    createdAt: '2026-08-03T11:15:00Z',
+    updatedAt: '2026-08-03T11:15:00Z',
+  },
+]

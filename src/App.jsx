@@ -103,6 +103,7 @@ const AdminReturns            = lazy(() => import('./pages/admin/Returns'))
 const AdminGdprRequests       = lazy(() => import('./pages/admin/GdprRequests'))
 const AdminBlog               = lazy(() => import('./pages/admin/Blog'))
 const AdminNewsletterSubs     = lazy(() => import('./pages/admin/NewsletterSubscribers'))
+const AdminSegments           = lazy(() => import('./pages/admin/Segments'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -257,6 +258,7 @@ function AppRoutes() {
         <Route path="/admin/gdpr"             element={<RequireAuth role="admin"><AdminGdprRequests /></RequireAuth>} />
         <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />
         <Route path="/admin/newsletter"       element={<RequireAuth role="admin"><AdminNewsletterSubs /></RequireAuth>} />
+        <Route path="/admin/segments"         element={<RequireAuth role="admin"><AdminSegments /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

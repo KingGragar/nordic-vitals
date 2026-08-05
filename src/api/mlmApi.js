@@ -30,6 +30,7 @@ import {
   GDPR_REQUESTS,
   BLOG_POSTS,
   NEWSLETTER_SUBSCRIBERS,
+  MEMBER_SEGMENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4620,4 +4621,111 @@ export async function unsubscribeNewsletter(token) {
 
 export async function addNewsletterSubscriberManual({ email, name, source = 'manual', segments = ['blog'] }) {
   return subscribeNewsletter({ email, name, source, segments, consent: true })
+}
+
+// ── Smart Segments ─────────────────────────────────────────────────────────────
+const SEGMENTS_KEY = 'nv_member_segments'
+function loadSegments() {
+  try { const s = localStorage.getItem(SEGMENTS_KEY); return s ? JSON.parse(s) : [...MEMBER_SEGMENTS] } catch { return [...MEMBER_SEGMENTS] }
+}
+function saveSegments(segs) {
+  try { localStorage.setItem(SEGMENTS_KEY, JSON.stringify(segs)) } catch {}
+}
+
+function applySegmentRules(members, rules, logic) {
+  return members.filter(m => {
+    const results = rules.map(rule => {
+      const mv = m[rule.field]
+      switch (rule.op) {
+        case 'equals':   return String(mv).toLowerCase() === String(rule.value).toLowerCase()
+        case 'not_equals': return String(mv).toLowerCase() !== String(rule.value).toLowerCase()
+        case 'gte':      return Number(mv) >= Number(rule.value)
+        case 'lte':      return Number(mv) <= Number(rule.value)
+        case 'in':       return Array.isArray(rule.value) ? rule.value.map(v => v.toLowerCase()).includes(String(mv).toLowerCase()) : false
+        case 'not_in':   return Array.isArray(rule.value) ? !rule.value.map(v => v.toLowerCase()).includes(String(mv).toLowerCase()) : true
+        case 'joined_after':  return new Date(m.joined) >= new Date(rule.value)
+        case 'joined_before': return new Date(m.joined) <= new Date(rule.value)
+        default: return true
+      }
+    })
+    return logic === 'ANY' ? results.some(Boolean) : results.every(Boolean)
+  })
+}
+
+export async function getSegments() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return loadSegments()
+  }
+  return request('GET', '/v1/mlm/admin/segments')
+}
+
+export async function previewSegment({ rules, logic }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const members = ADMIN_MEMBERS
+    const matched = rules.length === 0 ? members : applySegmentRules(members, rules, logic || 'ALL')
+    return { memberCount: matched.length, members: matched.slice(0, 5) }
+  }
+  return request('POST', '/v1/mlm/admin/segments/preview', { rules, logic })
+}
+
+export async function createSegment({ name, description, rules, logic }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const segs = loadSegments()
+    const matched = rules.length === 0 ? ADMIN_MEMBERS : applySegmentRules(ADMIN_MEMBERS, rules, logic || 'ALL')
+    const seg = {
+      id: `seg-${Date.now()}`,
+      name,
+      description: description || '',
+      rules,
+      logic: logic || 'ALL',
+      memberCount: matched.length,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    segs.unshift(seg)
+    saveSegments(segs)
+    return seg
+  }
+  return request('POST', '/v1/mlm/admin/segments', { name, description, rules, logic })
+}
+
+export async function updateSegment(id, updates) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const segs = loadSegments()
+    const idx = segs.findIndex(s => s.id === id)
+    if (idx === -1) throw new Error('Segment not found')
+    const rules = updates.rules || segs[idx].rules
+    const logic = updates.logic || segs[idx].logic
+    const matched = rules.length === 0 ? ADMIN_MEMBERS : applySegmentRules(ADMIN_MEMBERS, rules, logic)
+    segs[idx] = { ...segs[idx], ...updates, memberCount: matched.length, updatedAt: new Date().toISOString() }
+    saveSegments(segs)
+    return segs[idx]
+  }
+  return request('PUT', `/v1/mlm/admin/segments/${id}`, updates)
+}
+
+export async function deleteSegment(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const segs = loadSegments().filter(s => s.id !== id)
+    saveSegments(segs)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/segments/${id}`)
+}
+
+export async function getSegmentMembers(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const segs = loadSegments()
+    const seg = segs.find(s => s.id === id)
+    if (!seg) throw new Error('Segment not found')
+    const matched = seg.rules.length === 0 ? ADMIN_MEMBERS : applySegmentRules(ADMIN_MEMBERS, seg.rules, seg.logic)
+    return matched
+  }
+  return request('GET', `/v1/mlm/admin/segments/${id}/members`)
 }
