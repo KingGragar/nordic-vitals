@@ -3,7 +3,7 @@ import AdminLayout from '../../components/AdminLayout'
 import {
   getEmailCampaigns, createEmailCampaign, cancelEmailCampaign,
   duplicateEmailCampaign, sendEmailCampaignNow, updateEmailCampaign,
-  getEmailTemplates, getAdminMembers,
+  getEmailTemplates, getAdminMembers, getSegments,
 } from '../../api/mlmApi'
 
 const AUDIENCE_OPTIONS = [
@@ -51,7 +51,11 @@ const EMPTY_FORM = {
   schedule_type: 'now',
 }
 
-function estimateRecipients(audience, members) {
+function estimateRecipients(audience, members, segments) {
+  if (audience && audience.startsWith('segment:')) {
+    const seg = (segments || []).find(s => s.id === audience.replace('segment:', ''))
+    return seg ? (seg.memberCount || seg.member_count || 0) : 0
+  }
   if (!members.length) return 0
   if (audience === 'all') return members.length
   if (audience.startsWith('rank:')) {
@@ -71,6 +75,7 @@ export default function Campaigns() {
   const [campaigns, setCampaigns]   = useState([])
   const [members, setMembers]       = useState([])
   const [templates, setTemplates]   = useState([])
+  const [segments, setSegments]     = useState([])
   const [loading, setLoading]       = useState(true)
   const [statusTab, setStatusTab]   = useState('all')
   const [search, setSearch]         = useState('')
@@ -88,10 +93,12 @@ export default function Campaigns() {
       getEmailCampaigns(),
       getAdminMembers().catch(() => []),
       getEmailTemplates().catch(() => []),
-    ]).then(([c, m, t]) => {
+      getSegments().catch(() => []),
+    ]).then(([c, m, t, segs]) => {
       setCampaigns(c)
       setMembers(m)
       setTemplates(t)
+      setSegments(segs || [])
       setLoading(false)
     })
   }, [])
@@ -125,13 +132,21 @@ export default function Campaigns() {
   function setField(k, v) {
     setForm(f => {
       const updated = { ...f, [k]: v }
-      if (k === 'audience') updated.recipient_count = estimateRecipients(v, members)
+      if (k === 'audience') updated.recipient_count = estimateRecipients(v, members, segments)
       return updated
     })
   }
 
+  function resolveAudienceLabel(audience) {
+    if (audience && audience.startsWith('segment:')) {
+      const seg = segments.find(s => s.id === audience.replace('segment:', ''))
+      return seg ? `🎯 ${seg.name}` : audience
+    }
+    return AUDIENCE_OPTIONS.find(a => a.value === audience)?.label || audience
+  }
+
   function openCompose(prefill = null) {
-    setForm(prefill || { ...EMPTY_FORM, recipient_count: estimateRecipients('all', members) })
+    setForm(prefill || { ...EMPTY_FORM, recipient_count: estimateRecipients('all', members, segments) })
     setFormError('')
     setShowCompose(true)
   }
@@ -156,7 +171,7 @@ export default function Campaigns() {
         name: form.name,
         subject: form.subject,
         audience: form.audience,
-        audience_label: AUDIENCE_OPTIONS.find(a => a.value === form.audience)?.label || form.audience,
+        audience_label: resolveAudienceLabel(form.audience),
         recipient_count: form.recipient_count,
         body: form.body,
         status: sendNow ? 'sent' : (form.schedule_type === 'later' ? 'scheduled' : 'draft'),
@@ -191,7 +206,7 @@ export default function Campaigns() {
     } catch {}
   }
 
-  const estRecipients = useMemo(() => estimateRecipients(form.audience, members), [form.audience, members])
+  const estRecipients = useMemo(() => estimateRecipients(form.audience, members, segments), [form.audience, members, segments])
 
   return (
     <AdminLayout>
@@ -353,10 +368,26 @@ export default function Campaigns() {
               <label style={labelStyle}>
                 Audience
                 <select value={form.audience} onChange={e => setField('audience', e.target.value)} style={inputStyle}>
-                  {AUDIENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  <optgroup label="Standard">
+                    {AUDIENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </optgroup>
+                  {segments.length > 0 && (
+                    <optgroup label="🎯 Smart Segments">
+                      {segments.map(s => (
+                        <option key={s.id} value={`segment:${s.id}`}>
+                          {s.name} ({s.memberCount ?? s.member_count ?? 0} members)
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
                 <span style={{ fontSize: 11, color: 'var(--gold)', marginTop: 4 }}>
                   Estimated recipients: ~{estRecipients}
+                  {form.audience.startsWith('segment:') && (
+                    <span style={{ color: 'var(--text2)', marginLeft: 8 }}>
+                      · <a href="/admin/segments" style={{ color: '#60a5fa', textDecoration: 'none' }}>Manage segments ↗</a>
+                    </span>
+                  )}
                 </span>
               </label>
 
