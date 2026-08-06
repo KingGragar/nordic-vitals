@@ -5413,3 +5413,133 @@ export async function retryWebhookDelivery(deliveryId) {
   }
   return request('POST', `/v1/mlm/admin/webhooks/deliveries/${deliveryId}/retry`)
 }
+
+// ─── RANK MANAGER ─────────────────────────────────────────────────────────────
+
+const SEED_RANKS = [
+  { id: 'rank_1', name: 'Starter',   slug: 'starter',   color: '#9ca3af', icon: '⭐', order: 1, pvRequired: 0,    gvRequired: 0,      activeLegsRequired: 0, legVolRequired: 0,    monthlyBonus: 0,     retailDiscount: 20, qualifyingPeriod: 'month', active: true,  memberCount: 412 },
+  { id: 'rank_2', name: 'Bronze',    slug: 'bronze',    color: '#cd7f32', icon: '🥉', order: 2, pvRequired: 100,  gvRequired: 500,    activeLegsRequired: 1, legVolRequired: 100,  monthlyBonus: 0,     retailDiscount: 25, qualifyingPeriod: 'month', active: true,  memberCount: 187 },
+  { id: 'rank_3', name: 'Silver',    slug: 'silver',    color: '#c0c0c0', icon: '🥈', order: 3, pvRequired: 150,  gvRequired: 1500,   activeLegsRequired: 2, legVolRequired: 200,  monthlyBonus: 500,   retailDiscount: 30, qualifyingPeriod: 'month', active: true,  memberCount: 94  },
+  { id: 'rank_4', name: 'Gold',      slug: 'gold',      color: '#ffd700', icon: '🥇', order: 4, pvRequired: 200,  gvRequired: 5000,   activeLegsRequired: 3, legVolRequired: 500,  monthlyBonus: 1500,  retailDiscount: 35, qualifyingPeriod: 'month', active: true,  memberCount: 41  },
+  { id: 'rank_5', name: 'Platinum',  slug: 'platinum',  color: '#e5e4e2', icon: '💎', order: 5, pvRequired: 300,  gvRequired: 15000,  activeLegsRequired: 4, legVolRequired: 1000, monthlyBonus: 4000,  retailDiscount: 40, qualifyingPeriod: 'month', active: true,  memberCount: 18  },
+  { id: 'rank_6', name: 'Diamond',   slug: 'diamond',   color: '#b9f2ff', icon: '💠', order: 6, pvRequired: 500,  gvRequired: 50000,  activeLegsRequired: 5, legVolRequired: 3000, monthlyBonus: 10000, retailDiscount: 45, qualifyingPeriod: 'month', active: true,  memberCount: 6   },
+  { id: 'rank_7', name: 'Blue Diamond', slug: 'blue_diamond', color: '#3b82f6', icon: '🔷', order: 7, pvRequired: 500, gvRequired: 150000, activeLegsRequired: 6, legVolRequired: 10000, monthlyBonus: 25000, retailDiscount: 50, qualifyingPeriod: 'month', active: true, memberCount: 2 },
+]
+
+function _rankKey() { return 'nv_admin_ranks' }
+function _rankInit() {
+  try { return JSON.parse(localStorage.getItem(_rankKey())) || SEED_RANKS } catch { return SEED_RANKS }
+}
+function _rankSave(r) { localStorage.setItem(_rankKey(), JSON.stringify(r)) }
+function _rankNextId(r) { return 'rank_' + (Math.max(0, ...r.map(x => parseInt(x.id.replace('rank_', '')) || 0)) + 1) }
+
+export async function getAdminRanks() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    return { ranks: _rankInit() }
+  }
+  return request('GET', '/v1/mlm/admin/ranks')
+}
+
+export async function createRank(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const ranks = _rankInit()
+    const rank = { id: _rankNextId(ranks), ...data, memberCount: 0, createdAt: new Date().toISOString() }
+    _rankSave([...ranks, rank].sort((a, b) => a.order - b.order))
+    return { ok: true, rank }
+  }
+  return request('POST', '/v1/mlm/admin/ranks', data)
+}
+
+export async function updateRank(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    _rankSave(_rankInit().map(r => r.id === id ? { ...r, ...data } : r).sort((a, b) => a.order - b.order))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/ranks/${id}`, data)
+}
+
+export async function deleteRank(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _rankSave(_rankInit().filter(r => r.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/ranks/${id}`)
+}
+
+// ─── FRAUD & RISK CENTER ──────────────────────────────────────────────────────
+
+const SEED_FRAUD_FLAGS = [
+  { id: 'ff_1',  memberId: 'u_009', memberName: 'Erik Hansen',      type: 'duplicate_account',  severity: 'high',     description: '3 accounts sharing the same IP address (185.220.101.14)', detectedAt: '2026-08-06T08:12:00Z', status: 'open',         investigator: null,      resolvedAt: null, notes: '' },
+  { id: 'ff_2',  memberId: 'u_017', memberName: 'Kari Andersen',    type: 'referral_abuse',     severity: 'high',     description: 'Self-referral loop detected — member enrolled by their own sub-account', detectedAt: '2026-08-05T22:44:00Z', status: 'investigating', investigator: 'Admin',   resolvedAt: null, notes: 'Reached out to member for explanation.' },
+  { id: 'ff_3',  memberId: 'u_023', memberName: 'Lars Nilsen',      type: 'unusual_volume',     severity: 'medium',   description: 'PV jumped 4,200% MoM with no corresponding retail sales', detectedAt: '2026-08-05T14:30:00Z', status: 'open',         investigator: null,      resolvedAt: null, notes: '' },
+  { id: 'ff_4',  memberId: 'u_031', memberName: 'Ingrid Berg',      type: 'payment_fraud',      severity: 'critical', description: 'Chargeback filed on 4 orders within 30 days totalling NOK 8,200', detectedAt: '2026-08-05T09:05:00Z', status: 'open',         investigator: null,      resolvedAt: null, notes: '' },
+  { id: 'ff_5',  memberId: 'u_044', memberName: 'Ole Johansen',     type: 'suspicious_signup',  severity: 'low',      description: 'Signup from high-risk country proxy (Tor exit node)', detectedAt: '2026-08-04T16:22:00Z', status: 'dismissed',    investigator: 'Admin',   resolvedAt: '2026-08-04T18:00:00Z', notes: 'Member verified by phone. Legitimate VPN user.' },
+  { id: 'ff_6',  memberId: 'u_052', memberName: 'Sigrid Vik',       type: 'referral_abuse',     severity: 'medium',   description: 'Enrolled 12 members in 48 hours, all using the same device fingerprint', detectedAt: '2026-08-04T11:15:00Z', status: 'investigating', investigator: 'Admin',   resolvedAt: null, notes: '' },
+  { id: 'ff_7',  memberId: 'u_061', memberName: 'Tor Magnusson',    type: 'unusual_volume',     severity: 'medium',   description: 'Autoship orders placed and immediately returned in a commission-gaming pattern', detectedAt: '2026-08-03T20:08:00Z', status: 'resolved',     investigator: 'Admin',   resolvedAt: '2026-08-05T09:00:00Z', notes: 'Account suspended. Commissions reversed.' },
+  { id: 'ff_8',  memberId: 'u_073', memberName: 'Astrid Dahl',      type: 'payment_fraud',      severity: 'high',     description: 'Card number used belongs to a different cardholder name', detectedAt: '2026-08-03T13:44:00Z', status: 'resolved',     investigator: 'Admin',   resolvedAt: '2026-08-04T10:30:00Z', notes: 'Account frozen, reported to payment processor.' },
+  { id: 'ff_9',  memberId: 'u_081', memberName: 'Bjarne Solberg',   type: 'duplicate_account',  severity: 'low',      description: 'Possible duplicate of member u_043 (same name variant + DOB)', detectedAt: '2026-08-02T09:30:00Z', status: 'dismissed',    investigator: 'Admin',   resolvedAt: '2026-08-02T14:00:00Z', notes: 'Different people. Common Norwegian name.' },
+  { id: 'ff_10', memberId: 'u_092', memberName: 'Hilde Thorvaldsen', type: 'suspicious_signup', severity: 'low',      description: 'Account created with disposable email domain', detectedAt: '2026-08-01T17:55:00Z', status: 'open',         investigator: null,      resolvedAt: null, notes: '' },
+]
+
+const FRAUD_RULES_SEED = [
+  { id: 'fr_1', name: 'IP Sharing Threshold',        trigger: 'Same IP > N accounts',         threshold: 3,  action: 'flag',    enabled: true  },
+  { id: 'fr_2', name: 'Rapid Referral Burst',        trigger: 'N referrals within 48h',       threshold: 10, action: 'flag',    enabled: true  },
+  { id: 'fr_3', name: 'Chargeback Alert',            trigger: 'N chargebacks within 30d',     threshold: 2,  action: 'suspend', enabled: true  },
+  { id: 'fr_4', name: 'Volume Spike',                trigger: 'PV increase > N% MoM',         threshold: 300, action: 'flag',   enabled: true  },
+  { id: 'fr_5', name: 'Tor / Proxy Signup',          trigger: 'Signup from known proxy IP',   threshold: 1,  action: 'flag',    enabled: false },
+  { id: 'fr_6', name: 'Disposable Email',            trigger: 'Signup with throwaway email',  threshold: 1,  action: 'flag',    enabled: true  },
+  { id: 'fr_7', name: 'Return Gaming',               trigger: 'Return rate > N% of orders',   threshold: 50, action: 'flag',    enabled: true  },
+]
+
+function _ffKey() { return 'nv_fraud_flags' }
+function _ffInit() {
+  try { return JSON.parse(localStorage.getItem(_ffKey())) || SEED_FRAUD_FLAGS } catch { return SEED_FRAUD_FLAGS }
+}
+function _ffSave(f) { localStorage.setItem(_ffKey(), JSON.stringify(f)) }
+function _frKey() { return 'nv_fraud_rules' }
+function _frInit() {
+  try { return JSON.parse(localStorage.getItem(_frKey())) || FRAUD_RULES_SEED } catch { return FRAUD_RULES_SEED }
+}
+function _frSave(r) { localStorage.setItem(_frKey(), JSON.stringify(r)) }
+
+export async function getAdminFraudFlags({ status, type, severity } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let flags = _ffInit()
+    if (status && status !== 'all') flags = flags.filter(f => f.status === status)
+    if (type   && type   !== 'all') flags = flags.filter(f => f.type === type)
+    if (severity && severity !== 'all') flags = flags.filter(f => f.severity === severity)
+    return { flags: flags.sort((a, b) => new Date(b.detectedAt) - new Date(a.detectedAt)) }
+  }
+  return request('GET', '/v1/mlm/admin/fraud/flags', { status, type, severity })
+}
+
+export async function updateFraudFlag(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    _ffSave(_ffInit().map(f => f.id === id ? { ...f, ...data } : f))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/fraud/flags/${id}`, data)
+}
+
+export async function getAdminFraudRules() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    return { rules: _frInit() }
+  }
+  return request('GET', '/v1/mlm/admin/fraud/rules')
+}
+
+export async function updateFraudRule(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _frSave(_frInit().map(r => r.id === id ? { ...r, ...data } : r))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/fraud/rules/${id}`, data)
+}

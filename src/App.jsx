@@ -113,6 +113,8 @@ const AdminGiftCards          = lazy(() => import('./pages/admin/GiftCards'))
 const DashGiftCards           = lazy(() => import('./pages/dashboard/GiftCards'))
 const DashSecurity            = lazy(() => import('./pages/dashboard/Security'))
 const AdminWebhooks           = lazy(() => import('./pages/admin/Webhooks'))
+const AdminRanks              = lazy(() => import('./pages/admin/Ranks'))
+const AdminFraud              = lazy(() => import('./pages/admin/Fraud'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -277,6 +279,8 @@ function AppRoutes() {
         <Route path="/admin/segments"         element={<RequireAuth role="admin"><AdminSegments /></RequireAuth>} />
         <Route path="/admin/gift-cards"       element={<RequireAuth role="admin"><AdminGiftCards /></RequireAuth>} />
         <Route path="/admin/webhooks"         element={<RequireAuth role="admin"><AdminWebhooks /></RequireAuth>} />
+        <Route path="/admin/ranks"            element={<RequireAuth role="admin"><AdminRanks /></RequireAuth>} />
+        <Route path="/admin/fraud"            element={<RequireAuth role="admin"><AdminFraud /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
