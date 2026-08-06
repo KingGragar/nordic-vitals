@@ -2016,30 +2016,6 @@ export async function getWebhooks() {
   return request('GET', '/v1/mlm/admin/webhooks')
 }
 
-export async function createWebhook(payload) {
-  if (MOCK) {
-    await new Promise(r => setTimeout(r, 400))
-    return { id: `wh-${Date.now()}`, ...payload, created_at: new Date().toISOString(), last_delivery: null }
-  }
-  return request('POST', '/v1/mlm/admin/webhooks', payload)
-}
-
-export async function updateWebhook(id, payload) {
-  if (MOCK) {
-    await new Promise(r => setTimeout(r, 400))
-    return { ok: true }
-  }
-  return request('PUT', `/v1/mlm/admin/webhooks/${id}`, payload)
-}
-
-export async function deleteWebhook(id) {
-  if (MOCK) {
-    await new Promise(r => setTimeout(r, 300))
-    return { ok: true }
-  }
-  return request('DELETE', `/v1/mlm/admin/webhooks/${id}`)
-}
-
 export async function pingWebhook(id) {
   if (MOCK) {
     await new Promise(r => setTimeout(r, 800))
@@ -5189,4 +5165,251 @@ export async function checkGiftCardBalance(code) {
     return { found: true, code: card.code, balance: card.balance, status: card.status, expiresAt: card.expiresAt }
   }
   return request('GET', '/v1/mlm/gift-cards/check', { code })
+}
+
+// ── Security (member) ─────────────────────────────────────────────────────────
+
+const _SEC_KEY = 'nv_security_profile'
+function _secLoad() { try { return JSON.parse(localStorage.getItem(_SEC_KEY)) } catch { return null } }
+function _secSave(d) { localStorage.setItem(_SEC_KEY, JSON.stringify(d)) }
+function _secInit(userId) {
+  const s = _secLoad(); if (s && s.userId === userId) return s
+  const seed = {
+    userId,
+    passwordChangedAt: '2026-06-15T08:30:00Z',
+    twoFactorEnabled: false,
+    recoveryCodes: [],
+    activeSessions: [
+      { id: 'sess-001', device: 'MacBook Pro', browser: 'Chrome 126', os: 'macOS 14', ip: '88.93.12.44', location: 'Oslo, NO', lastActive: '2026-08-06T13:55:00Z', isCurrent: true },
+      { id: 'sess-002', device: 'iPhone 15 Pro', browser: 'Safari Mobile', os: 'iOS 17', ip: '88.93.12.44', location: 'Oslo, NO', lastActive: '2026-08-05T22:10:00Z', isCurrent: false },
+      { id: 'sess-003', device: 'Windows PC', browser: 'Firefox 128', os: 'Windows 11', ip: '194.63.109.21', location: 'Bergen, NO', lastActive: '2026-07-28T09:00:00Z', isCurrent: false },
+    ],
+    loginHistory: [
+      { id: 'lh-001', at: '2026-08-06T13:55:00Z', ip: '88.93.12.44', location: 'Oslo, NO', device: 'MacBook Pro / Chrome', success: true },
+      { id: 'lh-002', at: '2026-08-05T22:10:00Z', ip: '88.93.12.44', location: 'Oslo, NO', device: 'iPhone 15 / Safari', success: true },
+      { id: 'lh-003', at: '2026-08-04T08:45:00Z', ip: '102.0.88.5', location: 'Lagos, NG', device: 'Unknown / Chrome', success: false },
+      { id: 'lh-004', at: '2026-08-03T14:20:00Z', ip: '88.93.12.44', location: 'Oslo, NO', device: 'MacBook Pro / Chrome', success: true },
+      { id: 'lh-005', at: '2026-07-28T09:00:00Z', ip: '194.63.109.21', location: 'Bergen, NO', device: 'Windows PC / Firefox', success: true },
+      { id: 'lh-006', at: '2026-07-20T18:35:00Z', ip: '88.93.12.44', location: 'Oslo, NO', device: 'MacBook Pro / Chrome', success: true },
+    ],
+  }
+  _secSave(seed); return seed
+}
+
+export async function getSecurityProfile(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    return _secInit(userId)
+  }
+  return request('GET', '/v1/mlm/security/profile')
+}
+
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    if (!currentPassword || currentPassword.length < 4) throw new Error('Current password is incorrect.')
+    const profile = _secInit(userId)
+    _secSave({ ...profile, passwordChangedAt: new Date().toISOString() })
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/security/change-password', { currentPassword, newPassword })
+}
+
+export async function setupTwoFactor(userId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    return {
+      manualKey: 'JBSWY3DPEHPK3PXP',
+      qrDataUrl: null,
+    }
+  }
+  return request('POST', '/v1/mlm/security/2fa/setup')
+}
+
+export async function verifyAndEnableTwoFactor(userId, code) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    if (code.replace(/\s/g,'').length !== 6) throw new Error('Enter a valid 6-digit code.')
+    const recoveryCodes = Array.from({ length: 8 }, (_, i) => `NV-${String(i+1).padStart(2,'0')}-${Math.random().toString(36).toUpperCase().slice(2,10)}`)
+    const profile = _secInit(userId)
+    _mock2FA[userId] = true
+    _secSave({ ...profile, twoFactorEnabled: true, recoveryCodes })
+    return { ok: true, recoveryCodes }
+  }
+  return request('POST', '/v1/mlm/security/2fa/verify', { code })
+}
+
+export async function disableTwoFactor(userId, password) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    if (!password || password.length < 4) throw new Error('Password is required to disable 2FA.')
+    const profile = _secInit(userId)
+    delete _mock2FA[userId]
+    _secSave({ ...profile, twoFactorEnabled: false, recoveryCodes: [] })
+    return { ok: true }
+  }
+  return request('POST', '/v1/mlm/security/2fa/disable', { password })
+}
+
+export async function revokeSession(userId, sessionId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const profile = _secInit(userId)
+    const updated = { ...profile, activeSessions: profile.activeSessions.filter(s => s.id !== sessionId) }
+    _secSave(updated)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/security/sessions/${sessionId}`)
+}
+
+// ── Webhooks (admin) ──────────────────────────────────────────────────────────
+
+const _WH_KEY = 'nv_admin_webhooks'
+const _WHD_KEY = 'nv_webhook_deliveries'
+const WEBHOOK_EVENTS = [
+  'member.enrolled', 'member.rank_change', 'member.suspended',
+  'commission.run_complete', 'commission.payout_processed',
+  'order.placed', 'order.shipped', 'order.cancelled',
+  'gift_card.issued', 'subscription.renewed', 'kyc.approved', 'kyc.rejected',
+]
+function _whLoad() { try { return JSON.parse(localStorage.getItem(_WH_KEY)) } catch { return null } }
+function _whSave(d) { localStorage.setItem(_WH_KEY, JSON.stringify(d)) }
+function _whdLoad() { try { return JSON.parse(localStorage.getItem(_WHD_KEY)) } catch { return null } }
+function _whdSave(d) { localStorage.setItem(_WHD_KEY, JSON.stringify(d)) }
+function _whInit() {
+  const s = _whLoad(); if (s) return s
+  const seed = [
+    { id: 'wh-001', url: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/', description: 'Zapier — member events', events: ['member.enrolled','member.rank_change'], secret: 'whsec_zap123abc', enabled: true, createdAt: '2026-07-01T10:00:00Z' },
+    { id: 'wh-002', url: 'https://erp.example.no/webhook/orders', description: 'ERP — order sync', events: ['order.placed','order.shipped','order.cancelled'], secret: 'whsec_erp456def', enabled: true, createdAt: '2026-07-10T14:00:00Z' },
+    { id: 'wh-003', url: 'https://analytics.example.com/ingest', description: 'Analytics — commissions', events: ['commission.run_complete','commission.payout_processed'], secret: 'whsec_ana789ghi', enabled: false, createdAt: '2026-07-20T09:00:00Z' },
+  ]
+  _whSave(seed); return seed
+}
+function _whdInit() {
+  const s = _whdLoad(); if (s) return s
+  const seed = [
+    { id: 'whd-001', endpointId: 'wh-001', url: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/', event: 'member.enrolled', at: '2026-08-06T12:30:00Z', status: 'success', httpCode: 200, durationMs: 142, attempt: 1 },
+    { id: 'whd-002', endpointId: 'wh-001', url: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/', event: 'member.rank_change', at: '2026-08-06T11:15:00Z', status: 'success', httpCode: 200, durationMs: 188, attempt: 1 },
+    { id: 'whd-003', endpointId: 'wh-002', url: 'https://erp.example.no/webhook/orders', event: 'order.placed', at: '2026-08-06T10:45:00Z', status: 'failed', httpCode: 503, durationMs: 5021, attempt: 3, error: 'Service Unavailable' },
+    { id: 'whd-004', endpointId: 'wh-002', url: 'https://erp.example.no/webhook/orders', event: 'order.shipped', at: '2026-08-05T18:20:00Z', status: 'success', httpCode: 200, durationMs: 95, attempt: 1 },
+    { id: 'whd-005', endpointId: 'wh-001', url: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/', event: 'member.enrolled', at: '2026-08-05T09:00:00Z', status: 'success', httpCode: 200, durationMs: 161, attempt: 1 },
+    { id: 'whd-006', endpointId: 'wh-002', url: 'https://erp.example.no/webhook/orders', event: 'order.cancelled', at: '2026-08-04T14:35:00Z', status: 'failed', httpCode: 500, durationMs: 4998, attempt: 3, error: 'Internal Server Error' },
+    { id: 'whd-007', endpointId: 'wh-001', url: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/', event: 'member.rank_change', at: '2026-08-03T11:00:00Z', status: 'success', httpCode: 200, durationMs: 203, attempt: 1 },
+    { id: 'whd-008', endpointId: 'wh-002', url: 'https://erp.example.no/webhook/orders', event: 'order.placed', at: '2026-08-02T16:45:00Z', status: 'success', httpCode: 201, durationMs: 87, attempt: 1 },
+  ]
+  _whdSave(seed); return seed
+}
+function _whNextId(whs) {
+  const max = whs.reduce((m,w) => Math.max(m, parseInt(w.id.replace('wh-',''))||0), 0)
+  return 'wh-' + String(max+1).padStart(3,'0')
+}
+function _whdNextId(ds) {
+  const max = ds.reduce((m,d) => Math.max(m, parseInt(d.id.replace('whd-',''))||0), 0)
+  return 'whd-' + String(max+1).padStart(3,'0')
+}
+
+export async function getAdminWebhooks() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const endpoints = _whInit()
+    const deliveries = _whdInit()
+    const now = Date.now()
+    const h24 = now - 86400000
+    const recent = deliveries.filter(d => new Date(d.at).getTime() > h24)
+    return {
+      endpoints,
+      stats: {
+        total: endpoints.length,
+        active: endpoints.filter(e => e.enabled).length,
+        events24h: recent.length,
+        failed24h: recent.filter(d => d.status === 'failed').length,
+      },
+    }
+  }
+  return request('GET', '/v1/mlm/admin/webhooks')
+}
+
+export async function createWebhook(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const whs = _whInit()
+    const endpoint = { id: _whNextId(whs), ...data, createdAt: new Date().toISOString() }
+    _whSave([...whs, endpoint])
+    return { ok: true, endpoint }
+  }
+  return request('POST', '/v1/mlm/admin/webhooks', data)
+}
+
+export async function updateWebhook(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    _whSave(_whInit().map(w => w.id === id ? { ...w, ...data } : w))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/webhooks/${id}`, data)
+}
+
+export async function deleteWebhook(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _whSave(_whInit().filter(w => w.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/webhooks/${id}`)
+}
+
+export async function testWebhook(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 800))
+    const wh = _whInit().find(w => w.id === id)
+    const ok = wh && wh.enabled && !wh.url.includes('example.no')
+    const delivery = {
+      id: _whdNextId(_whdInit()),
+      endpointId: id,
+      url: wh?.url || '',
+      event: 'ping',
+      at: new Date().toISOString(),
+      status: ok ? 'success' : 'failed',
+      httpCode: ok ? 200 : 503,
+      durationMs: ok ? Math.floor(Math.random() * 200 + 80) : 5000,
+      attempt: 1,
+      error: ok ? undefined : 'Connection refused',
+    }
+    _whdSave([delivery, ..._whdInit()])
+    return { ok, httpCode: delivery.httpCode, durationMs: delivery.durationMs, error: delivery.error }
+  }
+  return request('POST', `/v1/mlm/admin/webhooks/${id}/test`)
+}
+
+export async function getWebhookDeliveries({ endpointId, status } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    let ds = _whdInit()
+    if (endpointId && endpointId !== 'all') ds = ds.filter(d => d.endpointId === endpointId)
+    if (status && status !== 'all') ds = ds.filter(d => d.status === status)
+    return ds.sort((a, b) => new Date(b.at) - new Date(a.at))
+  }
+  return request('GET', '/v1/mlm/admin/webhooks/deliveries', { endpointId, status })
+}
+
+export async function retryWebhookDelivery(deliveryId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const ds = _whdInit()
+    const orig = ds.find(d => d.id === deliveryId)
+    if (!orig) throw new Error('Delivery not found.')
+    const retry = {
+      ...orig,
+      id: _whdNextId(ds),
+      at: new Date().toISOString(),
+      status: 'success',
+      httpCode: 200,
+      durationMs: Math.floor(Math.random() * 200 + 80),
+      attempt: (orig.attempt || 1) + 1,
+      error: undefined,
+    }
+    _whdSave([retry, ...ds])
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/webhooks/deliveries/${deliveryId}/retry`)
 }

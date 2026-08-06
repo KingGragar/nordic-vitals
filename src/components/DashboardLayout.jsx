@@ -75,6 +75,7 @@ const navSections = [
       { to: '/dashboard/member-card',    label: '🪪 Member Card' },
       { to: '/dashboard/profile',        label: '👤 Profile' },
       { to: '/dashboard/data-privacy',   label: '🛡️ Data Privacy' },
+      { to: '/dashboard/security',       label: '🔐 Security Center' },
       { to: '/dashboard/onboarding',     label: '🚀 Setup Guide' },
     ],
   },
