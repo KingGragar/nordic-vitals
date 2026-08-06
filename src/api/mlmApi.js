@@ -4794,3 +4794,100 @@ export function getShippingRateForCountry(country, cartTotal, zones) {
     freeOver: zone.freeOver,
   }
 }
+
+// ── Tax / VAT Configuration ──────────────────────────────────────────────────
+const TAX_CONFIG_KEY = 'nv_tax_config'
+
+const DEFAULT_TAX_CONFIG = {
+  enabled: true,
+  pricesIncludeTax: true,
+  mvaRegistrationNumber: 'NO 987 654 321 MVA',
+  defaultRate: 25,
+  productCategoryRates: [
+    { id: 'supplements', label: 'Nutritional Supplements & Health Products', rate: 25, isDefault: true },
+    { id: 'food',        label: 'Food & Beverages',                          rate: 15 },
+    { id: 'transport',   label: 'Transport & Freight Services',              rate: 12 },
+    { id: 'exempt',      label: 'Exempt (Financial services, education)',    rate: 0  },
+  ],
+  countryOverrides: [
+    { id: 'co-001', country: 'United Kingdom',  rate: 20, enabled: true,  note: 'Post-Brexit UK VAT' },
+    { id: 'co-002', country: 'Germany',         rate: 19, enabled: true,  note: 'German MwSt'        },
+    { id: 'co-003', country: 'Sweden',          rate: 25, enabled: true,  note: 'Swedish MOMS'       },
+    { id: 'co-004', country: 'Denmark',         rate: 25, enabled: true,  note: 'Danish MOMS'        },
+    { id: 'co-005', country: 'Netherlands',     rate: 21, enabled: true,  note: 'Dutch BTW'          },
+    { id: 'co-006', country: 'France',          rate: 20, enabled: false, note: 'French TVA'         },
+  ],
+  vatCollectedMTD:   87_420,
+  vatCollectedYTD:  612_800,
+  taxableRevenueMTD: 349_680,
+  taxableRevenueYTD: 2_451_200,
+  ossThresholdEUR: 10_000,
+  ossEnrolled: false,
+}
+
+function _loadTaxConfig() {
+  try { const d = localStorage.getItem(TAX_CONFIG_KEY); if (d) return JSON.parse(d) } catch {}
+  return { ...DEFAULT_TAX_CONFIG }
+}
+function _saveTaxConfig(cfg) {
+  try { localStorage.setItem(TAX_CONFIG_KEY, JSON.stringify(cfg)) } catch {}
+}
+
+export async function getTaxConfig() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return _loadTaxConfig() }
+  return request('GET', '/v1/mlm/admin/tax-config')
+}
+
+export async function saveTaxConfig(patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const cfg = { ..._loadTaxConfig(), ...patch }
+    _saveTaxConfig(cfg)
+    return cfg
+  }
+  return request('PUT', '/v1/mlm/admin/tax-config', patch)
+}
+
+export async function addCountryTaxOverride(override) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const cfg = _loadTaxConfig()
+    const newItem = { ...override, id: 'co-' + Date.now(), enabled: true }
+    cfg.countryOverrides = [...cfg.countryOverrides, newItem]
+    _saveTaxConfig(cfg)
+    return newItem
+  }
+  return request('POST', '/v1/mlm/admin/tax-config/country-overrides', override)
+}
+
+export async function updateCountryTaxOverride(id, patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const cfg = _loadTaxConfig()
+    cfg.countryOverrides = cfg.countryOverrides.map(o => o.id === id ? { ...o, ...patch } : o)
+    _saveTaxConfig(cfg)
+    return cfg.countryOverrides.find(o => o.id === id) || null
+  }
+  return request('PATCH', `/v1/mlm/admin/tax-config/country-overrides/${id}`, patch)
+}
+
+export async function deleteCountryTaxOverride(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const cfg = _loadTaxConfig()
+    cfg.countryOverrides = cfg.countryOverrides.filter(o => o.id !== id)
+    _saveTaxConfig(cfg)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/tax-config/country-overrides/${id}`)
+}
+
+export function computeTaxForCountry(country, subtotal, taxConfig) {
+  if (!taxConfig?.enabled) return { vatAmount: 0, rate: 0, label: '' }
+  const override = (taxConfig.countryOverrides || []).find(o => o.enabled && o.country === country)
+  const rate = override ? override.rate : (taxConfig.defaultRate || 25)
+  const vatAmount = taxConfig.pricesIncludeTax
+    ? Math.round(subtotal - subtotal / (1 + rate / 100))
+    : Math.round(subtotal * rate / 100)
+  return { vatAmount, rate, label: `MVA ${rate}%` }
+}

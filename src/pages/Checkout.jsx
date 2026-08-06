@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { placeOrder, processPayment, postVolumeEvent, validatePromoCode, getShippingZones, getShippingRateForCountry } from '../api/mlmApi'
+import { placeOrder, processPayment, postVolumeEvent, validatePromoCode, getShippingZones, getShippingRateForCountry, getTaxConfig, computeTaxForCountry } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 
 const COUNTRIES = [
@@ -92,11 +92,14 @@ export default function Checkout() {
   const [promoLoading, setPromoLoading] = useState(false)
 
   const [shippingZones, setShippingZones] = useState([])
+  const [taxConfig, setTaxConfig] = useState(null)
   useEffect(() => { getShippingZones().then(setShippingZones) }, [])
+  useEffect(() => { getTaxConfig().then(setTaxConfig).catch(() => {}) }, [])
 
   const shippingInfo = getShippingRateForCountry(ship.country, cartTotal - promoDiscount, shippingZones)
   const shippingCost = shippingInfo.rate || 0
 
+  const taxInfo = taxConfig ? computeTaxForCountry(ship.country, cartTotal - promoDiscount, taxConfig) : { vatAmount: 0, rate: 0 }
   const finalTotal = Math.max(0, cartTotal - promoDiscount + shippingCost)
 
   async function handleApplyPromo() {
@@ -304,7 +307,7 @@ export default function Checkout() {
                 promoInput={promoInput} setPromoInput={setPromoInput} promoApplied={promoApplied}
                 promoDiscount={promoDiscount} promoError={promoError} promoLoading={promoLoading}
                 handleApplyPromo={handleApplyPromo} removePromo={() => { setPromoApplied(null); setPromoDiscount(0); setPromoInput(''); setPromoError('') }}
-                finalTotal={finalTotal} user={user} editable shippingInfo={shippingInfo} shippingCost={shippingCost} />
+                finalTotal={finalTotal} user={user} editable shippingInfo={shippingInfo} shippingCost={shippingCost} taxInfo={taxInfo} />
             </div>
           )}
 
@@ -480,7 +483,7 @@ export default function Checkout() {
 
               <OrderSummary cart={cart} cartTotal={cartTotal} cartCount={cartCount}
                 promoApplied={promoApplied} promoDiscount={promoDiscount} finalTotal={finalTotal} user={user}
-                editable={false} shippingInfo={shippingInfo} shippingCost={shippingCost} />
+                editable={false} shippingInfo={shippingInfo} shippingCost={shippingCost} taxInfo={taxInfo} />
             </div>
           )}
 
@@ -530,7 +533,7 @@ export default function Checkout() {
   )
 }
 
-function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, setPromoInput, promoApplied, promoDiscount, promoError, promoLoading, handleApplyPromo, removePromo, finalTotal, user, editable, shippingInfo, shippingCost }) {
+function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, setPromoInput, promoApplied, promoDiscount, promoError, promoLoading, handleApplyPromo, removePromo, finalTotal, user, editable, shippingInfo, shippingCost, taxInfo }) {
   return (
     <div className="card" style={{ padding: '28px' }}>
       <h2 style={{ color: 'var(--cream)', fontSize: '17px', fontWeight: '700', marginBottom: '20px' }}>
@@ -612,6 +615,12 @@ function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, 
             {!shippingInfo.free && shippingInfo.freeOver && (
               <span style={{ color: 'var(--gold)' }}> · Free over NOK {shippingInfo.freeOver.toLocaleString()}</span>
             )}
+          </div>
+        )}
+        {taxInfo?.vatAmount > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text2)', marginBottom: '8px' }}>
+            <span>Incl. MVA ({taxInfo.rate}%)</span>
+            <span>NOK {taxInfo.vatAmount}</span>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

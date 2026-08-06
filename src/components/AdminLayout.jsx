@@ -17,6 +17,7 @@ const navLinks = [
   { to: '/admin/inventory',  label: '🗃️ Inventory' },
   { to: '/admin/orders',     label: '📦 Orders' },
   { to: '/admin/shipping',   label: '🚚 Shipping Config' },
+  { to: '/admin/tax',        label: '🧾 Tax / VAT Config' },
   { to: '/admin/returns',    label: '↩️ Returns & Refunds' },
   { to: '/admin/autoships',  label: '♻️ Autoships' },
   { to: '/admin/runs',               label: '⚡ Commission Runs' },
