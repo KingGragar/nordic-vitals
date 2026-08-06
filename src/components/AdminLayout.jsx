@@ -32,6 +32,7 @@ const navLinks = [
   { to: '/admin/forecast',   label: '🔮 Revenue Forecast' },
   { to: '/admin/plan',      label: '⚙️ Plan Config' },
   { to: '/admin/promos',        label: '🏷️ Promo Codes' },
+  { to: '/admin/gift-cards',   label: '🎁 Gift Cards' },
   { to: '/admin/banners',       label: '📢 Storefront Banners' },
   { to: '/admin/challenges',    label: '🏅 Challenges' },
   { to: '/admin/reviews',       label: '⭐ Product Reviews' },

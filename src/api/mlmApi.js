@@ -5085,3 +5085,108 @@ export async function changeMyPlan(planId, billingCycle) {
   }
   return request('POST', '/v1/mlm/subscriptions/my/change', { planId, billingCycle })
 }
+
+/* ── Gift Cards ──────────────────────────────────────────────────────── */
+const _GC_KEY = 'nv_gift_cards'
+function _gcLoad() { try { return JSON.parse(localStorage.getItem(_GC_KEY) || 'null') } catch { return null } }
+function _gcSave(c) { localStorage.setItem(_GC_KEY, JSON.stringify(c)) }
+function _gcInit() {
+  const s = _gcLoad(); if (s) return s
+  const far = '2027-08-06T00:00:00Z'
+  const seed = [
+    { id:'gc-001', code:'NVGC-XKPT-2291', originalValue:500,  balance:500,  issuedTo:null,       issuedToName:null,                issuedAt:'2026-07-15T09:00:00Z', expiresAt:far, status:'active',   note:'Bulk batch A' },
+    { id:'gc-002', code:'NVGC-MTRQ-7741', originalValue:500,  balance:0,    issuedTo:null,       issuedToName:null,                issuedAt:'2026-07-15T09:00:00Z', expiresAt:far, status:'redeemed', note:'Bulk batch A', redeemedAt:'2026-07-28T14:22:00Z' },
+    { id:'gc-003', code:'NVGC-PLVN-4490', originalValue:1000, balance:350,  issuedTo:'NV-10042', issuedToName:'Sarah Hansen',      issuedAt:'2026-07-20T11:30:00Z', expiresAt:far, status:'partial',  note:'' },
+    { id:'gc-004', code:'NVGC-BNRK-8812', originalValue:200,  balance:200,  issuedTo:'NV-10051', issuedToName:'Erik Larsen',       issuedAt:'2026-07-22T08:00:00Z', expiresAt:'2026-08-01T00:00:00Z', status:'expired', note:'Promo expired' },
+    { id:'gc-005', code:'NVGC-ZQTM-3310', originalValue:750,  balance:750,  issuedTo:'NV-10065', issuedToName:'Anna Nilsen',       issuedAt:'2026-08-01T10:00:00Z', expiresAt:far, status:'active',   note:'New member welcome' },
+    { id:'gc-006', code:'NVGC-VKRJ-5521', originalValue:1500, balance:1500, issuedTo:null,       issuedToName:null,                issuedAt:'2026-08-03T14:00:00Z', expiresAt:far, status:'active',   note:'Influencer campaign' },
+    { id:'gc-007', code:'NVGC-HSTD-9901', originalValue:300,  balance:0,    issuedTo:'NV-10088', issuedToName:'Mia Christoffersen',issuedAt:'2026-07-10T09:00:00Z', expiresAt:far, status:'redeemed', note:'', redeemedAt:'2026-07-25T16:44:00Z' },
+    { id:'gc-008', code:'NVGC-YMLQ-6640', originalValue:250,  balance:250,  issuedTo:null,       issuedToName:null,                issuedAt:'2026-08-05T08:00:00Z', expiresAt:far, status:'active',   note:'' },
+  ]
+  _gcSave(seed); return seed
+}
+function _gcNewCode() {
+  const s = () => Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4).padEnd(4,'X')
+  return `NVGC-${s()}-${s()}`
+}
+function _gcNextId(cards) {
+  const max = cards.reduce((m,c) => Math.max(m, parseInt(c.id.replace('gc-',''))||0), 0)
+  return 'gc-' + String(max+1).padStart(3,'0')
+}
+
+export async function getAdminGiftCards({ status, search } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const all = _gcInit()
+    let cards = [...all]
+    if (status && status !== 'all') cards = cards.filter(c => c.status === status)
+    if (search) {
+      const q = search.toLowerCase()
+      cards = cards.filter(c => c.code.toLowerCase().includes(q) || (c.issuedToName||'').toLowerCase().includes(q) || (c.issuedTo||'').toLowerCase().includes(q))
+    }
+    const totalFaceValue = all.reduce((s,c) => s + c.originalValue, 0)
+    const outstanding    = all.filter(c=>c.status!=='voided'&&c.status!=='expired').reduce((s,c) => s + c.balance, 0)
+    const redeemed       = all.reduce((s,c) => s + (c.originalValue - c.balance), 0)
+    const expired        = all.filter(c=>c.status==='expired').reduce((s,c) => s + c.balance, 0)
+    return { cards, stats: { totalIssued: all.length, totalFaceValue, outstanding, redeemed, expired } }
+  }
+  return request('GET', '/v1/mlm/admin/gift-cards', { status, search })
+}
+
+export async function issueGiftCards({ value, expiresAt, issuedTo, issuedToName, note, count = 1 }) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    const cards = _gcInit()
+    const now = new Date().toISOString()
+    const newCards = []
+    for (let i = 0; i < Math.min(count, 200); i++) {
+      newCards.push({
+        id: _gcNextId([...cards, ...newCards]),
+        code: _gcNewCode(),
+        originalValue: value,
+        balance: value,
+        issuedTo: issuedTo || null,
+        issuedToName: issuedToName || null,
+        issuedAt: now,
+        expiresAt,
+        status: 'active',
+        note: note || '',
+      })
+    }
+    _gcSave([...cards, ...newCards])
+    return { ok: true, cards: newCards }
+  }
+  return request('POST', '/v1/mlm/admin/gift-cards/issue', { value, expiresAt, issuedTo, issuedToName, note, count })
+}
+
+export async function voidGiftCard(id, reason) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _gcSave(_gcInit().map(c => c.id === id ? { ...c, status:'voided', voidedAt: new Date().toISOString(), voidReason: reason||'' } : c))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/gift-cards/${id}/void`, { reason })
+}
+
+export async function getMyGiftCards(userId = 'NV-10042') {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    const cards = _gcInit().filter(c => c.issuedTo === userId)
+    const redemptions = [
+      { date:'2026-07-25T16:44:00Z', code:'NVGC-HSTD-9901', amount:300, orderId:'ORD-8754' },
+      { date:'2026-06-14T11:10:00Z', code:'NVGC-DEMO-0001', amount:150, orderId:'ORD-8201' },
+    ]
+    return { cards, redemptions }
+  }
+  return request('GET', '/v1/mlm/gift-cards/my')
+}
+
+export async function checkGiftCardBalance(code) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const card = _gcInit().find(c => c.code.toUpperCase() === code.trim().toUpperCase())
+    if (!card) return { found: false }
+    return { found: true, code: card.code, balance: card.balance, status: card.status, expiresAt: card.expiresAt }
+  }
+  return request('GET', '/v1/mlm/gift-cards/check', { code })
+}

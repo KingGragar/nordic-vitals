@@ -109,6 +109,8 @@ const AdminShipping           = lazy(() => import('./pages/admin/Shipping'))
 const AdminTax                = lazy(() => import('./pages/admin/Tax'))
 const AdminMembershipFees     = lazy(() => import('./pages/admin/MembershipFees'))
 const AdminSubscriptions      = lazy(() => import('./pages/admin/Subscriptions'))
+const AdminGiftCards          = lazy(() => import('./pages/admin/GiftCards'))
+const DashGiftCards           = lazy(() => import('./pages/dashboard/GiftCards'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -217,6 +219,7 @@ function AppRoutes() {
         <Route path="/dashboard/appeals"            element={<RequireAuth><DashAppeals /></RequireAuth>} />
         <Route path="/dashboard/returns"            element={<RequireAuth><DashReturns /></RequireAuth>} />
         <Route path="/dashboard/subscription"       element={<RequireAuth><DashSubscription /></RequireAuth>} />
+        <Route path="/dashboard/gift-cards"          element={<RequireAuth><DashGiftCards /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -269,6 +272,7 @@ function AppRoutes() {
         <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />
         <Route path="/admin/newsletter"       element={<RequireAuth role="admin"><AdminNewsletterSubs /></RequireAuth>} />
         <Route path="/admin/segments"         element={<RequireAuth role="admin"><AdminSegments /></RequireAuth>} />
+        <Route path="/admin/gift-cards"       element={<RequireAuth role="admin"><AdminGiftCards /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
