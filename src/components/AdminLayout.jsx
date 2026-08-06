@@ -57,6 +57,7 @@ const navLinks = [
   { to: '/admin/events',          label: '🎙️ Events' },
   { to: '/admin/ranks',           label: '🏅 Rank Manager' },
   { to: '/admin/fraud',           label: '🛡️ Fraud & Risk' },
+  { to: '/admin/ab-tests',       label: '🧪 A/B Tests' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

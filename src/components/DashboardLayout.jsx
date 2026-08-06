@@ -44,6 +44,7 @@ const navSections = [
   {
     heading: 'Grow',
     links: [
+      { to: '/dashboard/goals',           label: '🎯 Goal Planner' },
       { to: '/dashboard/fast-start',      label: '⚡ Fast Start Bonus' },
       { to: '/dashboard/rank-progress',  label: '📊 Rank Progress' },
       { to: '/dashboard/forecast',       label: '📈 Earnings Forecast' },

@@ -5543,3 +5543,154 @@ export async function updateFraudRule(id, data) {
   }
   return request('PUT', `/v1/mlm/admin/fraud/rules/${id}`, data)
 }
+
+// ── A/B Tests ──────────────────────────────────────────────────────────────
+const AB_SEED = [
+  {
+    id: 'abt-001', name: 'Landing Page Hero CTA', type: 'landing_page',
+    hypothesis: 'A stronger CTA ("Start Earning Today") will lift signups vs "Join Now".',
+    status: 'running',
+    startedAt: '2026-07-20T09:00:00Z', endedAt: null, winnerId: null,
+    variants: [
+      { id: 'a', name: 'Control — "Join Now"',          split: 50, impressions: 4812, conversions: 241 },
+      { id: 'b', name: 'Treatment — "Start Earning"',   split: 50, impressions: 4835, conversions: 314 },
+    ],
+  },
+  {
+    id: 'abt-002', name: 'Welcome Email Subject Line', type: 'email_subject',
+    hypothesis: 'Personalised subject line will increase open rate.',
+    status: 'completed',
+    startedAt: '2026-07-01T00:00:00Z', endedAt: '2026-07-15T23:59:59Z', winnerId: 'b',
+    variants: [
+      { id: 'a', name: '"Welcome to Nordic Vitals!"',         split: 50, impressions: 2100, conversions: 441 },
+      { id: 'b', name: '"Hi {{first_name}}, your journey begins"', split: 50, impressions: 2100, conversions: 567 },
+    ],
+  },
+  {
+    id: 'abt-003', name: 'Starter Pack Pricing', type: 'pricing',
+    hypothesis: '€199 anchor price will perform better than €149 for starter kit.',
+    status: 'paused',
+    startedAt: '2026-07-28T08:00:00Z', endedAt: null, winnerId: null,
+    variants: [
+      { id: 'a', name: 'Control — €149 pack',   split: 60, impressions: 980, conversions: 78 },
+      { id: 'b', name: 'Treatment — €199 pack', split: 40, impressions: 650, conversions: 61 },
+    ],
+  },
+  {
+    id: 'abt-004', name: 'Onboarding Step Count', type: 'onboarding',
+    hypothesis: 'Shorter 3-step onboarding reduces drop-off vs current 6-step flow.',
+    status: 'draft',
+    startedAt: null, endedAt: null, winnerId: null,
+    variants: [
+      { id: 'a', name: '6-step onboarding (control)',   split: 50, impressions: 0, conversions: 0 },
+      { id: 'b', name: '3-step onboarding (treatment)', split: 50, impressions: 0, conversions: 0 },
+    ],
+  },
+  {
+    id: 'abt-005', name: 'Commission Calculator Placement', type: 'landing_page',
+    hypothesis: 'Moving the commission calculator above the fold lifts qualified signups.',
+    status: 'running',
+    startedAt: '2026-08-01T06:00:00Z', endedAt: null, winnerId: null,
+    variants: [
+      { id: 'a', name: 'Below fold (control)',   split: 50, impressions: 1240, conversions: 74 },
+      { id: 'b', name: 'Above fold (treatment)', split: 50, impressions: 1238, conversions: 98 },
+    ],
+  },
+]
+let _abTests = null
+function _abInit() { if (!_abTests) _abTests = JSON.parse(JSON.stringify(AB_SEED)); return _abTests }
+function _abSave(t) { _abTests = t }
+
+export async function getAdminAbTests({ status, type } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 170))
+    let tests = _abInit()
+    if (status && status !== 'all') tests = tests.filter(t => t.status === status)
+    if (type   && type   !== 'all') tests = tests.filter(t => t.type === type)
+    return { tests }
+  }
+  return request('GET', '/v1/mlm/admin/ab-tests', null, { status, type })
+}
+
+export async function createAbTest(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const t = { id: `abt-${Date.now()}`, winnerId: null, ...data }
+    _abSave([..._abInit(), t])
+    return { test: t }
+  }
+  return request('POST', '/v1/mlm/admin/ab-tests', data)
+}
+
+export async function updateAbTest(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _abSave(_abInit().map(t => t.id === id ? { ...t, ...data } : t))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/ab-tests/${id}`, data)
+}
+
+export async function deleteAbTest(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    _abSave(_abInit().filter(t => t.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/ab-tests/${id}`)
+}
+
+// ── Member Goals ────────────────────────────────────────────────────────────
+const GOALS_SEED = [
+  { id: 'g-001', title: 'Reach Gold Rank',           category: 'rank',        target: 1,   current: 0,   unit: 'rank tier',  deadline: '2026-09-30', status: 'active',    createdAt: '2026-07-01' },
+  { id: 'g-002', title: 'Recruit 10 Members',         category: 'recruitment', target: 10,  current: 7,   unit: 'members',    deadline: '2026-08-31', status: 'active',    createdAt: '2026-07-05' },
+  { id: 'g-003', title: 'Generate 5000 PV this month',category: 'volume',      target: 5000,current: 3820,unit: 'PV',         deadline: '2026-08-31', status: 'active',    createdAt: '2026-08-01' },
+  { id: 'g-004', title: 'Earn €1000 in commissions', category: 'earnings',    target: 1000,current: 1000,unit: '€',          deadline: '2026-07-31', status: 'completed', createdAt: '2026-07-01' },
+  { id: 'g-005', title: 'Complete Fast Start Bonus',  category: 'activity',   target: 1,   current: 1,   unit: 'bonus',      deadline: '2026-07-15', status: 'completed', createdAt: '2026-07-01' },
+  { id: 'g-006', title: 'Build 3-leg network',        category: 'recruitment', target: 3,   current: 2,   unit: 'active legs',deadline: '2026-08-15', status: 'active',    createdAt: '2026-07-10' },
+  { id: 'g-007', title: '€500 monthly residual',      category: 'earnings',   target: 500, current: 310, unit: '€',          deadline: '2026-10-31', status: 'active',    createdAt: '2026-07-20' },
+  { id: 'g-008', title: 'Log in every day for 30 days',category: 'activity',  target: 30,  current: 22,  unit: 'days',       deadline: '2026-08-20', status: 'active',    createdAt: '2026-07-22' },
+  { id: 'g-009', title: 'Hit Diamond rank',           category: 'rank',       target: 1,   current: 0,   unit: 'rank tier',  deadline: '2026-06-30', status: 'missed',    createdAt: '2026-04-01' },
+]
+let _memberGoals = null
+function _gInit() { if (!_memberGoals) _memberGoals = JSON.parse(JSON.stringify(GOALS_SEED)); return _memberGoals }
+function _gSave(g) { _memberGoals = g }
+
+export async function getMemberGoals({ category, status } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    let goals = _gInit()
+    if (category && category !== 'all') goals = goals.filter(g => g.category === category)
+    if (status   && status   !== 'all') goals = goals.filter(g => g.status   === status)
+    return { goals }
+  }
+  return request('GET', '/v1/mlm/member/goals', null, { category, status })
+}
+
+export async function createMemberGoal(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const g = { id: `g-${Date.now()}`, current: 0, status: 'active', createdAt: new Date().toISOString().slice(0, 10), ...data }
+    _gSave([..._gInit(), g])
+    return { goal: g }
+  }
+  return request('POST', '/v1/mlm/member/goals', data)
+}
+
+export async function updateMemberGoal(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _gSave(_gInit().map(g => g.id === id ? { ...g, ...data } : g))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/member/goals/${id}`, data)
+}
+
+export async function deleteMemberGoal(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    _gSave(_gInit().filter(g => g.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/member/goals/${id}`)
+}
