@@ -31,6 +31,7 @@ import {
   BLOG_POSTS,
   NEWSLETTER_SUBSCRIBERS,
   MEMBER_SEGMENTS,
+  SHIPPING_ZONES,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4728,4 +4729,68 @@ export async function getSegmentMembers(id) {
     return matched
   }
   return request('GET', `/v1/mlm/admin/segments/${id}/members`)
+}
+
+// ─── Shipping Zones ──────────────────────────────────────────────────────────
+function loadShippingZones() {
+  const stored = localStorage.getItem('nv_shipping_zones')
+  return stored ? JSON.parse(stored) : SHIPPING_ZONES.map(z => ({ ...z }))
+}
+function saveShippingZones(zones) {
+  localStorage.setItem('nv_shipping_zones', JSON.stringify(zones))
+}
+
+export async function getShippingZones() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    return loadShippingZones()
+  }
+  return request('GET', '/v1/mlm/admin/shipping-zones')
+}
+
+export async function createShippingZone(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const zones = loadShippingZones()
+    const zone = { ...data, id: `zone-${Date.now()}` }
+    saveShippingZones([...zones, zone])
+    return zone
+  }
+  return request('POST', '/v1/mlm/admin/shipping-zones', data)
+}
+
+export async function updateShippingZone(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const zones = loadShippingZones()
+    const updated = zones.map(z => z.id === id ? { ...z, ...data } : z)
+    saveShippingZones(updated)
+    return updated.find(z => z.id === id)
+  }
+  return request('PUT', `/v1/mlm/admin/shipping-zones/${id}`, data)
+}
+
+export async function deleteShippingZone(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    saveShippingZones(loadShippingZones().filter(z => z.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/shipping-zones/${id}`)
+}
+
+export function getShippingRateForCountry(country, cartTotal, zones) {
+  const zone = (zones || []).find(z => z.active && z.countries.includes(country))
+  if (!zone) {
+    return { rate: 0, free: true, carrier: '', estimatedDays: '', zoneName: '' }
+  }
+  const free = cartTotal >= zone.freeOver
+  return {
+    rate: free ? 0 : zone.rate,
+    free,
+    carrier: zone.carrier,
+    estimatedDays: zone.estimatedDays,
+    zoneName: zone.name,
+    freeOver: zone.freeOver,
+  }
 }

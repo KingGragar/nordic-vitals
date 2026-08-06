@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { placeOrder, processPayment, postVolumeEvent, validatePromoCode } from '../api/mlmApi'
+import { placeOrder, processPayment, postVolumeEvent, validatePromoCode, getShippingZones, getShippingRateForCountry } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 
 const COUNTRIES = [
@@ -91,7 +91,13 @@ export default function Checkout() {
   const [promoError, setPromoError] = useState('')
   const [promoLoading, setPromoLoading] = useState(false)
 
-  const finalTotal = Math.max(0, cartTotal - promoDiscount)
+  const [shippingZones, setShippingZones] = useState([])
+  useEffect(() => { getShippingZones().then(setShippingZones) }, [])
+
+  const shippingInfo = getShippingRateForCountry(ship.country, cartTotal - promoDiscount, shippingZones)
+  const shippingCost = shippingInfo.rate || 0
+
+  const finalTotal = Math.max(0, cartTotal - promoDiscount + shippingCost)
 
   async function handleApplyPromo() {
     if (!promoInput.trim()) return
@@ -298,7 +304,7 @@ export default function Checkout() {
                 promoInput={promoInput} setPromoInput={setPromoInput} promoApplied={promoApplied}
                 promoDiscount={promoDiscount} promoError={promoError} promoLoading={promoLoading}
                 handleApplyPromo={handleApplyPromo} removePromo={() => { setPromoApplied(null); setPromoDiscount(0); setPromoInput(''); setPromoError('') }}
-                finalTotal={finalTotal} user={user} editable />
+                finalTotal={finalTotal} user={user} editable shippingInfo={shippingInfo} shippingCost={shippingCost} />
             </div>
           )}
 
@@ -474,7 +480,7 @@ export default function Checkout() {
 
               <OrderSummary cart={cart} cartTotal={cartTotal} cartCount={cartCount}
                 promoApplied={promoApplied} promoDiscount={promoDiscount} finalTotal={finalTotal} user={user}
-                editable={false} />
+                editable={false} shippingInfo={shippingInfo} shippingCost={shippingCost} />
             </div>
           )}
 
@@ -524,7 +530,7 @@ export default function Checkout() {
   )
 }
 
-function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, setPromoInput, promoApplied, promoDiscount, promoError, promoLoading, handleApplyPromo, removePromo, finalTotal, user, editable }) {
+function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, setPromoInput, promoApplied, promoDiscount, promoError, promoLoading, handleApplyPromo, removePromo, finalTotal, user, editable, shippingInfo, shippingCost }) {
   return (
     <div className="card" style={{ padding: '28px' }}>
       <h2 style={{ color: 'var(--cream)', fontSize: '17px', fontWeight: '700', marginBottom: '20px' }}>
@@ -594,9 +600,20 @@ function OrderSummary({ cart, cartTotal, cartCount, removeFromCart, promoInput, 
             <span>Promo ({promoApplied?.code})</span><span>– NOK {promoDiscount}</span>
           </div>
         )}
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '16px' }}>
-          <span>Shipping</span><span style={{ color: 'var(--gold)' }}>Free</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: shippingInfo?.carrier ? '4px' : '16px' }}>
+          <span>Shipping{shippingInfo?.carrier ? ` (${shippingInfo.carrier})` : ''}</span>
+          <span style={{ color: (shippingInfo?.free || !shippingCost) ? 'var(--gold)' : 'var(--cream)' }}>
+            {(shippingInfo?.free || !shippingCost) ? 'Free' : `NOK ${shippingCost}`}
+          </span>
         </div>
+        {shippingInfo?.carrier && (
+          <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '16px' }}>
+            {shippingInfo.estimatedDays}
+            {!shippingInfo.free && shippingInfo.freeOver && (
+              <span style={{ color: 'var(--gold)' }}> · Free over NOK {shippingInfo.freeOver.toLocaleString()}</span>
+            )}
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: 'var(--cream)', fontWeight: '700', fontSize: '16px' }}>Total</span>
           <span style={{ color: 'var(--cream)', fontWeight: '800', fontSize: '22px' }}>NOK {finalTotal}</span>
