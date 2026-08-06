@@ -56,6 +56,7 @@ const DashPaymentMethods      = lazy(() => import('./pages/dashboard/PaymentMeth
 const DashFastStart           = lazy(() => import('./pages/dashboard/FastStart'))
 const DashAppeals             = lazy(() => import('./pages/dashboard/Appeals'))
 const DashReturns             = lazy(() => import('./pages/dashboard/Returns'))
+const DashSubscription        = lazy(() => import('./pages/dashboard/Subscription'))
 
 const AdminOverview = lazy(() => import('./pages/admin/Overview'))
 const AdminMembers = lazy(() => import('./pages/admin/Members'))
@@ -107,6 +108,7 @@ const AdminSegments           = lazy(() => import('./pages/admin/Segments'))
 const AdminShipping           = lazy(() => import('./pages/admin/Shipping'))
 const AdminTax                = lazy(() => import('./pages/admin/Tax'))
 const AdminMembershipFees     = lazy(() => import('./pages/admin/MembershipFees'))
+const AdminSubscriptions      = lazy(() => import('./pages/admin/Subscriptions'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -214,6 +216,7 @@ function AppRoutes() {
         <Route path="/dashboard/fast-start"          element={<RequireAuth><DashFastStart /></RequireAuth>} />
         <Route path="/dashboard/appeals"            element={<RequireAuth><DashAppeals /></RequireAuth>} />
         <Route path="/dashboard/returns"            element={<RequireAuth><DashReturns /></RequireAuth>} />
+        <Route path="/dashboard/subscription"       element={<RequireAuth><DashSubscription /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -260,6 +263,7 @@ function AppRoutes() {
         <Route path="/admin/shipping"         element={<RequireAuth role="admin"><AdminShipping /></RequireAuth>} />
         <Route path="/admin/tax"              element={<RequireAuth role="admin"><AdminTax /></RequireAuth>} />
         <Route path="/admin/membership-fees"  element={<RequireAuth role="admin"><AdminMembershipFees /></RequireAuth>} />
+        <Route path="/admin/subscriptions"    element={<RequireAuth role="admin"><AdminSubscriptions /></RequireAuth>} />
         <Route path="/admin/returns"          element={<RequireAuth role="admin"><AdminReturns /></RequireAuth>} />
         <Route path="/admin/gdpr"             element={<RequireAuth role="admin"><AdminGdprRequests /></RequireAuth>} />
         <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />

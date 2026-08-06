@@ -33,6 +33,8 @@ import {
   MEMBER_SEGMENTS,
   SHIPPING_ZONES,
   MEMBERSHIP_FEE_CONFIG,
+  SUBSCRIPTION_PLANS,
+  MEMBER_SUBSCRIPTIONS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4958,4 +4960,128 @@ export async function deleteMembershipFeePaymentPlan(id) {
     return { ok: true }
   }
   return request('DELETE', `/v1/mlm/admin/membership-fees/payment-plans/${id}`)
+}
+
+// ─── Subscription Plans ───────────────────────────────────────────────────────
+const SUBS_PLANS_KEY = 'nv_subscription_plans'
+const SUBS_MEMBERS_KEY = 'nv_member_subscriptions'
+
+function _loadSubsPlans() {
+  try { const d = localStorage.getItem(SUBS_PLANS_KEY); if (d) return JSON.parse(d) } catch {}
+  return JSON.parse(JSON.stringify(SUBSCRIPTION_PLANS))
+}
+function _saveSubsPlans(plans) {
+  try { localStorage.setItem(SUBS_PLANS_KEY, JSON.stringify(plans)) } catch {}
+}
+
+function _loadMemberSubs() {
+  try { const d = localStorage.getItem(SUBS_MEMBERS_KEY); if (d) return JSON.parse(d) } catch {}
+  return JSON.parse(JSON.stringify(MEMBER_SUBSCRIPTIONS))
+}
+function _saveMemberSubs(subs) {
+  try { localStorage.setItem(SUBS_MEMBERS_KEY, JSON.stringify(subs)) } catch {}
+}
+
+export async function getSubscriptionPlans() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return _loadSubsPlans() }
+  return request('GET', '/v1/mlm/admin/subscriptions/plans')
+}
+
+export async function createSubscriptionPlan(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const plans = _loadSubsPlans()
+    const plan = { ...data, id: 'sp-' + Date.now(), memberCount: 0, mrr: 0 }
+    plans.push(plan)
+    _saveSubsPlans(plans)
+    return plan
+  }
+  return request('POST', '/v1/mlm/admin/subscriptions/plans', data)
+}
+
+export async function updateSubscriptionPlan(id, patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const plans = _loadSubsPlans()
+    const idx = plans.findIndex(p => p.id === id)
+    if (idx >= 0) { plans[idx] = { ...plans[idx], ...patch }; _saveSubsPlans(plans) }
+    return plans[idx] || null
+  }
+  return request('PATCH', `/v1/mlm/admin/subscriptions/plans/${id}`, patch)
+}
+
+export async function deleteSubscriptionPlan(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const plans = _loadSubsPlans().filter(p => p.id !== id)
+    _saveSubsPlans(plans)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/subscriptions/plans/${id}`)
+}
+
+export async function getMemberSubscriptions() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return _loadMemberSubs() }
+  return request('GET', '/v1/mlm/admin/subscriptions/members')
+}
+
+export async function assignMemberPlan(memberId, planId, billingCycle) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const subs = _loadMemberSubs()
+    const plans = _loadSubsPlans()
+    const plan = plans.find(p => p.id === planId)
+    const idx = subs.findIndex(s => s.memberId === memberId)
+    const today = new Date().toISOString().slice(0, 10)
+    const renewal = new Date(Date.now() + (billingCycle === 'annual' ? 365 : 30) * 86400000).toISOString().slice(0, 10)
+    const sub = {
+      memberId,
+      memberName: idx >= 0 ? subs[idx].memberName : memberId,
+      planId,
+      planName: plan?.name || '',
+      billingCycle,
+      status: 'active',
+      mrr: billingCycle === 'annual' ? Math.round((plan?.annualPrice || 0) / 12) : (plan?.monthlyPrice || 0),
+      startDate: idx >= 0 ? subs[idx].startDate : today,
+      nextRenewal: renewal,
+    }
+    if (idx >= 0) subs[idx] = sub; else subs.push(sub)
+    _saveMemberSubs(subs)
+    return sub
+  }
+  return request('POST', `/v1/mlm/admin/subscriptions/members/${memberId}/assign`, { planId, billingCycle })
+}
+
+export async function cancelMemberSubscription(memberId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const subs = _loadMemberSubs()
+    const idx = subs.findIndex(s => s.memberId === memberId)
+    if (idx >= 0) { subs[idx] = { ...subs[idx], status: 'cancelled', mrr: 0, nextRenewal: null }; _saveMemberSubs(subs) }
+    return subs[idx] || null
+  }
+  return request('DELETE', `/v1/mlm/admin/subscriptions/members/${memberId}`)
+}
+
+export async function getMySubscription(userId = 'NV-10042') {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const subs = _loadMemberSubs()
+    const plans = _loadSubsPlans()
+    const sub = subs.find(s => s.memberId === userId) || null
+    if (!sub) return null
+    const plan = plans.find(p => p.id === sub.planId) || null
+    return { ...sub, plan }
+  }
+  return request('GET', '/v1/mlm/subscriptions/my')
+}
+
+export async function changeMyPlan(planId, billingCycle) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const plans = _loadSubsPlans()
+    const plan = plans.find(p => p.id === planId)
+    return { ok: true, planId, billingCycle, planName: plan?.name || '', effectiveDate: new Date().toISOString().slice(0, 10) }
+  }
+  return request('POST', '/v1/mlm/subscriptions/my/change', { planId, billingCycle })
 }
