@@ -29,6 +29,7 @@ const navSections = [
       { to: '/dashboard/earnings',     label: '📈 Earnings' },
       { to: '/dashboard/wallet',           label: '💳 Wallet' },
       { to: '/dashboard/payment-methods', label: '🏦 Payment Methods' },
+      { to: '/dashboard/addresses',       label: '📍 Address Book' },
       { to: '/dashboard/orders',           label: '📦 My Orders' },
       { to: '/dashboard/wishlist',     label: '❤️ Wishlist' },
       { to: '/dashboard/my-reviews',   label: '⭐ My Reviews' },

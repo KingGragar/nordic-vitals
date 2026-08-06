@@ -5694,3 +5694,165 @@ export async function deleteMemberGoal(id) {
   }
   return request('DELETE', `/v1/mlm/member/goals/${id}`)
 }
+
+// ── Abandoned Carts (admin) ─────────────────────────────────────────────────
+const ABANDONED_CARTS_SEED = [
+  {
+    id: 'ac-001', email: 'lars.berg@example.com', memberName: 'Lars Berg',
+    abandonedAt: new Date(Date.now() - 2 * 3600000).toISOString(), status: 'new',
+    recoveryEmails: [],
+    items: [
+      { name: 'Arctic Omega-3 Complex', sku: 'AOC-90', qty: 2, price: 49.90 },
+      { name: 'Nordic Collagen Boost', sku: 'NCB-60', qty: 1, price: 64.90 },
+    ],
+  },
+  {
+    id: 'ac-002', email: 'ingrid.hall@example.com', memberName: 'Ingrid Hall',
+    abandonedAt: new Date(Date.now() - 26 * 3600000).toISOString(), status: 'emailed',
+    recoveryEmails: [{ sentAt: new Date(Date.now() - 20 * 3600000).toISOString(), template: 'Standard Recovery' }],
+    items: [
+      { name: 'Viking Vitality Stack', sku: 'VVS-30', qty: 1, price: 119.00 },
+    ],
+  },
+  {
+    id: 'ac-003', email: 'erik.storm@example.com', memberName: 'Erik Storm',
+    abandonedAt: new Date(Date.now() - 52 * 3600000).toISOString(), status: 'recovered',
+    recoveryEmails: [{ sentAt: new Date(Date.now() - 48 * 3600000).toISOString(), template: 'Standard Recovery' }],
+    items: [
+      { name: 'Arctic Omega-3 Complex', sku: 'AOC-90', qty: 3, price: 49.90 },
+      { name: 'Immune Shield Pro', sku: 'ISP-120', qty: 1, price: 39.90 },
+    ],
+  },
+  {
+    id: 'ac-004', email: 'sofia.lund@example.com', memberName: null,
+    abandonedAt: new Date(Date.now() - 6 * 3600000).toISOString(), status: 'new',
+    recoveryEmails: [],
+    items: [
+      { name: 'Nordic Collagen Boost', sku: 'NCB-60', qty: 2, price: 64.90 },
+    ],
+  },
+  {
+    id: 'ac-005', email: 'magnus.ore@example.com', memberName: 'Magnus Øre',
+    abandonedAt: new Date(Date.now() - 72 * 3600000).toISOString(), status: 'lost',
+    recoveryEmails: [
+      { sentAt: new Date(Date.now() - 68 * 3600000).toISOString(), template: 'Standard Recovery' },
+      { sentAt: new Date(Date.now() - 50 * 3600000).toISOString(), template: '10% Off Recovery' },
+    ],
+    items: [
+      { name: 'Starter Bundle Alpha', sku: 'SBA-01', qty: 1, price: 189.00 },
+    ],
+  },
+  {
+    id: 'ac-006', email: 'anna.svenson@example.com', memberName: 'Anna Svensson',
+    abandonedAt: new Date(Date.now() - 14 * 3600000).toISOString(), status: 'new',
+    recoveryEmails: [],
+    items: [
+      { name: 'Arctic Omega-3 Complex', sku: 'AOC-90', qty: 1, price: 49.90 },
+      { name: 'Viking Vitality Stack', sku: 'VVS-30', qty: 1, price: 119.00 },
+      { name: 'Immune Shield Pro', sku: 'ISP-120', qty: 2, price: 39.90 },
+    ],
+  },
+]
+let _abandonedCarts = null
+function _acInit() { if (!_abandonedCarts) _abandonedCarts = JSON.parse(JSON.stringify(ABANDONED_CARTS_SEED)); return _abandonedCarts }
+function _acSave(c) { _abandonedCarts = c }
+
+export async function getAbandonedCarts({ status } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    let carts = _acInit()
+    if (status && status !== 'all') carts = carts.filter(c => c.status === status)
+    return { carts }
+  }
+  return request('GET', '/v1/mlm/admin/abandoned-carts', null, { status })
+}
+
+export async function sendCartRecoveryEmail(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    _acSave(_acInit().map(c => c.id === id ? {
+      ...c,
+      status: 'emailed',
+      recoveryEmails: [...(c.recoveryEmails || []), { sentAt: new Date().toISOString(), template: 'Standard Recovery' }]
+    } : c))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/abandoned-carts/${id}/recover`, data)
+}
+
+export async function deleteAbandonedCart(id, newStatus) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    _acSave(_acInit().map(c => c.id === id ? { ...c, status: newStatus } : c))
+    return { ok: true }
+  }
+  return request('PATCH', `/v1/mlm/admin/abandoned-carts/${id}`, { status: newStatus })
+}
+
+// ── Member Address Book ─────────────────────────────────────────────────────
+const ADDRESS_SEED = [
+  {
+    id: 'addr-001', label: 'Home', firstName: 'Gary', lastName: 'Granello',
+    company: '', line1: 'Storgata 12', line2: '', city: 'Oslo',
+    state: '', postcode: '0182', country: 'Norway', phone: '+47 912 34 567',
+    isDefault: true,
+  },
+  {
+    id: 'addr-002', label: 'Work', firstName: 'Gary', lastName: 'Granello',
+    company: 'Nordic Vitals AS', line1: 'Karl Johans gate 25', line2: '3rd floor',
+    city: 'Oslo', state: '', postcode: '0159', country: 'Norway', phone: '',
+    isDefault: false,
+  },
+]
+let _memberAddresses = null
+function _maInit() { if (!_memberAddresses) _memberAddresses = JSON.parse(JSON.stringify(ADDRESS_SEED)); return _memberAddresses }
+function _maSave(a) { _memberAddresses = a }
+
+export async function getMemberAddresses() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    return { addresses: _maInit() }
+  }
+  return request('GET', '/v1/mlm/member/addresses')
+}
+
+export async function createMemberAddress(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const address = { id: `addr-${Date.now()}`, isDefault: _maInit().length === 0, ...data }
+    _maSave([..._maInit(), address])
+    return { address }
+  }
+  return request('POST', '/v1/mlm/member/addresses', data)
+}
+
+export async function updateMemberAddress(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _maSave(_maInit().map(a => a.id === id ? { ...a, ...data } : a))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/member/addresses/${id}`, data)
+}
+
+export async function deleteMemberAddress(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const remaining = _maInit().filter(a => a.id !== id)
+    if (remaining.length > 0 && !remaining.some(a => a.isDefault)) {
+      remaining[0].isDefault = true
+    }
+    _maSave(remaining)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/member/addresses/${id}`)
+}
+
+export async function setDefaultAddress(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    _maSave(_maInit().map(a => ({ ...a, isDefault: a.id === id })))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/member/addresses/${id}/set-default`)
+}
