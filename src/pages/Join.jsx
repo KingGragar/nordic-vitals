@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { enrollMember } from '../api/mlmApi'
+import { enrollMember, getMembershipFeeConfig } from '../api/mlmApi'
 import Navbar from '../components/Navbar'
 import usePageTitle from '../hooks/usePageTitle'
 
@@ -73,6 +73,11 @@ export default function Join() {
 
   // Step 3
   const [selectedPackage, setSelectedPackage] = useState('builder')
+  const [feeConfig, setFeeConfig] = useState(null)
+
+  useEffect(() => {
+    getMembershipFeeConfig().then(setFeeConfig).catch(() => {})
+  }, [])
 
   function handleFormChange(field, value) {
     setForm(f => ({ ...f, [field]: value }))
@@ -574,6 +579,51 @@ export default function Join() {
                 )
               })}
             </div>
+
+            {/* Enrollment fee notice */}
+            {feeConfig?.enrollment?.enabled && (() => {
+              const selectedPkg = PACKAGES.find(p => p.key === selectedPackage)
+              const fee = feeConfig.exemptions?.promoEnabled
+                ? feeConfig.exemptions.promoAmount
+                : feeConfig.enrollment.amount
+              const total = (selectedPkg?.price || 0) + fee
+              return (
+                <div style={{ background: 'var(--navy3)', borderRadius: 10, padding: '14px 16px', marginBottom: 8, fontSize: 13 }}>
+                  <div style={{ color: 'var(--text2)', marginBottom: 8, fontWeight: 600, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Order Summary
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text2)', marginBottom: 6 }}>
+                    <span>{selectedPkg?.name} Package</span>
+                    <span>NOK {selectedPkg?.price || 0}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text2)', marginBottom: 6 }}>
+                    <span>
+                      Enrollment fee
+                      {feeConfig.exemptions?.promoEnabled && feeConfig.exemptions.promoAmount < feeConfig.enrollment.amount && (
+                        <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--gold)' }}>PROMO</span>
+                      )}
+                    </span>
+                    <span>
+                      {fee === 0 ? <span style={{ color: '#34d399' }}>FREE</span> : `NOK ${fee}`}
+                    </span>
+                  </div>
+                  {feeConfig.enrollment.includedPV > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#34d399', fontSize: 12, marginBottom: 6 }}>
+                      <span>PV credit included</span>
+                      <span>+{feeConfig.enrollment.includedPV} PV</span>
+                    </div>
+                  )}
+                  <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--cream)', fontSize: 15 }}>
+                    <span>Total</span>
+                    <span style={{ color: 'var(--gold)' }}>NOK {total}</span>
+                  </div>
+                  {feeConfig.enrollment.description && (
+                    <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 6 }}>{feeConfig.enrollment.description}</div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Nav buttons */}
             <div style={{ display: 'flex', gap: '12px' }}>

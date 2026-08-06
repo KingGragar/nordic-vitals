@@ -3740,3 +3740,39 @@ export const SHIPPING_ZONES = [
     active: true,
   },
 ]
+
+export const MEMBERSHIP_FEE_CONFIG = {
+  enrollment: {
+    enabled: true,
+    amount: 499,
+    includedPV: 50,
+    description: "Nordic Vitals Starter Kit",
+    currency: "NOK",
+  },
+  renewal: {
+    annual:  { amount: 299, enabled: true  },
+    monthly: { amount: 49,  enabled: false },
+    gracePeriodDays: 14,
+    autoSuspendAfterGrace: true,
+    reminderDaysBefore: 30,
+  },
+  paymentPlans: [
+    { id: "pp-001", name: "3-Month Installment", installments: 3, installmentAmount: 180, enabled: true  },
+    { id: "pp-002", name: "6-Month Installment", installments: 6, installmentAmount: 95,  enabled: false },
+  ],
+  exemptions: {
+    sponsorWaiverEnabled: false,
+    rankWaiverEnabled: false,
+    rankWaiverRank: "Platinum",
+    promoEnabled: false,
+    promoAmount: 0,
+    promoExpiry: null,
+    promoNote: "",
+  },
+  revenue: {
+    enrollmentMTD: 18451,
+    enrollmentYTD: 141200,
+    renewalMTD: 5820,
+    renewalYTD: 62400,
+  },
+}

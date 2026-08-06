@@ -18,6 +18,7 @@ const navLinks = [
   { to: '/admin/orders',     label: '📦 Orders' },
   { to: '/admin/shipping',   label: '🚚 Shipping Config' },
   { to: '/admin/tax',        label: '🧾 Tax / VAT Config' },
+  { to: '/admin/membership-fees', label: '🎫 Membership Fees' },
   { to: '/admin/returns',    label: '↩️ Returns & Refunds' },
   { to: '/admin/autoships',  label: '♻️ Autoships' },
   { to: '/admin/runs',               label: '⚡ Commission Runs' },

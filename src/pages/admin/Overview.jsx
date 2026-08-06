@@ -417,6 +417,7 @@ export default function Overview() {
           { label: '📦 Orders',          desc: 'Track & update all orders',      path: '/admin/orders' },
           { label: '🚚 Shipping Config',    desc: 'Zones, carriers, rates & free-shipping thresholds', path: '/admin/shipping' },
           { label: '🧾 Tax / VAT Config',   desc: 'Norwegian MVA rates, country overrides & OSS', path: '/admin/tax' },
+          { label: '🎫 Membership Fees',    desc: 'Enrollment fees, renewals, installment plans & exemptions', path: '/admin/membership-fees' },
           { label: '↩️ Returns & Refunds', desc: 'Process return requests & refunds', path: '/admin/returns' },
           { label: '♻️ Autoships',       desc: 'Recurring subscription orders',  path: '/admin/autoships' },
           { label: '⚡ Commission Runs',    desc: 'History & manual triggers',        path: '/admin/runs' },

@@ -32,6 +32,7 @@ import {
   NEWSLETTER_SUBSCRIBERS,
   MEMBER_SEGMENTS,
   SHIPPING_ZONES,
+  MEMBERSHIP_FEE_CONFIG,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -4890,4 +4891,71 @@ export function computeTaxForCountry(country, subtotal, taxConfig) {
     ? Math.round(subtotal - subtotal / (1 + rate / 100))
     : Math.round(subtotal * rate / 100)
   return { vatAmount, rate, label: `MVA ${rate}%` }
+}
+
+// ─── Membership Fees ──────────────────────────────────────────────────────────
+const MEMBERSHIP_FEE_KEY = 'nv_membership_fee_config'
+
+function _loadFeeConfig() {
+  try { const d = localStorage.getItem(MEMBERSHIP_FEE_KEY); if (d) return JSON.parse(d) } catch {}
+  return JSON.parse(JSON.stringify(MEMBERSHIP_FEE_CONFIG))
+}
+function _saveFeeConfig(cfg) {
+  try { localStorage.setItem(MEMBERSHIP_FEE_KEY, JSON.stringify(cfg)) } catch {}
+}
+
+export async function getMembershipFeeConfig() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return _loadFeeConfig() }
+  return request('GET', '/v1/mlm/admin/membership-fees')
+}
+
+export async function saveMembershipFeeConfig(patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const cfg = { ..._loadFeeConfig() }
+    for (const key of Object.keys(patch)) {
+      if (patch[key] !== null && typeof patch[key] === 'object' && !Array.isArray(patch[key])) {
+        cfg[key] = { ...(cfg[key] || {}), ...patch[key] }
+      } else {
+        cfg[key] = patch[key]
+      }
+    }
+    _saveFeeConfig(cfg)
+    return cfg
+  }
+  return request('PUT', '/v1/mlm/admin/membership-fees', patch)
+}
+
+export async function createMembershipFeePaymentPlan(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const cfg = _loadFeeConfig()
+    const plan = { ...data, id: 'pp-' + Date.now() }
+    cfg.paymentPlans = [...(cfg.paymentPlans || []), plan]
+    _saveFeeConfig(cfg)
+    return plan
+  }
+  return request('POST', '/v1/mlm/admin/membership-fees/payment-plans', data)
+}
+
+export async function updateMembershipFeePaymentPlan(id, patch) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const cfg = _loadFeeConfig()
+    cfg.paymentPlans = (cfg.paymentPlans || []).map(p => p.id === id ? { ...p, ...patch } : p)
+    _saveFeeConfig(cfg)
+    return cfg.paymentPlans.find(p => p.id === id) || null
+  }
+  return request('PATCH', `/v1/mlm/admin/membership-fees/payment-plans/${id}`, patch)
+}
+
+export async function deleteMembershipFeePaymentPlan(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const cfg = _loadFeeConfig()
+    cfg.paymentPlans = (cfg.paymentPlans || []).filter(p => p.id !== id)
+    _saveFeeConfig(cfg)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/membership-fees/payment-plans/${id}`)
 }

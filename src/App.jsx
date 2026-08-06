@@ -106,6 +106,7 @@ const AdminNewsletterSubs     = lazy(() => import('./pages/admin/NewsletterSubsc
 const AdminSegments           = lazy(() => import('./pages/admin/Segments'))
 const AdminShipping           = lazy(() => import('./pages/admin/Shipping'))
 const AdminTax                = lazy(() => import('./pages/admin/Tax'))
+const AdminMembershipFees     = lazy(() => import('./pages/admin/MembershipFees'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -258,6 +259,7 @@ function AppRoutes() {
         <Route path="/admin/appeals"          element={<RequireAuth role="admin"><AdminAppeals /></RequireAuth>} />
         <Route path="/admin/shipping"         element={<RequireAuth role="admin"><AdminShipping /></RequireAuth>} />
         <Route path="/admin/tax"              element={<RequireAuth role="admin"><AdminTax /></RequireAuth>} />
+        <Route path="/admin/membership-fees"  element={<RequireAuth role="admin"><AdminMembershipFees /></RequireAuth>} />
         <Route path="/admin/returns"          element={<RequireAuth role="admin"><AdminReturns /></RequireAuth>} />
         <Route path="/admin/gdpr"             element={<RequireAuth role="admin"><AdminGdprRequests /></RequireAuth>} />
         <Route path="/admin/blog"             element={<RequireAuth role="admin"><AdminBlog /></RequireAuth>} />
