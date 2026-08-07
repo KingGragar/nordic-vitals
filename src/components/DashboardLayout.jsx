@@ -39,9 +39,10 @@ const navSections = [
       { to: '/dashboard/autoship',      label: '♻️ Autoship' },
       { to: '/dashboard/subscription', label: '📑 My Subscription' },
       { to: '/dashboard/gift-cards',  label: '🎁 Gift Cards' },
-      { to: '/dashboard/tax-summary',  label: '🧾 Tax Summary' },
-      { to: '/dashboard/appeals',      label: '⚖️ Commission Appeals' },
-      { to: '/dashboard/returns',      label: '↩️ Returns & Refunds' },
+      { to: '/dashboard/tax-summary',            label: '🧾 Tax Summary' },
+      { to: '/dashboard/commission-statements', label: '📄 Commission Statements' },
+      { to: '/dashboard/appeals',               label: '⚖️ Commission Appeals' },
+      { to: '/dashboard/returns',               label: '↩️ Returns & Refunds' },
     ],
   },
   {

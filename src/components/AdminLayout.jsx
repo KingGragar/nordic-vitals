@@ -68,6 +68,7 @@ const navLinks = [
   { to: '/admin/push-notifications',   label: '🔔 Push Notifications' },
   { to: '/admin/api-keys',        label: '🔑 API Keys' },
   { to: '/admin/territories',     label: '🗺️ Territories' },
+  { to: '/admin/influencers',     label: '📣 Influencer Program' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

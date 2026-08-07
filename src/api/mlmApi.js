@@ -52,6 +52,12 @@ import {
   MEMBER_REFERRAL_LINKS,
   MEMBER_REFERRAL_LINK_STATS,
   MEMBER_ACHIEVEMENTS,
+  INFLUENCERS,
+  INFLUENCER_STATS,
+  INFLUENCER_TIERS,
+  INFLUENCER_PLATFORMS,
+  COMMISSION_STATEMENTS,
+  COMMISSION_STATEMENT_SUMMARY,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -6657,4 +6663,49 @@ export async function deleteMemberReferralLink(id) {
 export async function getMemberAchievements() {
   if (MOCK) { await new Promise(r => setTimeout(r, 150)); return MEMBER_ACHIEVEMENTS }
   return request('GET', '/v1/mlm/member/achievements')
+}
+
+// ── Admin Influencer Program ──────────────────────────────────────────────────
+const _infKey = 'nv_influencers'
+function _infInit() { try { const s = localStorage.getItem(_infKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_infKey, JSON.stringify(INFLUENCERS)); return INFLUENCERS }
+function _infSave(d) { localStorage.setItem(_infKey, JSON.stringify(d)) }
+
+export async function getAdminInfluencers() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 170)); return _infInit() }
+  return request('GET', '/v1/mlm/admin/influencers')
+}
+export async function getAdminInfluencerStats() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 120)); return INFLUENCER_STATS }
+  return request('GET', '/v1/mlm/admin/influencers/stats')
+}
+export async function getAdminInfluencerMeta() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 80)); return { tiers: INFLUENCER_TIERS, platforms: INFLUENCER_PLATFORMS } }
+  return request('GET', '/v1/mlm/admin/influencers/meta')
+}
+export async function createAdminInfluencer(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const list = _infInit()
+    const n = { ...data, id: `inf-${Date.now()}`, totalSalesNok: 0, status: 'pending', joinedAt: new Date().toISOString(), lastPostAt: null, pendingPosts: 0 }
+    list.unshift(n); _infSave(list); return n
+  }
+  return request('POST', '/v1/mlm/admin/influencers', data)
+}
+export async function updateAdminInfluencer(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); _infSave(_infInit().map(x => x.id === id ? { ...x, ...data } : x)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/influencers/${id}`, data)
+}
+export async function deleteAdminInfluencer(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 140)); _infSave(_infInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/influencers/${id}`)
+}
+
+// ── Member Commission Statements ──────────────────────────────────────────────
+export async function getMemberCommissionStatements() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return COMMISSION_STATEMENTS }
+  return request('GET', '/v1/mlm/member/commission-statements')
+}
+export async function getMemberCommissionStatementSummary() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 100)); return COMMISSION_STATEMENT_SUMMARY }
+  return request('GET', '/v1/mlm/member/commission-statements/summary')
 }

@@ -133,8 +133,10 @@ const DashPayouts             = lazy(() => import('./pages/dashboard/Payouts'))
 const AdminPushNotifications  = lazy(() => import('./pages/admin/PushNotifications'))
 const AdminApiKeys            = lazy(() => import('./pages/admin/ApiKeys'))
 const AdminTerritories        = lazy(() => import('./pages/admin/Territories'))
-const DashReferralLinks       = lazy(() => import('./pages/dashboard/ReferralLinks'))
-const DashAchievements        = lazy(() => import('./pages/dashboard/Achievements'))
+const DashReferralLinks          = lazy(() => import('./pages/dashboard/ReferralLinks'))
+const DashAchievements           = lazy(() => import('./pages/dashboard/Achievements'))
+const AdminInfluencers           = lazy(() => import('./pages/admin/Influencers'))
+const DashCommissionStatements   = lazy(() => import('./pages/dashboard/CommissionStatements'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -319,8 +321,10 @@ function AppRoutes() {
         <Route path="/dashboard/payouts"           element={<RequireAuth><DashPayouts /></RequireAuth>} />
         <Route path="/admin/api-keys"              element={<RequireAuth role="admin"><AdminApiKeys /></RequireAuth>} />
         <Route path="/admin/territories"           element={<RequireAuth role="admin"><AdminTerritories /></RequireAuth>} />
-        <Route path="/dashboard/referral-links"   element={<RequireAuth><DashReferralLinks /></RequireAuth>} />
-        <Route path="/dashboard/achievements"     element={<RequireAuth><DashAchievements /></RequireAuth>} />
+        <Route path="/dashboard/referral-links"          element={<RequireAuth><DashReferralLinks /></RequireAuth>} />
+        <Route path="/dashboard/achievements"            element={<RequireAuth><DashAchievements /></RequireAuth>} />
+        <Route path="/admin/influencers"                 element={<RequireAuth role="admin"><AdminInfluencers /></RequireAuth>} />
+        <Route path="/dashboard/commission-statements"   element={<RequireAuth><DashCommissionStatements /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

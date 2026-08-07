@@ -4006,3 +4006,34 @@ export const MEMBER_ACHIEVEMENTS = {
     { id: 'ach-9', icon: '🎓', name: 'Knowledge Master', desc: 'Complete all training modules',             progress: 7,    target: 12,    points: 350  },
   ],
 }
+
+// ── Admin Influencer Program ─────────────────────────────────────────────────
+export const INFLUENCERS = [
+  { id: 'inf-1', name: 'Sofia Berg',       email: 'sofia@beautynordic.no',  tier: 'macro',  platform: 'Instagram',  handle: '@sofiaberg_wellness', followers: 128000, engagementRate: 4.2, commissionRate: 12, totalSalesNok: 184200, status: 'active',  joinedAt: '2026-01-15T00:00:00Z', lastPostAt: '2026-08-05T14:00:00Z', pendingPosts: 0 },
+  { id: 'inf-2', name: 'Lars Eriksen',     email: 'lars@fitlife.no',         tier: 'micro',  platform: 'TikTok',     handle: '@larsfitlife',        followers: 42000,  engagementRate: 7.8, commissionRate: 10, totalSalesNok: 58400,  status: 'active',  joinedAt: '2026-03-01T00:00:00Z', lastPostAt: '2026-08-06T09:30:00Z', pendingPosts: 1 },
+  { id: 'inf-3', name: 'Maja Olsen',       email: 'maja@lifestyleblog.dk',   tier: 'micro',  platform: 'Instagram',  handle: '@majaolsen.life',     followers: 18500,  engagementRate: 6.1, commissionRate: 10, totalSalesNok: 22100,  status: 'active',  joinedAt: '2026-04-10T00:00:00Z', lastPostAt: '2026-08-03T16:00:00Z', pendingPosts: 2 },
+  { id: 'inf-4', name: 'Erik Strand',      email: 'erik@nordichealthpro.se', tier: 'mega',   platform: 'YouTube',    handle: '@nordichealthpro',    followers: 520000, engagementRate: 2.9, commissionRate: 15, totalSalesNok: 612000, status: 'active',  joinedAt: '2025-11-01T00:00:00Z', lastPostAt: '2026-08-07T10:00:00Z', pendingPosts: 0 },
+  { id: 'inf-5', name: 'Astrid Viken',     email: 'astrid@veganvibes.no',    tier: 'micro',  platform: 'Instagram',  handle: '@astridviken',        followers: 9200,   engagementRate: 8.4, commissionRate: 8,  totalSalesNok: 7800,   status: 'pending', joinedAt: '2026-08-01T00:00:00Z', lastPostAt: null,                   pendingPosts: 0 },
+  { id: 'inf-6', name: 'Petter Holm',      email: 'petter@sportsnord.no',    tier: 'macro',  platform: 'TikTok',     handle: '@petterhfit',         followers: 88000,  engagementRate: 5.5, commissionRate: 11, totalSalesNok: 91400,  status: 'inactive',joinedAt: '2026-02-20T00:00:00Z', lastPostAt: '2026-06-15T11:00:00Z', pendingPosts: 0 },
+]
+export const INFLUENCER_STATS = {
+  total: 6, active: 4, pending: 1, totalReachM: 0.81, avgEngagement: 5.8,
+  totalSalesNok: 976000, totalCommissionPaidNok: 98200,
+}
+export const INFLUENCER_TIERS = ['micro', 'macro', 'mega']
+export const INFLUENCER_PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Pinterest']
+
+// ── Member Commission Statements ─────────────────────────────────────────────
+export const COMMISSION_STATEMENTS = [
+  { id: 'stmt-2026-07', period: '2026-07', label: 'July 2026',      grossNok: 4820, deductionsNok: 241, netNok: 4579,  status: 'paid',       paidAt: '2026-08-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 1850 }, { type: 'Team Override (L1)', amountNok: 1200 }, { type: 'Team Override (L2)', amountNok: 680 }, { type: 'Rank Bonus (Silver)', amountNok: 750 }, { type: 'Fast Start Bonus', amountNok: 340 }] },
+  { id: 'stmt-2026-06', period: '2026-06', label: 'June 2026',      grossNok: 3940, deductionsNok: 197, netNok: 3743,  status: 'paid',       paidAt: '2026-07-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 1620 }, { type: 'Team Override (L1)', amountNok: 980 }, { type: 'Team Override (L2)', amountNok: 540 }, { type: 'Rank Bonus (Silver)', amountNok: 800 }] },
+  { id: 'stmt-2026-05', period: '2026-05', label: 'May 2026',       grossNok: 3210, deductionsNok: 161, netNok: 3049,  status: 'paid',       paidAt: '2026-06-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 1400 }, { type: 'Team Override (L1)', amountNok: 820 }, { type: 'Team Override (L2)', amountNok: 490 }, { type: 'Rank Bonus (Bronze)', amountNok: 500 }] },
+  { id: 'stmt-2026-04', period: '2026-04', label: 'April 2026',     grossNok: 2880, deductionsNok: 144, netNok: 2736,  status: 'paid',       paidAt: '2026-05-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 1200 }, { type: 'Team Override (L1)', amountNok: 720 }, { type: 'Team Override (L2)', amountNok: 460 }, { type: 'Rank Bonus (Bronze)', amountNok: 500 }] },
+  { id: 'stmt-2026-03', period: '2026-03', label: 'March 2026',     grossNok: 2410, deductionsNok: 121, netNok: 2289,  status: 'paid',       paidAt: '2026-04-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 1100 }, { type: 'Team Override (L1)', amountNok: 610 }, { type: 'Team Override (L2)', amountNok: 380 }, { type: 'Rank Bonus (Bronze)', amountNok: 320 }] },
+  { id: 'stmt-2026-02', period: '2026-02', label: 'February 2026',  grossNok: 1980, deductionsNok: 99,  netNok: 1881,  status: 'paid',       paidAt: '2026-03-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 980 }, { type: 'Team Override (L1)', amountNok: 590 }, { type: 'Team Override (L2)', amountNok: 300 }, { type: 'Rank Bonus (Bronze)', amountNok: 110 }] },
+  { id: 'stmt-2026-01', period: '2026-01', label: 'January 2026',   grossNok: 1650, deductionsNok: 83,  netNok: 1567,  status: 'paid',       paidAt: '2026-02-05T09:00:00Z', breakdown: [{ type: 'Personal Sales', amountNok: 920 }, { type: 'Team Override (L1)', amountNok: 480 }, { type: 'Team Override (L2)', amountNok: 250 }] },
+  { id: 'stmt-2026-08', period: '2026-08', label: 'August 2026',    grossNok: 1240, deductionsNok: 0,   netNok: 1240,  status: 'pending',    paidAt: null,                   breakdown: [{ type: 'Personal Sales', amountNok: 780 }, { type: 'Team Override (L1)', amountNok: 460 }] },
+]
+export const COMMISSION_STATEMENT_SUMMARY = {
+  ytdGrossNok: 22130, ytdNetNok: 21084, currentMonthNok: 1240, lastMonthNok: 4579, statementsAvailable: 7,
+}
