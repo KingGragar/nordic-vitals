@@ -6049,3 +6049,108 @@ export async function submitSurveyResponse(surveyId, answers) {
   }
   return request('POST', `/v1/mlm/member/surveys/${surveyId}/respond`, { answers })
 }
+
+// ── Content Library ───────────────────────────────────────────────────────────
+const CONTENT_SEED = [
+  { id: 'ca-001', title: 'Nordic Vitals Brand Guidelines', category: 'brand', fileType: 'pdf', fileSizeMb: 4.2, access: 'all', downloads: 312, active: true, addedAt: '2026-06-01', description: 'Official brand colours, logos, typography, and usage rules.' },
+  { id: 'ca-002', title: 'Compensation Plan PDF 2026', category: 'training', fileType: 'pdf', fileSizeMb: 1.8, access: 'all', downloads: 874, active: true, addedAt: '2026-06-10', description: 'Full comp plan breakdown with rank thresholds and bonus tables.' },
+  { id: 'ca-003', title: 'Product Line Overview (Slides)', category: 'product', fileType: 'pptx', fileSizeMb: 7.6, access: 'all', downloads: 541, active: true, addedAt: '2026-06-15', description: 'Slide deck covering all product lines, key ingredients, and benefits.' },
+  { id: 'ca-004', title: 'Omega-3 Clinical Study Summary', category: 'product', fileType: 'pdf', fileSizeMb: 0.9, access: 'silver', downloads: 203, active: true, addedAt: '2026-06-20', description: 'Summarised third-party clinical data on bioavailability.' },
+  { id: 'ca-005', title: 'Prospect Outreach Scripts (EN)', category: 'marketing', fileType: 'docx', fileSizeMb: 0.4, access: 'all', downloads: 1024, active: true, addedAt: '2026-07-01', description: 'Proven cold-outreach scripts for social media and direct messaging.' },
+  { id: 'ca-006', title: 'Social Media Content Pack Q3', category: 'marketing', fileType: 'zip', fileSizeMb: 38.5, access: 'all', downloads: 687, active: true, addedAt: '2026-07-05', description: '60 pre-sized social images for Instagram, Facebook, and TikTok.' },
+  { id: 'ca-007', title: 'Leadership Academy — Module 1', category: 'training', fileType: 'mp4', fileSizeMb: 124.0, access: 'silver', downloads: 156, active: true, addedAt: '2026-07-10', description: 'Building your first 3 legs. 45-minute video walkthrough by top earners.' },
+  { id: 'ca-008', title: 'Leadership Academy — Module 2', category: 'training', fileType: 'mp4', fileSizeMb: 98.0, access: 'gold', downloads: 89, active: true, addedAt: '2026-07-12', description: 'Rank advancement strategies and team duplication techniques.' },
+  { id: 'ca-009', title: 'GDPR Compliance Checklist', category: 'compliance', fileType: 'pdf', fileSizeMb: 0.3, access: 'all', downloads: 94, active: true, addedAt: '2026-07-20', description: 'Step-by-step GDPR checklist for members operating in the EU.' },
+  { id: 'ca-010', title: 'Autoship & Loyalty Explainer', category: 'product', fileType: 'pdf', fileSizeMb: 1.1, access: 'all', downloads: 258, active: true, addedAt: '2026-07-25', description: 'How autoship tiers, loyalty points, and bonus products work.' },
+  { id: 'ca-011', title: 'Event Promo Kit – NordicSummit 2026', category: 'marketing', fileType: 'zip', fileSizeMb: 52.0, access: 'all', downloads: 143, active: true, addedAt: '2026-08-01', description: 'Banners, flyers, and email templates for the upcoming annual event.' },
+  { id: 'ca-012', title: 'Diamond Circle Strategy Guide', category: 'training', fileType: 'pdf', fileSizeMb: 2.3, access: 'diamond', downloads: 31, active: true, addedAt: '2026-08-03', description: 'Advanced strategies shared exclusively with Diamond rank and above.' },
+]
+
+let _content = null
+function _caInit() { if (!_content) _content = JSON.parse(JSON.stringify(CONTENT_SEED)); return _content }
+function _caSave(c) { _content = c }
+
+const MEMBER_DOWNLOADS_SEED = [
+  { assetId: 'ca-001', downloadedAt: '2026-07-15T10:22:00Z' },
+  { assetId: 'ca-002', downloadedAt: '2026-07-20T14:05:00Z' },
+  { assetId: 'ca-005', downloadedAt: '2026-08-01T09:11:00Z' },
+  { assetId: 'ca-006', downloadedAt: '2026-08-03T16:44:00Z' },
+]
+
+let _memberDownloads = null
+function _mdInit() { if (!_memberDownloads) _memberDownloads = JSON.parse(JSON.stringify(MEMBER_DOWNLOADS_SEED)); return _memberDownloads }
+
+export async function getAdminContent({ category, access } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    let assets = _caInit()
+    if (category && category !== 'all') assets = assets.filter(a => a.category === category)
+    if (access && access !== 'all') assets = assets.filter(a => a.access === access)
+    return { assets }
+  }
+  return request('GET', '/v1/mlm/admin/content', null, { category, access })
+}
+
+export async function createContentAsset(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    const asset = { id: `ca-${Date.now()}`, downloads: 0, addedAt: new Date().toISOString().slice(0, 10), active: true, ...data }
+    _caSave([..._caInit(), asset])
+    return { asset }
+  }
+  return request('POST', '/v1/mlm/admin/content', data)
+}
+
+export async function updateContentAsset(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _caSave(_caInit().map(a => a.id === id ? { ...a, ...data } : a))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/content/${id}`, data)
+}
+
+export async function deleteContentAsset(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    _caSave(_caInit().filter(a => a.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/content/${id}`)
+}
+
+export async function getMemberDownloads() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 170))
+    const memberRank = 'silver'
+    const rankOrder = ['all', 'silver', 'gold', 'platinum', 'diamond']
+    const memberRankIdx = rankOrder.indexOf(memberRank)
+    const available = _caInit().filter(a => {
+      if (!a.active) return false
+      const reqIdx = rankOrder.indexOf(a.access)
+      return memberRankIdx >= reqIdx
+    })
+    const downloaded = _mdInit()
+    const downloadedSet = new Set(downloaded.map(d => d.assetId))
+    return {
+      available: available.map(a => ({ ...a, alreadyDownloaded: downloadedSet.has(a.id) })),
+      history: downloaded.map(d => {
+        const asset = _caInit().find(a => a.id === d.assetId)
+        return { ...d, asset }
+      }).filter(d => d.asset),
+    }
+  }
+  return request('GET', '/v1/mlm/member/downloads')
+}
+
+export async function logDownload(assetId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 100))
+    if (!_mdInit().find(d => d.assetId === assetId)) {
+      _mdInit().push({ assetId, downloadedAt: new Date().toISOString() })
+    }
+    _caSave(_caInit().map(a => a.id === assetId ? { ...a, downloads: a.downloads + 1 } : a))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/member/downloads/${assetId}/log`, {})
+}

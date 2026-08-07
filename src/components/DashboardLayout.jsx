@@ -65,6 +65,8 @@ const navSections = [
       { to: '/dashboard/events',         label: '🎙️ Events' },
       { to: '/dashboard/training',       label: '🎓 Training' },
       { to: '/dashboard/resources',      label: '📂 Resources' },
+      { to: '/dashboard/downloads',      label: '⬇️ My Downloads' },
+      { to: '/dashboard/surveys',        label: '📋 Surveys' },
     ],
   },
   {
