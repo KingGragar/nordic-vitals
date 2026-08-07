@@ -122,6 +122,8 @@ const DashAddresses           = lazy(() => import('./pages/dashboard/Addresses')
 const AdminSurveys            = lazy(() => import('./pages/admin/Surveys'))
 const DashSurveys             = lazy(() => import('./pages/dashboard/Surveys'))
 const AdminContent            = lazy(() => import('./pages/admin/Content'))
+const AdminTraining           = lazy(() => import('./pages/admin/Training'))
+const AdminLoyaltyConfig      = lazy(() => import('./pages/admin/LoyaltyConfig'))
 const DashDownloads           = lazy(() => import('./pages/dashboard/Downloads'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
@@ -297,6 +299,8 @@ function AppRoutes() {
         <Route path="/admin/abandoned-carts"  element={<RequireAuth role="admin"><AdminAbandonedCarts /></RequireAuth>} />
         <Route path="/admin/surveys"           element={<RequireAuth role="admin"><AdminSurveys /></RequireAuth>} />
         <Route path="/admin/content"           element={<RequireAuth role="admin"><AdminContent /></RequireAuth>} />
+        <Route path="/admin/training"          element={<RequireAuth role="admin"><AdminTraining /></RequireAuth>} />
+        <Route path="/admin/loyalty-config"    element={<RequireAuth role="admin"><AdminLoyaltyConfig /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

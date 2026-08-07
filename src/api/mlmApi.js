@@ -6154,3 +6154,233 @@ export async function logDownload(assetId) {
   }
   return request('POST', `/v1/mlm/member/downloads/${assetId}/log`, {})
 }
+
+// ── Admin Training Manager ────────────────────────────────────────────────────
+
+const _tmKey = 'nv_admin_training_modules'
+
+function _tmInit() {
+  try {
+    const s = localStorage.getItem(_tmKey)
+    if (s) return JSON.parse(s)
+  } catch {}
+  const seed = TRAINING_MODULES.map((m, i) => ({
+    ...m,
+    status: 'active',
+    requiredRank: ['all', 'bronze', 'silver', 'gold', 'platinum'][i % 5],
+    completions: [38, 31, 24, 17, 11][i % 5],
+    avgCompletionRate: [82, 74, 61, 49, 38][i % 5],
+    createdAt: '2026-01-15',
+    updatedAt: '2026-07-01',
+  }))
+  localStorage.setItem(_tmKey, JSON.stringify(seed))
+  return seed
+}
+function _tmSave(d) { localStorage.setItem(_tmKey, JSON.stringify(d)) }
+
+export async function getAdminTrainingModules() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    return _tmInit()
+  }
+  return request('GET', '/v1/mlm/admin/training')
+}
+
+export async function createAdminTrainingModule(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const mod = {
+      ...data,
+      id: `module-${Date.now()}`,
+      lessons: [],
+      completions: 0,
+      avgCompletionRate: 0,
+      createdAt: new Date().toISOString().slice(0, 10),
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }
+    _tmSave([..._tmInit(), mod])
+    return mod
+  }
+  return request('POST', '/v1/mlm/admin/training', data)
+}
+
+export async function updateAdminTrainingModule(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    _tmSave(_tmInit().map(m => m.id === id ? { ...m, ...data, updatedAt: new Date().toISOString().slice(0, 10) } : m))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/training/${id}`, data)
+}
+
+export async function deleteAdminTrainingModule(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    _tmSave(_tmInit().filter(m => m.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/training/${id}`)
+}
+
+export async function addAdminTrainingLesson(moduleId, lesson) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    _tmSave(_tmInit().map(m => {
+      if (m.id !== moduleId) return m
+      return { ...m, lessons: [...m.lessons, { ...lesson, id: `l-${Date.now()}` }], updatedAt: new Date().toISOString().slice(0, 10) }
+    }))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/training/${moduleId}/lessons`, lesson)
+}
+
+export async function updateAdminTrainingLesson(moduleId, lessonId, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    _tmSave(_tmInit().map(m => {
+      if (m.id !== moduleId) return m
+      return { ...m, lessons: m.lessons.map(l => l.id === lessonId ? { ...l, ...data } : l), updatedAt: new Date().toISOString().slice(0, 10) }
+    }))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/training/${moduleId}/lessons/${lessonId}`, data)
+}
+
+export async function deleteAdminTrainingLesson(moduleId, lessonId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 130))
+    _tmSave(_tmInit().map(m => {
+      if (m.id !== moduleId) return m
+      return { ...m, lessons: m.lessons.filter(l => l.id !== lessonId), updatedAt: new Date().toISOString().slice(0, 10) }
+    }))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/training/${moduleId}/lessons/${lessonId}`)
+}
+
+// ── Admin Loyalty Config ──────────────────────────────────────────────────────
+
+const _lcKey = 'nv_admin_loyalty_config'
+
+const _lcSeed = {
+  earnRules: [
+    { id: 'er-purchase',   activity: 'Purchase',         description: 'Points per NOK spent on shop orders', rate: 1,    unit: 'pts / NOK', enabled: true },
+    { id: 'er-autoship',   activity: 'Autoship Order',   description: '1.5× multiplier on autoship purchases', rate: 1.5, unit: 'multiplier', enabled: true },
+    { id: 'er-recruit',    activity: 'New Recruit',       description: 'Flat bonus when a direct recruit activates', rate: 500, unit: 'pts flat', enabled: true },
+    { id: 'er-training',   activity: 'Training Module',   description: 'Bonus on completing a training module (varies per module)', rate: 100, unit: 'pts base', enabled: true },
+    { id: 'er-rank',       activity: 'Rank Advancement',  description: 'Flat bonus awarded on rank promotion', rate: 1000, unit: 'pts flat', enabled: true },
+    { id: 'er-review',     activity: 'Product Review',    description: 'Bonus for submitting a verified product review', rate: 50,  unit: 'pts flat', enabled: true },
+    { id: 'er-referral',   activity: 'Referral Conversion', description: 'Points when a referred lead makes their first purchase', rate: 200, unit: 'pts flat', enabled: true },
+    { id: 'er-birthday',   activity: 'Birthday Bonus',    description: 'Annual birthday surprise (scales with tier)', rate: 250, unit: 'pts (Silver)', enabled: true },
+    { id: 'er-challenge',  activity: 'Challenge Completion', description: 'Bonus on completing a monthly challenge', rate: 300, unit: 'pts flat', enabled: true },
+    { id: 'er-survey',     activity: 'Survey Completion', description: 'Small bonus for completing platform surveys', rate: 25,  unit: 'pts flat', enabled: false },
+  ],
+  tiers: [
+    { id: 'tier-bronze',   name: 'Bronze',   minPoints: 0,     maxPoints: 2499,  earnMultiplier: 1.0,  color: '#cd7f32', perks: ['1× earn rate', 'Birthday bonus 100 pts'] },
+    { id: 'tier-silver',   name: 'Silver',   minPoints: 2500,  maxPoints: 7499,  earnMultiplier: 1.25, color: '#94a3b8', perks: ['1.25× earn rate', 'Free shipping >500 NOK', 'Birthday bonus 250 pts'] },
+    { id: 'tier-gold',     name: 'Gold',     minPoints: 7500,  maxPoints: 19999, earnMultiplier: 1.5,  color: '#f59e0b', perks: ['1.5× earn rate', 'Free shipping always', 'Exclusive product access', 'Birthday bonus 500 pts'] },
+    { id: 'tier-platinum', name: 'Platinum', minPoints: 20000, maxPoints: null,  earnMultiplier: 2.0,  color: '#a855f7', perks: ['2× earn rate', 'Free shipping always', 'Priority support', 'VIP product previews', 'Birthday bonus 1000 pts'] },
+  ],
+  expiryPolicy: {
+    enabled: true,
+    monthsToExpiry: 12,
+    warningDaysBeforeExpiry: 30,
+    expiryType: 'rolling',
+  },
+  redemptionOptions: LOYALTY_DATA.redeemOptions.map(o => ({ ...o, enabled: true })),
+  stats: {
+    totalActiveMembers: 312,
+    totalPointsOutstanding: 1_248_500,
+    totalPointsEarnedLastMonth: 87_400,
+    totalPointsRedeemedLastMonth: 23_100,
+    avgPointsPerMember: 4002,
+    silverPct: 34,
+    goldPct: 18,
+    platinumPct: 6,
+  },
+}
+
+function _lcInit() {
+  try {
+    const s = localStorage.getItem(_lcKey)
+    if (s) return JSON.parse(s)
+  } catch {}
+  localStorage.setItem(_lcKey, JSON.stringify(_lcSeed))
+  return _lcSeed
+}
+function _lcSave(d) { localStorage.setItem(_lcKey, JSON.stringify(d)) }
+
+export async function getAdminLoyaltyConfig() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 190))
+    return _lcInit()
+  }
+  return request('GET', '/v1/mlm/admin/loyalty/config')
+}
+
+export async function updateEarnRule(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const cfg = _lcInit()
+    cfg.earnRules = cfg.earnRules.map(r => r.id === id ? { ...r, ...data } : r)
+    _lcSave(cfg)
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/loyalty/earn-rules/${id}`, data)
+}
+
+export async function updateLoyaltyTier(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const cfg = _lcInit()
+    cfg.tiers = cfg.tiers.map(t => t.id === id ? { ...t, ...data } : t)
+    _lcSave(cfg)
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/loyalty/tiers/${id}`, data)
+}
+
+export async function updateExpiryPolicy(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 130))
+    const cfg = _lcInit()
+    cfg.expiryPolicy = { ...cfg.expiryPolicy, ...data }
+    _lcSave(cfg)
+    return { ok: true }
+  }
+  return request('PUT', '/v1/mlm/admin/loyalty/expiry', data)
+}
+
+export async function createLoyaltyRedemptionOption(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    const cfg = _lcInit()
+    const opt = { ...data, id: `opt-${Date.now()}`, enabled: true }
+    cfg.redemptionOptions = [...cfg.redemptionOptions, opt]
+    _lcSave(cfg)
+    return opt
+  }
+  return request('POST', '/v1/mlm/admin/loyalty/redemption-options', data)
+}
+
+export async function updateLoyaltyRedemptionOption(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    const cfg = _lcInit()
+    cfg.redemptionOptions = cfg.redemptionOptions.map(o => o.id === id ? { ...o, ...data } : o)
+    _lcSave(cfg)
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/loyalty/redemption-options/${id}`, data)
+}
+
+export async function deleteLoyaltyRedemptionOption(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    const cfg = _lcInit()
+    cfg.redemptionOptions = cfg.redemptionOptions.filter(o => o.id !== id)
+    _lcSave(cfg)
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/loyalty/redemption-options/${id}`)
+}

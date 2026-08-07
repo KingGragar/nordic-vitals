@@ -61,6 +61,8 @@ const navLinks = [
   { to: '/admin/ab-tests',       label: '🧪 A/B Tests' },
   { to: '/admin/surveys',        label: '📋 Surveys' },
   { to: '/admin/content',        label: '📁 Content Library' },
+  { to: '/admin/training',       label: '🎓 Training Manager' },
+  { to: '/admin/loyalty-config', label: '⭐ Loyalty Config' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },
