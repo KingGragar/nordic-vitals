@@ -71,6 +71,8 @@ const navLinks = [
   { to: '/admin/influencers',     label: '📣 Influencer Program' },
   { to: '/admin/categories',      label: '📂 Product Categories' },
   { to: '/admin/co-op',           label: '🤝 Co-Op Advertising' },
+  { to: '/admin/flash-sales',     label: '⚡ Flash Sales' },
+  { to: '/admin/digital-products', label: '💿 Digital Products' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

@@ -6871,3 +6871,123 @@ export async function saveBrandingConfig(cfg) {
   }
   return request('PUT', '/v1/mlm/admin/branding', cfg)
 }
+
+// ── Flash Sales ──────────────────────────────────────────────────────────────
+const FLASH_SALES_SEED = [
+  { id: 'fs1', title: 'Summer Protein Blast', discount: 25, discountType: 'percent', products: ['Whey Pro 1kg', 'BCAA Matrix'], stockLimit: 200, sold: 147, startsAt: '2026-08-07T08:00:00Z', endsAt: '2026-08-07T20:00:00Z', status: 'active' },
+  { id: 'fs2', title: 'Collagen Bundle Deal', discount: 150, discountType: 'fixed', products: ['Marine Collagen 300g'], stockLimit: 100, sold: 98, startsAt: '2026-08-06T10:00:00Z', endsAt: '2026-08-06T22:00:00Z', status: 'expired' },
+  { id: 'fs3', title: 'Back to Basics Omega', discount: 30, discountType: 'percent', products: ['Omega-3 Gold', 'Vitamin D3 5000IU'], stockLimit: 500, sold: 0, startsAt: '2026-08-10T09:00:00Z', endsAt: '2026-08-10T23:59:00Z', status: 'scheduled' },
+  { id: 'fs4', title: 'New Member Welcome Pack', discount: 20, discountType: 'percent', products: ['Starter Bundle'], stockLimit: 300, sold: 0, startsAt: '2026-08-15T00:00:00Z', endsAt: '2026-08-15T23:59:00Z', status: 'draft' },
+]
+export async function getAdminFlashSales() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return JSON.parse(localStorage.getItem('nv_flash_sales') || JSON.stringify(FLASH_SALES_SEED)) }
+  return request('GET', '/v1/mlm/admin/flash-sales')
+}
+export async function createAdminFlashSale(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const list = JSON.parse(localStorage.getItem('nv_flash_sales') || JSON.stringify(FLASH_SALES_SEED))
+    const item = { ...data, id: 'fs' + Date.now(), sold: 0, status: data.status || 'draft' }
+    localStorage.setItem('nv_flash_sales', JSON.stringify([...list, item]))
+    return item
+  }
+  return request('POST', '/v1/mlm/admin/flash-sales', data)
+}
+export async function updateAdminFlashSale(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const list = JSON.parse(localStorage.getItem('nv_flash_sales') || JSON.stringify(FLASH_SALES_SEED))
+    const updated = list.map(s => s.id === id ? { ...s, ...data } : s)
+    localStorage.setItem('nv_flash_sales', JSON.stringify(updated))
+    return updated.find(s => s.id === id)
+  }
+  return request('PUT', `/v1/mlm/admin/flash-sales/${id}`, data)
+}
+export async function deleteAdminFlashSale(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const list = JSON.parse(localStorage.getItem('nv_flash_sales') || JSON.stringify(FLASH_SALES_SEED))
+    localStorage.setItem('nv_flash_sales', JSON.stringify(list.filter(s => s.id !== id)))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/flash-sales/${id}`)
+}
+
+// ── Admin Digital Products ────────────────────────────────────────────────────
+const DIGITAL_PRODUCTS_SEED = [
+  { id: 'dp1', title: 'Nordic Nutrition Guide 2026', type: 'ebook', fileSize: '4.2 MB', format: 'PDF', price: 0, accessLevel: 'all', downloads: 1240, status: 'active', createdAt: '2026-01-15T10:00:00Z' },
+  { id: 'dp2', 'title': 'MLM Success Masterclass (12 videos)', type: 'course', fileSize: '1.8 GB', format: 'MP4', price: 499, accessLevel: 'member', downloads: 387, status: 'active', createdAt: '2026-02-20T10:00:00Z' },
+  { id: 'dp3', title: 'Peptide Science Deep Dive', type: 'ebook', fileSize: '6.1 MB', format: 'PDF', price: 0, accessLevel: 'silver', downloads: 892, status: 'active', createdAt: '2026-03-10T10:00:00Z' },
+  { id: 'dp4', title: 'Business Builder Toolkit', type: 'bundle', fileSize: '120 MB', format: 'ZIP', price: 299, accessLevel: 'member', downloads: 204, status: 'active', createdAt: '2026-04-05T10:00:00Z' },
+  { id: 'dp5', title: 'Leadership Training Series (Q1)', type: 'course', fileSize: '2.4 GB', format: 'MP4', price: 0, accessLevel: 'gold', downloads: 134, status: 'draft', createdAt: '2026-07-01T10:00:00Z' },
+]
+export async function getAdminDigitalProducts() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return JSON.parse(localStorage.getItem('nv_digital_products') || JSON.stringify(DIGITAL_PRODUCTS_SEED)) }
+  return request('GET', '/v1/mlm/admin/digital-products')
+}
+export async function createAdminDigitalProduct(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const list = JSON.parse(localStorage.getItem('nv_digital_products') || JSON.stringify(DIGITAL_PRODUCTS_SEED))
+    const item = { ...data, id: 'dp' + Date.now(), downloads: 0, createdAt: new Date().toISOString() }
+    localStorage.setItem('nv_digital_products', JSON.stringify([...list, item]))
+    return item
+  }
+  return request('POST', '/v1/mlm/admin/digital-products', data)
+}
+export async function updateAdminDigitalProduct(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    const list = JSON.parse(localStorage.getItem('nv_digital_products') || JSON.stringify(DIGITAL_PRODUCTS_SEED))
+    const updated = list.map(p => p.id === id ? { ...p, ...data } : p)
+    localStorage.setItem('nv_digital_products', JSON.stringify(updated))
+    return updated.find(p => p.id === id)
+  }
+  return request('PUT', `/v1/mlm/admin/digital-products/${id}`, data)
+}
+export async function deleteAdminDigitalProduct(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 150))
+    const list = JSON.parse(localStorage.getItem('nv_digital_products') || JSON.stringify(DIGITAL_PRODUCTS_SEED))
+    localStorage.setItem('nv_digital_products', JSON.stringify(list.filter(p => p.id !== id)))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/digital-products/${id}`)
+}
+
+// ── Member Digital Products ───────────────────────────────────────────────────
+const MEMBER_DIGITAL_SEED = [
+  { id: 'mdp1', title: 'Nordic Nutrition Guide 2026', type: 'ebook', fileSize: '4.2 MB', format: 'PDF', accessLevel: 'all', downloadedAt: null, purchasedAt: '2026-01-20T10:00:00Z', price: 0 },
+  { id: 'mdp2', title: 'MLM Success Masterclass (12 videos)', type: 'course', fileSize: '1.8 GB', format: 'MP4', accessLevel: 'member', downloadedAt: '2026-03-15T14:00:00Z', purchasedAt: '2026-02-25T10:00:00Z', price: 499 },
+  { id: 'mdp3', title: 'Peptide Science Deep Dive', type: 'ebook', fileSize: '6.1 MB', format: 'PDF', accessLevel: 'silver', downloadedAt: null, purchasedAt: '2026-04-10T10:00:00Z', price: 0 },
+]
+export async function getMemberDigitalProducts() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return MEMBER_DIGITAL_SEED }
+  return request('GET', '/v1/mlm/member/digital-products')
+}
+export async function downloadMemberDigitalProduct(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { url: '#', expires: new Date(Date.now() + 600000).toISOString() } }
+  return request('POST', `/v1/mlm/member/digital-products/${id}/download`)
+}
+
+// ── Member Team Goals ─────────────────────────────────────────────────────────
+const TEAM_GOALS_SEED = {
+  teamName: 'Team Nordic Alpha',
+  goals: [
+    { id: 'tg1', title: 'August Recruiting Drive', metric: 'new_members', target: 50, current: 31, unit: 'members', deadline: '2026-08-31', status: 'on_track' },
+    { id: 'tg2', title: 'Q3 Team Volume', metric: 'team_volume', target: 500000, current: 342180, unit: 'NOK', deadline: '2026-09-30', status: 'on_track' },
+    { id: 'tg3', title: 'Gold Rank Promotions', metric: 'rank_ups', target: 5, current: 2, deadline: '2026-08-31', unit: 'members', status: 'behind' },
+    { id: 'tg4', title: 'Customer Retention Rate', metric: 'retention', target: 80, current: 74, unit: '%', deadline: '2026-08-31', status: 'behind' },
+    { id: 'tg5', title: 'Training Completion', metric: 'training', target: 100, current: 100, unit: '%', deadline: '2026-07-31', status: 'completed' },
+  ],
+  topContributors: [
+    { name: 'Anna Berg', recruits: 8, volume: 68400, rank: 'Gold' },
+    { name: 'Lars Eriksen', recruits: 6, volume: 52100, rank: 'Silver' },
+    { name: 'Mia Svensson', recruits: 5, volume: 47800, rank: 'Silver' },
+    { name: 'Tor Halvorsen', recruits: 4, volume: 39200, rank: 'Bronze' },
+  ],
+}
+export async function getMemberTeamGoals() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return TEAM_GOALS_SEED }
+  return request('GET', '/v1/mlm/member/team-goals')
+}

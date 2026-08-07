@@ -140,8 +140,12 @@ const DashCommissionStatements   = lazy(() => import('./pages/dashboard/Commissi
 const AdminCategories            = lazy(() => import('./pages/admin/Categories'))
 const AdminCoOp                  = lazy(() => import('./pages/admin/CoOp'))
 const AdminBranding              = lazy(() => import('./pages/admin/Branding'))
+const AdminFlashSales            = lazy(() => import('./pages/admin/FlashSales'))
+const AdminDigitalProducts       = lazy(() => import('./pages/admin/DigitalProducts'))
 const DashCoupons                = lazy(() => import('./pages/dashboard/Coupons'))
 const DashCoOp                   = lazy(() => import('./pages/dashboard/CoOp'))
+const DashDigitalProducts        = lazy(() => import('./pages/dashboard/DigitalProducts'))
+const DashTeamGoals              = lazy(() => import('./pages/dashboard/TeamGoals'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -333,8 +337,12 @@ function AppRoutes() {
         <Route path="/admin/categories"                  element={<RequireAuth role="admin"><AdminCategories /></RequireAuth>} />
         <Route path="/admin/co-op"                       element={<RequireAuth role="admin"><AdminCoOp /></RequireAuth>} />
         <Route path="/admin/branding"                    element={<RequireAuth role="admin"><AdminBranding /></RequireAuth>} />
+        <Route path="/admin/flash-sales"                 element={<RequireAuth role="admin"><AdminFlashSales /></RequireAuth>} />
+        <Route path="/admin/digital-products"            element={<RequireAuth role="admin"><AdminDigitalProducts /></RequireAuth>} />
         <Route path="/dashboard/coupons"                 element={<RequireAuth><DashCoupons /></RequireAuth>} />
         <Route path="/dashboard/co-op"                   element={<RequireAuth><DashCoOp /></RequireAuth>} />
+        <Route path="/dashboard/digital-products"        element={<RequireAuth><DashDigitalProducts /></RequireAuth>} />
+        <Route path="/dashboard/team-goals"              element={<RequireAuth><DashTeamGoals /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

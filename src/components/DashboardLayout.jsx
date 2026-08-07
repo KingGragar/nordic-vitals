@@ -58,6 +58,7 @@ const navSections = [
       { to: '/dashboard/activity',       label: '📅 Activity Tracker' },
       { to: '/dashboard/certificates',   label: '🎖️ Certificates' },
       { to: '/dashboard/achievements',  label: '🏅 Achievements' },
+      { to: '/dashboard/team-goals',    label: '🏆 Team Goals' },
     ],
   },
   {
@@ -75,6 +76,7 @@ const navSections = [
       { to: '/dashboard/vouchers',       label: '🎟️ My Vouchers' },
       { to: '/dashboard/coupons',        label: '🎟️ My Coupons' },
       { to: '/dashboard/co-op',          label: '🤝 Co-Op Advertising' },
+      { to: '/dashboard/digital-products', label: '💿 Digital Products' },
     ],
   },
   {
