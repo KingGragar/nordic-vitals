@@ -5856,3 +5856,196 @@ export async function setDefaultAddress(id) {
   }
   return request('POST', `/v1/mlm/member/addresses/${id}/set-default`)
 }
+
+// ── Surveys (admin + member) ─────────────────────────────────────────────────
+const SURVEYS_SEED = [
+  {
+    id: 'sv-001',
+    title: 'Product Satisfaction Q3 2026',
+    description: 'Help us improve our product line by sharing your experience.',
+    status: 'active',
+    pointsReward: 50,
+    createdAt: '2026-07-01',
+    closesAt: '2026-08-31',
+    targetSegment: 'all',
+    responseCount: 142,
+    completionRate: 78,
+    avgTimeMinutes: 3,
+    questions: [
+      { id: 'q1', type: 'rating', text: 'How satisfied are you with our products overall?', scale: 5 },
+      { id: 'q2', type: 'multiple', text: 'Which product do you use most often?', options: ['Arctic Omega-3', 'Nordic Collagen', 'Viking Vitality Stack', 'Immune Shield Pro', 'Other'] },
+      { id: 'q3', type: 'text', text: 'What improvement would you most like to see?' },
+      { id: 'q4', type: 'rating', text: 'How likely are you to recommend us to a friend?', scale: 5 },
+    ],
+  },
+  {
+    id: 'sv-002',
+    title: 'Onboarding Experience Feedback',
+    description: 'Tell us about your first 30 days as a Nordic Vitals member.',
+    status: 'active',
+    pointsReward: 30,
+    createdAt: '2026-07-15',
+    closesAt: '2026-09-15',
+    targetSegment: 'new_members',
+    responseCount: 58,
+    completionRate: 91,
+    avgTimeMinutes: 2,
+    questions: [
+      { id: 'q1', type: 'rating', text: 'How easy was it to get started?', scale: 5 },
+      { id: 'q2', type: 'multiple', text: 'Which resource helped you most?', options: ['Training videos', 'Onboarding guide', 'My sponsor', 'Customer support', 'Community forum'] },
+      { id: 'q3', type: 'text', text: 'What would have made your onboarding smoother?' },
+    ],
+  },
+  {
+    id: 'sv-003',
+    title: 'MLM Compensation Plan Clarity',
+    description: 'We want to ensure our compensation plan is clear and motivating.',
+    status: 'active',
+    pointsReward: 75,
+    createdAt: '2026-08-01',
+    closesAt: '2026-09-01',
+    targetSegment: 'active_members',
+    responseCount: 34,
+    completionRate: 65,
+    avgTimeMinutes: 5,
+    questions: [
+      { id: 'q1', type: 'rating', text: 'How clearly do you understand the compensation plan?', scale: 5 },
+      { id: 'q2', type: 'multiple', text: 'Which aspect is most confusing?', options: ['Rank advancement thresholds', 'Commission calculation', 'Bonus qualifications', 'Binary/unilevel structure', 'Nothing – it is clear'] },
+      { id: 'q3', type: 'rating', text: 'How motivating is the current plan for you?', scale: 5 },
+      { id: 'q4', type: 'text', text: 'What one change would make the plan more attractive?' },
+    ],
+  },
+  {
+    id: 'sv-004',
+    title: 'Platform UX Audit 2026',
+    description: 'Rate the usability of our member dashboard and tools.',
+    status: 'draft',
+    pointsReward: 60,
+    createdAt: '2026-08-05',
+    closesAt: null,
+    targetSegment: 'all',
+    responseCount: 0,
+    completionRate: 0,
+    avgTimeMinutes: 4,
+    questions: [
+      { id: 'q1', type: 'rating', text: 'How easy is it to navigate the member dashboard?', scale: 5 },
+      { id: 'q2', type: 'multiple', text: 'Which feature do you use most?', options: ['Network tree', 'Earnings tracker', 'Leaderboard', 'Training', 'Shop'] },
+      { id: 'q3', type: 'text', text: 'Describe a feature you wish existed.' },
+    ],
+  },
+  {
+    id: 'sv-005',
+    title: 'Event Satisfaction – Nordic Summit 2026',
+    description: 'Feedback on the July Nordic Summit event.',
+    status: 'closed',
+    pointsReward: 40,
+    createdAt: '2026-07-20',
+    closesAt: '2026-08-05',
+    targetSegment: 'event_attendees',
+    responseCount: 89,
+    completionRate: 95,
+    avgTimeMinutes: 3,
+    questions: [
+      { id: 'q1', type: 'rating', text: 'How satisfied were you with the event overall?', scale: 5 },
+      { id: 'q2', type: 'multiple', text: 'Which session was most valuable?', options: ['Keynote', 'Product deep-dive', 'MLM strategy workshop', 'Networking dinner', 'Training academy'] },
+      { id: 'q3', type: 'text', text: 'What would you improve for next year?' },
+    ],
+  },
+]
+
+const MEMBER_SURVEY_RESPONSES_SEED = [
+  { surveyId: 'sv-005', completedAt: '2026-08-02', pointsEarned: 40, answers: { q1: 4, q2: 'Keynote', q3: 'More networking time' } },
+]
+
+let _surveys = null
+let _memberSurveyResponses = null
+function _svInit() { if (!_surveys) _surveys = JSON.parse(JSON.stringify(SURVEYS_SEED)); return _surveys }
+function _svSave(s) { _surveys = s }
+function _msrInit() { if (!_memberSurveyResponses) _memberSurveyResponses = JSON.parse(JSON.stringify(MEMBER_SURVEY_RESPONSES_SEED)); return _memberSurveyResponses }
+
+export async function getAdminSurveys({ status, segment } = {}) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    let surveys = _svInit()
+    if (status && status !== 'all') surveys = surveys.filter(s => s.status === status)
+    if (segment && segment !== 'all') surveys = surveys.filter(s => s.targetSegment === segment)
+    return { surveys }
+  }
+  return request('GET', '/v1/mlm/admin/surveys', null, { status, segment })
+}
+
+export async function createSurvey(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const s = { id: `sv-${Date.now()}`, responseCount: 0, completionRate: 0, avgTimeMinutes: 0, createdAt: new Date().toISOString().slice(0, 10), ...data }
+    _svSave([..._svInit(), s])
+    return { survey: s }
+  }
+  return request('POST', '/v1/mlm/admin/surveys', data)
+}
+
+export async function updateSurvey(id, data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 180))
+    _svSave(_svInit().map(s => s.id === id ? { ...s, ...data } : s))
+    return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/surveys/${id}`, data)
+}
+
+export async function deleteSurvey(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    _svSave(_svInit().filter(s => s.id !== id))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/surveys/${id}`)
+}
+
+export async function getSurveyResponses(surveyId) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const survey = _svInit().find(s => s.id === surveyId)
+    if (!survey) return { responses: [], summary: {} }
+    const mockSummary = {}
+    survey.questions.forEach(q => {
+      if (q.type === 'rating') {
+        mockSummary[q.id] = { avg: (Math.random() * 1.5 + 3.2).toFixed(1), distribution: { 1: 2, 2: 5, 3: 18, 4: 45, 5: 30 } }
+      } else if (q.type === 'multiple') {
+        const dist = {}
+        q.options.forEach((opt, i) => { dist[opt] = Math.floor(Math.random() * 40 + 5 + (i === 0 ? 20 : 0)) })
+        mockSummary[q.id] = { distribution: dist }
+      } else {
+        mockSummary[q.id] = { sampleAnswers: ['Great product overall', 'Love the omega-3', 'Better packaging please', 'More subscription options', 'Faster shipping'] }
+      }
+    })
+    return { survey, summary: mockSummary, totalResponses: survey.responseCount }
+  }
+  return request('GET', `/v1/mlm/admin/surveys/${surveyId}/responses`)
+}
+
+export async function getAvailableSurveys() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 160))
+    const completed = new Set(_msrInit().map(r => r.surveyId))
+    const available = _svInit().filter(s => s.status === 'active' && !completed.has(s.id))
+    const done = _svInit()
+      .filter(s => completed.has(s.id))
+      .map(s => ({ ...s, response: _msrInit().find(r => r.surveyId === s.id) }))
+    return { available, completed: done }
+  }
+  return request('GET', '/v1/mlm/member/surveys')
+}
+
+export async function submitSurveyResponse(surveyId, answers) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    const survey = _svInit().find(s => s.id === surveyId)
+    if (!survey) throw new Error('Survey not found')
+    const resp = { surveyId, completedAt: new Date().toISOString(), pointsEarned: survey.pointsReward, answers }
+    _msrInit().push(resp)
+    _svSave(_svInit().map(s => s.id === surveyId ? { ...s, responseCount: s.responseCount + 1 } : s))
+    return { ok: true, pointsEarned: survey.pointsReward }
+  }
+  return request('POST', `/v1/mlm/member/surveys/${surveyId}/respond`, { answers })
+}

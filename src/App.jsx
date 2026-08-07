@@ -119,6 +119,8 @@ const AdminAbTests            = lazy(() => import('./pages/admin/AbTests'))
 const AdminAbandonedCarts     = lazy(() => import('./pages/admin/AbandonedCarts'))
 const DashGoals               = lazy(() => import('./pages/dashboard/Goals'))
 const DashAddresses           = lazy(() => import('./pages/dashboard/Addresses'))
+const AdminSurveys            = lazy(() => import('./pages/admin/Surveys'))
+const DashSurveys             = lazy(() => import('./pages/dashboard/Surveys'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -231,6 +233,7 @@ function AppRoutes() {
         <Route path="/dashboard/security"            element={<RequireAuth><DashSecurity /></RequireAuth>} />
         <Route path="/dashboard/goals"               element={<RequireAuth><DashGoals /></RequireAuth>} />
         <Route path="/dashboard/addresses"           element={<RequireAuth><DashAddresses /></RequireAuth>} />
+        <Route path="/dashboard/surveys"              element={<RequireAuth><DashSurveys /></RequireAuth>} />
 
         <Route path="/admin/overview" element={<RequireAuth role="admin"><AdminOverview /></RequireAuth>} />
         <Route path="/admin"          element={<RequireAuth role="admin"><AdminMembers /></RequireAuth>} />
@@ -289,6 +292,7 @@ function AppRoutes() {
         <Route path="/admin/fraud"            element={<RequireAuth role="admin"><AdminFraud /></RequireAuth>} />
         <Route path="/admin/ab-tests"           element={<RequireAuth role="admin"><AdminAbTests /></RequireAuth>} />
         <Route path="/admin/abandoned-carts"  element={<RequireAuth role="admin"><AdminAbandonedCarts /></RequireAuth>} />
+        <Route path="/admin/surveys"           element={<RequireAuth role="admin"><AdminSurveys /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
