@@ -6709,3 +6709,110 @@ export async function getMemberCommissionStatementSummary() {
   if (MOCK) { await new Promise(r => setTimeout(r, 100)); return COMMISSION_STATEMENT_SUMMARY }
   return request('GET', '/v1/mlm/member/commission-statements/summary')
 }
+
+// ── Admin Product Categories ──────────────────────────────────────────────────
+const PRODUCT_CATEGORIES = [
+  { id: 'cat-1', name: 'Omega & Fish Oils', slug: 'omega-fish-oils', parentId: null, productCount: 8, sortOrder: 1, active: true, description: 'High-grade omega-3 and fish oil supplements', createdAt: '2025-09-01T00:00:00Z' },
+  { id: 'cat-2', name: 'Vitamins & Minerals', slug: 'vitamins-minerals', parentId: null, productCount: 14, sortOrder: 2, active: true, description: 'Essential vitamins and mineral supplements', createdAt: '2025-09-01T00:00:00Z' },
+  { id: 'cat-3', name: 'Protein & Amino Acids', slug: 'protein-amino', parentId: null, productCount: 6, sortOrder: 3, active: true, description: 'Protein powders and amino acid supplements', createdAt: '2025-09-01T00:00:00Z' },
+  { id: 'cat-4', name: 'Weight Management', slug: 'weight-management', parentId: null, productCount: 5, sortOrder: 4, active: true, description: 'Supplements supporting healthy weight management', createdAt: '2025-09-10T00:00:00Z' },
+  { id: 'cat-5', name: 'Immune Support', slug: 'immune-support', parentId: null, productCount: 7, sortOrder: 5, active: true, description: 'Supplements for immune system support', createdAt: '2025-09-10T00:00:00Z' },
+  { id: 'cat-6', name: 'Vitamin D3 Variants', slug: 'vitamin-d3-variants', parentId: 'cat-2', productCount: 3, sortOrder: 1, active: true, description: 'Vitamin D3 in various forms and potencies', createdAt: '2025-10-01T00:00:00Z' },
+  { id: 'cat-7', name: 'B-Complex Range', slug: 'b-complex', parentId: 'cat-2', productCount: 4, sortOrder: 2, active: true, description: 'Full spectrum B-vitamin complexes', createdAt: '2025-10-01T00:00:00Z' },
+  { id: 'cat-8', name: 'Arctic Krill Oil', slug: 'arctic-krill', parentId: 'cat-1', productCount: 3, sortOrder: 1, active: true, description: 'Sustainably sourced Norwegian krill oil', createdAt: '2025-10-15T00:00:00Z' },
+  { id: 'cat-9', name: 'Sports Performance', slug: 'sports-performance', parentId: null, productCount: 4, sortOrder: 6, active: false, description: 'Performance supplements for active lifestyles', createdAt: '2025-11-01T00:00:00Z' },
+  { id: 'cat-10', name: 'Bundles & Kits', slug: 'bundles-kits', parentId: null, productCount: 5, sortOrder: 7, active: true, description: 'Curated supplement bundles and starter kits', createdAt: '2025-11-01T00:00:00Z' },
+]
+const _catKey = 'nv_categories'
+function _catInit() { try { const s = localStorage.getItem(_catKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_catKey, JSON.stringify(PRODUCT_CATEGORIES)); return PRODUCT_CATEGORIES }
+function _catSave(d) { localStorage.setItem(_catKey, JSON.stringify(d)) }
+
+export async function getAdminCategories() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return _catInit() }
+  return request('GET', '/v1/mlm/admin/categories')
+}
+export async function createAdminCategory(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const list = _catInit()
+    const n = { ...data, id: `cat-${Date.now()}`, productCount: 0, createdAt: new Date().toISOString() }
+    list.push(n); _catSave(list); return n
+  }
+  return request('POST', '/v1/mlm/admin/categories', data)
+}
+export async function updateAdminCategory(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); _catSave(_catInit().map(x => x.id === id ? { ...x, ...data } : x)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/categories/${id}`, data)
+}
+export async function deleteAdminCategory(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); _catSave(_catInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/categories/${id}`)
+}
+
+// ── Admin Co-Op Advertising ───────────────────────────────────────────────────
+const COOP_CLAIMS = [
+  { id: 'coop-1', memberId: 'm-101', memberName: 'Ingrid Solvang', channel: 'instagram', amount: 2500, status: 'pending', description: 'Instagram story campaign for Omega-3 launch', submittedAt: '2026-07-28T10:00:00Z', reviewedAt: null, reviewedBy: null, rejectReason: null },
+  { id: 'coop-2', memberId: 'm-102', memberName: 'Erik Thorvaldsen', channel: 'facebook', amount: 1800, status: 'approved', description: 'Facebook boosted post targeting 35-55 health-conscious', submittedAt: '2026-07-20T09:15:00Z', reviewedAt: '2026-07-22T11:30:00Z', reviewedBy: 'Admin', rejectReason: null },
+  { id: 'coop-3', memberId: 'm-103', memberName: 'Lena Bergstrom', channel: 'google', amount: 4200, status: 'approved', description: 'Google Ads search campaign for vitamin D3', submittedAt: '2026-07-15T14:20:00Z', reviewedAt: '2026-07-17T09:00:00Z', reviewedBy: 'Admin', rejectReason: null },
+  { id: 'coop-4', memberId: 'm-104', memberName: 'Lars Nygaard', channel: 'tiktok', amount: 3000, status: 'rejected', description: 'TikTok influencer partnership', submittedAt: '2026-07-10T16:45:00Z', reviewedAt: '2026-07-12T10:00:00Z', reviewedBy: 'Admin', rejectReason: 'Content did not comply with brand guidelines' },
+  { id: 'coop-5', memberId: 'm-105', memberName: 'Anna Lindqvist', channel: 'instagram', amount: 1500, status: 'pending', description: 'Instagram reel series for weight management', submittedAt: '2026-08-01T08:30:00Z', reviewedAt: null, reviewedBy: null, rejectReason: null },
+  { id: 'coop-6', memberId: 'm-106', memberName: 'Bjorn Haugen', channel: 'print', amount: 6500, status: 'approved', description: 'Local newspaper ad in Bergen and Stavanger', submittedAt: '2026-07-05T12:00:00Z', reviewedAt: '2026-07-07T15:00:00Z', reviewedBy: 'Admin', rejectReason: null },
+]
+const COOP_CONFIG = { totalBudgetNok: 500000, spentNok: 248600, pendingNok: 19000, matchRate: 50, maxClaimNok: 10000, minSalesRequiredNok: 20000, eligibleRanks: ['Silver', 'Gold', 'Platinum', 'Diamond'] }
+const _coopKey = 'nv_coop_claims'
+function _coopInit() { try { const s = localStorage.getItem(_coopKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_coopKey, JSON.stringify(COOP_CLAIMS)); return COOP_CLAIMS }
+function _coopSave(d) { localStorage.setItem(_coopKey, JSON.stringify(d)) }
+
+export async function getAdminCoopClaims() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return _coopInit() }
+  return request('GET', '/v1/mlm/admin/co-op/claims')
+}
+export async function getAdminCoopConfig() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 80)); return COOP_CONFIG }
+  return request('GET', '/v1/mlm/admin/co-op/config')
+}
+export async function reviewAdminCoopClaim(id, decision) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    _coopSave(_coopInit().map(x => x.id === id ? { ...x, status: decision.approve ? 'approved' : 'rejected', reviewedAt: new Date().toISOString(), reviewedBy: 'Admin', rejectReason: decision.reason || null } : x))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/co-op/claims/${id}/review`, decision)
+}
+export async function updateAdminCoopConfig(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return { ok: true } }
+  return request('PUT', '/v1/mlm/admin/co-op/config', data)
+}
+
+// ── Member My Coupons ─────────────────────────────────────────────────────────
+const MEMBER_COUPONS = [
+  { id: 'coup-1', code: 'WELCOME20', type: 'percent', value: 20, description: 'Welcome bonus — 20% off your next order', minOrderNok: 0, maxDiscountNok: null, expiresAt: '2026-12-31T23:59:59Z', usedAt: null, earnedFor: 'Onboarding completion' },
+  { id: 'coup-2', code: 'LOYAL100', type: 'fixed', value: 100, description: 'Loyalty reward — NOK 100 off', minOrderNok: 500, maxDiscountNok: 100, expiresAt: '2026-09-30T23:59:59Z', usedAt: null, earnedFor: 'Loyalty milestone 500 pts' },
+  { id: 'coup-3', code: 'BDAY15', type: 'percent', value: 15, description: 'Birthday month gift', minOrderNok: 0, maxDiscountNok: 200, expiresAt: '2026-08-31T23:59:59Z', usedAt: null, earnedFor: 'Birthday reward' },
+  { id: 'coup-4', code: 'REFER50', type: 'fixed', value: 50, description: 'Referral reward coupon', minOrderNok: 300, maxDiscountNok: 50, expiresAt: '2026-10-15T23:59:59Z', usedAt: null, earnedFor: 'Referred Maja Strand' },
+  { id: 'coup-5', code: 'SUMMER25', type: 'percent', value: 25, description: 'Summer campaign discount — used', minOrderNok: 0, maxDiscountNok: 500, expiresAt: '2026-07-31T23:59:59Z', usedAt: '2026-07-10T14:30:00Z', earnedFor: 'Summer promotion' },
+]
+export async function getMemberCoupons() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 140)); return MEMBER_COUPONS }
+  return request('GET', '/v1/mlm/member/coupons')
+}
+
+// ── Member Co-Op Advertising ──────────────────────────────────────────────────
+const MEMBER_COOP_SUMMARY = { balance: 4750, lifetimeEarned: 7250, lifetimeClaimed: 2500, pendingApproval: 800, eligibilityStatus: 'eligible', currentRank: 'Gold', matchRate: 50, maxClaimNok: 5000, nextLevelUnlocks: 'Platinum: 75% match rate' }
+const MEMBER_COOP_CLAIMS = [
+  { id: 'mcc-1', channel: 'instagram', amount: 1500, matched: 750, description: 'Instagram stories campaign for Omega-3', status: 'approved', submittedAt: '2026-07-01T10:00:00Z', reviewedAt: '2026-07-03T09:00:00Z' },
+  { id: 'mcc-2', channel: 'facebook', amount: 1000, matched: 500, description: 'Boosted Facebook post — health supplements', status: 'approved', submittedAt: '2026-06-15T10:00:00Z', reviewedAt: '2026-06-17T10:00:00Z' },
+  { id: 'mcc-3', channel: 'tiktok', amount: 800, matched: null, description: 'TikTok video about vitamins', status: 'pending', submittedAt: '2026-08-02T15:00:00Z', reviewedAt: null },
+]
+export async function getMemberCoopSummary() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); return MEMBER_COOP_SUMMARY }
+  return request('GET', '/v1/mlm/member/co-op/summary')
+}
+export async function getMemberCoopClaims() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return MEMBER_COOP_CLAIMS }
+  return request('GET', '/v1/mlm/member/co-op/claims')
+}
+export async function submitMemberCoopClaim(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { id: `mcc-${Date.now()}`, ...data, status: 'pending', submittedAt: new Date().toISOString(), reviewedAt: null, matched: null } }
+  return request('POST', '/v1/mlm/member/co-op/claims', data)
+}

@@ -137,6 +137,10 @@ const DashReferralLinks          = lazy(() => import('./pages/dashboard/Referral
 const DashAchievements           = lazy(() => import('./pages/dashboard/Achievements'))
 const AdminInfluencers           = lazy(() => import('./pages/admin/Influencers'))
 const DashCommissionStatements   = lazy(() => import('./pages/dashboard/CommissionStatements'))
+const AdminCategories            = lazy(() => import('./pages/admin/Categories'))
+const AdminCoOp                  = lazy(() => import('./pages/admin/CoOp'))
+const DashCoupons                = lazy(() => import('./pages/dashboard/Coupons'))
+const DashCoOp                   = lazy(() => import('./pages/dashboard/CoOp'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -325,6 +329,10 @@ function AppRoutes() {
         <Route path="/dashboard/achievements"            element={<RequireAuth><DashAchievements /></RequireAuth>} />
         <Route path="/admin/influencers"                 element={<RequireAuth role="admin"><AdminInfluencers /></RequireAuth>} />
         <Route path="/dashboard/commission-statements"   element={<RequireAuth><DashCommissionStatements /></RequireAuth>} />
+        <Route path="/admin/categories"                  element={<RequireAuth role="admin"><AdminCategories /></RequireAuth>} />
+        <Route path="/admin/co-op"                       element={<RequireAuth role="admin"><AdminCoOp /></RequireAuth>} />
+        <Route path="/dashboard/coupons"                 element={<RequireAuth><DashCoupons /></RequireAuth>} />
+        <Route path="/dashboard/co-op"                   element={<RequireAuth><DashCoOp /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

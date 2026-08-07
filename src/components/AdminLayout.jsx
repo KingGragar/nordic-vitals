@@ -69,6 +69,8 @@ const navLinks = [
   { to: '/admin/api-keys',        label: '🔑 API Keys' },
   { to: '/admin/territories',     label: '🗺️ Territories' },
   { to: '/admin/influencers',     label: '📣 Influencer Program' },
+  { to: '/admin/categories',      label: '📂 Product Categories' },
+  { to: '/admin/co-op',           label: '🤝 Co-Op Advertising' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

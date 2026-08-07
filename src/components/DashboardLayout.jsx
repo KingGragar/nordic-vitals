@@ -73,6 +73,8 @@ const navSections = [
       { to: '/dashboard/surveys',        label: '📋 Surveys' },
       { to: '/dashboard/webinars',       label: '🎙️ Webinars' },
       { to: '/dashboard/vouchers',       label: '🎟️ My Vouchers' },
+      { to: '/dashboard/coupons',        label: '🎟️ My Coupons' },
+      { to: '/dashboard/co-op',          label: '🤝 Co-Op Advertising' },
     ],
   },
   {
