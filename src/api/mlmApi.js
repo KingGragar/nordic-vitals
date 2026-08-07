@@ -35,6 +35,13 @@ import {
   MEMBERSHIP_FEE_CONFIG,
   SUBSCRIPTION_PLANS,
   MEMBER_SUBSCRIPTIONS,
+  PRICE_LISTS,
+  PRICE_OVERRIDES,
+  SMS_CAMPAIGNS,
+  SMS_STATS,
+  MEMBER_VOUCHERS,
+  MEMBER_WEBINARS,
+  MEMBER_WEBINAR_RECORDINGS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -6383,4 +6390,106 @@ export async function deleteLoyaltyRedemptionOption(id) {
     return { ok: true }
   }
   return request('DELETE', `/v1/mlm/admin/loyalty/redemption-options/${id}`)
+}
+
+// ── Price Lists ────────────────────────────────────────────────────────────────
+const _plKey = 'nv_price_lists'
+const _poKey = 'nv_price_overrides'
+function _plInit() { try { const s = localStorage.getItem(_plKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_plKey, JSON.stringify(PRICE_LISTS)); return PRICE_LISTS }
+function _plSave(d) { localStorage.setItem(_plKey, JSON.stringify(d)) }
+function _poInit() { try { const s = localStorage.getItem(_poKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_poKey, JSON.stringify(PRICE_OVERRIDES)); return PRICE_OVERRIDES }
+function _poSave(d) { localStorage.setItem(_poKey, JSON.stringify(d)) }
+
+export async function getAdminPriceLists() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return _plInit() }
+  return request('GET', '/v1/mlm/admin/price-lists')
+}
+export async function createAdminPriceList(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); const pl = _plInit(); const n = { ...data, id: `pl-${Date.now()}`, memberCount: 0 }; pl.push(n); _plSave(pl); return n }
+  return request('POST', '/v1/mlm/admin/price-lists', data)
+}
+export async function updateAdminPriceList(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); const pl = _plInit().map(x => x.id === id ? { ...x, ...data } : x); _plSave(pl); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/price-lists/${id}`, data)
+}
+export async function deleteAdminPriceList(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); _plSave(_plInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/price-lists/${id}`)
+}
+export async function getAdminPriceOverrides() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 170)); return _poInit() }
+  return request('GET', '/v1/mlm/admin/price-overrides')
+}
+export async function setAdminPriceOverride(productId, listId, price) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 140))
+    const rows = _poInit().map(r => {
+      if (r.productId !== productId) return r
+      const overrides = { ...r.overrides }
+      if (price == null) delete overrides[listId]
+      else overrides[listId] = price
+      return { ...r, overrides }
+    })
+    _poSave(rows); return { ok: true }
+  }
+  return request('PUT', `/v1/mlm/admin/price-overrides/${productId}/${listId}`, { price })
+}
+
+// ── SMS / WhatsApp Campaigns ───────────────────────────────────────────────────
+const _smsKey = 'nv_sms_campaigns'
+function _smsInit() { try { const s = localStorage.getItem(_smsKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_smsKey, JSON.stringify(SMS_CAMPAIGNS)); return SMS_CAMPAIGNS }
+function _smsSave(d) { localStorage.setItem(_smsKey, JSON.stringify(d)) }
+
+export async function getAdminSmsCampaigns() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 190)); return _smsInit() }
+  return request('GET', '/v1/mlm/admin/sms-campaigns')
+}
+export async function getAdminSmsStats() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); return SMS_STATS }
+  return request('GET', '/v1/mlm/admin/sms-campaigns/stats')
+}
+export async function createAdminSmsCampaign(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const campaigns = _smsInit()
+    const n = { ...data, id: `sms-${Date.now()}`, status: data.sendNow ? 'sent' : (data.scheduledAt ? 'scheduled' : 'draft'), sentAt: data.sendNow ? new Date().toISOString() : null, stats: data.sendNow ? { sent: 0, delivered: 0, clicked: 0, optOut: 0 } : undefined }
+    campaigns.unshift(n); _smsSave(campaigns); return n
+  }
+  return request('POST', '/v1/mlm/admin/sms-campaigns', data)
+}
+export async function updateAdminSmsCampaign(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); _smsSave(_smsInit().map(x => x.id === id ? { ...x, ...data } : x)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/sms-campaigns/${id}`, data)
+}
+export async function deleteAdminSmsCampaign(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); _smsSave(_smsInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/sms-campaigns/${id}`)
+}
+export async function sendAdminSmsCampaign(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 800)); _smsSave(_smsInit().map(x => x.id === id ? { ...x, status: 'sent', sentAt: new Date().toISOString(), stats: { sent: Math.floor(Math.random() * 2000) + 200, delivered: Math.floor(Math.random() * 1900) + 190, clicked: Math.floor(Math.random() * 400) + 20, optOut: Math.floor(Math.random() * 20) } } : x)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/sms-campaigns/${id}/send`)
+}
+
+// ── Member Vouchers ────────────────────────────────────────────────────────────
+export async function getMemberVouchers() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return MEMBER_VOUCHERS }
+  return request('GET', '/v1/mlm/member/vouchers')
+}
+export async function claimMemberVoucher(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return { ok: true } }
+  return request('POST', `/v1/mlm/member/vouchers/${id}/claim`)
+}
+
+// ── Member Webinars ────────────────────────────────────────────────────────────
+export async function getMemberWebinars() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return MEMBER_WEBINARS }
+  return request('GET', '/v1/mlm/member/webinars')
+}
+export async function getMemberWebinarRecordings() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return MEMBER_WEBINAR_RECORDINGS }
+  return request('GET', '/v1/mlm/member/webinars/recordings')
+}
+export async function registerMemberWebinar(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('POST', `/v1/mlm/member/webinars/${id}/register`)
 }

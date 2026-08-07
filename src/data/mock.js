@@ -3866,3 +3866,69 @@ export const MEMBER_SUBSCRIPTIONS = [
   { memberId: 'NV-10230', memberName: 'Sigrid Voss',   planId: 'sp-002', planName: 'Pro',     billingCycle: 'annual',  status: 'active',    mrr: 207,  startDate: '2026-02-14', nextRenewal: '2027-02-14' },
   { memberId: 'NV-10241', memberName: 'Olaf Berg',     planId: 'sp-001', planName: 'Starter', billingCycle: 'monthly', status: 'active',    mrr: 99,   startDate: '2026-03-20', nextRenewal: '2026-09-20' },
 ]
+
+export const PRICE_LISTS = [
+  { id: 'pl-retail',    name: 'Retail',         type: 'retail',    discount: 0,  currency: 'NOK', description: 'Standard retail pricing for non-members.',              active: true,  memberCount: 0 },
+  { id: 'pl-wholesale', name: 'Wholesale',      type: 'wholesale', discount: 20, currency: 'NOK', description: '20% discount for qualified wholesale distributors.',     active: true,  memberCount: 187 },
+  { id: 'pl-member',    name: 'Member Pricing', type: 'member',    discount: 10, currency: 'NOK', description: '10% member discount applied automatically on login.',    active: true,  memberCount: 312 },
+  { id: 'pl-vip',       name: 'VIP Gold+',      type: 'vip',       discount: 30, currency: 'NOK', description: '30% discount for Gold rank and above.',                  active: true,  memberCount: 48 },
+  { id: 'pl-staff',     name: 'Staff',          type: 'staff',     discount: 50, currency: 'NOK', description: 'Internal staff pricing — 50% off retail.',              active: false, memberCount: 6 },
+]
+
+export const PRICE_OVERRIDES = [
+  { productId: 'prod-001', productName: 'Arctic Collagen Boost', sku: 'ACB-250', retailPrice: 349, overrides: { 'pl-vip': 229 } },
+  { productId: 'prod-002', productName: 'Nordic Omega-3 Complex', sku: 'NOC-60', retailPrice: 289, overrides: {} },
+  { productId: 'prod-003', productName: 'Vitamin D3+K2 5000 IU', sku: 'VDK-90', retailPrice: 199, overrides: { 'pl-wholesale': 149, 'pl-vip': 129 } },
+  { productId: 'prod-004', productName: 'Elderberry Immune Shield', sku: 'EIS-120', retailPrice: 249, overrides: {} },
+  { productId: 'prod-005', productName: 'Magnesium Glycinate 400', sku: 'MG4-60', retailPrice: 219, overrides: { 'pl-member': 199 } },
+  { productId: 'prod-006', productName: 'Arctic Marine Collagen', sku: 'AMC-150', retailPrice: 399, overrides: {} },
+  { productId: 'prod-007', productName: 'Probiotic Nordic Blend', sku: 'PNB-30', retailPrice: 279, overrides: { 'pl-vip': 179 } },
+  { productId: 'prod-008', productName: 'Ashwagandha KSM-66', sku: 'ASH-60', retailPrice: 229, overrides: {} },
+]
+
+export const SMS_CAMPAIGNS = [
+  { id: 'sms-001', name: 'New Year Flash Sale', channel: 'sms', message: 'Hi {{firstName}}! 🎉 Start 2026 right — 20% off sitewide today only. Use code NY20 at checkout. Reply STOP to unsubscribe.', segment: 'All Members', status: 'sent', sentAt: '2026-01-01T08:00:00Z', stats: { sent: 2847, delivered: 2761, clicked: 412, optOut: 14 } },
+  { id: 'sms-002', name: 'Omega-3 Restock Alert', channel: 'sms', message: 'Good news {{firstName}}! Nordic Omega-3 Complex is back in stock. Grab yours before it sells out again.', segment: 'Active Members', status: 'sent', sentAt: '2026-02-15T10:30:00Z', stats: { sent: 1203, delivered: 1181, clicked: 287, optOut: 3 } },
+  { id: 'sms-003', name: 'March Rank Challenge', channel: 'whatsapp', message: 'Hey {{firstName}} 👋 The March Rank Challenge is live! You need just {{ptsNeeded}} PV to reach the next rank. Your team is counting on you 💪', segment: 'Silver Rank', status: 'sent', sentAt: '2026-03-01T09:00:00Z', stats: { sent: 387, delivered: 379, clicked: 201, optOut: 2 } },
+  { id: 'sms-004', name: 'Summer Bundle Launch', channel: 'sms', message: 'Summer is here! ☀️ Our new Nordic Summer Bundle saves you 25% vs buying separately. Limited stock — {{firstName}}, shop now!', segment: 'All Members', status: 'scheduled', scheduledAt: '2026-08-10T07:00:00Z' },
+  { id: 'sms-005', name: 'VIP Early Access', channel: 'whatsapp', message: '{{firstName}}, as a Gold member you get 48h early access to our new Collagen Pro formula before it goes public.', segment: 'Gold Rank', status: 'draft' },
+  { id: 'sms-006', name: 'Inactive Win-Back', channel: 'sms', message: 'We miss you {{firstName}}! It has been a while. Here\'s 15% off your next order — code COMEBACK15, valid 7 days.', segment: 'Inactive (> 60d)', status: 'draft' },
+]
+
+export const SMS_STATS = {
+  sentThisMonth: 4891,
+  deliveryRate: 97.2,
+  ctrRate: 18.4,
+  optOuts: 23,
+  delivered: 4755,
+  failed: 136,
+  pending: 0,
+}
+
+export const MEMBER_VOUCHERS = [
+  { id: 'v-001', type: 'discount', title: 'Welcome Discount', code: 'WELCOME15', valueLabel: '15% off', description: 'One-time welcome discount valid on your first order.', minOrder: null, expiresAt: '2026-12-31T23:59:00Z', used: false, savedAmount: null },
+  { id: 'v-002', type: 'cashback', title: 'Referral Cashback', code: 'REF-CB150', valueLabel: 'NOK 150 cashback', description: 'Earned by referring Anna Olsen. Applied to next order.', minOrder: 300, expiresAt: '2026-09-30T23:59:00Z', used: false, savedAmount: null },
+  { id: 'v-003', type: 'shipping', title: 'Free Shipping', code: 'SHIP-FREE', valueLabel: 'Free shipping', description: 'Free standard shipping on any order — no minimum.', minOrder: null, expiresAt: '2026-08-31T23:59:00Z', used: false, savedAmount: null },
+  { id: 'v-004', type: 'points', title: 'Loyalty Bonus', code: 'BONUS500', valueLabel: '+500 loyalty points', description: 'Earned by completing the Product Training module.', minOrder: null, expiresAt: null, used: false, savedAmount: null },
+  { id: 'v-005', type: 'discount', title: 'Silver Rank Reward', code: 'SILVER10', valueLabel: '10% off', description: 'Reward for reaching Silver rank. Applies to all products.', minOrder: 200, expiresAt: '2026-07-01T00:00:00Z', used: false, savedAmount: null },
+  { id: 'v-006', type: 'discount', title: 'Birthday Voucher', code: 'BDAY20', valueLabel: '20% off', description: 'Happy birthday! Valid for your birthday month.', minOrder: null, expiresAt: '2026-07-31T23:59:00Z', used: true, usedAt: '2026-07-14T11:24:00Z', usedOnOrder: '10381', savedAmount: 138 },
+  { id: 'v-007', type: 'product', title: 'Free Sample Pack', code: 'SAMPLE-GIFT', valueLabel: 'Free sample pack', description: 'Includes Arctic Collagen and Omega-3 travel sachet.', minOrder: 500, expiresAt: '2026-06-30T00:00:00Z', used: true, usedAt: '2026-06-18T09:05:00Z', usedOnOrder: '10254', savedAmount: 89 },
+]
+
+export const MEMBER_WEBINARS = [
+  { id: 'wb-001', icon: '💡', title: 'Building a 6-Figure Network in 12 Months', category: 'Business Growth', description: 'Top earner Marte Lindqvist shares her recruitment and retention blueprint — step by step.', host: 'Marte Lindqvist', startsAt: '2026-08-10T18:00:00Z', endsAt: '2026-08-10T19:30:00Z', durationMin: 90, language: 'Norwegian', registeredCount: 214, registered: false, joinUrl: '#' },
+  { id: 'wb-002', icon: '🧴', title: 'Nordic Collagen Science Deep Dive', category: 'Product Training', description: 'Our head formulator explains the science behind Arctic Collagen Boost and how to present it to customers.', host: 'Dr. Silje Haugen', startsAt: '2026-08-14T12:00:00Z', endsAt: '2026-08-14T13:00:00Z', durationMin: 60, language: 'English', registeredCount: 88, registered: true, joinUrl: '#' },
+  { id: 'wb-003', icon: '🏆', title: 'Q3 Leadership Summit — Live Stream', category: 'Leadership', description: 'Quarterly all-hands with company leadership: product roadmap, comp plan updates, and Q&A.', host: 'CEO & Leadership Team', startsAt: '2026-08-20T14:00:00Z', endsAt: '2026-08-20T16:00:00Z', durationMin: 120, language: 'Norwegian', registeredCount: 531, registered: false, joinUrl: '#' },
+  { id: 'wb-004', icon: '⚖️', title: 'GDPR & MLM Compliance Essentials', category: 'Compliance', description: 'What every distributor must know about data privacy, income claims, and compliant marketing.', host: 'Legal Team', startsAt: '2026-09-03T10:00:00Z', endsAt: '2026-09-03T11:00:00Z', durationMin: 60, language: 'Norwegian', registeredCount: 42, registered: false, joinUrl: '#' },
+  { id: 'wb-005', icon: '🔥', title: 'Mindset Mastery for Network Marketers', category: 'Motivation', description: 'Certified mindset coach Ida Berg on resilience, rejection, and building unstoppable confidence.', host: 'Ida Berg', startsAt: '2026-09-10T19:00:00Z', endsAt: '2026-09-10T20:00:00Z', durationMin: 60, language: 'Norwegian', registeredCount: 156, registered: false, joinUrl: '#' },
+  { id: 'wb-006', icon: '📱', title: 'Social Selling on Instagram & TikTok', category: 'Tech & Tools', description: 'Practical strategies to grow your personal brand and convert followers into customers.', host: 'Erik Vold', startsAt: '2026-09-18T17:00:00Z', endsAt: '2026-09-18T18:30:00Z', durationMin: 90, language: 'Norwegian', registeredCount: 301, registered: true, joinUrl: '#' },
+]
+
+export const MEMBER_WEBINAR_RECORDINGS = [
+  { id: 'rec-001', icon: '💡', title: 'Duplication: The Secret to Passive Income', category: 'Business Growth', description: 'How to build a self-running team — systems, scripts, and the 3-step onboarding process.', host: 'Marte Lindqvist', recordedAt: '2026-06-12T18:00:00Z', durationMin: 85, views: 1847, isNew: false, watchUrl: '#' },
+  { id: 'rec-002', icon: '🧴', title: 'Omega-3: The Science Behind the Formula', category: 'Product Training', description: 'Why our ultra-pure Norwegian fish oil beats the supermarket alternatives — explained simply.', host: 'Dr. Silje Haugen', recordedAt: '2026-07-08T12:00:00Z', durationMin: 55, views: 932, isNew: false, watchUrl: '#' },
+  { id: 'rec-003', icon: '🏆', title: 'Q2 Leadership Summit Recording', category: 'Leadership', description: 'Full Q2 all-hands replay: compensation plan updates, product launches, and top earner spotlights.', host: 'CEO & Leadership Team', recordedAt: '2026-05-20T14:00:00Z', durationMin: 118, views: 2231, isNew: false, watchUrl: '#' },
+  { id: 'rec-004', icon: '📱', title: 'Instagram Reels for MLM — What Actually Works', category: 'Tech & Tools', description: 'A 7-step framework for creating product content that educates without triggering ad fatigue.', host: 'Erik Vold', recordedAt: '2026-07-24T17:00:00Z', durationMin: 72, views: 411, isNew: true, watchUrl: '#' },
+  { id: 'rec-005', icon: '🔥', title: 'Handling "Is This a Pyramid Scheme?" — Live Roleplay', category: 'Motivation', description: 'Real objection-handling scenarios with coached responses. Leaves you ready for any pushback.', host: 'Ida Berg', recordedAt: '2026-07-31T19:00:00Z', durationMin: 64, views: 588, isNew: true, watchUrl: '#' },
+  { id: 'rec-006', icon: '⚖️', title: 'Income Claims: The Legal Line', category: 'Compliance', description: 'What you can and cannot say about earnings — with real examples of compliant vs. non-compliant posts.', host: 'Legal Team', recordedAt: '2026-06-04T10:00:00Z', durationMin: 48, views: 729, isNew: false, watchUrl: '#' },
+]

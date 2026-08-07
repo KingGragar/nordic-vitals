@@ -63,6 +63,8 @@ const navLinks = [
   { to: '/admin/content',        label: '📁 Content Library' },
   { to: '/admin/training',       label: '🎓 Training Manager' },
   { to: '/admin/loyalty-config', label: '⭐ Loyalty Config' },
+  { to: '/admin/price-lists',    label: '💲 Price Lists' },
+  { to: '/admin/sms-campaigns',  label: '📱 SMS Campaigns' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },
