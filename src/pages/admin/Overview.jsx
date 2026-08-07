@@ -449,6 +449,7 @@ export default function Overview() {
           { label: '📦 Starter Packs',   desc: 'Product bundles shown in the shop', path: '/admin/bundles' },
           { label: '⭐ Product Reviews',  desc: 'Approve, reject, and moderate member reviews', path: '/admin/reviews' },
           { label: '📥 Bulk Import',     desc: 'CSV member import for launch seeding', path: '/admin/import' },
+          { label: '🎨 Branding & White-Label', desc: 'Company name, logo, colors, certificate signatories', path: '/admin/branding' },
           { label: '🔧 Settings',        desc: 'System & notification settings', path: '/admin/settings' },
           { label: '🚀 Launch Checklist', desc: 'Pre-launch readiness tracker for Gary + Bjørn', path: '/admin/launch' },
           { label: '🖥️ System Status',   desc: 'Real-time health of all platform components', path: '/admin/system-status' },

@@ -139,6 +139,7 @@ const AdminInfluencers           = lazy(() => import('./pages/admin/Influencers'
 const DashCommissionStatements   = lazy(() => import('./pages/dashboard/CommissionStatements'))
 const AdminCategories            = lazy(() => import('./pages/admin/Categories'))
 const AdminCoOp                  = lazy(() => import('./pages/admin/CoOp'))
+const AdminBranding              = lazy(() => import('./pages/admin/Branding'))
 const DashCoupons                = lazy(() => import('./pages/dashboard/Coupons'))
 const DashCoOp                   = lazy(() => import('./pages/dashboard/CoOp'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
@@ -331,6 +332,7 @@ function AppRoutes() {
         <Route path="/dashboard/commission-statements"   element={<RequireAuth><DashCommissionStatements /></RequireAuth>} />
         <Route path="/admin/categories"                  element={<RequireAuth role="admin"><AdminCategories /></RequireAuth>} />
         <Route path="/admin/co-op"                       element={<RequireAuth role="admin"><AdminCoOp /></RequireAuth>} />
+        <Route path="/admin/branding"                    element={<RequireAuth role="admin"><AdminBranding /></RequireAuth>} />
         <Route path="/dashboard/coupons"                 element={<RequireAuth><DashCoupons /></RequireAuth>} />
         <Route path="/dashboard/co-op"                   element={<RequireAuth><DashCoOp /></RequireAuth>} />
 

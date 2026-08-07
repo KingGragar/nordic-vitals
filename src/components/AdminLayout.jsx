@@ -74,6 +74,7 @@ const navLinks = [
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },
+  { to: '/admin/branding',        label: '🎨 Branding & White-Label' },
   { to: '/admin/settings',        label: '🔧 Settings' },
   { to: '/admin/system-status',  label: '🖥️ System Status' },
   { to: '/admin/launch',          label: '🚀 Launch Checklist' },

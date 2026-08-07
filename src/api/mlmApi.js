@@ -6816,3 +6816,58 @@ export async function submitMemberCoopClaim(data) {
   if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { id: `mcc-${Date.now()}`, ...data, status: 'pending', submittedAt: new Date().toISOString(), reviewedAt: null, matched: null } }
   return request('POST', '/v1/mlm/member/co-op/claims', data)
 }
+
+// ── Branding & White-Label Config ─────────────────────────────────────────────
+const BRANDING_DEFAULTS = {
+  company_name: 'Nordic Vitals AS',
+  trading_name: 'Nordic Vitals',
+  tagline: 'Powered by Arctico',
+  ceo_name: 'Bjørn Vidar Hauge',
+  ceo_title: 'Founder & CEO',
+  tech_partner: 'Arctico / Veriton',
+  description: 'Nordic Vitals delivers science-backed supplements through a transparent, fair compensation model powered by Arctico\'s blockchain infrastructure.',
+  org_number: '',
+  vat_number: '',
+  address: '',
+  support_email: 'support@nordicvitals.no',
+  email_sender_name: 'Nordic Vitals',
+  logo_url: '',
+  logo_dark_url: '',
+  favicon_url: '',
+  color_primary: '#c9a84c',
+  color_accent: '#3b82f6',
+  color_header_bg: '#0a0600',
+  color_header_text: '#f5e6c8',
+  website_url: 'https://nordic-vitals.vercel.app',
+  platform_url: 'https://arctico.duckdns.org',
+  social: { facebook: '', instagram: '', telegram: '', linkedin: '', twitter: '' },
+  documents: {
+    cert_issuer: 'Nordic Vitals AS, powered by Arctico / Veriton',
+    cert_footer: 'Nordic Vitals AS · support@nordicvitals.no · Powered by Arctico / Veriton',
+    signer1_name: 'Bjørn Vidar Hauge',
+    signer1_title: 'Founder & CEO, Arctico / Veriton',
+    signer2_name: 'Gary Granello',
+    signer2_title: 'Managing Director, Nordic Vitals',
+    invoice_footer: 'Nordic Vitals AS · support@nordicvitals.no',
+    member_card_footer: 'nordicvitals.no · Powered by Arctico / Veriton',
+    email_header_tagline: 'Science-backed supplements. Transparent earnings.',
+  },
+}
+
+export async function getBrandingConfig() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 120))
+    const stored = localStorage.getItem('nv_branding_config')
+    return stored ? { ...BRANDING_DEFAULTS, ...JSON.parse(stored) } : { ...BRANDING_DEFAULTS }
+  }
+  return request('GET', '/v1/mlm/admin/branding')
+}
+
+export async function saveBrandingConfig(cfg) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    localStorage.setItem('nv_branding_config', JSON.stringify(cfg))
+    return cfg
+  }
+  return request('PUT', '/v1/mlm/admin/branding', cfg)
+}
