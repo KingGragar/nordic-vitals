@@ -25,9 +25,10 @@ const navSections = [
   {
     heading: 'Finances',
     links: [
-      { to: '/dashboard/commissions',  label: '💰 Commissions' },
-      { to: '/dashboard/earnings',     label: '📈 Earnings' },
-      { to: '/dashboard/wallet',           label: '💳 Wallet' },
+      { to: '/dashboard/commissions',    label: '💰 Commissions' },
+      { to: '/dashboard/earnings',       label: '📈 Earnings' },
+      { to: '/dashboard/wallet',         label: '💳 Wallet' },
+      { to: '/dashboard/payouts',        label: '💸 Payout Requests' },
       { to: '/dashboard/payment-methods', label: '🏦 Payment Methods' },
       { to: '/dashboard/addresses',       label: '📍 Address Book' },
       { to: '/dashboard/orders',           label: '📦 My Orders' },

@@ -3932,3 +3932,31 @@ export const MEMBER_WEBINAR_RECORDINGS = [
   { id: 'rec-005', icon: '🔥', title: 'Handling "Is This a Pyramid Scheme?" — Live Roleplay', category: 'Motivation', description: 'Real objection-handling scenarios with coached responses. Leaves you ready for any pushback.', host: 'Ida Berg', recordedAt: '2026-07-31T19:00:00Z', durationMin: 64, views: 588, isNew: true, watchUrl: '#' },
   { id: 'rec-006', icon: '⚖️', title: 'Income Claims: The Legal Line', category: 'Compliance', description: 'What you can and cannot say about earnings — with real examples of compliant vs. non-compliant posts.', host: 'Legal Team', recordedAt: '2026-06-04T10:00:00Z', durationMin: 48, views: 729, isNew: false, watchUrl: '#' },
 ]
+
+// ── Admin Push Notifications ─────────────────────────────────────────────────
+export const PUSH_CAMPAIGNS = [
+  { id: 'push-001', title: 'New Summer Bundle is Here! 🌿', body: 'Our Arctic Summer Bundle is now live — 25% off for the next 48 hours only. Shop now!', icon: '/logo.svg', actionUrl: '/shop', segment: 'All Members', status: 'sent', sentAt: '2026-07-15T08:00:00Z', stats: { sent: 1924, delivered: 1842, clicked: 387, dismissed: 391 } },
+  { id: 'push-002', title: 'Commission Run Complete 💸', body: 'Your July commission of NOK 2,450 is ready to withdraw. Tap to view your wallet.', icon: '/logo.svg', actionUrl: '/dashboard/wallet', segment: 'Active Members', status: 'sent', sentAt: '2026-08-01T10:30:00Z', stats: { sent: 847, delivered: 821, clicked: 541, dismissed: 108 } },
+  { id: 'push-003', title: 'Rank Up Challenge — 3 Days Left ⏰', body: 'You\'re {{ptsNeeded}} PV away from Gold rank. Push hard this week — you\'ve got this!', icon: '/logo.svg', actionUrl: '/dashboard/rank-progress', segment: 'Silver Rank', status: 'sent', sentAt: '2026-07-28T09:00:00Z', stats: { sent: 214, delivered: 208, clicked: 141, dismissed: 31 } },
+  { id: 'push-004', title: 'Q3 Leadership Summit Tomorrow 🏆', body: 'Don\'t forget — the Q3 All-Hands starts at 14:00 tomorrow. Register now to get the link.', icon: '/logo.svg', actionUrl: '/dashboard/webinars', segment: 'All Members', status: 'scheduled', scheduledAt: '2026-08-19T09:00:00Z' },
+  { id: 'push-005', title: 'Flash Restock: Omega-3 Back in Stock', body: 'Nordic Omega-3 Complex is back! Stock is limited — grab yours before it sells out again.', icon: '/logo.svg', actionUrl: '/shop', segment: 'All Members', status: 'draft' },
+  { id: 'push-006', title: 'Your Voucher Expires in 3 Days 🎟️', body: 'Don\'t let your 15% Welcome Discount go to waste! Expires Aug 31. Use code WELCOME15.', icon: '/logo.svg', actionUrl: '/dashboard/vouchers', segment: 'New (< 30d)', status: 'draft' },
+]
+export const PUSH_STATS = {
+  subscribers: 2317,
+  optInRate: 68.4,
+  sentThisMonth: 3085,
+  avgCtr: 28.9,
+  delivered: 2871,
+  clicked: 1069,
+  dismissed: 530,
+}
+
+// ── Member Payout Requests ───────────────────────────────────────────────────
+export const MEMBER_PAYOUTS = [
+  { id: 'po-001', amount: 2450, currency: 'NOK', method: 'bank_transfer', accountLabel: 'DNB ****4821', status: 'paid', requestedAt: '2026-08-02T11:14:00Z', processedAt: '2026-08-04T09:00:00Z', ref: 'TXN-88421' },
+  { id: 'po-002', amount: 1800, currency: 'NOK', method: 'bank_transfer', accountLabel: 'DNB ****4821', status: 'paid', requestedAt: '2026-07-03T09:44:00Z', processedAt: '2026-07-05T10:30:00Z', ref: 'TXN-82917' },
+  { id: 'po-003', amount: 980,  currency: 'NOK', method: 'bank_transfer', accountLabel: 'DNB ****4821', status: 'processing', requestedAt: '2026-08-07T07:30:00Z', processedAt: null, ref: null },
+  { id: 'po-004', amount: 500,  currency: 'NOK', method: 'wallet_credit', accountLabel: 'Nordic Wallet',  status: 'paid', requestedAt: '2026-06-01T14:00:00Z', processedAt: '2026-06-01T14:02:00Z', ref: 'TXN-78201' },
+  { id: 'po-005', amount: 3100, currency: 'NOK', method: 'bank_transfer', accountLabel: 'DNB ****4821', status: 'rejected', requestedAt: '2026-05-10T08:00:00Z', processedAt: '2026-05-11T13:00:00Z', ref: null, rejectReason: 'KYC re-verification required before payouts above NOK 3 000.' },
+]

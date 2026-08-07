@@ -129,6 +129,8 @@ const AdminSmsCampaigns       = lazy(() => import('./pages/admin/SmsCampaigns'))
 const DashDownloads           = lazy(() => import('./pages/dashboard/Downloads'))
 const DashVouchers            = lazy(() => import('./pages/dashboard/Vouchers'))
 const DashWebinars            = lazy(() => import('./pages/dashboard/Webinars'))
+const DashPayouts             = lazy(() => import('./pages/dashboard/Payouts'))
+const AdminPushNotifications  = lazy(() => import('./pages/admin/PushNotifications'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -306,9 +308,11 @@ function AppRoutes() {
         <Route path="/admin/training"          element={<RequireAuth role="admin"><AdminTraining /></RequireAuth>} />
         <Route path="/admin/loyalty-config"    element={<RequireAuth role="admin"><AdminLoyaltyConfig /></RequireAuth>} />
         <Route path="/admin/price-lists"       element={<RequireAuth role="admin"><AdminPriceLists /></RequireAuth>} />
-        <Route path="/admin/sms-campaigns"     element={<RequireAuth role="admin"><AdminSmsCampaigns /></RequireAuth>} />
-        <Route path="/dashboard/vouchers"      element={<RequireAuth><DashVouchers /></RequireAuth>} />
-        <Route path="/dashboard/webinars"      element={<RequireAuth><DashWebinars /></RequireAuth>} />
+        <Route path="/admin/sms-campaigns"        element={<RequireAuth role="admin"><AdminSmsCampaigns /></RequireAuth>} />
+        <Route path="/admin/push-notifications"  element={<RequireAuth role="admin"><AdminPushNotifications /></RequireAuth>} />
+        <Route path="/dashboard/vouchers"        element={<RequireAuth><DashVouchers /></RequireAuth>} />
+        <Route path="/dashboard/webinars"        element={<RequireAuth><DashWebinars /></RequireAuth>} />
+        <Route path="/dashboard/payouts"         element={<RequireAuth><DashPayouts /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

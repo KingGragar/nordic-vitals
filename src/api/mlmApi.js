@@ -42,6 +42,9 @@ import {
   MEMBER_VOUCHERS,
   MEMBER_WEBINARS,
   MEMBER_WEBINAR_RECORDINGS,
+  PUSH_CAMPAIGNS,
+  PUSH_STATS,
+  MEMBER_PAYOUTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -6492,4 +6495,63 @@ export async function getMemberWebinarRecordings() {
 export async function registerMemberWebinar(id) {
   if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
   return request('POST', `/v1/mlm/member/webinars/${id}/register`)
+}
+
+// ── Admin Push Notifications ─────────────────────────────────────────────────
+const _pushKey = 'nv_push_campaigns'
+function _pushInit() { try { const s = localStorage.getItem(_pushKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_pushKey, JSON.stringify(PUSH_CAMPAIGNS)); return PUSH_CAMPAIGNS }
+function _pushSave(d) { localStorage.setItem(_pushKey, JSON.stringify(d)) }
+
+export async function getAdminPushCampaigns() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return _pushInit() }
+  return request('GET', '/v1/mlm/admin/push-campaigns')
+}
+export async function getAdminPushStats() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); return PUSH_STATS }
+  return request('GET', '/v1/mlm/admin/push-campaigns/stats')
+}
+export async function createAdminPushCampaign(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const list = _pushInit()
+    const n = { ...data, id: `push-${Date.now()}`, status: data.sendNow ? 'sent' : (data.scheduledAt ? 'scheduled' : 'draft'), sentAt: data.sendNow ? new Date().toISOString() : null, stats: data.sendNow ? { sent: 0, delivered: 0, clicked: 0, dismissed: 0 } : undefined }
+    list.unshift(n); _pushSave(list); return n
+  }
+  return request('POST', '/v1/mlm/admin/push-campaigns', data)
+}
+export async function updateAdminPushCampaign(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); _pushSave(_pushInit().map(x => x.id === id ? { ...x, ...data } : x)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/push-campaigns/${id}`, data)
+}
+export async function deleteAdminPushCampaign(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 130)); _pushSave(_pushInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/push-campaigns/${id}`)
+}
+export async function sendAdminPushCampaign(id) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    const subs = Math.floor(Math.random() * 1500) + 500
+    _pushSave(_pushInit().map(x => x.id === id ? { ...x, status: 'sent', sentAt: new Date().toISOString(), stats: { sent: subs, delivered: Math.floor(subs * 0.97), clicked: Math.floor(subs * 0.25), dismissed: Math.floor(subs * 0.18) } } : x))
+    return { ok: true }
+  }
+  return request('POST', `/v1/mlm/admin/push-campaigns/${id}/send`)
+}
+
+// ── Member Payout Requests ───────────────────────────────────────────────────
+const _payoutsKey = 'nv_member_payouts'
+function _payoutsInit() { try { const s = localStorage.getItem(_payoutsKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_payoutsKey, JSON.stringify(MEMBER_PAYOUTS)); return MEMBER_PAYOUTS }
+function _payoutsSave(d) { localStorage.setItem(_payoutsKey, JSON.stringify(d)) }
+
+export async function getMemberPayouts() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return _payoutsInit() }
+  return request('GET', '/v1/mlm/member/payouts')
+}
+export async function requestMemberPayout(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const list = _payoutsInit()
+    const n = { ...data, id: `po-${Date.now()}`, status: 'processing', requestedAt: new Date().toISOString(), processedAt: null, ref: null }
+    list.unshift(n); _payoutsSave(list); return n
+  }
+  return request('POST', '/v1/mlm/member/payouts', data)
 }
