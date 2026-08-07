@@ -13,7 +13,8 @@ const navSections = [
     links: [
       { to: '/dashboard/tree',         label: '🌳 My Tree' },
       { to: '/dashboard/my-team',      label: '👥 My Team' },
-      { to: '/dashboard/referral',     label: '🔗 Referral' },
+      { to: '/dashboard/referral',       label: '🔗 Referral' },
+      { to: '/dashboard/referral-links', label: '🔗 My Referral Links' },
       { to: '/dashboard/prospects',    label: '🎯 Prospect Tracker' },
       { to: '/dashboard/leaderboard',         label: '🏆 Leaderboard' },
       { to: '/dashboard/challenges',         label: '🏅 Challenges' },
@@ -55,6 +56,7 @@ const navSections = [
       { to: '/dashboard/calculator',     label: '🧮 Calculator' },
       { to: '/dashboard/activity',       label: '📅 Activity Tracker' },
       { to: '/dashboard/certificates',   label: '🎖️ Certificates' },
+      { to: '/dashboard/achievements',  label: '🏅 Achievements' },
     ],
   },
   {

@@ -3960,3 +3960,49 @@ export const MEMBER_PAYOUTS = [
   { id: 'po-004', amount: 500,  currency: 'NOK', method: 'wallet_credit', accountLabel: 'Nordic Wallet',  status: 'paid', requestedAt: '2026-06-01T14:00:00Z', processedAt: '2026-06-01T14:02:00Z', ref: 'TXN-78201' },
   { id: 'po-005', amount: 3100, currency: 'NOK', method: 'bank_transfer', accountLabel: 'DNB ****4821', status: 'rejected', requestedAt: '2026-05-10T08:00:00Z', processedAt: '2026-05-11T13:00:00Z', ref: null, rejectReason: 'KYC re-verification required before payouts above NOK 3 000.' },
 ]
+
+// ── Admin API Keys ────────────────────────────────────────────────────────────
+const _ALL_SCOPES = ['members:read','members:write','orders:read','orders:write','products:read','products:write','commissions:read','analytics:read','payouts:read','payouts:write']
+export const API_KEYS = [
+  { id: 'key-1', name: 'Webshop Integration', preview: 'nv_live_sk_wshp...9a3c', scopes: ['orders:read','products:read','members:read'], createdAt: '2026-06-01T00:00:00Z', lastUsedAt: '2026-08-07T08:31:00Z', status: 'active', callsThisMonth: 18432 },
+  { id: 'key-2', name: 'Analytics Dashboard', preview: 'nv_live_sk_anlt...d7e1', scopes: ['analytics:read','members:read','commissions:read'], createdAt: '2026-07-01T00:00:00Z', lastUsedAt: '2026-08-06T12:00:00Z', status: 'active', callsThisMonth: 5210 },
+  { id: 'key-3', name: 'Mobile App (iOS)', preview: 'nv_live_sk_ios_...b8f2', scopes: ['members:read','orders:read','commissions:read','products:read'], createdAt: '2026-07-15T00:00:00Z', lastUsedAt: '2026-08-07T06:45:00Z', status: 'active', callsThisMonth: 92104 },
+  { id: 'key-4', name: 'Old CRM Connector', preview: 'nv_live_sk_crm_...e0a9', scopes: ['members:read','orders:read'], createdAt: '2026-04-01T00:00:00Z', lastUsedAt: '2026-07-01T09:00:00Z', status: 'revoked', callsThisMonth: 0 },
+]
+export const API_KEY_SCOPES = _ALL_SCOPES
+export const API_KEY_STATS = { totalKeys: 4, activeKeys: 3, callsThisMonth: 115746, topKey: 'Mobile App (iOS)' }
+
+// ── Admin Territories ─────────────────────────────────────────────────────────
+export const TERRITORIES = [
+  { id: 'ter-1', name: 'Scandinavia Core',    code: 'SCAN',     countries: ['NO','SE','DK'],     assignedTo: 'Nordic Vitals HQ',          leadId: null,   memberCount: 1823, quota: 5000, revenue: 4200000, status: 'active' },
+  { id: 'ter-2', name: 'Finland & Baltics',   code: 'FIN-BAL',  countries: ['FI','EE','LV','LT'], assignedTo: 'Mikael Lund (ID: 1042)',    leadId: '1042', memberCount: 512,  quota: 2000, revenue: 980000,  status: 'active' },
+  { id: 'ter-3', name: 'Germany & Austria',   code: 'DACH',     countries: ['DE','AT'],           assignedTo: 'Unassigned',                leadId: null,   memberCount: 0,    quota: 3000, revenue: 0,       status: 'open'   },
+  { id: 'ter-4', name: 'Netherlands & Belux', code: 'BENELUX',  countries: ['NL','BE','LU'],      assignedTo: 'Ingrid Bakken (ID: 2081)', leadId: '2081', memberCount: 298,  quota: 1500, revenue: 512000,  status: 'active' },
+  { id: 'ter-5', name: 'UK & Ireland',        code: 'UKIRE',    countries: ['GB','IE'],           assignedTo: 'Pending approval',          leadId: null,   memberCount: 41,   quota: 2500, revenue: 78000,   status: 'pending' },
+]
+
+// ── Member Referral Links ─────────────────────────────────────────────────────
+export const MEMBER_REFERRAL_LINKS = [
+  { id: 'rl-1', name: 'Instagram Bio', slug: 'ig-bio',    url: 'https://nordic-vitals.vercel.app/ref/ig-bio',    clicks: 342, signups: 28, conversions: 12, revenueNok: 4800,  createdAt: '2026-06-01T00:00:00Z', lastClickAt: '2026-08-07T07:12:00Z' },
+  { id: 'rl-2', name: 'Facebook Group', slug: 'fb-grp',   url: 'https://nordic-vitals.vercel.app/ref/fb-grp',    clicks: 89,  signups:  5, conversions:  2, revenueNok: 960,   createdAt: '2026-07-01T00:00:00Z', lastClickAt: '2026-08-05T14:30:00Z' },
+  { id: 'rl-3', name: 'Email Signature', slug: 'email-sig', url: 'https://nordic-vitals.vercel.app/ref/email-sig', clicks: 54,  signups:  3, conversions:  1, revenueNok: 420,   createdAt: '2026-07-20T00:00:00Z', lastClickAt: '2026-08-06T09:00:00Z' },
+]
+export const MEMBER_REFERRAL_LINK_STATS = { totalClicks: 485, totalSignups: 36, totalConversions: 15, totalRevenueNok: 6180, conversionRate: 41.7 }
+
+// ── Member Achievements ───────────────────────────────────────────────────────
+export const MEMBER_ACHIEVEMENTS = {
+  totalPoints: 600,
+  earned: [
+    { id: 'ach-1', icon: '🚀', name: 'Fast Starter',   desc: 'Made first sale within 30 days of joining', earnedAt: '2026-05-15T00:00:00Z', points: 100 },
+    { id: 'ach-2', icon: '👥', name: 'First Recruit',   desc: 'Sponsored your first team member',          earnedAt: '2026-06-01T00:00:00Z', points: 200 },
+    { id: 'ach-3', icon: '💰', name: 'First 1K',        desc: 'Earned NOK 1 000 in commissions',           earnedAt: '2026-07-10T00:00:00Z', points: 300 },
+  ],
+  locked: [
+    { id: 'ach-4', icon: '🌟', name: 'Top Recruiter',   desc: 'Sponsor 10 active members',                  progress: 4,    target: 10,    points: 500  },
+    { id: 'ach-5', icon: '💎', name: 'Diamond Earner',  desc: 'Earn NOK 10 000 in a single month',          progress: 4200, target: 10000, points: 1000 },
+    { id: 'ach-6', icon: '🏆', name: 'Team Builder',    desc: 'Have 50+ active members in your downline',   progress: 18,   target: 50,    points: 750  },
+    { id: 'ach-7', icon: '🌍', name: 'Global Expander', desc: 'Recruit members from 3 different countries', progress: 1,    target: 3,     points: 600  },
+    { id: 'ach-8', icon: '📣', name: 'Social Star',     desc: 'Generate 500+ clicks via referral links',    progress: 485,  target: 500,   points: 400  },
+    { id: 'ach-9', icon: '🎓', name: 'Knowledge Master', desc: 'Complete all training modules',             progress: 7,    target: 12,    points: 350  },
+  ],
+}

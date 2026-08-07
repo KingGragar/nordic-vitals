@@ -45,6 +45,13 @@ import {
   PUSH_CAMPAIGNS,
   PUSH_STATS,
   MEMBER_PAYOUTS,
+  API_KEYS,
+  API_KEY_SCOPES,
+  API_KEY_STATS,
+  TERRITORIES,
+  MEMBER_REFERRAL_LINKS,
+  MEMBER_REFERRAL_LINK_STATS,
+  MEMBER_ACHIEVEMENTS,
 } from '../data/mock'
 
 const MEMBER_STATUS_OVERRIDE = {}
@@ -6554,4 +6561,100 @@ export async function requestMemberPayout(data) {
     list.unshift(n); _payoutsSave(list); return n
   }
   return request('POST', '/v1/mlm/member/payouts', data)
+}
+
+// ── Admin API Keys ────────────────────────────────────────────────────────────
+const _keysKey = 'nv_api_keys'
+function _keysInit() { try { const s = localStorage.getItem(_keysKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_keysKey, JSON.stringify(API_KEYS)); return API_KEYS }
+function _keysSave(d) { localStorage.setItem(_keysKey, JSON.stringify(d)) }
+
+export async function getAdminApiKeys() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 170)); return _keysInit() }
+  return request('GET', '/v1/mlm/admin/api-keys')
+}
+export async function getAdminApiKeyStats() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 120)); return API_KEY_STATS }
+  return request('GET', '/v1/mlm/admin/api-keys/stats')
+}
+export async function getAdminApiKeyScopes() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 100)); return API_KEY_SCOPES }
+  return request('GET', '/v1/mlm/admin/api-keys/scopes')
+}
+export async function createAdminApiKey(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 250))
+    const list = _keysInit()
+    const raw = `nv_live_sk_${Math.random().toString(36).slice(2,8)}...${Math.random().toString(36).slice(2,6)}`
+    const n = { ...data, id: `key-${Date.now()}`, preview: raw, status: 'active', createdAt: new Date().toISOString(), lastUsedAt: null, callsThisMonth: 0, _fullKey: raw }
+    list.unshift(n); _keysSave(list); return n
+  }
+  return request('POST', '/v1/mlm/admin/api-keys', data)
+}
+export async function revokeAdminApiKey(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); _keysSave(_keysInit().map(x => x.id === id ? { ...x, status: 'revoked' } : x)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/api-keys/${id}/revoke`)
+}
+export async function deleteAdminApiKey(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); _keysSave(_keysInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/api-keys/${id}`)
+}
+
+// ── Admin Territories ─────────────────────────────────────────────────────────
+const _terKey = 'nv_territories'
+function _terInit() { try { const s = localStorage.getItem(_terKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_terKey, JSON.stringify(TERRITORIES)); return TERRITORIES }
+function _terSave(d) { localStorage.setItem(_terKey, JSON.stringify(d)) }
+
+export async function getAdminTerritories() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return _terInit() }
+  return request('GET', '/v1/mlm/admin/territories')
+}
+export async function createAdminTerritory(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 200))
+    const list = _terInit()
+    const n = { ...data, id: `ter-${Date.now()}`, memberCount: 0, revenue: 0, status: 'open', createdAt: new Date().toISOString() }
+    list.push(n); _terSave(list); return n
+  }
+  return request('POST', '/v1/mlm/admin/territories', data)
+}
+export async function updateAdminTerritory(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); _terSave(_terInit().map(x => x.id === id ? { ...x, ...data } : x)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/territories/${id}`, data)
+}
+export async function deleteAdminTerritory(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 140)); _terSave(_terInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/territories/${id}`)
+}
+
+// ── Member Referral Links ─────────────────────────────────────────────────────
+const _rlKey = 'nv_referral_links'
+function _rlInit() { try { const s = localStorage.getItem(_rlKey); if (s) return JSON.parse(s) } catch {} localStorage.setItem(_rlKey, JSON.stringify(MEMBER_REFERRAL_LINKS)); return MEMBER_REFERRAL_LINKS }
+function _rlSave(d) { localStorage.setItem(_rlKey, JSON.stringify(d)) }
+
+export async function getMemberReferralLinks() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 160)); return _rlInit() }
+  return request('GET', '/v1/mlm/member/referral-links')
+}
+export async function getMemberReferralLinkStats() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 120)); return MEMBER_REFERRAL_LINK_STATS }
+  return request('GET', '/v1/mlm/member/referral-links/stats')
+}
+export async function createMemberReferralLink(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 220))
+    const list = _rlInit()
+    const n = { ...data, id: `rl-${Date.now()}`, url: `https://nordic-vitals.vercel.app/ref/${data.slug}`, clicks: 0, signups: 0, conversions: 0, revenueNok: 0, createdAt: new Date().toISOString(), lastClickAt: null }
+    list.unshift(n); _rlSave(list); return n
+  }
+  return request('POST', '/v1/mlm/member/referral-links', data)
+}
+export async function deleteMemberReferralLink(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 140)); _rlSave(_rlInit().filter(x => x.id !== id)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/referral-links/${id}`)
+}
+
+// ── Member Achievements ───────────────────────────────────────────────────────
+export async function getMemberAchievements() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return MEMBER_ACHIEVEMENTS }
+  return request('GET', '/v1/mlm/member/achievements')
 }
