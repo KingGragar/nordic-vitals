@@ -158,6 +158,14 @@ const DashBadges                 = lazy(() => import('./pages/dashboard/Badges')
 const DashBusinessAnalytics      = lazy(() => import('./pages/dashboard/BusinessAnalytics'))
 const DashDocuments              = lazy(() => import('./pages/dashboard/Documents'))
 const DashSocialSharing          = lazy(() => import('./pages/dashboard/SocialSharing'))
+const AdminCommissionDisputes    = lazy(() => import('./pages/admin/CommissionDisputes'))
+const AdminLoyaltyLedger         = lazy(() => import('./pages/admin/LoyaltyLedger'))
+const AdminFeatureFlags          = lazy(() => import('./pages/admin/FeatureFlags'))
+const AdminCouponsPage           = lazy(() => import('./pages/admin/AdminCoupons'))
+const DashIncomeDisclosure       = lazy(() => import('./pages/dashboard/IncomeDisclosure'))
+const DashReferralAnalytics      = lazy(() => import('./pages/dashboard/ReferralAnalytics'))
+const DashVipBenefits            = lazy(() => import('./pages/dashboard/VipBenefits'))
+const DashEnrollment             = lazy(() => import('./pages/dashboard/Enrollment'))
 const Checkout       = lazy(() => import('./pages/Checkout'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword  = lazy(() => import('./pages/ResetPassword'))
@@ -367,6 +375,14 @@ function AppRoutes() {
         <Route path="/dashboard/business-analytics"      element={<RequireAuth><DashBusinessAnalytics /></RequireAuth>} />
         <Route path="/dashboard/documents"               element={<RequireAuth><DashDocuments /></RequireAuth>} />
         <Route path="/dashboard/social-sharing"          element={<RequireAuth><DashSocialSharing /></RequireAuth>} />
+        <Route path="/admin/commission-disputes"         element={<RequireAuth role="admin"><AdminCommissionDisputes /></RequireAuth>} />
+        <Route path="/admin/loyalty-ledger"              element={<RequireAuth role="admin"><AdminLoyaltyLedger /></RequireAuth>} />
+        <Route path="/admin/feature-flags"               element={<RequireAuth role="admin"><AdminFeatureFlags /></RequireAuth>} />
+        <Route path="/admin/coupons"                     element={<RequireAuth role="admin"><AdminCouponsPage /></RequireAuth>} />
+        <Route path="/dashboard/income-disclosure"       element={<RequireAuth><DashIncomeDisclosure /></RequireAuth>} />
+        <Route path="/dashboard/referral-analytics"      element={<RequireAuth><DashReferralAnalytics /></RequireAuth>} />
+        <Route path="/dashboard/vip-benefits"            element={<RequireAuth><DashVipBenefits /></RequireAuth>} />
+        <Route path="/dashboard/enrollment"              element={<RequireAuth><DashEnrollment /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

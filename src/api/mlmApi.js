@@ -7288,3 +7288,191 @@ export async function trackMemberShare(templateId, platform) {
   if (MOCK) { await new Promise(r => setTimeout(r, 150)); return { ok: true } }
   return request('POST', '/v1/mlm/member/social-sharing/track', { templateId, platform })
 }
+
+// ─── Admin Commission Disputes ──────────────────────────────────────────────────
+const ADMIN_DISPUTES_SEED = [
+  { id: 'cd1', memberName: 'Erik Solberg', runLabel: 'June 2026 Run', claimedAmount: '12,480 NOK', paidAmount: '9,320 NOK', reason: 'My downline volume was not counted correctly — three of my direct referrals placed orders on the last day of the period.', filedAt: '2026-07-08', status: 'open' },
+  { id: 'cd2', memberName: 'Astrid Berge', runLabel: 'June 2026 Run', claimedAmount: '6,750 NOK', paidAmount: '5,100 NOK', reason: 'Fast Start bonus was not applied — I enrolled 4 members in my first 30 days.', filedAt: '2026-07-05', status: 'reviewing' },
+  { id: 'cd3', memberName: 'Lars Christiansen', runLabel: 'May 2026 Run', claimedAmount: '3,200 NOK', paidAmount: '2,950 NOK', reason: 'Loyalty multiplier not applied to my subscription orders.', filedAt: '2026-06-10', status: 'resolved' },
+  { id: 'cd4', memberName: 'Silje Dahl', runLabel: 'May 2026 Run', claimedAmount: '8,100 NOK', paidAmount: '8,100 NOK', reason: 'Rank bonus missing for reaching Gold tier mid-period.', filedAt: '2026-06-07', status: 'denied' },
+  { id: 'cd5', memberName: 'Mads Holm', runLabel: 'July 2026 Run', claimedAmount: '4,560 NOK', paidAmount: '3,100 NOK', reason: 'Team volume from my Silver leg was incorrectly capped.', filedAt: '2026-08-02', status: 'open' },
+]
+export async function getAdminCommissionDisputes() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return ADMIN_DISPUTES_SEED }
+  return request('GET', '/v1/mlm/admin/commission-disputes')
+}
+export async function resolveAdminCommissionDispute(id, payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, ...payload } }
+  return request('PUT', `/v1/mlm/admin/commission-disputes/${id}/resolve`, payload)
+}
+
+// ─── Admin Loyalty Ledger ───────────────────────────────────────────────────────
+const ADMIN_LOYALTY_LEDGER_SEED = [
+  { id: 'll1', date: '2026-08-07', memberName: 'Erik Solberg', type: 'purchase', delta: 1250, balanceAfter: 8430, reason: 'Order #NV-20845 — Arctic Omega-3 Ultra x2' },
+  { id: 'll2', date: '2026-08-07', memberName: 'Astrid Berge', type: 'referral', delta: 500, balanceAfter: 3110, reason: 'Referral bonus — Lars Christiansen joined' },
+  { id: 'll3', date: '2026-08-06', memberName: 'Lars Christiansen', type: 'bonus', delta: 2000, balanceAfter: 5200, reason: 'Gold rank achievement bonus' },
+  { id: 'll4', date: '2026-08-06', memberName: 'Silje Dahl', type: 'redemption', delta: -1500, balanceAfter: 640, reason: '150 NOK voucher redeemed — Order #NV-20811' },
+  { id: 'll5', date: '2026-08-05', memberName: 'Mads Holm', type: 'manual', delta: 300, balanceAfter: 2300, reason: 'Manual compensation — delayed shipment on Order #NV-20790' },
+  { id: 'll6', date: '2026-08-05', memberName: 'Anna Hanssen', type: 'expiry', delta: -800, balanceAfter: 0, reason: 'Points expired — 12-month inactivity policy' },
+  { id: 'll7', date: '2026-08-04', memberName: 'Erik Solberg', type: 'purchase', delta: 620, balanceAfter: 7180, reason: 'Order #NV-20778 — Nordic Collagen Plus' },
+  { id: 'll8', date: '2026-08-03', memberName: 'Astrid Berge', type: 'purchase', delta: 890, balanceAfter: 2610, reason: 'Order #NV-20751 — Bjornberry Complex x3' },
+]
+export async function getAdminLoyaltyLedger() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 240)); return ADMIN_LOYALTY_LEDGER_SEED }
+  return request('GET', '/v1/mlm/admin/loyalty-ledger')
+}
+export async function adjustAdminLoyaltyPoints(payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 280))
+    return { id: `ll${Date.now()}`, date: new Date().toISOString().slice(0,10), memberName: payload.memberName, type: 'manual', delta: payload.delta, balanceAfter: Math.abs(payload.delta) * 2, reason: payload.reason }
+  }
+  return request('POST', '/v1/mlm/admin/loyalty-ledger/adjust', payload)
+}
+
+// ─── Admin Feature Flags ────────────────────────────────────────────────────────
+const ADMIN_FEATURE_FLAGS_SEED = [
+  { id: 'ff1', key: 'mlm.token_wallet', description: 'Enable the member token wallet and tARCTX display.', enabled: true, rolloutPercent: 100, environment: 'production', lastModified: '2026-07-15', modifiedBy: 'bjorn@arctico' },
+  { id: 'ff2', key: 'mlm.digital_products', description: 'Allow members to purchase and download digital products.', enabled: true, rolloutPercent: 100, environment: 'production', lastModified: '2026-08-01', modifiedBy: 'gary' },
+  { id: 'ff3', key: 'mlm.live_streams', description: 'Show Live Streams section in admin and event calendar.', enabled: true, rolloutPercent: 50, environment: 'production', lastModified: '2026-08-07', modifiedBy: 'gary' },
+  { id: 'ff4', key: 'mlm.vip_tiers', description: 'Enable VIP tier system (Silver/Gold/Platinum/Diamond).', enabled: true, rolloutPercent: 100, environment: 'all', lastModified: '2026-07-20', modifiedBy: 'bjorn@arctico' },
+  { id: 'ff5', key: 'mlm.crypto_payouts', description: 'Allow members to receive commission payouts in ARCTX token.', enabled: false, rolloutPercent: 0, environment: 'staging', lastModified: '2026-06-30', modifiedBy: 'bjorn@arctico' },
+  { id: 'ff6', key: 'shop.buy_now', description: 'Show Buy Now button on product pages for faster checkout.', enabled: true, rolloutPercent: 80, environment: 'production', lastModified: '2026-08-03', modifiedBy: 'gary' },
+  { id: 'ff7', key: 'mlm.co_op_advertising', description: 'Enable Co-Op advertising module for members.', enabled: true, rolloutPercent: 100, environment: 'all', lastModified: '2026-08-05', modifiedBy: 'gary' },
+  { id: 'ff8', key: 'admin.ai_fraud_detection', description: 'Experimental AI-based fraud scoring in the Fraud & Risk panel.', enabled: false, rolloutPercent: 0, environment: 'staging', lastModified: '2026-07-28', modifiedBy: 'bjorn@arctico' },
+]
+export async function getAdminFeatureFlags() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return ADMIN_FEATURE_FLAGS_SEED }
+  return request('GET', '/v1/mlm/admin/feature-flags')
+}
+export async function updateAdminFeatureFlag(id, payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return payload }
+  return request('PUT', `/v1/mlm/admin/feature-flags/${id}`, payload)
+}
+
+// ─── Admin Coupons ──────────────────────────────────────────────────────────────
+const ADMIN_COUPONS_SEED = [
+  { id: 'cp1', code: 'NORDIC20', type: 'percent', value: 20, scope: 'all', minOrder: 500, maxUses: null, uses: 214, totalSavings: 89400, expiresAt: '2026-12-31', status: 'active' },
+  { id: 'cp2', code: 'NEWMEMBER100', type: 'fixed', value: 100, scope: 'new', minOrder: 300, maxUses: 500, uses: 87, totalSavings: 8700, expiresAt: '2026-09-30', status: 'active' },
+  { id: 'cp3', code: 'FREESHIP', type: 'free_shipping', value: 0, scope: 'members', minOrder: 0, maxUses: null, uses: 1203, totalSavings: 72180, expiresAt: null, status: 'active' },
+  { id: 'cp4', code: 'SUMMER15', type: 'percent', value: 15, scope: 'all', minOrder: 0, maxUses: 1000, uses: 1000, totalSavings: 94500, expiresAt: '2026-07-31', status: 'expired' },
+  { id: 'cp5', code: 'VIP30', type: 'percent', value: 30, scope: 'members', minOrder: 1000, maxUses: 200, uses: 43, totalSavings: 38700, expiresAt: '2026-10-15', status: 'paused' },
+]
+export async function getAdminCoupons() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 210)); return ADMIN_COUPONS_SEED }
+  return request('GET', '/v1/mlm/admin/coupons')
+}
+export async function createAdminCoupon(payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id: `cp${Date.now()}`, uses: 0, totalSavings: 0, ...payload } }
+  return request('POST', '/v1/mlm/admin/coupons', payload)
+}
+export async function updateAdminCoupon(id, payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return payload }
+  return request('PUT', `/v1/mlm/admin/coupons/${id}`, payload)
+}
+export async function deleteAdminCoupon(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/coupons/${id}`)
+}
+
+// ─── Member Income Disclosure ────────────────────────────────────────────────────
+const INCOME_DISCLOSURE_SEED = {
+  '2025': {
+    myRank: 'Gold',
+    myAnnualEarnings: 187400,
+    rankPercentile: 68,
+    totalDistributors: 1842,
+    disclaimer: 'These income figures are before taxes and business expenses. The earnings shown represent gross commissions paid by Nordic Vitals AS. Distributor results vary significantly based on individual effort, market conditions, and time commitment.',
+    tiers: [
+      { rank: 'Starter', pctDistributors: 38.2, avgEarnings: 4100, medianEarnings: 1800, top10pct: 12400 },
+      { rank: 'Bronze', pctDistributors: 24.1, avgEarnings: 18700, medianEarnings: 14200, top10pct: 48000 },
+      { rank: 'Silver', pctDistributors: 18.6, avgEarnings: 54200, medianEarnings: 46900, top10pct: 112000 },
+      { rank: 'Gold', pctDistributors: 12.4, avgEarnings: 142800, medianEarnings: 124000, top10pct: 290000 },
+      { rank: 'Platinum', pctDistributors: 5.2, avgEarnings: 348000, medianEarnings: 310000, top10pct: 680000 },
+      { rank: 'Diamond', pctDistributors: 1.5, avgEarnings: 820000, medianEarnings: 720000, top10pct: 1840000 },
+    ],
+  },
+}
+export async function getMemberIncomeDisclosure(year) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return INCOME_DISCLOSURE_SEED[year] || INCOME_DISCLOSURE_SEED['2025'] }
+  return request('GET', `/v1/mlm/member/income-disclosure?year=${year}`)
+}
+
+// ─── Member Referral Analytics ───────────────────────────────────────────────────
+const REFERRAL_ANALYTICS_SEED = {
+  clicks: 847,
+  uniqueVisitors: 614,
+  conversions: 38,
+  conversionRate: 6.2,
+  revenueAttributed: 112400,
+  avgOrderValue: 2958,
+  topLinks: [
+    { id: 'rl1', label: 'Main referral link', clicks: 412, conversions: 22, rate: 5.3 },
+    { id: 'rl2', label: 'Instagram bio link', clicks: 228, conversions: 10, rate: 4.4 },
+    { id: 'rl3', label: 'Facebook share — Omega-3 post', clicks: 114, conversions: 4, rate: 3.5 },
+    { id: 'rl4', label: 'WhatsApp group share', clicks: 93, conversions: 2, rate: 2.2 },
+  ],
+  sources: [
+    { name: 'Direct / Unknown', pct: 34, color: '#6366f1' },
+    { name: 'Instagram', pct: 27, color: '#ec4899' },
+    { name: 'Facebook', pct: 18, color: '#3b82f6' },
+    { name: 'WhatsApp', pct: 12, color: '#22c55e' },
+    { name: 'Other', pct: 9, color: '#f59e0b' },
+  ],
+  funnel: [
+    { label: 'Link clicks', count: 847 },
+    { label: 'Landing page views', count: 614 },
+    { label: 'Shop visits', count: 320 },
+    { label: 'Add to cart', count: 88 },
+    { label: 'Purchases', count: 38 },
+  ],
+}
+export async function getMemberReferralAnalytics(period) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 240)); return REFERRAL_ANALYTICS_SEED }
+  return request('GET', `/v1/mlm/member/referral-analytics?period=${period}`)
+}
+
+// ─── Member VIP Benefits ─────────────────────────────────────────────────────────
+const VIP_BENEFITS_SEED = {
+  currentTier: 'Gold',
+  currentTierPv: 8420,
+  nextTier: { name: 'Platinum', requiredPv: 12000, remaining: 3580, progress: 70 },
+  tiers: [
+    { name: 'Silver', icon: '🥈', requirement: '3,000+ PV/month', perks: ['5% product discount', 'Priority email support', 'Early access to new products', 'Monthly newsletter with tips'] },
+    { name: 'Gold', icon: '🥇', requirement: '7,500+ PV/month', perks: ['10% product discount', 'Dedicated account manager', '2x loyalty points on purchases', 'Exclusive Gold webinars', 'Free shipping on all orders'] },
+    { name: 'Platinum', icon: '💎', requirement: '12,000+ PV/month', perks: ['15% product discount', 'VIP phone support line', '3x loyalty points', 'Platinum retreat invite (annual)', 'Custom branded materials', 'Beta feature access'] },
+    { name: 'Diamond', icon: '💠', requirement: '25,000+ PV/month', perks: ['20% product discount', 'Personal business coach', '5x loyalty points', 'Diamond gala invitation', 'Revenue share on company growth', 'Co-branded product line option'] },
+  ],
+  exclusiveOffers: [
+    { id: 'eo1', title: 'Gold Members: 25% off Omega Bundle', description: 'Save 25% on the Arctic Omega-3 + D3/K2 bundle. Limited stock.', discount: '25% OFF', tier: 'Gold', expiresAt: '2026-08-15' },
+    { id: 'eo2', title: 'Double Points Weekend', description: 'Earn 2x loyalty points on all purchases this weekend only.', discount: '2× Points', tier: 'Gold', expiresAt: '2026-08-11' },
+  ],
+}
+export async function getMemberVipBenefits() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return VIP_BENEFITS_SEED }
+  return request('GET', '/v1/mlm/member/vip-benefits')
+}
+
+// ─── Member Enrollment Center ─────────────────────────────────────────────────────
+const MEMBER_ENROLLMENTS_SEED = {
+  totalEnrolled: 47,
+  enrolledThisMonth: 3,
+  enrollments: [
+    { id: 'en1', name: 'Hanne Olsen', email: 'hanne@example.com', invitedAt: '2026-08-05', joinedAt: '2026-08-06', status: 'onboarding', onboardingStep: 3, onboardingTotal: 6 },
+    { id: 'en2', name: 'Kristian Berg', email: 'kristian@example.com', invitedAt: '2026-08-03', joinedAt: null, status: 'pending', onboardingStep: null, onboardingTotal: null },
+    { id: 'en3', name: 'Tone Elstad', email: 'tone@example.com', invitedAt: '2026-07-28', joinedAt: '2026-07-30', status: 'active', onboardingStep: null, onboardingTotal: null },
+    { id: 'en4', name: 'Rune Hauge', email: 'rune@example.com', invitedAt: '2026-07-15', joinedAt: '2026-07-16', status: 'active', onboardingStep: null, onboardingTotal: null },
+    { id: 'en5', name: 'Marit Vold', email: 'marit@example.com', invitedAt: '2026-06-01', joinedAt: null, status: 'expired', onboardingStep: null, onboardingTotal: null },
+    { id: 'en6', name: 'Sven Aas', email: 'sven@example.com', invitedAt: '2026-08-08', joinedAt: null, status: 'pending', onboardingStep: null, onboardingTotal: null },
+  ],
+}
+export async function getMemberEnrollments() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 210)); return MEMBER_ENROLLMENTS_SEED }
+  return request('GET', '/v1/mlm/member/enrollments')
+}
+export async function createMemberEnrollmentInvite(payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return { id: `en${Date.now()}`, name: payload.name, email: payload.email, invitedAt: new Date().toISOString().slice(0,10), joinedAt: null, status: 'pending', onboardingStep: null, onboardingTotal: null }
+  }
+  return request('POST', '/v1/mlm/member/enrollments/invite', payload)
+}
