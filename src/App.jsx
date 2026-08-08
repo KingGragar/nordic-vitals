@@ -182,6 +182,14 @@ const Compare             = lazy(() => import('./pages/Compare'))
 const Blog                = lazy(() => import('./pages/Blog'))
 const BlogPost            = lazy(() => import('./pages/BlogPost'))
 const Unsubscribe         = lazy(() => import('./pages/Unsubscribe'))
+const AdminOrderDisputes         = lazy(() => import('./pages/admin/OrderDisputes'))
+const AdminPartnerPortal         = lazy(() => import('./pages/admin/PartnerPortal'))
+const AdminSubscriptionAnalytics = lazy(() => import('./pages/admin/SubscriptionAnalytics'))
+const AdminSocialProof           = lazy(() => import('./pages/admin/SocialProof'))
+const DashSubscriptionHistory    = lazy(() => import('./pages/dashboard/SubscriptionHistory'))
+const DashPartnerLinks           = lazy(() => import('./pages/dashboard/PartnerLinks'))
+const DashHealthTracker          = lazy(() => import('./pages/dashboard/HealthTracker'))
+const DashHabitTracker           = lazy(() => import('./pages/dashboard/HabitTracker'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -383,6 +391,15 @@ function AppRoutes() {
         <Route path="/dashboard/referral-analytics"      element={<RequireAuth><DashReferralAnalytics /></RequireAuth>} />
         <Route path="/dashboard/vip-benefits"            element={<RequireAuth><DashVipBenefits /></RequireAuth>} />
         <Route path="/dashboard/enrollment"              element={<RequireAuth><DashEnrollment /></RequireAuth>} />
+
+        <Route path="/admin/order-disputes"          element={<RequireAuth role="admin"><AdminOrderDisputes /></RequireAuth>} />
+        <Route path="/admin/partner-portal"          element={<RequireAuth role="admin"><AdminPartnerPortal /></RequireAuth>} />
+        <Route path="/admin/subscription-analytics"  element={<RequireAuth role="admin"><AdminSubscriptionAnalytics /></RequireAuth>} />
+        <Route path="/admin/social-proof"            element={<RequireAuth role="admin"><AdminSocialProof /></RequireAuth>} />
+        <Route path="/dashboard/subscription-history" element={<RequireAuth><DashSubscriptionHistory /></RequireAuth>} />
+        <Route path="/dashboard/partner-links"        element={<RequireAuth><DashPartnerLinks /></RequireAuth>} />
+        <Route path="/dashboard/health-tracker"       element={<RequireAuth><DashHealthTracker /></RequireAuth>} />
+        <Route path="/dashboard/habit-tracker"        element={<RequireAuth><DashHabitTracker /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

@@ -7476,3 +7476,176 @@ export async function createMemberEnrollmentInvite(payload) {
   }
   return request('POST', '/v1/mlm/member/enrollments/invite', payload)
 }
+
+// ─── Admin Order Disputes ─────────────────────────────────────────────────────
+const ADMIN_ORDER_DISPUTES_SEED = [
+  { id: 'od1', orderId: 'ORD-10482', memberName: 'Lena Thorvaldsen', reason: 'wrong_item', description: 'Received Vitamin D instead of Omega-3 2000mg.', claimedRefund: 'NOK 449', status: 'open', filedAt: '2026-08-07', priority: 'high' },
+  { id: 'od2', orderId: 'ORD-10394', memberName: 'Mads Eriksen', reason: 'damaged', description: 'Packaging crushed, capsules spilled out.', claimedRefund: 'NOK 299', status: 'reviewing', filedAt: '2026-08-06', priority: 'medium' },
+  { id: 'od3', orderId: 'ORD-10311', memberName: 'Astrid Haugen', reason: 'not_received', description: 'Order marked delivered but nothing arrived.', claimedRefund: 'NOK 748', status: 'open', filedAt: '2026-08-05', priority: 'high' },
+  { id: 'od4', orderId: 'ORD-10270', memberName: 'Petter Lindgren', reason: 'quality_issue', description: 'Strong unusual smell, different from previous batches.', claimedRefund: 'NOK 349', status: 'resolved', filedAt: '2026-08-04', priority: 'low' },
+  { id: 'od5', orderId: 'ORD-10211', memberName: 'Silje Bakke', reason: 'wrong_item', description: 'Missing item: Collagen Peptides not included in order.', claimedRefund: 'NOK 599', status: 'denied', filedAt: '2026-08-02', priority: 'medium' },
+  { id: 'od6', orderId: 'ORD-10188', memberName: 'Jonas Wiig', reason: 'damaged', description: 'Bottle seal broken on arrival.', claimedRefund: 'NOK 249', status: 'resolved', filedAt: '2026-08-01', priority: 'low' },
+]
+export async function getAdminOrderDisputes() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return ADMIN_ORDER_DISPUTES_SEED }
+  return request('GET', '/v1/admin/order-disputes')
+}
+export async function resolveAdminOrderDispute(id, payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('POST', `/v1/admin/order-disputes/${id}/resolve`, payload)
+}
+
+// ─── Admin Partner Portal ─────────────────────────────────────────────────────
+const ADMIN_PARTNERS_SEED = [
+  { id: 'pp1', name: 'HealthHub AS', type: 'wholesale', contact: 'anders@healthhub.no', country: 'NO', joinedAt: '2026-01-15', status: 'active', totalOrders: 84, totalRevenue: 'NOK 412,000', discountPct: 20 },
+  { id: 'pp2', name: 'VitaLife Sweden', type: 'reseller', contact: 'eva.lund@vitalife.se', country: 'SE', joinedAt: '2026-03-08', status: 'active', totalOrders: 37, totalRevenue: 'NOK 198,000', discountPct: 15 },
+  { id: 'pp3', name: 'Nordic Wellbeing GmbH', type: 'wholesale', contact: 'frank.bauer@nordicwellbeing.de', country: 'DE', joinedAt: '2026-05-22', status: 'active', totalOrders: 21, totalRevenue: 'NOK 134,000', discountPct: 18 },
+  { id: 'pp4', name: 'Fit & Fresh DK', type: 'brand_ambassador', contact: 'camilla@fitfresh.dk', country: 'DK', joinedAt: '2026-06-10', status: 'pending', totalOrders: 0, totalRevenue: 'NOK 0', discountPct: 10 },
+  { id: 'pp5', name: 'Glacier Nutrition UK', type: 'reseller', contact: 'james.k@glacier-nutrition.co.uk', country: 'GB', joinedAt: '2026-04-18', status: 'inactive', totalOrders: 12, totalRevenue: 'NOK 71,000', discountPct: 15 },
+]
+export async function getAdminPartners() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 230)); return ADMIN_PARTNERS_SEED }
+  return request('GET', '/v1/admin/partners')
+}
+export async function createAdminPartner(payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id: `pp${Date.now()}`, ...payload, status: 'pending', totalOrders: 0, totalRevenue: 'NOK 0', joinedAt: new Date().toISOString().slice(0,10) } }
+  return request('POST', '/v1/admin/partners', payload)
+}
+export async function updateAdminPartner(id, payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 280)); return { ok: true } }
+  return request('PATCH', `/v1/admin/partners/${id}`, payload)
+}
+
+// ─── Admin Subscription Analytics ────────────────────────────────────────────
+const ADMIN_SUB_ANALYTICS_SEED = {
+  mrr: 847200,
+  arr: 10166400,
+  activeSubscriptions: 2140,
+  newThisMonth: 138,
+  cancelledThisMonth: 41,
+  netGrowth: 97,
+  churnRate: 1.9,
+  avgRevenuePerSub: 396,
+  planBreakdown: [
+    { plan: 'Starter Monthly', count: 820, mrr: 246000, pct: 29.1 },
+    { plan: 'Essential Quarterly', count: 640, mrr: 256000, pct: 30.2 },
+    { plan: 'Premium Monthly', count: 480, mrr: 288000, pct: 34.0 },
+    { plan: 'Elite Annual', count: 200, mrr: 57200, pct: 6.7 },
+  ],
+  cohortRetention: [
+    { cohort: 'Jan 2026', m1: 100, m2: 88, m3: 79, m4: 73, m5: 68, m6: 64 },
+    { cohort: 'Feb 2026', m1: 100, m2: 90, m3: 82, m4: 76, m5: 71, m6: null },
+    { cohort: 'Mar 2026', m1: 100, m2: 87, m3: 80, m4: 74, m5: null, m6: null },
+    { cohort: 'Apr 2026', m1: 100, m2: 91, m3: 83, m4: null, m5: null, m6: null },
+    { cohort: 'May 2026', m1: 100, m2: 89, m3: null, m4: null, m5: null, m6: null },
+    { cohort: 'Jun 2026', m1: 100, m2: null, m3: null, m4: null, m5: null, m6: null },
+  ],
+  mrrTrend: [
+    { month: 'Feb', mrr: 712000 }, { month: 'Mar', mrr: 748000 }, { month: 'Apr', mrr: 778000 },
+    { month: 'May', mrr: 803000 }, { month: 'Jun', mrr: 828000 }, { month: 'Jul', mrr: 847200 },
+  ],
+}
+export async function getAdminSubscriptionAnalytics(period) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 240)); return ADMIN_SUB_ANALYTICS_SEED }
+  return request('GET', `/v1/admin/subscription-analytics?period=${period || 'month'}`)
+}
+
+// ─── Admin Social Proof ───────────────────────────────────────────────────────
+const ADMIN_SOCIAL_PROOF_SEED = [
+  { id: 'sp1', type: 'testimonial', author: 'Hilde R.', location: 'Bergen, Norway', text: 'I have been taking the Omega-3 for 4 months and my joints feel incredible. My doctor is impressed!', product: 'Arctic Omega-3 2000mg', rating: 5, status: 'featured', submittedAt: '2026-08-06', source: 'email' },
+  { id: 'sp2', type: 'testimonial', author: 'Lars O.', location: 'Stockholm, Sweden', text: 'Lost 4kg in 6 weeks while taking the protein series. Energy is through the roof.', product: 'Nordic Protein Blend', rating: 5, status: 'approved', submittedAt: '2026-08-05', source: 'web' },
+  { id: 'sp3', type: 'ugc', author: '@fitness_ingrid', location: 'Oslo, Norway', text: 'My morning stack just got an upgrade 💪 #NordicVitals #Wellness', product: null, rating: null, status: 'pending', submittedAt: '2026-08-07', source: 'instagram' },
+  { id: 'sp4', type: 'testimonial', author: 'Bjarne T.', location: 'Trondheim, Norway', text: 'Finally a Norwegian supplement brand that delivers what it promises.', product: 'Arctic Omega-3 2000mg', rating: 4, status: 'approved', submittedAt: '2026-08-03', source: 'review' },
+  { id: 'sp5', type: 'ugc', author: '@healthyvibes_no', location: 'Stavanger, Norway', text: 'Loving my new routine! These vitamins are game changers.', product: null, rating: null, status: 'pending', submittedAt: '2026-08-07', source: 'tiktok' },
+  { id: 'sp6', type: 'testimonial', author: 'Maria K.', location: 'Copenhagen, Denmark', text: 'Spammy email tactics. Would not recommend signing up for newsletter.', product: null, rating: 1, status: 'rejected', submittedAt: '2026-08-02', source: 'web' },
+]
+export async function getAdminSocialProof() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 210)); return ADMIN_SOCIAL_PROOF_SEED }
+  return request('GET', '/v1/admin/social-proof')
+}
+export async function updateAdminSocialProofStatus(id, status) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('PATCH', `/v1/admin/social-proof/${id}`, { status })
+}
+
+// ─── Member Subscription History ─────────────────────────────────────────────
+const MEMBER_SUB_HISTORY_SEED = [
+  { id: 'sh1', type: 'plan_change', fromPlan: 'Starter Monthly', toPlan: 'Premium Monthly', at: '2026-07-01', note: 'Upgraded for 2× loyalty points benefit' },
+  { id: 'sh2', type: 'renewal', plan: 'Starter Monthly', at: '2026-06-01', amount: 'NOK 299', note: 'Auto-renewed' },
+  { id: 'sh3', type: 'renewal', plan: 'Starter Monthly', at: '2026-05-01', amount: 'NOK 299', note: 'Auto-renewed' },
+  { id: 'sh4', type: 'pause', plan: 'Starter Monthly', at: '2026-04-10', resumedAt: '2026-05-01', note: 'Paused for 3 weeks (travel)' },
+  { id: 'sh5', type: 'renewal', plan: 'Starter Monthly', at: '2026-04-01', amount: 'NOK 299', note: 'Auto-renewed' },
+  { id: 'sh6', type: 'started', plan: 'Starter Monthly', at: '2026-03-14', amount: 'NOK 299', note: 'First subscription — joined Nordic Vitals' },
+]
+export async function getMemberSubscriptionHistory() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return MEMBER_SUB_HISTORY_SEED }
+  return request('GET', '/v1/mlm/member/subscription-history')
+}
+
+// ─── Member Partner Links ─────────────────────────────────────────────────────
+const MEMBER_PARTNER_LINKS_SEED = [
+  { id: 'pl1', label: 'Gym chain B2B link', url: 'https://nordic-vitals.no/partner/gary-001', clicks: 142, conversions: 8, revenue: 'NOK 34,200', createdAt: '2026-06-10', active: true },
+  { id: 'pl2', label: 'Corporate wellness pitch', url: 'https://nordic-vitals.no/partner/gary-002', clicks: 78, conversions: 3, revenue: 'NOK 18,900', createdAt: '2026-07-02', active: true },
+  { id: 'pl3', label: 'Pharmacy network', url: 'https://nordic-vitals.no/partner/gary-003', clicks: 12, conversions: 0, revenue: 'NOK 0', createdAt: '2026-08-01', active: true },
+]
+export async function getMemberPartnerLinks() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 210)); return MEMBER_PARTNER_LINKS_SEED }
+  return request('GET', '/v1/mlm/member/partner-links')
+}
+export async function createMemberPartnerLink(payload) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 300))
+    return { id: `pl${Date.now()}`, ...payload, url: `https://nordic-vitals.no/partner/gary-${Date.now()}`, clicks: 0, conversions: 0, revenue: 'NOK 0', createdAt: new Date().toISOString().slice(0,10), active: true }
+  }
+  return request('POST', '/v1/mlm/member/partner-links', payload)
+}
+export async function deleteMemberPartnerLink(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/partner-links/${id}`)
+}
+
+// ─── Member Health Tracker ────────────────────────────────────────────────────
+const MEMBER_HEALTH_LOG_SEED = [
+  { id: 'hl1', date: '2026-08-07', mood: 4, energy: 4, sleep: 7.5, products: ['Omega-3 2000mg', 'D3/K2 Complex'], notes: 'Good workout, joint flexibility noticeably better.' },
+  { id: 'hl2', date: '2026-08-06', mood: 3, energy: 3, sleep: 6.0, products: ['Omega-3 2000mg'], notes: 'Skipped D3 this morning. Tired by afternoon.' },
+  { id: 'hl3', date: '2026-08-05', mood: 5, energy: 5, sleep: 8.5, products: ['Omega-3 2000mg', 'D3/K2 Complex', 'Collagen Peptides'], notes: 'Best energy day in weeks. Full stack taken.' },
+  { id: 'hl4', date: '2026-08-04', mood: 4, energy: 4, sleep: 7.0, products: ['Omega-3 2000mg', 'D3/K2 Complex'], notes: 'Consistent routine, feeling stable.' },
+  { id: 'hl5', date: '2026-08-03', mood: 3, energy: 2, sleep: 5.5, products: ['Omega-3 2000mg'], notes: 'Poor sleep, stressed about work deadline.' },
+  { id: 'hl6', date: '2026-08-02', mood: 4, energy: 4, sleep: 7.0, products: ['Omega-3 2000mg', 'D3/K2 Complex'], notes: 'Weekend hike — supplements packed.' },
+]
+export async function getMemberHealthLog() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return MEMBER_HEALTH_LOG_SEED }
+  return request('GET', '/v1/mlm/member/health-log')
+}
+export async function addMemberHealthLog(payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id: `hl${Date.now()}`, ...payload } }
+  return request('POST', '/v1/mlm/member/health-log', payload)
+}
+export async function deleteMemberHealthLog(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/health-log/${id}`)
+}
+
+// ─── Member Habit Tracker ─────────────────────────────────────────────────────
+const MEMBER_HABITS_SEED = {
+  habits: [
+    { id: 'hb1', name: 'Take morning supplements', icon: '💊', streak: 12, target: 7, completedDates: ['2026-08-01','2026-08-02','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07'] },
+    { id: 'hb2', name: 'Drink 2L water', icon: '💧', streak: 5, target: 7, completedDates: ['2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07'] },
+    { id: 'hb3', name: 'Exercise 30 min', icon: '🏋️', streak: 3, target: 5, completedDates: ['2026-08-05','2026-08-06','2026-08-07'] },
+    { id: 'hb4', name: 'Sleep by 23:00', icon: '😴', streak: 2, target: 7, completedDates: ['2026-08-06','2026-08-07'] },
+    { id: 'hb5', name: 'Contact 1 new prospect', icon: '📞', streak: 0, target: 5, completedDates: [] },
+  ],
+  weekDates: ['2026-08-01','2026-08-02','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07'],
+}
+export async function getMemberHabits() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return MEMBER_HABITS_SEED }
+  return request('GET', '/v1/mlm/member/habits')
+}
+export async function logMemberHabit(habitId, date) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('POST', '/v1/mlm/member/habits/log', { habitId, date })
+}
+export async function createMemberHabit(payload) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 280)); return { id: `hb${Date.now()}`, ...payload, streak: 0, completedDates: [] } }
+  return request('POST', '/v1/mlm/member/habits', payload)
+}
