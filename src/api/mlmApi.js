@@ -8012,3 +8012,230 @@ export async function registerMemberCalendarEvent(id) {
   if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { ok: true } }
   return request('POST', `/v1/mlm/member/events/${id}/register`)
 }
+
+// ── Admin: Geo Blocking ─────────────────────────────────────────────────────
+export async function getAdminGeoBlocking() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      defaultPolicy: 'allow',
+      rules: [
+        { id: 'gb1', country: 'United States', code: 'US', flag: '🇺🇸', scope: 'all', status: 'allowed', reason: 'Primary market' },
+        { id: 'gb2', country: 'Norway', code: 'NO', flag: '🇳🇴', scope: 'all', status: 'allowed', reason: 'HQ country' },
+        { id: 'gb3', country: 'Germany', code: 'DE', flag: '🇩🇪', scope: 'all', status: 'allowed', reason: 'EU market' },
+        { id: 'gb4', country: 'North Korea', code: 'KP', flag: '🇰🇵', scope: 'all', status: 'blocked', reason: 'Sanctions compliance' },
+        { id: 'gb5', country: 'Iran', code: 'IR', flag: '🇮🇷', scope: 'all', status: 'blocked', reason: 'Sanctions compliance' },
+        { id: 'gb6', country: 'Russia', code: 'RU', flag: '🇷🇺', scope: 'membership', status: 'blocked', reason: 'Payment restrictions' },
+        { id: 'gb7', country: 'China', code: 'CN', flag: '🇨🇳', scope: 'membership', status: 'restricted', reason: 'Regulatory review pending' },
+        { id: 'gb8', country: 'Brazil', code: 'BR', flag: '🇧🇷', scope: 'all', status: 'allowed', reason: 'Active market' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/geo-blocking')
+}
+export async function createAdminGeoRule(rule) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { id: `gb${Date.now()}`, ...rule } }
+  return request('POST', '/v1/mlm/admin/geo-blocking', rule)
+}
+export async function updateAdminGeoRule(id, patch) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, ...patch } }
+  return request('PATCH', `/v1/mlm/admin/geo-blocking/${id}`, patch)
+}
+export async function deleteAdminGeoRule(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/geo-blocking/${id}`)
+}
+
+// ── Admin: Product Labels ───────────────────────────────────────────────────
+export async function getAdminProductLabels() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'pl1', name: 'Bestseller', color: '#f59e0b', textColor: '#000', icon: '🏆', assignedCount: 4, active: true },
+      { id: 'pl2', name: 'New', color: '#10b981', textColor: '#fff', icon: '✨', assignedCount: 2, active: true },
+      { id: 'pl3', name: 'Limited Edition', color: '#8b5cf6', textColor: '#fff', icon: '⏳', assignedCount: 1, active: true },
+      { id: 'pl4', name: 'Sale', color: '#ef4444', textColor: '#fff', icon: '🔥', assignedCount: 3, active: true },
+      { id: 'pl5', name: 'Staff Pick', color: '#3b82f6', textColor: '#fff', icon: '⭐', assignedCount: 2, active: true },
+      { id: 'pl6', name: 'Out of Season', color: '#64748b', textColor: '#fff', icon: '❄️', assignedCount: 0, active: false },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/product-labels')
+}
+export async function createAdminProductLabel(label) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { id: `pl${Date.now()}`, assignedCount: 0, active: true, ...label } }
+  return request('POST', '/v1/mlm/admin/product-labels', label)
+}
+export async function toggleAdminProductLabel(id, active) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, active } }
+  return request('PATCH', `/v1/mlm/admin/product-labels/${id}`, { active })
+}
+export async function deleteAdminProductLabel(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/product-labels/${id}`)
+}
+
+// ── Admin: Sales Scripts ────────────────────────────────────────────────────
+export async function getAdminSalesScripts() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'ss1', title: 'Cold Outreach — Social Media DM', category: 'prospecting', stage: 'outreach', views: 1284, downloads: 342, rating: 4.7, updatedAt: '2026-07-20', content: "Hey [Name]! I noticed you're interested in health and fitness. I'm part of an exciting brand called Nordic Vitals — we make science-backed peptide supplements. Would you be open to a quick chat about what we do?" },
+      { id: 'ss2', title: 'Product Presentation — BPC-157', category: 'product', stage: 'presentation', views: 987, downloads: 256, rating: 4.8, updatedAt: '2026-07-18', content: "BPC-157 is a naturally occurring peptide that supports tissue repair, gut health, and recovery. Clinical studies show remarkable results for joint and muscle regeneration..." },
+      { id: 'ss3', title: 'Handling Objection — "It\'s too expensive"', category: 'objection', stage: 'closing', views: 756, downloads: 198, rating: 4.6, updatedAt: '2026-07-15', content: "I totally understand. Let me put it in perspective — a single physiotherapy session costs the same as a month's supply. Our members report they've saved thousands in medical bills..." },
+      { id: 'ss4', title: 'Team Recruitment — Initial Invite', category: 'recruitment', stage: 'outreach', views: 654, downloads: 167, rating: 4.5, updatedAt: '2026-07-10', content: "I'm building a health and wellness business and looking for motivated people to partner with. The opportunity allows you to earn both retail commissions and team bonuses..." },
+      { id: 'ss5', title: 'Follow-Up After Presentation', category: 'prospecting', stage: 'follow_up', views: 543, downloads: 143, rating: 4.4, updatedAt: '2026-07-05', content: "Hi [Name], just checking in after our conversation last week. Have you had a chance to look over the information I sent? I'd love to answer any questions..." },
+      { id: 'ss6', title: 'Closing — Membership Sign-Up', category: 'recruitment', stage: 'closing', views: 432, downloads: 112, rating: 4.9, updatedAt: '2026-06-28', content: "Based on everything you've shared with me, I think this is a perfect fit for your goals. Let me walk you through the simple sign-up process — it only takes about 5 minutes..." },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/sales-scripts')
+}
+export async function createAdminSalesScript(script) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { id: `ss${Date.now()}`, views: 0, downloads: 0, rating: null, updatedAt: new Date().toISOString().slice(0,10), ...script } }
+  return request('POST', '/v1/mlm/admin/sales-scripts', script)
+}
+export async function deleteAdminSalesScript(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/sales-scripts/${id}`)
+}
+
+// ── Admin: Member Marketplace ───────────────────────────────────────────────
+export async function getAdminMemberMarketplace() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'mk1', title: 'BPC-157 Standard x3 (unopened)', seller: 'Lars Andersen', price: 210, originalPrice: 267, condition: 'new', category: 'products', status: 'active', postedAt: '2026-08-05', views: 43, expiresAt: '2026-08-19' },
+      { id: 'mk2', title: 'Nordic Vitals Starter Kit', seller: 'Ingrid Svensson', price: 85, originalPrice: 120, condition: 'new', category: 'kits', status: 'active', postedAt: '2026-08-04', views: 71, expiresAt: '2026-08-18' },
+      { id: 'mk3', title: 'Marketing Flyers — 200 pack printed', seller: 'Erik Johansen', price: 25, originalPrice: 40, condition: 'used', category: 'materials', status: 'active', postedAt: '2026-08-03', views: 18, expiresAt: '2026-08-17' },
+      { id: 'mk4', title: 'GHK-Cu Skin Complex x2', seller: 'Astrid Hansen', price: 130, originalPrice: 158, condition: 'new', category: 'products', status: 'pending', postedAt: '2026-08-07', views: 9, expiresAt: '2026-08-21' },
+      { id: 'mk5', title: 'Business Builder Bundle', seller: 'Olaf Berg', price: 0, originalPrice: 0, condition: 'new', category: 'kits', status: 'sold', postedAt: '2026-07-28', views: 124, expiresAt: '2026-08-11' },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/marketplace')
+}
+export async function approveAdminMarketplaceListing(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/marketplace/${id}/approve`)
+}
+export async function removeAdminMarketplaceListing(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/marketplace/${id}`)
+}
+
+// ── Member: Quick Order ─────────────────────────────────────────────────────
+export async function getMemberQuickOrderCatalog() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      favorites: [
+        { id: 'q1', name: 'BPC-157 Standard', sku: 'VP-BPC-500', price: 89, memberPrice: 71.20, pv: 70, inStock: true, stock: 48, lastOrdered: '2026-07-15', timesOrdered: 8 },
+        { id: 'q2', name: 'TB-500 Thymosin', sku: 'VP-TB500-2', price: 109, memberPrice: 87.20, pv: 85, inStock: true, stock: 23, lastOrdered: '2026-07-20', timesOrdered: 5 },
+        { id: 'q3', name: 'BPC-157 Pro Blend', sku: 'VP-BPC-PRO', price: 129, memberPrice: 103.20, pv: 100, inStock: true, stock: 31, lastOrdered: '2026-06-30', timesOrdered: 3 },
+      ],
+      recentOrders: [
+        { orderId: 'ORD-7823', date: '2026-07-20', items: [{ id: 'q1', name: 'BPC-157 Standard', qty: 2, memberPrice: 71.20, pv: 70, inStock: true }, { id: 'q2', name: 'TB-500 Thymosin', qty: 1, memberPrice: 87.20, pv: 85, inStock: true }] },
+        { orderId: 'ORD-7654', date: '2026-07-03', items: [{ id: 'q3', name: 'BPC-157 Pro Blend', qty: 1, memberPrice: 103.20, pv: 100, inStock: true }] },
+      ],
+      allProducts: [
+        { id: 'q1', name: 'BPC-157 Standard', sku: 'VP-BPC-500', memberPrice: 71.20, pv: 70, inStock: true },
+        { id: 'q2', name: 'TB-500 Thymosin', sku: 'VP-TB500-2', memberPrice: 87.20, pv: 85, inStock: true },
+        { id: 'q3', name: 'BPC-157 Pro Blend', sku: 'VP-BPC-PRO', memberPrice: 103.20, pv: 100, inStock: true },
+        { id: 'q4', name: 'GHK-Cu Skin Complex', sku: 'VP-GHK-50', memberPrice: 63.20, pv: 60, inStock: false },
+        { id: 'q5', name: 'CJC-1295 Growth', sku: 'VP-CJC-2', memberPrice: 119.20, pv: 120, inStock: true },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/quick-order')
+}
+export async function submitMemberQuickOrder(items) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 800)); return { orderId: `ORD-${Math.floor(Math.random()*1000)+8000}`, status: 'confirmed' } }
+  return request('POST', '/v1/mlm/member/quick-order', { items })
+}
+
+// ── Member: Meeting Scheduler ───────────────────────────────────────────────
+export async function getMemberMeetingScheduler() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      upline: { name: 'Bjørn Vesterinen', rank: 'Diamond', avatar: 'BV', responseTime: '< 4 hours' },
+      upcoming: [
+        { id: 'mt1', title: '1:1 Strategy Call', type: '1on1', date: '2026-08-12', time: '15:00 CET', duration: 30, status: 'confirmed', with: 'Bjørn Vesterinen' },
+        { id: 'mt2', title: 'Team Onboarding — New Recruits', type: 'group', date: '2026-08-15', time: '18:00 CET', duration: 60, status: 'pending', with: 'Bjørn Vesterinen' },
+      ],
+      past: [
+        { id: 'mt3', title: 'Monthly Business Review', type: '1on1', date: '2026-07-30', time: '14:00 CET', duration: 30, status: 'completed', with: 'Bjørn Vesterinen', notes: 'Discussed rank promotion strategy. Action: recruit 2 members by Aug 15.' },
+        { id: 'mt4', title: 'Product Training', type: 'group', date: '2026-07-22', time: '19:00 CET', duration: 60, status: 'completed', with: 'Bjørn Vesterinen', notes: 'Covered BPC-157 science and sales positioning.' },
+      ],
+      availableSlots: [
+        { date: '2026-08-10', slots: ['10:00', '11:00', '14:00'] },
+        { date: '2026-08-11', slots: ['09:00', '15:00', '16:00'] },
+        { date: '2026-08-13', slots: ['10:00', '13:00'] },
+        { date: '2026-08-14', slots: ['11:00', '14:00', '17:00'] },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/meetings')
+}
+export async function bookMemberMeeting(slot) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `mt${Date.now()}`, status: 'pending', ...slot } }
+  return request('POST', '/v1/mlm/member/meetings', slot)
+}
+export async function cancelMemberMeeting(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/meetings/${id}`)
+}
+
+// ── Member: Knowledge Base ──────────────────────────────────────────────────
+export async function getMemberKnowledgeBase(query) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const articles = [
+      { id: 'kb1', title: 'How does the commission structure work?', category: 'compensation', views: 3842, helpful: 94, lastUpdated: '2026-07-15', excerpt: 'Our binary matrix pays out on two legs. Personal commissions are 20% on retail sales, with team commissions up to 10% on your downline volume...' },
+      { id: 'kb2', title: 'What are PV points and how are they calculated?', category: 'compensation', views: 2914, helpful: 91, lastUpdated: '2026-07-10', excerpt: 'PV (Personal Volume) points are assigned to every product. 1 PV ≈ €1 of wholesale price. Each month, your PV total determines...' },
+      { id: 'kb3', title: 'How to use BPC-157 safely', category: 'products', views: 5821, helpful: 97, lastUpdated: '2026-07-20', excerpt: 'BPC-157 is generally well-tolerated. Recommended dosage is 200–500mcg per day. Always store refrigerated and consult your physician...' },
+      { id: 'kb4', title: 'How do I qualify for autoship discounts?', category: 'orders', views: 1823, helpful: 88, lastUpdated: '2026-06-28', excerpt: 'Members on active autoship with a minimum order of 50 PV receive an additional 5% discount on all products in their autoship order...' },
+      { id: 'kb5', title: 'How to recruit your first team member', category: 'recruitment', views: 4312, helpful: 92, lastUpdated: '2026-07-18', excerpt: 'Start with your warm market — friends, family, and colleagues who already trust you. Share your personal story first before presenting the business...' },
+      { id: 'kb6', title: 'Rank qualifications explained', category: 'compensation', views: 2103, helpful: 89, lastUpdated: '2026-07-05', excerpt: 'Each rank requires a combination of personal PV and team PV. Bronze requires 100 personal PV + 500 team PV. Silver requires 150 personal PV + 2,000 team PV...' },
+      { id: 'kb7', title: 'What is the Fast Start bonus?', category: 'compensation', views: 1654, helpful: 90, lastUpdated: '2026-06-20', excerpt: 'New members who achieve 200 PV in their first 30 days earn a €100 Fast Start bonus. This stacks with regular commissions and is paid in the monthly run...' },
+      { id: 'kb8', title: 'How to request a payout', category: 'payments', views: 1432, helpful: 87, lastUpdated: '2026-07-12', excerpt: 'Payouts are processed on the 15th of each month for the previous month\'s commissions. Minimum payout is €50. To request early payout...' },
+      { id: 'kb9', title: 'Storage and handling of peptide products', category: 'products', views: 2876, helpful: 96, lastUpdated: '2026-07-22', excerpt: 'Most peptides require refrigeration (2–8°C). Powder forms should be stored in a freezer until reconstituted. Never expose to direct sunlight...' },
+      { id: 'kb10', title: 'GDPR and data privacy for EU members', category: 'compliance', views: 876, helpful: 85, lastUpdated: '2026-06-15', excerpt: 'As a GDPR-compliant business, we never sell member data. You can request a full data export or deletion from your Data Privacy page in the dashboard...' },
+    ]
+    if (query) {
+      const q = query.toLowerCase()
+      return articles.filter(a => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q) || a.category.includes(q))
+    }
+    return articles
+  }
+  return request('GET', `/v1/mlm/member/knowledge-base${query ? `?q=${encodeURIComponent(query)}` : ''}`)
+}
+export async function markKbArticleHelpful(id, helpful) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('POST', `/v1/mlm/member/knowledge-base/${id}/feedback`, { helpful })
+}
+
+// ── Member: Product Samples ─────────────────────────────────────────────────
+export async function getMemberProductSamples() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      allowanceUsed: 2, allowanceTotal: 4, resetDate: '2026-09-01',
+      history: [
+        { id: 'sm1', product: 'BPC-157 Standard (7-day sample)', requestedAt: '2026-08-01', status: 'delivered', trackingCode: 'NO12345678', deliveredAt: '2026-08-04' },
+        { id: 'sm2', product: 'GHK-Cu Skin Complex (trial size)', requestedAt: '2026-07-15', status: 'delivered', trackingCode: 'NO98765432', deliveredAt: '2026-07-18' },
+        { id: 'sm3', product: 'TB-500 Thymosin (7-day sample)', requestedAt: '2026-08-06', status: 'processing', trackingCode: null, deliveredAt: null },
+      ],
+      availableSamples: [
+        { id: 'sp1', name: 'BPC-157 Standard (7-day sample)', description: '7-day supply of BPC-157 500mcg capsules', pv: 0, value: '€15', available: true },
+        { id: 'sp2', name: 'TB-500 Thymosin (7-day sample)', description: '7-day supply of TB-500 2mg powder', pv: 0, value: '€18', available: false },
+        { id: 'sp3', name: 'GHK-Cu Skin Complex (trial size)', description: '5ml trial serum — 2 week supply', pv: 0, value: '€12', available: true },
+        { id: 'sp4', name: 'CJC-1295 Growth (5-day sample)', description: '5-day supply of CJC-1295 2mg', pv: 0, value: '€20', available: true },
+        { id: 'sp5', name: 'Nordic Starter Pack (multi-sample)', description: 'Small samples of 4 bestsellers in one box', pv: 0, value: '€35', available: true },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/samples')
+}
+export async function requestMemberProductSample(sampleId, address) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `sm${Date.now()}`, status: 'processing', product: sampleId } }
+  return request('POST', '/v1/mlm/member/samples', { sampleId, address })
+}

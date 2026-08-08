@@ -206,6 +206,14 @@ const DashLearningPath           = lazy(() => import('./pages/dashboard/Learning
 const DashTeamPerformance        = lazy(() => import('./pages/dashboard/TeamPerformance'))
 const DashProductComparison      = lazy(() => import('./pages/dashboard/ProductComparison'))
 const DashEventCalendar          = lazy(() => import('./pages/dashboard/EventCalendar'))
+const AdminGeoBlocking           = lazy(() => import('./pages/admin/GeoBlocking'))
+const AdminProductLabels         = lazy(() => import('./pages/admin/ProductLabels'))
+const AdminSalesScripts          = lazy(() => import('./pages/admin/SalesScripts'))
+const AdminMemberMarketplace     = lazy(() => import('./pages/admin/MemberMarketplace'))
+const DashQuickOrder             = lazy(() => import('./pages/dashboard/QuickOrder'))
+const DashMeetingScheduler       = lazy(() => import('./pages/dashboard/MeetingScheduler'))
+const DashKnowledgeBase          = lazy(() => import('./pages/dashboard/KnowledgeBase'))
+const DashProductSamples         = lazy(() => import('./pages/dashboard/ProductSamples'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -432,6 +440,14 @@ function AppRoutes() {
         <Route path="/dashboard/team-performance"     element={<RequireAuth><DashTeamPerformance /></RequireAuth>} />
         <Route path="/dashboard/product-comparison"   element={<RequireAuth><DashProductComparison /></RequireAuth>} />
         <Route path="/dashboard/event-calendar"       element={<RequireAuth><DashEventCalendar /></RequireAuth>} />
+        <Route path="/admin/geo-blocking"             element={<RequireAuth role="admin"><AdminGeoBlocking /></RequireAuth>} />
+        <Route path="/admin/product-labels"           element={<RequireAuth role="admin"><AdminProductLabels /></RequireAuth>} />
+        <Route path="/admin/sales-scripts"            element={<RequireAuth role="admin"><AdminSalesScripts /></RequireAuth>} />
+        <Route path="/admin/marketplace"              element={<RequireAuth role="admin"><AdminMemberMarketplace /></RequireAuth>} />
+        <Route path="/dashboard/quick-order"          element={<RequireAuth><DashQuickOrder /></RequireAuth>} />
+        <Route path="/dashboard/meeting-scheduler"    element={<RequireAuth><DashMeetingScheduler /></RequireAuth>} />
+        <Route path="/dashboard/knowledge-base"       element={<RequireAuth><DashKnowledgeBase /></RequireAuth>} />
+        <Route path="/dashboard/samples"              element={<RequireAuth><DashProductSamples /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
