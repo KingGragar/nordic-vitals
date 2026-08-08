@@ -7649,3 +7649,184 @@ export async function createMemberHabit(payload) {
   if (MOCK) { await new Promise(r => setTimeout(r, 280)); return { id: `hb${Date.now()}`, ...payload, streak: 0, completedDates: [] } }
   return request('POST', '/v1/mlm/member/habits', payload)
 }
+
+// ── Stock Alerts ─────────────────────────────────────────────────────────────
+const STOCK_ALERTS_SEED = [
+  { id: 'sa1', name: 'BPC-157 5mg', sku: 'BPC-157-5MG', stock: 3, threshold: 10, level: 'critical', lastUpdated: '2026-08-08 09:14' },
+  { id: 'sa2', name: 'TB-500 2mg', sku: 'TB500-2MG', stock: 8, threshold: 15, level: 'low', lastUpdated: '2026-08-08 07:30' },
+  { id: 'sa3', name: 'Semax 30mg', sku: 'SEMAX-30MG', stock: 0, threshold: 5, level: 'critical', lastUpdated: '2026-08-07 22:00' },
+  { id: 'sa4', name: 'CJC-1295 2mg', sku: 'CJC-2MG', stock: 42, threshold: 10, level: 'ok', lastUpdated: '2026-08-08 06:00' },
+  { id: 'sa5', name: 'Ipamorelin 2mg', sku: 'IPA-2MG', stock: 18, threshold: 20, level: 'low', lastUpdated: '2026-08-08 08:00' },
+  { id: 'sa6', name: 'PT-141 10mg', sku: 'PT141-10MG', stock: 55, threshold: 10, level: 'ok', lastUpdated: '2026-08-07 18:00' },
+]
+export async function getAdminStockAlerts() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return [...STOCK_ALERTS_SEED] }
+  return request('GET', '/v1/mlm/admin/stock-alerts')
+}
+export async function updateAdminStockAlertThreshold(id, threshold) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/stock-alerts/${id}/threshold`, { threshold })
+}
+export async function dismissAdminStockAlert(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/stock-alerts/${id}/dismiss`)
+}
+
+// ── Payment Gateways ──────────────────────────────────────────────────────────
+const PAYMENT_GATEWAYS_SEED = [
+  { id: 'gw1', name: 'Stripe', provider: 'stripe', enabled: true, mode: 'live', feePercent: 2.9, feeFixed: '$0.30', currencies: ['USD', 'EUR', 'GBP', 'NOK'], webhookOk: true, volume30d: '$24,320' },
+  { id: 'gw2', name: 'PayPal', provider: 'paypal', enabled: true, mode: 'live', feePercent: 3.49, feeFixed: '$0.49', currencies: ['USD', 'EUR'], webhookOk: false, volume30d: '$4,110' },
+  { id: 'gw3', name: 'Crypto (USDC)', provider: 'crypto', enabled: false, mode: 'test', feePercent: 1.0, feeFixed: '$0.00', currencies: ['USDC', 'ETH'], webhookOk: false, volume30d: '$0' },
+  { id: 'gw4', name: 'Klarna', provider: 'klarna', enabled: true, mode: 'live', feePercent: 3.29, feeFixed: '$0.35', currencies: ['EUR', 'NOK', 'SEK'], webhookOk: true, volume30d: '$6,890' },
+  { id: 'gw5', name: 'Apple Pay', provider: 'applepay', enabled: true, mode: 'live', feePercent: 2.9, feeFixed: '$0.30', currencies: ['USD', 'EUR'], webhookOk: true, volume30d: '$3,200' },
+]
+export async function getAdminPaymentGateways() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 260)); return [...PAYMENT_GATEWAYS_SEED] }
+  return request('GET', '/v1/mlm/admin/payment-gateways')
+}
+export async function toggleAdminPaymentGateway(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/payment-gateways/${id}/toggle`)
+}
+export async function testAdminPaymentGateway(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 900)); return { ok: id !== 'gw2', error: id === 'gw2' ? 'Webhook not configured' : null } }
+  return request('POST', `/v1/mlm/admin/payment-gateways/${id}/test`)
+}
+
+// ── Customer Groups ───────────────────────────────────────────────────────────
+const CUSTOMER_GROUPS_SEED = [
+  { id: 'cg1', name: 'Retail', description: 'Standard retail customers', icon: '🛒', color: '#1e3a5f', priceMultiplier: 1.0, minOrderValue: null, welcomeEmail: true, memberCount: 1240, members: [{id:'m1',name:'Anna S.'},{id:'m2',name:'Mark T.'}] },
+  { id: 'cg2', name: 'Wholesale', description: 'Bulk buyers with discounted pricing', icon: '📦', color: '#052e16', priceMultiplier: 0.75, minOrderValue: 200, welcomeEmail: true, memberCount: 88, members: [{id:'m3',name:'Nordic Health AS'},{id:'m4',name:'FitStore AB'}] },
+  { id: 'cg3', name: 'VIP', description: 'Top-tier members and high-value customers', icon: '👑', color: '#3b1f00', priceMultiplier: 0.85, minOrderValue: null, welcomeEmail: true, memberCount: 34, members: [{id:'m5',name:'Erik B.'},{id:'m6',name:'Sofia L.'}] },
+  { id: 'cg4', name: 'Staff', description: 'Internal team accounts', icon: '🏢', color: '#2d1515', priceMultiplier: 0.50, minOrderValue: null, welcomeEmail: false, memberCount: 5, members: [{id:'m7',name:'Gary G.'},{id:'m8',name:'Bjørn H.'}] },
+]
+export async function getAdminCustomerGroups() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 260)); return [...CUSTOMER_GROUPS_SEED] }
+  return request('GET', '/v1/mlm/admin/customer-groups')
+}
+export async function createAdminCustomerGroup(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 280)); return { id: `cg${Date.now()}`, ...data, memberCount: 0, members: [], icon: '👤', color: '#1e3a5f' } }
+  return request('POST', '/v1/mlm/admin/customer-groups', data)
+}
+export async function updateAdminCustomerGroup(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/customer-groups/${id}`, data)
+}
+export async function deleteAdminCustomerGroup(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/customer-groups/${id}`)
+}
+
+// ── Quality Control ───────────────────────────────────────────────────────────
+const QC_BATCHES_SEED = [
+  { id: 'qc1', batchNo: 'B2608-001', product: 'BPC-157 5mg', lot: 'L-8801', quantity: 500, mfgDate: '2026-07-01', expiryDate: '2028-07-01', daysToExpiry: 700, status: 'pass', coaUrl: '#' },
+  { id: 'qc2', batchNo: 'B2608-002', product: 'TB-500 2mg', lot: 'L-8802', quantity: 300, mfgDate: '2026-07-15', expiryDate: '2026-10-15', daysToExpiry: 68, status: 'review', coaUrl: '#' },
+  { id: 'qc3', batchNo: 'B2608-003', product: 'Semax 30mg', lot: 'L-8803', quantity: 200, mfgDate: '2026-08-01', expiryDate: '2028-08-01', daysToExpiry: 723, status: 'pending', coaUrl: null },
+  { id: 'qc4', batchNo: 'B2607-005', product: 'CJC-1295 2mg', lot: 'L-8790', quantity: 400, mfgDate: '2026-06-20', expiryDate: '2026-09-30', daysToExpiry: 53, status: 'fail', coaUrl: '#' },
+  { id: 'qc5', batchNo: 'B2608-004', product: 'Ipamorelin 2mg', lot: 'L-8810', quantity: 600, mfgDate: '2026-08-05', expiryDate: '2028-08-05', daysToExpiry: 727, status: 'pass', coaUrl: '#' },
+]
+export async function getAdminQcBatches() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 260)); return [...QC_BATCHES_SEED] }
+  return request('GET', '/v1/mlm/admin/qc-batches')
+}
+export async function createAdminQcBatch(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id: `qc${Date.now()}`, ...data, status: 'pending', daysToExpiry: 730, coaUrl: null } }
+  return request('POST', '/v1/mlm/admin/qc-batches', data)
+}
+export async function updateAdminQcBatchStatus(id, status) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('PUT', `/v1/mlm/admin/qc-batches/${id}/status`, { status })
+}
+
+// ── Price Alerts ──────────────────────────────────────────────────────────────
+const MEMBER_PRICE_ALERTS_SEED = [
+  { id: 'pa1', productName: 'BPC-157 5mg', type: 'price_drop', targetPrice: '$48.00', currentPrice: '$52.00', active: true, image: null },
+  { id: 'pa2', productName: 'TB-500 2mg', type: 'back_in_stock', active: true, image: null },
+  { id: 'pa3', productName: 'PT-141 10mg', type: 'low_stock', active: false, currentPrice: '$65.00', image: null },
+]
+export async function getMemberPriceAlerts() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 230)); return [...MEMBER_PRICE_ALERTS_SEED] }
+  return request('GET', '/v1/mlm/member/price-alerts')
+}
+export async function deleteMemberPriceAlert(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/price-alerts/${id}`)
+}
+export async function toggleMemberPriceAlert(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return { ok: true } }
+  return request('POST', `/v1/mlm/member/price-alerts/${id}/toggle`)
+}
+
+// ── Team Chat ─────────────────────────────────────────────────────────────────
+const TEAM_CHAT_THREADS = [
+  { id: 'tc1', name: 'team-general', memberCount: 24, lastMessage: 'Great week everyone! 🎉', unread: 3 },
+  { id: 'tc2', name: 'team-leaders', memberCount: 8, lastMessage: 'New rank campaign starting Monday', unread: 0 },
+  { id: 'tc3', name: 'product-updates', memberCount: 24, lastMessage: 'BPC-157 restock confirmed', unread: 1 },
+]
+const TEAM_CHAT_MESSAGES = {
+  tc1: [
+    { id: 'm1', author: 'Bjørn H.', text: 'Welcome to the team chat! 👋', time: '08:00' },
+    { id: 'm2', author: 'Anna S.', text: 'Thanks! Excited to be here', time: '08:14' },
+    { id: 'm3', author: 'Mark T.', text: 'Great week everyone! 🎉', time: '08:30' },
+  ],
+  tc2: [
+    { id: 'm4', author: 'Gary G.', text: 'New rank campaign starting Monday — target is Gold+', time: '09:00' },
+    { id: 'm5', author: 'Bjørn H.', text: 'Commission rates updated in the doc', time: '09:15' },
+  ],
+  tc3: [
+    { id: 'm6', author: 'Gary G.', text: 'BPC-157 restock confirmed for next week', time: '07:45' },
+    { id: 'm7', author: 'Sofia L.', text: 'Great, my team was asking about this 🙌', time: '07:52' },
+  ],
+}
+export async function getMemberTeamChatThreads() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return [...TEAM_CHAT_THREADS] }
+  return request('GET', '/v1/mlm/member/team-chat/threads')
+}
+export async function getMemberTeamChatMessages(threadId) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return [...(TEAM_CHAT_MESSAGES[threadId] || [])] }
+  return request('GET', `/v1/mlm/member/team-chat/threads/${threadId}/messages`)
+}
+export async function sendMemberTeamChatMessage(threadId, text) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { id: `m${Date.now()}`, author: 'You', text, time: new Date().toTimeString().slice(0,5) } }
+  return request('POST', `/v1/mlm/member/team-chat/threads/${threadId}/messages`, { text })
+}
+
+// ── Wallet History ────────────────────────────────────────────────────────────
+const WALLET_HISTORY_SEED = [
+  { id: 'wh1', type: 'commission', description: 'July commission payout', amount: 420.00, balance: 1240.50, date: '2026-08-01', ref: 'RUN-0801' },
+  { id: 'wh2', type: 'bonus', description: 'Fast Start bonus', amount: 100.00, balance: 820.50, date: '2026-07-28', ref: 'BONUS-FS-24' },
+  { id: 'wh3', type: 'purchase', description: 'Autoship order #A-3901', amount: -89.90, balance: 720.50, date: '2026-07-25', ref: 'ORD-3901' },
+  { id: 'wh4', type: 'withdrawal', description: 'Bank withdrawal', amount: -500.00, balance: 810.40, date: '2026-07-20', ref: 'PAY-7821' },
+  { id: 'wh5', type: 'commission', description: 'Team override commission', amount: 185.00, balance: 1310.40, date: '2026-07-15', ref: 'RUN-0715' },
+  { id: 'wh6', type: 'referral', description: 'Referral bonus — Erik B.', amount: 25.00, balance: 1125.40, date: '2026-07-12', ref: 'REF-EB' },
+  { id: 'wh7', type: 'loyalty', description: 'Loyalty points redemption', amount: 15.00, balance: 1100.40, date: '2026-07-10', ref: 'LP-450' },
+  { id: 'wh8', type: 'adjustment', description: 'Correction — June run', amount: -12.50, balance: 1085.40, date: '2026-07-08', ref: 'ADJ-JUN' },
+  { id: 'wh9', type: 'refund', description: 'Return — order #3822', amount: 49.90, balance: 1097.90, date: '2026-07-05', ref: 'RET-3822' },
+  { id: 'wh10', type: 'commission', description: 'June commission payout', amount: 380.00, balance: 1048.00, date: '2026-07-01', ref: 'RUN-0701' },
+]
+export async function getMemberWalletHistory() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 240)); return [...WALLET_HISTORY_SEED] }
+  return request('GET', '/v1/mlm/member/wallet/history')
+}
+
+// ── Two-Factor Authentication ─────────────────────────────────────────────────
+export async function getMemberTwoFactorStatus() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return { enabled: false, verifiedAt: null, unusedBackupCodes: 0 } }
+  return request('GET', '/v1/mlm/member/2fa/status')
+}
+export async function enableMemberTwoFactor() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { qrCode: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzAwMCI+W1FSXSA8L3RleHQ+PC9zdmc+', secret: 'JBSWY3DPEHPK3PXP' } }
+  return request('POST', '/v1/mlm/member/2fa/enable')
+}
+export async function verifyMemberTwoFactor(code) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return code === '123456' || code.length === 6 ? { success: true, backupCodes: ['A1B2-C3D4','E5F6-G7H8','I9J0-K1L2','M3N4-O5P6','Q7R8-S9T0','U1V2-W3X4','Y5Z6-A7B8','C9D0-E1F2'] } : { success: false } }
+  return request('POST', '/v1/mlm/member/2fa/verify', { code })
+}
+export async function disableMemberTwoFactor(code) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { success: true } }
+  return request('POST', '/v1/mlm/member/2fa/disable', { code })
+}
+export async function regenerateMemberBackupCodes() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return ['AA11-BB22','CC33-DD44','EE55-FF66','GG77-HH88','II99-JJ00','KK11-LL22','MM33-NN44','OO55-PP66'] }
+  return request('POST', '/v1/mlm/member/2fa/backup-codes/regenerate')
+}
