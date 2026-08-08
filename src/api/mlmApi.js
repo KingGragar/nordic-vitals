@@ -7830,3 +7830,185 @@ export async function regenerateMemberBackupCodes() {
   if (MOCK) { await new Promise(r => setTimeout(r, 400)); return ['AA11-BB22','CC33-DD44','EE55-FF66','GG77-HH88','II99-JJ00','KK11-LL22','MM33-NN44','OO55-PP66'] }
   return request('POST', '/v1/mlm/member/2fa/backup-codes/regenerate')
 }
+
+// ── Admin: Supplier Orders ──────────────────────────────────────────────────
+export async function getAdminSupplierOrders() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 's1', poNumber: '1042', vendorName: 'Nordic Pharma AS', status: 'ordered', itemCount: 12, totalValue: 18400, expectedDate: '2026-08-15', lastUpdated: '2026-08-06' },
+      { id: 's2', poNumber: '1041', vendorName: 'BioActive Labs', status: 'received', itemCount: 8, totalValue: 9200, expectedDate: '2026-08-05', lastUpdated: '2026-08-05' },
+      { id: 's3', poNumber: '1043', vendorName: 'PeptideCore GmbH', status: 'pending', itemCount: 5, totalValue: 6750, expectedDate: '2026-08-20', lastUpdated: '2026-08-07' },
+      { id: 's4', poNumber: '1044', vendorName: 'Arctic Nutrients', status: 'draft', itemCount: 3, totalValue: 3100, expectedDate: '2026-08-25', lastUpdated: '2026-08-08' },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/supplier-orders')
+}
+export async function createAdminSupplierOrder(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    return { id: 's' + Date.now(), poNumber: String(1045 + Math.floor(Math.random() * 100)), status: 'draft', itemCount: 0, totalValue: 0, lastUpdated: new Date().toISOString().slice(0,10), ...data }
+  }
+  return request('POST', '/v1/mlm/admin/supplier-orders', data)
+}
+export async function updateAdminSupplierOrderStatus(id, status) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, status } }
+  return request('PATCH', `/v1/mlm/admin/supplier-orders/${id}/status`, { status })
+}
+export async function deleteAdminSupplierOrder(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/supplier-orders/${id}`)
+}
+
+// ── Admin: Automation Rules ─────────────────────────────────────────────────
+export async function getAdminAutomationRules() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'ar1', name: 'Welcome email on signup', trigger: 'Member registers', action: 'Send email', delay: '0', active: true, runCount: 1842, lastRun: '2026-08-08 14:22' },
+      { id: 'ar2', name: 'Rank promotion badge', trigger: 'Rank promoted', action: 'Award badge', delay: '0', active: true, runCount: 234, lastRun: '2026-08-07 09:10' },
+      { id: 'ar3', name: 'Re-engagement SMS', trigger: 'Inactivity 30 days', action: 'Send SMS', delay: '0', active: false, runCount: 87, lastRun: '2026-08-01 11:00' },
+      { id: 'ar4', name: 'Birthday loyalty bonus', trigger: 'Birthday', action: 'Add loyalty points', delay: '0', active: true, runCount: 412, lastRun: '2026-08-08 00:01' },
+      { id: 'ar5', name: 'Post-purchase coupon', trigger: 'Order completed', action: 'Apply coupon', delay: '24', active: true, runCount: 3201, lastRun: '2026-08-08 16:05' },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/automation-rules')
+}
+export async function createAdminAutomationRule(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    return { id: 'ar' + Date.now(), active: true, runCount: 0, lastRun: null, ...data }
+  }
+  return request('POST', '/v1/mlm/admin/automation-rules', data)
+}
+export async function toggleAdminAutomationRule(id, active) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, active } }
+  return request('PATCH', `/v1/mlm/admin/automation-rules/${id}/toggle`, { active })
+}
+export async function deleteAdminAutomationRule(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/automation-rules/${id}`)
+}
+
+// ── Admin: Data Exports ─────────────────────────────────────────────────────
+export async function getAdminDataExports() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'ex1', name: 'Monthly Commissions Aug 2026', template: 'Commissions', format: 'CSV', schedule: 'once', status: 'completed', rowCount: 2140, fileSize: '1.2 MB', downloadUrl: '#', createdAt: '2026-08-01' },
+      { id: 'ex2', name: 'Weekly Member Export', template: 'Members', format: 'Excel (XLSX)', schedule: 'weekly', status: 'completed', rowCount: 8920, fileSize: '4.8 MB', downloadUrl: '#', createdAt: '2026-08-05' },
+      { id: 'ex3', name: 'Product Inventory Snapshot', template: 'Inventory', format: 'CSV', schedule: 'once', status: 'running', rowCount: null, fileSize: null, downloadUrl: null, createdAt: '2026-08-08' },
+      { id: 'ex4', name: 'Tax Summary Q2', template: 'Tax Summary', format: 'Excel (XLSX)', schedule: 'once', status: 'failed', rowCount: null, fileSize: null, downloadUrl: null, createdAt: '2026-07-30' },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/data-exports')
+}
+export async function createAdminDataExport(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    return { id: 'ex' + Date.now(), status: 'pending', rowCount: null, fileSize: null, downloadUrl: null, createdAt: new Date().toISOString().slice(0,10), ...data }
+  }
+  return request('POST', '/v1/mlm/admin/data-exports', data)
+}
+export async function deleteAdminDataExport(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/data-exports/${id}`)
+}
+
+// ── Admin: Chat Support ─────────────────────────────────────────────────────
+export async function getAdminChatSupport() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'ch1', memberName: 'Lars Andersen', status: 'open', waitTime: '12 min', lastMessage: 'Hi, I have a question about my commission payout this month', startedAt: '14:08', messageCount: 3, assignedTo: null, messages: [{ role: 'member', text: 'Hi, I have a question about my commission payout this month' }, { role: 'member', text: 'It says pending since 3 days' }] },
+      { id: 'ch2', memberName: 'Ingrid Svensson', status: 'assigned', waitTime: '4 min', lastMessage: "Thanks for your help!", startedAt: '14:22', messageCount: 8, assignedTo: 'Alice K.', messages: [{ role: 'member', text: 'I cannot log in to the portal' }, { role: 'agent', text: 'Let me help you reset your password' }, { role: 'member', text: "Thanks for your help!" }] },
+      { id: 'ch3', memberName: 'Bjørn Olsen', status: 'open', waitTime: '28 min', lastMessage: 'How do I upgrade my membership plan?', startedAt: '13:48', messageCount: 1, assignedTo: null, messages: [{ role: 'member', text: 'How do I upgrade my membership plan?' }] },
+      { id: 'ch4', memberName: 'Astrid Hansen', status: 'resolved', waitTime: '—', lastMessage: 'Issue resolved, thank you!', startedAt: '11:30', messageCount: 12, assignedTo: 'Bruno T.', messages: [{ role: 'member', text: 'My order never arrived' }, { role: 'agent', text: 'I can see it was dispatched on Aug 3' }, { role: 'member', text: 'Issue resolved, thank you!' }] },
+    ]
+  }
+  return request('GET', '/v1/mlm/admin/chat-support')
+}
+export async function assignAdminChatConversation(id, agent) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, agent } }
+  return request('POST', `/v1/mlm/admin/chat-support/${id}/assign`, { agent })
+}
+export async function closeAdminChatConversation(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/chat-support/${id}/resolve`)
+}
+
+// ── Member: Learning Path ───────────────────────────────────────────────────
+export async function getMemberLearningPath() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      completedCount: 7, inProgressCount: 2, certifications: 3, totalXp: 4200,
+      modules: [
+        { id: 'lp1', title: 'Business Foundations', category: 'foundation', icon: '🏗️', description: 'Core MLM concepts, compensation plan overview, and ethics.', totalLessons: 8, completedLessons: 8, duration: '2h 15m', xp: 500, status: 'completed', certified: true },
+        { id: 'lp2', title: 'Product Mastery', category: 'product', icon: '🧬', description: 'Deep dive into peptide science and all Viking Peptides products.', totalLessons: 12, completedLessons: 12, duration: '3h 40m', xp: 750, status: 'completed', certified: true },
+        { id: 'lp3', title: 'Sales Techniques', category: 'sales', icon: '🎯', description: 'Proven sales scripts, objection handling, and closing strategies.', totalLessons: 10, completedLessons: 6, duration: '2h 30m', xp: 600, status: 'in_progress', certified: false },
+        { id: 'lp4', title: 'Team Leadership', category: 'leadership', icon: '👑', description: 'Building and motivating your downline for long-term success.', totalLessons: 9, completedLessons: 0, duration: '2h 00m', xp: 600, status: 'locked', certified: false },
+        { id: 'lp5', title: 'Digital Marketing', category: 'sales', icon: '📱', description: 'Social media, content creation, and online prospecting.', totalLessons: 11, completedLessons: 4, duration: '3h 10m', xp: 700, status: 'in_progress', certified: false },
+        { id: 'lp6', title: 'Compliance & Legal', category: 'compliance', icon: '⚖️', description: 'FTC guidelines, income disclosure rules, and ethical selling.', totalLessons: 6, completedLessons: 6, duration: '1h 45m', xp: 400, status: 'completed', certified: true },
+        { id: 'lp7', title: 'Advanced Leadership', category: 'leadership', icon: '🌟', description: 'Advanced strategies for building a 6-figure organisation.', totalLessons: 14, completedLessons: 0, duration: '4h 00m', xp: 1000, status: 'locked', certified: false },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/learning-path')
+}
+
+// ── Member: Team Performance ────────────────────────────────────────────────
+export async function getMemberTeamPerformance(period) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      teamVolume: 48200, teamOrders: 312, newRecruits: 8, activeMembers: 24, totalMembers: 31,
+      members: [
+        { id: 'm1', name: 'Lars Andersen', rank: 'Silver', volume: 8400, orders: 54, recruits: 3, active: true, joinedAt: 'Jan 2025' },
+        { id: 'm2', name: 'Ingrid Svensson', rank: 'Gold', volume: 7200, orders: 48, recruits: 2, active: true, joinedAt: 'Mar 2025' },
+        { id: 'm3', name: 'Erik Johansen', rank: 'Bronze', volume: 5100, orders: 33, recruits: 0, active: true, joinedAt: 'Jun 2025' },
+        { id: 'm4', name: 'Astrid Hansen', rank: 'Silver', volume: 4800, orders: 31, recruits: 1, active: true, joinedAt: 'Feb 2025' },
+        { id: 'm5', name: 'Olaf Berg', rank: 'Bronze', volume: 3200, orders: 21, recruits: 0, active: true, joinedAt: 'Sep 2025' },
+        { id: 'm6', name: 'Freya Larsen', rank: 'Member', volume: 1800, orders: 12, recruits: 1, active: true, joinedAt: 'Nov 2025' },
+        { id: 'm7', name: 'Sigrid Nielsen', rank: 'Member', volume: 900, orders: 6, recruits: 0, active: false, joinedAt: 'Dec 2025' },
+      ]
+    }
+  }
+  return request('GET', `/v1/mlm/member/team-performance?period=${period}`)
+}
+
+// ── Member: Product Comparison ──────────────────────────────────────────────
+export async function getMemberProductCatalogForComparison() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return [
+      { id: 'p1', name: 'BPC-157 Standard', category: 'Peptides', price: 89, memberPrice: 71.20, pv: 70, servings: 30, form: 'Capsule', peptides: 'BPC-157 500mcg', storage: 'Refrigerate', vegan: true, glutenFree: true, inStock: true, rating: 4.8 },
+      { id: 'p2', name: 'BPC-157 Pro Blend', category: 'Peptides', price: 129, memberPrice: 103.20, pv: 100, servings: 30, form: 'Capsule', peptides: 'BPC-157 1000mcg + TB-500', storage: 'Refrigerate', vegan: true, glutenFree: true, inStock: true, rating: 4.9 },
+      { id: 'p3', name: 'TB-500 Thymosin', category: 'Peptides', price: 109, memberPrice: 87.20, pv: 85, servings: 30, form: 'Powder', peptides: 'TB-500 2mg', storage: 'Freeze', vegan: false, glutenFree: true, inStock: true, rating: 4.7 },
+      { id: 'p4', name: 'GHK-Cu Skin Complex', category: 'Cosmetic', price: 79, memberPrice: 63.20, pv: 60, servings: 60, form: 'Serum', peptides: 'GHK-Cu 50mg', storage: 'Cool & Dark', vegan: true, glutenFree: true, inStock: false, rating: 4.6 },
+      { id: 'p5', name: 'CJC-1295 Growth', category: 'Peptides', price: 149, memberPrice: 119.20, pv: 120, servings: 20, form: 'Powder', peptides: 'CJC-1295 2mg', storage: 'Freeze', vegan: false, glutenFree: true, inStock: true, rating: 4.5 },
+    ]
+  }
+  return request('GET', '/v1/mlm/member/products/comparison-catalog')
+}
+
+// ── Member: Event Calendar ──────────────────────────────────────────────────
+export async function getMemberEventCalendar(year, month) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    const base = `${year}-${String(month).padStart(2, '0')}`
+    return [
+      { id: 'ev1', title: 'Weekly Team Call', type: 'call', date: `${base}-09`, time: '18:00 CET', duration: '1h', description: 'Weekly check-in with your upline. Bring questions and wins.', host: 'Gary G.', registered: true },
+      { id: 'ev2', title: 'Product Science Webinar', type: 'webinar', date: `${base}-12`, time: '19:00 CET', duration: '1.5h', description: 'Deep dive into BPC-157 peptide mechanisms with our R&D team.', host: 'Dr. Larsson', registered: false },
+      { id: 'ev3', title: 'Sales Mastery Training', type: 'training', date: `${base}-14`, time: '10:00 CET', duration: '3h', description: 'Hands-on workshop covering objection handling and closing.', host: 'Ingrid S.', registered: false },
+      { id: 'ev4', title: 'Nordic Vitals Launch Event', type: 'product', date: `${base}-20`, time: '15:00 CET', duration: '2h', description: 'Official launch of our new GHK-Cu serum line. Attendees get first access.', host: 'Bjørn V.', registered: true },
+      { id: 'ev5', title: 'Leadership Rally Oslo', type: 'rally', date: `${base}-22`, time: '09:00 CET', duration: 'Full day', description: 'Annual leadership summit. Silver+ ranks only.', host: 'Arctico Team', registered: false },
+      { id: 'ev6', title: 'Monthly Business Review', type: 'webinar', date: `${base}-28`, time: '17:00 CET', duration: '1h', description: 'August performance recap, top earners spotlight, September preview.', host: 'Gary G.', registered: false },
+    ]
+  }
+  return request('GET', `/v1/mlm/member/events/calendar?year=${year}&month=${month}`)
+}
+export async function registerMemberCalendarEvent(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { ok: true } }
+  return request('POST', `/v1/mlm/member/events/${id}/register`)
+}

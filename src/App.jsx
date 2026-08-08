@@ -198,6 +198,14 @@ const DashPriceAlerts            = lazy(() => import('./pages/dashboard/PriceAle
 const DashTeamChat               = lazy(() => import('./pages/dashboard/TeamChat'))
 const DashWalletHistory          = lazy(() => import('./pages/dashboard/WalletHistory'))
 const DashTwoFactor              = lazy(() => import('./pages/dashboard/TwoFactor'))
+const AdminSupplierOrders        = lazy(() => import('./pages/admin/SupplierOrders'))
+const AdminAutomationRules       = lazy(() => import('./pages/admin/AutomationRules'))
+const AdminDataExports           = lazy(() => import('./pages/admin/DataExports'))
+const AdminChatSupport           = lazy(() => import('./pages/admin/ChatSupport'))
+const DashLearningPath           = lazy(() => import('./pages/dashboard/LearningPath'))
+const DashTeamPerformance        = lazy(() => import('./pages/dashboard/TeamPerformance'))
+const DashProductComparison      = lazy(() => import('./pages/dashboard/ProductComparison'))
+const DashEventCalendar          = lazy(() => import('./pages/dashboard/EventCalendar'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -416,6 +424,14 @@ function AppRoutes() {
         <Route path="/dashboard/team-chat"            element={<RequireAuth><DashTeamChat /></RequireAuth>} />
         <Route path="/dashboard/wallet-history"       element={<RequireAuth><DashWalletHistory /></RequireAuth>} />
         <Route path="/dashboard/two-factor"           element={<RequireAuth><DashTwoFactor /></RequireAuth>} />
+        <Route path="/admin/supplier-orders"          element={<RequireAuth role="admin"><AdminSupplierOrders /></RequireAuth>} />
+        <Route path="/admin/automation-rules"         element={<RequireAuth role="admin"><AdminAutomationRules /></RequireAuth>} />
+        <Route path="/admin/data-exports"             element={<RequireAuth role="admin"><AdminDataExports /></RequireAuth>} />
+        <Route path="/admin/chat-support"             element={<RequireAuth role="admin"><AdminChatSupport /></RequireAuth>} />
+        <Route path="/dashboard/learning-path"        element={<RequireAuth><DashLearningPath /></RequireAuth>} />
+        <Route path="/dashboard/team-performance"     element={<RequireAuth><DashTeamPerformance /></RequireAuth>} />
+        <Route path="/dashboard/product-comparison"   element={<RequireAuth><DashProductComparison /></RequireAuth>} />
+        <Route path="/dashboard/event-calendar"       element={<RequireAuth><DashEventCalendar /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
