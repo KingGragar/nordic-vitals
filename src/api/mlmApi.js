@@ -8418,3 +8418,231 @@ export async function deleteMemberSmartGoal(id) {
   if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
   return request('DELETE', `/v1/mlm/member/smart-goals/${id}`)
 }
+
+// ── Admin Bulk Messaging ──────────────────────────────────────────────────────
+export async function getAdminBulkMessages() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      segments: ['All Members','Active Members','Gold+ Rank','New Members (30d)','Inactive (90d)','Custom Segment A'],
+      templates: [
+        { id: 't1', name: 'Monthly Newsletter', channel: 'email', subject: 'Your Monthly Update' },
+        { id: 't2', name: 'Promo Alert', channel: 'email', subject: 'Special Offer Inside' },
+        { id: 't3', name: 'SMS Activation', channel: 'sms', subject: '' },
+        { id: 't4', name: 'Push Bonus', channel: 'push', subject: '' },
+      ],
+      history: [
+        { id: 'bm1', subject: 'Summer Sale Blast', channel: 'email', segment: 'All Members', sent: 3420, opened: 1840, clicked: 312, status: 'sent', sentAt: '2026-08-07T10:15:00Z' },
+        { id: 'bm2', subject: 'Rank Up Reminder', channel: 'sms', segment: 'Active Members', sent: 1100, opened: 1100, clicked: 0, status: 'sent', sentAt: '2026-08-06T14:00:00Z' },
+        { id: 'bm3', subject: 'New Product Drop', channel: 'push', segment: 'Gold+ Rank', sent: 540, opened: 390, clicked: 87, status: 'sent', sentAt: '2026-08-05T09:30:00Z' },
+        { id: 'bm4', subject: 'August Newsletter', channel: 'email', segment: 'All Members', sent: 0, opened: 0, clicked: 0, status: 'scheduled', sentAt: '2026-08-10T08:00:00Z' },
+        { id: 'bm5', subject: 'Team Broadcast', channel: 'email', segment: 'New Members (30d)', sent: 0, opened: 0, clicked: 0, status: 'draft', sentAt: '' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/bulk-messages')
+}
+export async function sendAdminBulkMessage(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: 'bm_new', status: 'scheduled', ...data } }
+  return request('POST', '/v1/mlm/admin/bulk-messages/send', data)
+}
+export async function deleteAdminBulkMessage(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/bulk-messages/${id}`)
+}
+
+// ── Admin Network Health ──────────────────────────────────────────────────────
+export async function getAdminNetworkHealth() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 450))
+    return {
+      kpis: [
+        { label: 'Total Members', value: 3847, delta: '+142', trend: 'up' },
+        { label: 'Active (30d)', value: 2104, delta: '+38', trend: 'up' },
+        { label: 'Churn Rate', value: '4.2%', delta: '-0.3%', trend: 'down' },
+        { label: 'Avg Team Size', value: 7.4, delta: '+0.6', trend: 'up' },
+      ],
+      rankDistribution: [
+        { rank: 'Starter', count: 1240, pct: 32 },
+        { rank: 'Bronze', count: 980, pct: 25 },
+        { rank: 'Silver', count: 720, pct: 19 },
+        { rank: 'Gold', count: 510, pct: 13 },
+        { rank: 'Platinum', count: 280, pct: 7 },
+        { rank: 'Diamond', count: 117, pct: 4 },
+      ],
+      monthlyGrowth: [
+        { month: 'Mar', new: 210, churned: 88 },
+        { month: 'Apr', new: 198, churned: 72 },
+        { month: 'May', new: 234, churned: 91 },
+        { month: 'Jun', new: 188, churned: 68 },
+        { month: 'Jul', new: 256, churned: 84 },
+        { month: 'Aug', new: 142, churned: 31 },
+      ],
+      dormant: [
+        { id: 'd1', name: 'Jonas Larsson', rank: 'Silver', lastActive: '2026-05-12', teamSize: 8 },
+        { id: 'd2', name: 'Eva Kristiansen', rank: 'Bronze', lastActive: '2026-04-28', teamSize: 3 },
+        { id: 'd3', name: 'Mikkel Andersen', rank: 'Gold', lastActive: '2026-05-01', teamSize: 14 },
+        { id: 'd4', name: 'Astrid Holm', rank: 'Starter', lastActive: '2026-04-10', teamSize: 1 },
+        { id: 'd5', name: 'Ragnar Bjørnstad', rank: 'Silver', lastActive: '2026-05-20', teamSize: 6 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/network-health')
+}
+
+// ── Admin Reward Programs ─────────────────────────────────────────────────────
+export async function getAdminRewardPrograms() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      programs: [
+        { id: 'rp1', name: 'Summer Bonus Blast', type: 'multiplier', multiplier: 2.0, segment: 'All Members', startDate: '2026-07-01', endDate: '2026-08-31', active: true, enrolledCount: 1842, totalAwarded: 48200 },
+        { id: 'rp2', name: 'Rank Up Milestone', type: 'milestone', milestone: 'Reach Silver', reward: '€50 store credit', segment: 'Bronze Members', startDate: '2026-06-01', endDate: '2026-12-31', active: true, enrolledCount: 980, totalAwarded: 12400 },
+        { id: 'rp3', name: 'Referral Booster', type: 'bonus', bonusPct: 25, segment: 'Active Members', startDate: '2026-08-01', endDate: '2026-09-30', active: true, enrolledCount: 2104, totalAwarded: 8750 },
+        { id: 'rp4', name: 'Winter Loyalty Drive', type: 'multiplier', multiplier: 1.5, segment: 'Gold+ Rank', startDate: '2026-01-01', endDate: '2026-03-31', active: false, enrolledCount: 907, totalAwarded: 31600 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/reward-programs')
+}
+export async function createAdminRewardProgram(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { id: `rp_${Date.now()}`, active: true, enrolledCount: 0, totalAwarded: 0, ...data } }
+  return request('POST', '/v1/mlm/admin/reward-programs', data)
+}
+export async function toggleAdminRewardProgram(id, active) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, active } }
+  return request('PATCH', `/v1/mlm/admin/reward-programs/${id}`, { active })
+}
+export async function deleteAdminRewardProgram(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/reward-programs/${id}`)
+}
+
+// ── Admin Pending Approvals ───────────────────────────────────────────────────
+export async function getAdminPendingApprovals() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      counts: { kyc: 8, payouts: 14, marketplace: 5, appeals: 3, coOp: 2 },
+      items: [
+        { id: 'pa1', type: 'kyc', member: 'Ingrid Solberg', detail: 'Passport + proof of address', submittedAt: '2026-08-08T07:10:00Z', priority: 'high' },
+        { id: 'pa2', type: 'payout', member: 'Lars Eriksson', detail: '€820.00 SEPA withdrawal', submittedAt: '2026-08-08T06:45:00Z', priority: 'normal' },
+        { id: 'pa3', type: 'payout', member: 'Sigrid Dahl', detail: '€1,250.00 SEPA withdrawal', submittedAt: '2026-08-07T22:00:00Z', priority: 'high' },
+        { id: 'pa4', type: 'marketplace', member: 'Bjørn Haugen', detail: 'Listing: NV Starter Kit (used)', submittedAt: '2026-08-08T05:20:00Z', priority: 'normal' },
+        { id: 'pa5', type: 'kyc', member: 'Freya Magnusson', detail: 'National ID upload', submittedAt: '2026-08-07T18:30:00Z', priority: 'normal' },
+        { id: 'pa6', type: 'appeal', member: 'Erik Thorvald', detail: 'Commission dispute #CD-2281', submittedAt: '2026-08-07T15:00:00Z', priority: 'high' },
+        { id: 'pa7', type: 'co-op', member: 'Helga Nilsen', detail: 'Co-Op ad campaign: €400 request', submittedAt: '2026-08-07T10:00:00Z', priority: 'normal' },
+        { id: 'pa8', type: 'marketplace', member: 'Olav Brekke', detail: 'Listing: Peptide Sample Pack', submittedAt: '2026-08-06T20:00:00Z', priority: 'normal' },
+        { id: 'pa9', type: 'payout', member: 'Kristin Vik', detail: '€340.00 SEPA withdrawal', submittedAt: '2026-08-06T19:00:00Z', priority: 'normal' },
+        { id: 'pa10', type: 'kyc', member: 'Ragnar Bjørnstad', detail: 'Driver licence scan', submittedAt: '2026-08-06T14:00:00Z', priority: 'normal' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/pending-approvals')
+}
+export async function resolveAdminApproval(id, action, note) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, action, note } }
+  return request('POST', `/v1/mlm/admin/pending-approvals/${id}/resolve`, { action, note })
+}
+
+// ── Member My Promotions ──────────────────────────────────────────────────────
+export async function getMemberPromotions() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      materials: [
+        { id: 'mp1', name: 'NV Summer Banner 1200×628', type: 'banner', format: 'PNG', product: 'Viking Peptides', size: '1200×628', language: 'EN', downloads: 84, previewUrl: '', updatedAt: '2026-08-01' },
+        { id: 'mp2', name: 'NV Instagram Story', type: 'social', format: 'PNG', product: 'Nordic Vitals', size: '1080×1920', language: 'EN', downloads: 212, previewUrl: '', updatedAt: '2026-07-28' },
+        { id: 'mp3', name: 'Product Flyer A4', type: 'flyer', format: 'PDF', product: 'Viking Peptides', size: 'A4', language: 'NO', downloads: 56, previewUrl: '', updatedAt: '2026-07-20' },
+        { id: 'mp4', name: 'Facebook Ad 1200×630', type: 'banner', format: 'PNG', product: 'Nordic Vitals', size: '1200×630', language: 'EN', downloads: 147, previewUrl: '', updatedAt: '2026-07-15' },
+        { id: 'mp5', name: 'TikTok Video Script EN', type: 'script', format: 'TXT', product: 'Viking Peptides', size: '—', language: 'EN', downloads: 38, previewUrl: '', updatedAt: '2026-07-10' },
+        { id: 'mp6', name: 'Business Card Template', type: 'print', format: 'PDF', product: 'Nordic Vitals', size: '85×55mm', language: 'EN', downloads: 91, previewUrl: '', updatedAt: '2026-07-05' },
+        { id: 'mp7', name: 'NV LinkedIn Banner', type: 'social', format: 'PNG', product: 'Nordic Vitals', size: '1584×396', language: 'EN', downloads: 67, previewUrl: '', updatedAt: '2026-06-30' },
+        { id: 'mp8', name: 'Produktark Norsk A4', type: 'flyer', format: 'PDF', product: 'Viking Peptides', size: 'A4', language: 'NO', downloads: 29, previewUrl: '', updatedAt: '2026-06-20' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/promotions')
+}
+
+// ── Member Training Planner ───────────────────────────────────────────────────
+export async function getMemberTrainingPlanner() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const now = new Date('2026-08-08')
+    return {
+      upcoming: [
+        { id: 'tp1', title: 'Advanced Peptide Science', type: 'webinar', host: 'Dr. Erik Thorvald', date: '2026-08-12T18:00:00Z', duration: 60, registered: true, seats: 200, enrolled: 142 },
+        { id: 'tp2', title: 'MLM Compliance Basics', type: 'video', host: 'NV Academy', date: '2026-08-14T10:00:00Z', duration: 45, registered: false, seats: null, enrolled: null },
+        { id: 'tp3', title: 'Social Selling Masterclass', type: 'live', host: 'Astrid Holm', date: '2026-08-20T17:00:00Z', duration: 90, registered: false, seats: 50, enrolled: 31 },
+        { id: 'tp4', title: 'Rank Qualification Strategy', type: 'webinar', host: 'NV Leadership Team', date: '2026-08-27T18:00:00Z', duration: 75, registered: true, seats: 500, enrolled: 318 },
+      ],
+      past: [
+        { id: 'tp5', title: 'Onboarding Fast Start', type: 'video', host: 'NV Academy', date: '2026-07-28T10:00:00Z', duration: 30, completed: true, score: 92 },
+        { id: 'tp6', title: 'Product Knowledge 101', type: 'video', host: 'NV Academy', date: '2026-07-22T09:00:00Z', duration: 40, completed: true, score: 88 },
+        { id: 'tp7', title: 'Team Building Fundamentals', type: 'webinar', host: 'Bjørn Haugen', date: '2026-07-15T17:00:00Z', duration: 60, completed: true, score: 95 },
+      ],
+      streakDays: 14,
+      totalHours: 12.5,
+    }
+  }
+  return request('GET', '/v1/mlm/member/training-planner')
+}
+export async function registerMemberTraining(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, registered: true } }
+  return request('POST', `/v1/mlm/member/training-planner/${id}/register`)
+}
+
+// ── Member My Tokens ──────────────────────────────────────────────────────────
+export async function getMemberTokens() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      balance: 2840,
+      pendingBalance: 120,
+      lifetimeEarned: 8420,
+      lifetimeRedeemed: 5580,
+      transactions: [
+        { id: 'tk1', type: 'earn', source: 'Commission Q3 bonus', amount: 400, date: '2026-08-08T00:00:00Z', status: 'confirmed' },
+        { id: 'tk2', type: 'earn', source: 'Referral bonus — Ingrid S.', amount: 120, date: '2026-08-07T14:00:00Z', status: 'pending' },
+        { id: 'tk3', type: 'redeem', source: 'Store credit redemption', amount: -500, date: '2026-08-05T10:00:00Z', status: 'confirmed' },
+        { id: 'tk4', type: 'earn', source: 'Rank milestone: Gold', amount: 1000, date: '2026-07-30T00:00:00Z', status: 'confirmed' },
+        { id: 'tk5', type: 'earn', source: 'Monthly activity bonus', amount: 200, date: '2026-07-01T00:00:00Z', status: 'confirmed' },
+        { id: 'tk6', type: 'redeem', source: 'Training course unlock', amount: -300, date: '2026-06-20T00:00:00Z', status: 'confirmed' },
+        { id: 'tk7', type: 'earn', source: 'Team volume bonus', amount: 350, date: '2026-06-01T00:00:00Z', status: 'confirmed' },
+      ],
+      redemptionOptions: [
+        { id: 'ro1', name: 'Store Credit', rate: '100 tokens = €1', minTokens: 500, icon: '🛒' },
+        { id: 'ro2', name: 'Commission Boost', rate: '500 tokens = +5% for 30d', minTokens: 500, icon: '📈' },
+        { id: 'ro3', name: 'Training Unlock', rate: '300 tokens = 1 premium course', minTokens: 300, icon: '🎓' },
+        { id: 'ro4', name: 'Event Ticket', rate: '1000 tokens = 1 VIP event pass', minTokens: 1000, icon: '🎟️' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/tokens')
+}
+export async function redeemMemberTokens(optionId, amount) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { ok: true, remaining: 2840 - amount } }
+  return request('POST', '/v1/mlm/member/tokens/redeem', { optionId, amount })
+}
+
+// ── Member Team Leaderboard ───────────────────────────────────────────────────
+export async function getMemberTeamLeaderboard(period, metric) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    const entries = [
+      { rank: 1, name: 'Astrid Holm', rankTitle: 'Diamond', volume: 48200, recruits: 12, commissions: 6840, trend: 'up', isMe: false },
+      { rank: 2, name: 'Lars Eriksson', rankTitle: 'Platinum', volume: 41500, recruits: 9, commissions: 5920, trend: 'up', isMe: false },
+      { rank: 3, name: 'Ingrid Solberg', rankTitle: 'Gold', volume: 34800, recruits: 7, commissions: 4970, trend: 'stable', isMe: false },
+      { rank: 4, name: 'Bjørn Haugen', rankTitle: 'Gold', volume: 29100, recruits: 6, commissions: 4150, trend: 'down', isMe: false },
+      { rank: 5, name: 'You', rankTitle: 'Silver', volume: 24600, recruits: 4, commissions: 3510, trend: 'up', isMe: true },
+      { rank: 6, name: 'Freya Magnusson', rankTitle: 'Silver', volume: 21300, recruits: 5, commissions: 3040, trend: 'up', isMe: false },
+      { rank: 7, name: 'Erik Thorvald', rankTitle: 'Silver', volume: 18900, recruits: 3, commissions: 2700, trend: 'stable', isMe: false },
+      { rank: 8, name: 'Sigrid Dahl', rankTitle: 'Bronze', volume: 14200, recruits: 4, commissions: 2030, trend: 'up', isMe: false },
+      { rank: 9, name: 'Olav Brekke', rankTitle: 'Bronze', volume: 11800, recruits: 2, commissions: 1680, trend: 'down', isMe: false },
+      { rank: 10, name: 'Helga Nilsen', rankTitle: 'Bronze', volume: 9400, recruits: 3, commissions: 1340, trend: 'stable', isMe: false },
+    ]
+    return { entries, period, metric, myRank: 5, totalParticipants: 248 }
+  }
+  return request('GET', `/v1/mlm/member/team-leaderboard?period=${period}&metric=${metric}`)
+}

@@ -222,6 +222,14 @@ const DashCreditNotes            = lazy(() => import('./pages/dashboard/CreditNo
 const DashAutoshipHistory        = lazy(() => import('./pages/dashboard/AutoshipHistory'))
 const DashRecruitmentPipeline    = lazy(() => import('./pages/dashboard/RecruitmentPipeline'))
 const DashSmartGoals             = lazy(() => import('./pages/dashboard/SmartGoals'))
+const AdminBulkMessaging         = lazy(() => import('./pages/admin/BulkMessaging'))
+const AdminNetworkHealth         = lazy(() => import('./pages/admin/NetworkHealth'))
+const AdminRewardPrograms        = lazy(() => import('./pages/admin/RewardPrograms'))
+const AdminPendingApprovals      = lazy(() => import('./pages/admin/PendingApprovals'))
+const DashMyPromotions           = lazy(() => import('./pages/dashboard/MyPromotions'))
+const DashTrainingPlanner        = lazy(() => import('./pages/dashboard/TrainingPlanner'))
+const DashMyTokens               = lazy(() => import('./pages/dashboard/MyTokens'))
+const DashTeamLeaderboard        = lazy(() => import('./pages/dashboard/TeamLeaderboard'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -464,6 +472,14 @@ function AppRoutes() {
         <Route path="/dashboard/autoship-history"     element={<RequireAuth><DashAutoshipHistory /></RequireAuth>} />
         <Route path="/dashboard/recruitment-pipeline" element={<RequireAuth><DashRecruitmentPipeline /></RequireAuth>} />
         <Route path="/dashboard/smart-goals"          element={<RequireAuth><DashSmartGoals /></RequireAuth>} />
+        <Route path="/admin/bulk-messaging"          element={<RequireAuth role="admin"><AdminBulkMessaging /></RequireAuth>} />
+        <Route path="/admin/network-health"          element={<RequireAuth role="admin"><AdminNetworkHealth /></RequireAuth>} />
+        <Route path="/admin/reward-programs"         element={<RequireAuth role="admin"><AdminRewardPrograms /></RequireAuth>} />
+        <Route path="/admin/pending-approvals"       element={<RequireAuth role="admin"><AdminPendingApprovals /></RequireAuth>} />
+        <Route path="/dashboard/my-promotions"       element={<RequireAuth><DashMyPromotions /></RequireAuth>} />
+        <Route path="/dashboard/training-planner"    element={<RequireAuth><DashTrainingPlanner /></RequireAuth>} />
+        <Route path="/dashboard/my-tokens"           element={<RequireAuth><DashMyTokens /></RequireAuth>} />
+        <Route path="/dashboard/team-leaderboard"    element={<RequireAuth><DashTeamLeaderboard /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
