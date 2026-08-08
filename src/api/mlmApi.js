@@ -7096,3 +7096,195 @@ export async function getMemberRankHistory() {
   if (MOCK) { await new Promise(r => setTimeout(r, 220)); return MEMBER_RANK_HISTORY_SEED }
   return request('GET', '/v1/mlm/member/rank-history')
 }
+
+// ─── Admin Vendor Management ──────────────────────────────────────────────────
+const ADMIN_VENDORS_SEED = [
+  { id: 'v1', name: 'Arctic Naturals Supply Co.', contact: 'procurement@arcticnaturals.no', country: 'Norway', products: 12, status: 'active', paymentTerms: 'Net 30', leadDays: 14, createdAt: '2025-01-10' },
+  { id: 'v2', name: 'Nordic BioLab AS', contact: 'orders@nordicbiolab.no', country: 'Norway', products: 7, status: 'active', paymentTerms: 'Net 45', leadDays: 21, createdAt: '2025-03-15' },
+  { id: 'v3', name: 'FjordFarm Organics', contact: 'trade@fjordfarm.no', country: 'Norway', products: 5, status: 'active', paymentTerms: 'Net 30', leadDays: 10, createdAt: '2025-06-01' },
+  { id: 'v4', name: 'Boreal Ingredients Ltd', contact: 'sales@borealIngr.uk', country: 'United Kingdom', products: 3, status: 'inactive', paymentTerms: 'Net 60', leadDays: 28, createdAt: '2024-11-20' },
+  { id: 'v5', name: 'Scandinavian Herbs GmbH', contact: 'einkauf@scanherbs.de', country: 'Germany', products: 9, status: 'active', paymentTerms: 'Net 30', leadDays: 18, createdAt: '2025-02-08' },
+]
+export async function getAdminVendors() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return ADMIN_VENDORS_SEED }
+  return request('GET', '/v1/mlm/admin/vendors')
+}
+export async function createAdminVendor(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 350)); return { id: 'v_new', ...data, products: 0, createdAt: new Date().toISOString().slice(0,10) } }
+  return request('POST', '/v1/mlm/admin/vendors', data)
+}
+export async function updateAdminVendor(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, ...data } }
+  return request('PUT', `/v1/mlm/admin/vendors/${id}`, data)
+}
+export async function deleteAdminVendor(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/vendors/${id}`)
+}
+
+// ─── Admin Live Streams ────────────────────────────────────────────────────────
+const ADMIN_LIVE_STREAMS_SEED = [
+  { id: 'ls1', title: 'August Product Launch — New Omega-3 Line', host: 'Bjørn Håkon', scheduledAt: '2026-08-12T18:00:00Z', status: 'scheduled', viewers: 0, platform: 'YouTube', registrations: 312 },
+  { id: 'ls2', title: 'Weekly Business Opportunity Webinar', host: 'Ingrid Solberg', scheduledAt: '2026-08-08T15:00:00Z', status: 'live', viewers: 847, platform: 'Zoom', registrations: 920 },
+  { id: 'ls3', title: 'July Flash Sale — Members Only', host: 'Erik Nygård', scheduledAt: '2026-07-25T12:00:00Z', status: 'ended', viewers: 1204, platform: 'YouTube', registrations: 1350 },
+  { id: 'ls4', title: 'Training: Advanced Network Building', host: 'Bjørn Håkon', scheduledAt: '2026-07-18T17:00:00Z', status: 'ended', viewers: 689, platform: 'Zoom', registrations: 740 },
+  { id: 'ls5', title: 'Q3 Results & Recognition Ceremony', host: 'Ingrid Solberg', scheduledAt: '2026-08-20T19:00:00Z', status: 'scheduled', viewers: 0, platform: 'YouTube', registrations: 204 },
+]
+export async function getAdminLiveStreams() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return ADMIN_LIVE_STREAMS_SEED }
+  return request('GET', '/v1/mlm/admin/live-streams')
+}
+export async function createAdminLiveStream(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 380)); return { id: 'ls_new', ...data, viewers: 0, registrations: 0 } }
+  return request('POST', '/v1/mlm/admin/live-streams', data)
+}
+export async function updateAdminLiveStream(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, ...data } }
+  return request('PUT', `/v1/mlm/admin/live-streams/${id}`, data)
+}
+export async function deleteAdminLiveStream(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/live-streams/${id}`)
+}
+
+// ─── Admin Tax Documents ───────────────────────────────────────────────────────
+const ADMIN_TAX_DOCS_SEED = [
+  { id: 'td1', memberId: 'm1', memberName: 'Sigrid Andersen', type: '1099-NEC', taxYear: 2025, amount: 48200, status: 'sent', sentAt: '2026-01-31', downloaded: true },
+  { id: 'td2', memberId: 'm2', memberName: 'Lars Eriksen', type: '1099-NEC', taxYear: 2025, amount: 29700, status: 'sent', sentAt: '2026-01-31', downloaded: false },
+  { id: 'td3', memberId: 'm3', memberName: 'Marte Johansen', type: 'W-9', taxYear: 2025, amount: null, status: 'pending', sentAt: null, downloaded: false },
+  { id: 'td4', memberId: 'm4', memberName: 'Petter Dahl', type: '1099-NEC', taxYear: 2025, amount: 81500, status: 'sent', sentAt: '2026-01-31', downloaded: true },
+  { id: 'td5', memberId: 'm5', memberName: 'Hanne Kristiansen', type: '1099-NEC', taxYear: 2025, amount: 15400, status: 'draft', sentAt: null, downloaded: false },
+  { id: 'td6', memberId: 'm6', memberName: 'Olav Berg', type: 'W-9', taxYear: 2025, amount: null, status: 'sent', sentAt: '2026-01-15', downloaded: true },
+]
+export async function getAdminTaxDocs(year) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return ADMIN_TAX_DOCS_SEED.filter(d => !year || d.taxYear === year) }
+  return request('GET', `/v1/mlm/admin/tax-docs${year ? `?year=${year}` : ''}`)
+}
+export async function generateAdminTaxDoc(memberId, type, year) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { ok: true, id: 'td_new' } }
+  return request('POST', '/v1/mlm/admin/tax-docs/generate', { memberId, type, year })
+}
+export async function sendAdminTaxDoc(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/tax-docs/${id}/send`)
+}
+export async function bulkSendAdminTaxDocs(year, type) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 900)); return { sent: 4, failed: 0 } }
+  return request('POST', '/v1/mlm/admin/tax-docs/bulk-send', { year, type })
+}
+
+// ─── Admin Payout Schedule ─────────────────────────────────────────────────────
+const ADMIN_PAYOUT_SCHEDULE_SEED = {
+  frequency: 'biweekly',
+  dayOfWeek: 5,
+  cutoffDays: 3,
+  minPayoutAmount: 50,
+  maxPayoutAmount: 50000,
+  processingBankDays: 2,
+  currencies: ['NOK', 'EUR', 'USD'],
+  upcomingRuns: [
+    { id: 'pr1', scheduledDate: '2026-08-15', cutoffDate: '2026-08-12', estimatedTotal: 284700, memberCount: 187, status: 'scheduled' },
+    { id: 'pr2', scheduledDate: '2026-08-29', cutoffDate: '2026-08-26', estimatedTotal: 0, memberCount: 0, status: 'pending' },
+    { id: 'pr3', scheduledDate: '2026-07-31', cutoffDate: '2026-07-28', estimatedTotal: 271300, memberCount: 172, status: 'completed' },
+    { id: 'pr4', scheduledDate: '2026-07-17', cutoffDate: '2026-07-14', estimatedTotal: 259800, memberCount: 165, status: 'completed' },
+  ],
+}
+export async function getAdminPayoutSchedule() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return ADMIN_PAYOUT_SCHEDULE_SEED }
+  return request('GET', '/v1/mlm/admin/payout-schedule')
+}
+export async function updateAdminPayoutSchedule(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 350)); return { ok: true } }
+  return request('PUT', '/v1/mlm/admin/payout-schedule', data)
+}
+export async function triggerAdminPayoutRun(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 500)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/payout-schedule/runs/${id}/trigger`)
+}
+
+// ─── Member My Badges ──────────────────────────────────────────────────────────
+const MEMBER_BADGES_SEED = [
+  { id: 'b1', name: 'First Sale', category: 'sales', icon: '🏷️', earnedAt: '2025-11-02', description: 'Made your first product sale.', rarity: 'common' },
+  { id: 'b2', name: 'Silver Rank', category: 'rank', icon: '🥈', earnedAt: '2025-12-01', description: 'Achieved Silver rank.', rarity: 'uncommon' },
+  { id: 'b3', name: 'Team Builder', category: 'recruitment', icon: '👥', earnedAt: '2026-01-14', description: 'Recruited 5 active members.', rarity: 'uncommon' },
+  { id: 'b4', name: 'Gold Rank', category: 'rank', icon: '🥇', earnedAt: '2026-04-01', description: 'Achieved Gold rank.', rarity: 'rare' },
+  { id: 'b5', name: 'Top Seller', category: 'sales', icon: '⭐', earnedAt: '2026-05-31', description: 'Ranked #1 in monthly sales.', rarity: 'rare' },
+  { id: 'b6', name: 'Training Champion', category: 'training', icon: '🎓', earnedAt: '2026-06-15', description: 'Completed all onboarding modules.', rarity: 'common' },
+  { id: 'b7', name: 'Fast Start', category: 'sales', icon: '🚀', earnedAt: '2025-11-30', description: 'Hit Fast Start bonus in first month.', rarity: 'uncommon' },
+  { id: 'b8', name: 'Community Leader', category: 'special', icon: '🌟', earnedAt: '2026-07-01', description: 'Recognised for outstanding community contribution.', rarity: 'epic' },
+  { id: 'b9', name: 'Perfect Month', category: 'sales', icon: '💎', earnedAt: '2026-07-31', description: 'Hit personal sales target every week for a full month.', rarity: 'epic' },
+]
+const MEMBER_BADGES_LOCKED = [
+  { id: 'bl1', name: 'Platinum Rank', category: 'rank', icon: '💎', description: 'Achieve Platinum rank.', rarity: 'legendary', requirement: 'Reach 75,000 PV' },
+  { id: 'bl2', name: 'Century Recruiter', category: 'recruitment', icon: '🏆', description: 'Recruit 100 active members.', rarity: 'legendary', requirement: '100 active downline' },
+]
+export async function getMemberBadges() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { earned: MEMBER_BADGES_SEED, locked: MEMBER_BADGES_LOCKED } }
+  return request('GET', '/v1/mlm/member/badges')
+}
+
+// ─── Member Business Analytics ─────────────────────────────────────────────────
+const MEMBER_BIZ_ANALYTICS_SEED = {
+  period: '2026-07',
+  kpis: [
+    { key: 'conversionRate', label: 'Conversion Rate', value: 18.4, unit: '%', trend: +2.1, trendDir: 'up' },
+    { key: 'avgOrderValue', label: 'Avg Order Value', value: 1247, unit: 'NOK', trend: +84, trendDir: 'up' },
+    { key: 'teamGrowthRate', label: 'Team Growth Rate', value: 8.3, unit: '%', trend: -1.2, trendDir: 'down' },
+    { key: 'retentionRate', label: 'Customer Retention', value: 74.2, unit: '%', trend: +3.5, trendDir: 'up' },
+    { key: 'earningsPerMember', label: 'Earnings / Team Member', value: 4820, unit: 'NOK', trend: +310, trendDir: 'up' },
+    { key: 'activeRatio', label: 'Active Member Ratio', value: 61.7, unit: '%', trend: -0.8, trendDir: 'down' },
+  ],
+  earningsTrend: [
+    { month: '2026-02', personal: 12400, team: 8900 },
+    { month: '2026-03', personal: 14800, team: 10200 },
+    { month: '2026-04', personal: 16550, team: 13100 },
+    { month: '2026-05', personal: 18350, team: 15600 },
+    { month: '2026-06', personal: 19600, team: 17400 },
+    { month: '2026-07', personal: 21400, team: 19800 },
+  ],
+  topProducts: [
+    { name: 'Arctic Omega-3 Ultra', sales: 47, revenue: 58280 },
+    { name: 'Nordic Collagen Plus', sales: 31, revenue: 27590 },
+    { name: 'Bjornberry Complex', sales: 28, revenue: 19880 },
+    { name: 'Vitamin D3+K2', sales: 22, revenue: 14300 },
+  ],
+}
+export async function getMemberBizAnalytics(period) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 240)); return MEMBER_BIZ_ANALYTICS_SEED }
+  return request('GET', `/v1/mlm/member/business-analytics${period ? `?period=${period}` : ''}`)
+}
+
+// ─── Member My Documents ───────────────────────────────────────────────────────
+const MEMBER_DOCS_SEED = [
+  { id: 'md1', name: '1099-NEC 2025', type: '1099-NEC', year: 2025, size: '84 KB', issuedAt: '2026-01-31', downloadUrl: '#' },
+  { id: 'md2', name: 'W-9 Form on file', type: 'W-9', year: 2025, size: '32 KB', issuedAt: '2025-11-05', downloadUrl: '#' },
+  { id: 'md3', name: 'Distributor Agreement', type: 'contract', year: 2025, size: '124 KB', issuedAt: '2025-10-28', downloadUrl: '#' },
+  { id: 'md4', name: 'Annual Earnings Statement 2025', type: 'earnings', year: 2025, size: '48 KB', issuedAt: '2026-02-15', downloadUrl: '#' },
+  { id: 'md5', name: 'Annual Earnings Statement 2024', type: 'earnings', year: 2024, size: '44 KB', issuedAt: '2025-02-12', downloadUrl: '#' },
+  { id: 'md6', name: '1099-NEC 2024', type: '1099-NEC', year: 2024, size: '79 KB', issuedAt: '2025-01-31', downloadUrl: '#' },
+]
+export async function getMemberDocs() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return MEMBER_DOCS_SEED }
+  return request('GET', '/v1/mlm/member/documents')
+}
+export async function downloadMemberDoc(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { url: '#' } }
+  return request('GET', `/v1/mlm/member/documents/${id}/download`)
+}
+
+// ─── Member Social Sharing ─────────────────────────────────────────────────────
+const MEMBER_SHARE_TEMPLATES_SEED = [
+  { id: 'st1', category: 'rank', title: 'Rank Achievement', message: "I just reached {rank} rank at Nordic Vitals! 🎉 Building a health business that creates real results. Join me:", includesLink: true },
+  { id: 'st2', category: 'earnings', title: 'Milestone Earnings', message: "Just hit a new personal earnings record with Nordic Vitals! 💪 Health + wealth — discover how:", includesLink: true },
+  { id: 'st3', category: 'product', title: 'Product Recommendation', message: "Loving the Arctic Omega-3 Ultra from Nordic Vitals — 3 months of consistent use, noticeable difference. 🌊 Try it:", includesLink: true },
+  { id: 'st4', category: 'recruitment', title: 'Team Growth', message: "My team just hit {teamSize} members! So proud of everyone. There's still room — let's grow together:", includesLink: true },
+]
+const MEMBER_SHARE_STATS_SEED = { clicks: 214, conversions: 18, conversionRate: 8.4, topPlatform: 'Facebook' }
+export async function getMemberShareTemplates() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 180)); return { templates: MEMBER_SHARE_TEMPLATES_SEED, stats: MEMBER_SHARE_STATS_SEED } }
+  return request('GET', '/v1/mlm/member/social-sharing')
+}
+export async function trackMemberShare(templateId, platform) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return { ok: true } }
+  return request('POST', '/v1/mlm/member/social-sharing/track', { templateId, platform })
+}
