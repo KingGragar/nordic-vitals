@@ -214,6 +214,14 @@ const DashQuickOrder             = lazy(() => import('./pages/dashboard/QuickOrd
 const DashMeetingScheduler       = lazy(() => import('./pages/dashboard/MeetingScheduler'))
 const DashKnowledgeBase          = lazy(() => import('./pages/dashboard/KnowledgeBase'))
 const DashProductSamples         = lazy(() => import('./pages/dashboard/ProductSamples'))
+const AdminCreditNotes           = lazy(() => import('./pages/admin/CreditNotes'))
+const AdminRecruitmentPipeline   = lazy(() => import('./pages/admin/RecruitmentPipeline'))
+const AdminEmailDeliverability   = lazy(() => import('./pages/admin/EmailDeliverability'))
+const AdminAffiliateNetwork      = lazy(() => import('./pages/admin/AffiliateNetwork'))
+const DashCreditNotes            = lazy(() => import('./pages/dashboard/CreditNotes'))
+const DashAutoshipHistory        = lazy(() => import('./pages/dashboard/AutoshipHistory'))
+const DashRecruitmentPipeline    = lazy(() => import('./pages/dashboard/RecruitmentPipeline'))
+const DashSmartGoals             = lazy(() => import('./pages/dashboard/SmartGoals'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -448,6 +456,14 @@ function AppRoutes() {
         <Route path="/dashboard/meeting-scheduler"    element={<RequireAuth><DashMeetingScheduler /></RequireAuth>} />
         <Route path="/dashboard/knowledge-base"       element={<RequireAuth><DashKnowledgeBase /></RequireAuth>} />
         <Route path="/dashboard/samples"              element={<RequireAuth><DashProductSamples /></RequireAuth>} />
+        <Route path="/admin/credit-notes"             element={<RequireAuth role="admin"><AdminCreditNotes /></RequireAuth>} />
+        <Route path="/admin/recruitment-pipeline"     element={<RequireAuth role="admin"><AdminRecruitmentPipeline /></RequireAuth>} />
+        <Route path="/admin/email-deliverability"     element={<RequireAuth role="admin"><AdminEmailDeliverability /></RequireAuth>} />
+        <Route path="/admin/affiliate-network"        element={<RequireAuth role="admin"><AdminAffiliateNetwork /></RequireAuth>} />
+        <Route path="/dashboard/credit-notes"         element={<RequireAuth><DashCreditNotes /></RequireAuth>} />
+        <Route path="/dashboard/autoship-history"     element={<RequireAuth><DashAutoshipHistory /></RequireAuth>} />
+        <Route path="/dashboard/recruitment-pipeline" element={<RequireAuth><DashRecruitmentPipeline /></RequireAuth>} />
+        <Route path="/dashboard/smart-goals"          element={<RequireAuth><DashSmartGoals /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

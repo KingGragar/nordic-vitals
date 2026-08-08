@@ -8239,3 +8239,182 @@ export async function requestMemberProductSample(sampleId, address) {
   if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `sm${Date.now()}`, status: 'processing', product: sampleId } }
   return request('POST', '/v1/mlm/member/samples', { sampleId, address })
 }
+
+// ── Admin: Credit Notes ─────────────────────────────────────────────────────
+export async function getAdminCreditNotes() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      notes: [
+        { id: 'CN-1042', memberId: 'M-1042', memberName: 'Anna Svensson', amount: 45, currency: 'EUR', type: 'refund', reason: 'Damaged product — order #8821', status: 'active', issuedAt: '2026-08-05', expiresAt: '2026-11-05' },
+        { id: 'CN-1038', memberId: 'M-1038', memberName: 'Erik Lindgren', amount: 20, currency: 'EUR', type: 'goodwill', reason: 'Delayed delivery — goodwill gesture', status: 'used', issuedAt: '2026-07-28', expiresAt: null, usedAt: '2026-08-02' },
+        { id: 'CN-1031', memberId: 'M-1031', memberName: 'Maja Karlsson', amount: 120, currency: 'EUR', type: 'correction', reason: 'Overcharge correction — invoice error', status: 'active', issuedAt: '2026-07-20', expiresAt: '2026-10-20' },
+        { id: 'CN-1019', memberId: 'M-1019', memberName: 'Lars Andersen', amount: 30, currency: 'EUR', type: 'loyalty', reason: 'Loyalty reward — 1 year anniversary', status: 'expired', issuedAt: '2026-05-01', expiresAt: '2026-07-31' },
+        { id: 'CN-1008', memberId: 'M-1008', memberName: 'Ingrid Berg', amount: 60, currency: 'EUR', type: 'refund', reason: 'Returned goods — order #7654', status: 'void', issuedAt: '2026-06-15', expiresAt: null },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/credit-notes')
+}
+export async function createAdminCreditNote(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 700)); return { id: `CN-${Date.now()}`, ...data, status: 'active', issuedAt: new Date().toISOString().slice(0,10), expiresAt: null } }
+  return request('POST', '/v1/mlm/admin/credit-notes', data)
+}
+export async function voidAdminCreditNote(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/credit-notes/${id}/void`)
+}
+
+// ── Admin: Recruitment Pipeline ─────────────────────────────────────────────
+export async function getAdminRecruitmentPipeline() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      avgDaysToEnroll: 18,
+      prospects: [
+        { id: 'rp1', name: 'Hanna Olsen', email: 'hanna@email.no', recruiter: 'Anna Svensson', stage: 'enrolled', dayInFunnel: 22, source: 'referral', addedAt: '2026-07-17' },
+        { id: 'rp2', name: 'Tor Bakke', email: 'tor@email.no', recruiter: 'Erik Lindgren', stage: 'trial', dayInFunnel: 9, source: 'social media', addedAt: '2026-07-30' },
+        { id: 'rp3', name: 'Silje Nygård', email: 'silje@email.no', recruiter: 'Maja Karlsson', stage: 'interested', dayInFunnel: 5, source: 'event', addedAt: '2026-08-03' },
+        { id: 'rp4', name: 'Olav Haugen', email: 'olav@email.no', recruiter: 'Anna Svensson', stage: 'contacted', dayInFunnel: 3, source: 'personal', addedAt: '2026-08-05' },
+        { id: 'rp5', name: 'Kristin Moe', email: 'kristin@email.no', recruiter: 'Lars Andersen', stage: 'lead', dayInFunnel: 1, source: 'online ad', addedAt: '2026-08-08' },
+        { id: 'rp6', name: 'Jonas Vik', email: 'jonas@email.no', recruiter: 'Erik Lindgren', stage: 'interested', dayInFunnel: 11, source: 'referral', addedAt: '2026-07-28' },
+        { id: 'rp7', name: 'Maria Dahl', email: 'maria@email.no', recruiter: 'Maja Karlsson', stage: 'dropped', dayInFunnel: 30, source: 'social media', addedAt: '2026-07-09' },
+        { id: 'rp8', name: 'Bjørn Strand', email: 'bstrand@email.no', recruiter: 'Anna Svensson', stage: 'trial', dayInFunnel: 14, source: 'event', addedAt: '2026-07-25' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/recruitment-pipeline')
+}
+
+// ── Admin: Email Deliverability ─────────────────────────────────────────────
+export async function getAdminEmailDeliverability() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      domain: {
+        health: 'excellent', sendingDomain: 'mail.nordicvitals.no',
+        deliveryRate: 98.7, openRate: 34.2, clickRate: 6.8,
+        bounceRate: 0.8, spamRate: 0.03, unsubRate: 0.12,
+        dkim: true, spf: true, dmarc: true,
+      },
+      campaigns: [
+        { id: 'ec1', name: 'August Product Launch', sent: 4821, deliveryRate: 99.1, openRate: 38.4, clickRate: 8.2, bounceRate: 0.6, spamRate: 0.02, sentAt: '2026-08-01' },
+        { id: 'ec2', name: 'Summer Sale Newsletter', sent: 5103, deliveryRate: 98.4, openRate: 31.7, clickRate: 5.9, bounceRate: 1.1, spamRate: 0.04, sentAt: '2026-07-15' },
+        { id: 'ec3', name: 'New Member Welcome', sent: 312, deliveryRate: 99.7, openRate: 72.4, clickRate: 44.2, bounceRate: 0.3, spamRate: 0.0, sentAt: '2026-07-01' },
+        { id: 'ec4', name: 'Commission Run Notification', sent: 2894, deliveryRate: 99.2, openRate: 61.3, clickRate: 28.9, bounceRate: 0.4, spamRate: 0.01, sentAt: '2026-08-05' },
+      ],
+      issues: []
+    }
+  }
+  return request('GET', '/v1/mlm/admin/email-deliverability')
+}
+
+// ── Admin: Affiliate Network ────────────────────────────────────────────────
+export async function getAdminAffiliateNetwork() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      affiliates: [
+        { id: 'af1', name: 'PeptideBlogNO', email: 'editor@peptideblog.no', website: 'peptideblog.no', commissionPct: 12, tier: 'gold', status: 'active', clicks: 8412, conversions: 84, revenue: 9240, pendingPayout: 1108.80 },
+        { id: 'af2', name: 'NordicHealthReview', email: 'contact@nordichealthreview.se', website: 'nordichealthreview.se', commissionPct: 10, tier: 'silver', status: 'active', clicks: 4230, conversions: 38, revenue: 4180, pendingPayout: 418 },
+        { id: 'af3', name: 'FitnessFreaks DK', email: 'collab@fitnessfreaks.dk', website: 'fitnessfreaks.dk', commissionPct: 10, tier: 'standard', status: 'paused', clicks: 1820, conversions: 12, revenue: 1320, pendingPayout: 0 },
+        { id: 'af4', name: 'BioHackingPodcast', email: 'sponsor@biohackpodcast.com', website: 'biohackpodcast.com', commissionPct: 15, tier: 'platinum', status: 'active', clicks: 14200, conversions: 212, revenue: 23320, pendingPayout: 3498 },
+        { id: 'af5', name: 'SportSupplementHub', email: 'partners@sshub.eu', website: 'sshub.eu', commissionPct: 8, tier: 'standard', status: 'pending', clicks: 0, conversions: 0, revenue: 0, pendingPayout: 0 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/affiliate-network')
+}
+export async function createAdminAffiliate(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `af${Date.now()}`, ...data, status: 'pending', clicks: 0, conversions: 0, revenue: 0, pendingPayout: 0 } }
+  return request('POST', '/v1/mlm/admin/affiliate-network', data)
+}
+export async function updateAdminAffiliateStatus(id, status) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/affiliate-network/${id}`, { status })
+}
+
+// ── Member: Credit Notes ────────────────────────────────────────────────────
+export async function getMemberCreditNotes() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      notes: [
+        { id: 'CN-1042', amount: 45, currency: 'EUR', type: 'refund', reason: 'Damaged product — order #8821', status: 'active', issuedAt: '2026-08-05', expiresAt: '2026-11-05' },
+        { id: 'CN-1031', amount: 120, currency: 'EUR', type: 'correction', reason: 'Overcharge correction — invoice error', status: 'active', issuedAt: '2026-07-20', expiresAt: '2026-10-20' },
+        { id: 'CN-1008', amount: 20, currency: 'EUR', type: 'goodwill', reason: 'Goodwill gesture — late delivery', status: 'used', issuedAt: '2026-06-01', usedAt: '2026-06-10' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/credit-notes')
+}
+
+// ── Member: Autoship History ────────────────────────────────────────────────
+export async function getMemberAutoshipHistory() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 500))
+    return {
+      stats: { total: 14, delivered: 13, totalPv: 1820, totalSpent: 2548 },
+      runs: [
+        { id: 'as14', orderRef: 'ORD-9201', status: 'delivered', processedAt: '2026-08-01', pv: 150, total: 198, trackingCode: 'NO44123456', items: [{ name: 'BPC-157 500mcg (60 caps)', qty: 1, price: 129 }, { name: 'TB-500 2mg', qty: 1, price: 69 }] },
+        { id: 'as13', orderRef: 'ORD-8844', status: 'delivered', processedAt: '2026-07-01', pv: 150, total: 198, trackingCode: 'NO44098765', items: [{ name: 'BPC-157 500mcg (60 caps)', qty: 1, price: 129 }, { name: 'TB-500 2mg', qty: 1, price: 69 }] },
+        { id: 'as12', orderRef: 'ORD-8501', status: 'skipped', processedAt: '2026-06-01', pv: 0, total: 0, trackingCode: null, items: [] },
+        { id: 'as11', orderRef: 'ORD-8102', status: 'delivered', processedAt: '2026-05-01', pv: 180, total: 248, trackingCode: 'NO43987654', items: [{ name: 'BPC-157 500mcg (60 caps)', qty: 1, price: 129 }, { name: 'GHK-Cu Serum 30ml', qty: 1, price: 89 }, { name: 'Shipping', qty: 1, price: 30 }] },
+        { id: 'as10', orderRef: 'ORD-7832', status: 'delivered', processedAt: '2026-04-01', pv: 150, total: 198, trackingCode: 'NO43112233', items: [{ name: 'BPC-157 500mcg (60 caps)', qty: 1, price: 129 }, { name: 'TB-500 2mg', qty: 1, price: 69 }] },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/autoship-history')
+}
+
+// ── Member: Recruitment Pipeline ────────────────────────────────────────────
+export async function getMemberRecruitmentPipeline() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      prospects: [
+        { id: 'mp1', name: 'Hanna Olsen', email: 'hanna@email.no', phone: '+47 912 34 567', stage: 'enrolled', dayInFunnel: 22, source: 'referral', notes: 'Very motivated, loves fitness.' },
+        { id: 'mp2', name: 'Tor Bakke', email: 'tor@email.no', phone: '', stage: 'trial', dayInFunnel: 9, source: 'social media', notes: 'Trying BPC-157 starter pack.' },
+        { id: 'mp3', name: 'Silje Nygård', email: 'silje@email.no', phone: '+47 900 11 222', stage: 'interested', dayInFunnel: 5, source: 'event', notes: 'Met at Oslo wellness fair.' },
+        { id: 'mp4', name: 'Olav Haugen', email: '', phone: '+47 955 44 321', stage: 'contacted', dayInFunnel: 3, source: 'personal', notes: 'Old colleague.' },
+        { id: 'mp5', name: 'Kristin Moe', email: 'kristin@email.no', phone: '', stage: 'lead', dayInFunnel: 1, source: 'online ad', notes: '' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/recruitment-pipeline')
+}
+export async function addMemberProspect(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `mp${Date.now()}`, ...data, stage: 'lead', dayInFunnel: 0 } }
+  return request('POST', '/v1/mlm/member/recruitment-pipeline', data)
+}
+export async function updateMemberProspectStage(id, stage) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('PATCH', `/v1/mlm/member/recruitment-pipeline/${id}`, { stage })
+}
+
+// ── Member: SMART Goals ─────────────────────────────────────────────────────
+export async function getMemberSmartGoals() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      goals: [
+        { id: 'sg1', title: 'Reach Silver rank by September', category: 'rank', specific: 'Achieve Silver rank by accumulating 2,000 team PV in Q3.', measurable: 'Check team PV weekly in the dashboard.', target: 2000, current: 1240, unit: 'team PV', deadline: '2026-09-30', status: 'on_track', milestones: [{ label: '500 team PV', dueDate: '2026-07-31', done: true }, { label: '1,000 team PV', dueDate: '2026-08-15', done: true }, { label: '1,500 team PV', dueDate: '2026-08-31', done: false }, { label: '2,000 team PV', dueDate: '2026-09-30', done: false }] },
+        { id: 'sg2', title: 'Recruit 3 new members in August', category: 'recruitment', specific: 'Personally enroll 3 new members at any starter tier.', measurable: 'Track via recruitment pipeline.', target: 3, current: 1, unit: 'members', deadline: '2026-08-31', status: 'behind', milestones: [] },
+        { id: 'sg3', title: 'Complete all Q3 training modules', category: 'learning', specific: 'Finish 8 assigned training modules by end of Q3.', measurable: 'Track in My Learning Path.', target: 8, current: 8, unit: 'modules', deadline: '2026-09-30', status: 'completed', milestones: [] },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/smart-goals')
+}
+export async function createMemberSmartGoal(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id: `sg${Date.now()}`, ...data, current: 0, status: 'on_track', milestones: [] } }
+  return request('POST', '/v1/mlm/member/smart-goals', data)
+}
+export async function updateMemberSmartGoalProgress(id, current) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('PATCH', `/v1/mlm/member/smart-goals/${id}`, { current })
+}
+export async function deleteMemberSmartGoal(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/smart-goals/${id}`)
+}
