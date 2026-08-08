@@ -73,6 +73,8 @@ const navLinks = [
   { to: '/admin/co-op',           label: '🤝 Co-Op Advertising' },
   { to: '/admin/flash-sales',     label: '⚡ Flash Sales' },
   { to: '/admin/digital-products', label: '💿 Digital Products' },
+  { to: '/admin/waitlists',       label: '📋 Product Waitlists' },
+  { to: '/admin/seasonal',        label: '🌸 Seasonal Campaigns' },
   { to: '/admin/integrations',    label: '🔌 Integrations' },
   { to: '/admin/webhooks',        label: '📡 Webhooks' },
   { to: '/admin/import',          label: '📥 Bulk Import' },

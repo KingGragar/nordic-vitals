@@ -6991,3 +6991,108 @@ export async function getMemberTeamGoals() {
   if (MOCK) { await new Promise(r => setTimeout(r, 180)); return TEAM_GOALS_SEED }
   return request('GET', '/v1/mlm/member/team-goals')
 }
+
+// ─── Admin Waitlists ──────────────────────────────────────────────────────────
+const ADMIN_WAITLISTS_SEED = [
+  { productId: 'p1', productName: 'Arctic Omega-3 Ultra (300 caps)', sku: 'AO3-300', entries: 47, oldestEntry: '2026-07-01T08:00:00Z', status: 'out_of_stock', restockEta: '2026-08-15' },
+  { productId: 'p2', productName: 'Viking Collagen Peptides 1kg', sku: 'VCP-1KG', entries: 23, oldestEntry: '2026-07-12T10:30:00Z', status: 'out_of_stock', restockEta: '2026-08-10' },
+  { productId: 'p3', productName: 'Nordic Vitals Starter Kit', sku: 'NV-START', entries: 88, oldestEntry: '2026-06-20T14:00:00Z', status: 'notified', restockEta: null },
+  { productId: 'p4', productName: 'Bjornberry Antioxidant Complex', sku: 'BAC-60', entries: 12, oldestEntry: '2026-07-28T09:15:00Z', status: 'out_of_stock', restockEta: '2026-09-01' },
+  { productId: 'p5', productName: 'Arctic Magnesium Night Formula', sku: 'AMN-90', entries: 34, oldestEntry: '2026-07-05T16:45:00Z', status: 'out_of_stock', restockEta: null },
+]
+const ADMIN_WAITLIST_ENTRIES_SEED = [
+  { id: 'we1', name: 'Anna Berg', email: 'anna.berg@email.no', joinedAt: '2026-07-01T08:00:00Z', notified: false },
+  { id: 'we2', name: 'Lars Eriksen', email: 'lars.eriksen@email.no', joinedAt: '2026-07-03T11:20:00Z', notified: false },
+  { id: 'we3', name: 'Mia Svensson', email: 'mia.svensson@email.se', joinedAt: '2026-07-09T14:50:00Z', notified: false },
+  { id: 'we4', name: 'Tor Halvorsen', email: 'tor.h@email.no', joinedAt: '2026-07-15T09:30:00Z', notified: false },
+  { id: 'we5', name: 'Ingrid Olsen', email: 'ingrid.o@email.no', joinedAt: '2026-07-22T16:00:00Z', notified: false },
+]
+export async function getAdminWaitlists() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return ADMIN_WAITLISTS_SEED }
+  return request('GET', '/v1/mlm/admin/waitlists')
+}
+export async function getAdminWaitlistEntries(productId) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 150)); return ADMIN_WAITLIST_ENTRIES_SEED }
+  return request('GET', `/v1/mlm/admin/waitlists/${productId}/entries`)
+}
+export async function notifyAdminWaitlist(productId) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { notified: ADMIN_WAITLIST_ENTRIES_SEED.length } }
+  return request('POST', `/v1/mlm/admin/waitlists/${productId}/notify`)
+}
+export async function removeAdminWaitlistEntry(productId, entryId) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/waitlists/${productId}/entries/${entryId}`)
+}
+
+// ─── Admin Seasonal Campaigns ─────────────────────────────────────────────────
+const SEASONAL_CAMPAIGNS_SEED = [
+  { id: 'sc1', name: 'Viking Summer Solstice', season: 'summer', startsAt: '2026-06-21T00:00:00Z', endsAt: '2026-06-28T23:59:00Z', discountPct: 20, targetAudience: 'all', promoCode: 'SOLSTICE20', status: 'completed', revenue: 184200 },
+  { id: 'sc2', name: 'Arctic Midnight Sun Sale', season: 'summer', startsAt: '2026-07-15T00:00:00Z', endsAt: '2026-07-22T23:59:00Z', discountPct: 15, targetAudience: 'members', promoCode: 'MIDNIGHT15', status: 'completed', revenue: 127400 },
+  { id: 'sc3', name: 'Back to Vitality (Autumn)', season: 'autumn', startsAt: '2026-09-01T00:00:00Z', endsAt: '2026-09-14T23:59:00Z', discountPct: 25, targetAudience: 'all', promoCode: 'AUTUMN25', status: 'scheduled', revenue: 0 },
+  { id: 'sc4', name: 'Nordic Winter Warrior', season: 'winter', startsAt: '2026-12-01T00:00:00Z', endsAt: '2026-12-31T23:59:00Z', discountPct: 30, targetAudience: 'vip', promoCode: 'WARRIOR30', status: 'draft', revenue: 0 },
+  { id: 'sc5', name: 'New Year New You 2027', season: 'winter', startsAt: '2027-01-01T00:00:00Z', endsAt: '2027-01-14T23:59:00Z', discountPct: 20, targetAudience: 'all', promoCode: 'NEWYOU27', status: 'draft', revenue: 0 },
+]
+export async function getAdminSeasonalCampaigns() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return SEASONAL_CAMPAIGNS_SEED }
+  return request('GET', '/v1/mlm/admin/seasonal-campaigns')
+}
+export async function createAdminSeasonalCampaign(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id: 'sc_new', ...data } }
+  return request('POST', '/v1/mlm/admin/seasonal-campaigns', data)
+}
+export async function updateAdminSeasonalCampaign(id, data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { id, ...data } }
+  return request('PUT', `/v1/mlm/admin/seasonal-campaigns/${id}`, data)
+}
+export async function deleteAdminSeasonalCampaign(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/seasonal-campaigns/${id}`)
+}
+
+// ─── Member Waitlists ─────────────────────────────────────────────────────────
+const MEMBER_WAITLISTS_SEED = [
+  { productId: 'p1', productName: 'Arctic Omega-3 Ultra (300 caps)', sku: 'AO3-300', imgUrl: null, joinedAt: '2026-07-10T09:00:00Z', position: 8, totalWaiting: 47, restockEta: '2026-08-15', notifyMe: true },
+  { productId: 'p4', productName: 'Bjornberry Antioxidant Complex', sku: 'BAC-60', imgUrl: null, joinedAt: '2026-07-28T09:15:00Z', position: 3, totalWaiting: 12, restockEta: '2026-09-01', notifyMe: true },
+  { productId: 'p5', productName: 'Arctic Magnesium Night Formula', sku: 'AMN-90', imgUrl: null, joinedAt: '2026-07-18T11:30:00Z', position: 14, totalWaiting: 34, restockEta: null, notifyMe: false },
+]
+export async function getMemberWaitlists() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return MEMBER_WAITLISTS_SEED }
+  return request('GET', '/v1/mlm/member/waitlists')
+}
+export async function removeMemberWaitlist(productId) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 250)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/waitlists/${productId}`)
+}
+export async function toggleMemberWaitlistNotify(productId, notify) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 200)); return { ok: true } }
+  return request('PATCH', `/v1/mlm/member/waitlists/${productId}`, { notifyMe: notify })
+}
+
+// ─── Member Rank History ──────────────────────────────────────────────────────
+const MEMBER_RANK_HISTORY_SEED = {
+  currentRank: 'Gold',
+  currentPoints: 42800,
+  nextRank: 'Platinum',
+  nextPoints: 75000,
+  history: [
+    { month: '2025-10', rank: 'Bronze', points: 8200, commissions: 4100, recruits: 2 },
+    { month: '2025-11', rank: 'Bronze', points: 11400, commissions: 5700, recruits: 1 },
+    { month: '2025-12', rank: 'Silver', points: 16800, commissions: 8400, recruits: 3 },
+    { month: '2026-01', rank: 'Silver', points: 21300, commissions: 10650, recruits: 2 },
+    { month: '2026-02', rank: 'Silver', points: 25900, commissions: 12950, recruits: 2 },
+    { month: '2026-03', rank: 'Silver', points: 28400, commissions: 14200, recruits: 1 },
+    { month: '2026-04', rank: 'Gold', points: 33100, commissions: 16550, recruits: 4 },
+    { month: '2026-05', rank: 'Gold', points: 36700, commissions: 18350, recruits: 2 },
+    { month: '2026-06', rank: 'Gold', points: 39200, commissions: 19600, recruits: 3 },
+    { month: '2026-07', rank: 'Gold', points: 42800, commissions: 21400, recruits: 2 },
+  ],
+  milestones: [
+    { date: '2025-12-01', event: 'Reached Silver', icon: '🥈' },
+    { date: '2026-04-01', event: 'Reached Gold', icon: '🥇' },
+    { date: '2026-04-15', event: 'First 5-figure commission month', icon: '💰' },
+  ],
+}
+export async function getMemberRankHistory() {
+  if (MOCK) { await new Promise(r => setTimeout(r, 220)); return MEMBER_RANK_HISTORY_SEED }
+  return request('GET', '/v1/mlm/member/rank-history')
+}
