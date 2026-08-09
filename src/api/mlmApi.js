@@ -9781,3 +9781,235 @@ export async function getMemberLoyaltyTiers() {
   }
   return request('GET', '/v1/mlm/member/loyalty-tiers')
 }
+
+export async function getAdminEmailSequences() {
+  if (USE_MOCK) {
+    return {
+      totalSequences: 12, activeCount: 8, emailsSent30d: 47_320, avgOpenRate: 38.4, avgClickRate: 9.2,
+      sequences: [
+        { id: 'seq1', name: 'New Member Welcome', trigger: 'signup', status: 'active', stepCount: 5, enrolled: 1_240, completed: 892,  unsubscribed: 44, steps: [
+            { id: 's1', subject: 'Welcome to Nordic Vitals 🎉', delayDays: 0,  openRate: 72.1, clickRate: 31.4, unsubRate: 0.2 },
+            { id: 's2', subject: 'Your starter guide to peptides',  delayDays: 2,  openRate: 61.3, clickRate: 22.8, unsubRate: 0.4 },
+            { id: 's3', subject: 'How to earn your first commission', delayDays: 5, openRate: 55.7, clickRate: 18.2, unsubRate: 0.6 },
+            { id: 's4', subject: 'Meet your upline team',            delayDays: 10, openRate: 48.9, clickRate: 14.6, unsubRate: 0.5 },
+            { id: 's5', subject: 'Ready to level up?',              delayDays: 21, openRate: 42.3, clickRate: 12.1, unsubRate: 0.8 },
+          ]
+        },
+        { id: 'seq2', name: 'Rank-Up Celebration', trigger: 'rank_up', status: 'active', stepCount: 3, enrolled: 320, completed: 285, unsubscribed: 8, steps: [
+            { id: 's1', subject: 'Congratulations on your promotion!', delayDays: 0, openRate: 84.2, clickRate: 41.0, unsubRate: 0.1 },
+            { id: 's2', subject: 'New perks unlocked at your rank',   delayDays: 1, openRate: 68.3, clickRate: 27.5, unsubRate: 0.2 },
+            { id: 's3', subject: 'Your next milestone: here\'s the path', delayDays: 7, openRate: 52.1, clickRate: 19.8, unsubRate: 0.3 },
+          ]
+        },
+        { id: 'seq3', name: 'Win-Back Inactive', trigger: 'inactivity', status: 'active', stepCount: 4, enrolled: 680, completed: 210, unsubscribed: 92, steps: [
+            { id: 's1', subject: 'We miss you, {first_name}',      delayDays: 30, openRate: 28.4, clickRate: 8.2,  unsubRate: 2.1 },
+            { id: 's2', subject: 'Special offer just for you',     delayDays: 35, openRate: 22.1, clickRate: 11.4, unsubRate: 1.8 },
+            { id: 's3', subject: 'Your team needs you',            delayDays: 42, openRate: 18.7, clickRate: 6.9,  unsubRate: 2.4 },
+            { id: 's4', subject: 'Last chance — exclusive bundle', delayDays: 50, openRate: 15.2, clickRate: 9.1,  unsubRate: 3.1 },
+          ]
+        },
+        { id: 'seq4', name: 'Birthday Series', trigger: 'birthday', status: 'paused', stepCount: 2, enrolled: 450, completed: 430, unsubscribed: 6, steps: [
+            { id: 's1', subject: '🎂 Happy Birthday from Nordic Vitals!', delayDays: 0, openRate: 81.3, clickRate: 38.7, unsubRate: 0.1 },
+            { id: 's2', subject: 'Your birthday gift expires soon',       delayDays: 3, openRate: 62.4, clickRate: 44.2, unsubRate: 0.2 },
+          ]
+        },
+        { id: 'seq5', name: 'Post-Purchase Care', trigger: 'purchase', status: 'draft', stepCount: 4, enrolled: 0, completed: 0, unsubscribed: 0, steps: [
+            { id: 's1', subject: 'Your order is on its way',           delayDays: 0,  openRate: 0, clickRate: 0, unsubRate: 0 },
+            { id: 's2', subject: 'How to use your new peptides',       delayDays: 5,  openRate: 0, clickRate: 0, unsubRate: 0 },
+            { id: 's3', subject: 'Share your results with the community', delayDays: 21, openRate: 0, clickRate: 0, unsubRate: 0 },
+            { id: 's4', subject: 'Time to reorder? Here\'s a discount', delayDays: 28, openRate: 0, clickRate: 0, unsubRate: 0 },
+          ]
+        },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/email-sequences')
+}
+
+export async function getAdminCommissionTiers() {
+  if (USE_MOCK) {
+    return {
+      totalTiers: 6, avgPersonalRate: 14.2, avgTeamRate: 6.8, membersOnPlans: 3_847,
+      tiers: [
+        { id: 't1', rankName: 'Associate',  type: 'personal', personalPct: 10, teamPct: 3, minPv: 50,    minGroupPv: 0,      memberCount: 1_240 },
+        { id: 't2', rankName: 'Manager',    type: 'personal', personalPct: 12, teamPct: 5, minPv: 150,   minGroupPv: 500,    memberCount: 890   },
+        { id: 't3', rankName: 'Director',   type: 'team',     personalPct: 14, teamPct: 7, minPv: 300,   minGroupPv: 2_000,  memberCount: 520   },
+        { id: 't4', rankName: 'Executive',  type: 'team',     personalPct: 16, teamPct: 9, minPv: 500,   minGroupPv: 6_000,  memberCount: 148   },
+        { id: 't5', rankName: 'Diamond',    type: 'bonus',    personalPct: 18, teamPct: 11, minPv: 1_000, minGroupPv: 15_000, memberCount: 38    },
+        { id: 't6', rankName: 'Crown',      type: 'bonus',    personalPct: 20, teamPct: 13, minPv: 2_000, minGroupPv: 40_000, memberCount: 11    },
+      ],
+      overrideRules: [
+        { id: 'r1', description: 'Fast Start Bonus',      condition: 'First 90 days active',       rate: 5  },
+        { id: 'r2', description: 'Leadership Pool',       condition: 'Director+ rank',             rate: 2  },
+        { id: 'r3', description: 'Infinity Bonus',        condition: 'Diamond+ unlimited depth',   rate: 1  },
+        { id: 'r4', description: 'Generation Match',      condition: '3 generations of Directors', rate: 4  },
+        { id: 'r5', description: 'Customer Acquisition',  condition: 'Per qualifying retail order', rate: 8  },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/commission-tiers')
+}
+
+export async function getAdminProductReviews() {
+  if (USE_MOCK) {
+    const reviews = [
+      { id: 'r1', productName: 'BPC-157 10mg',       memberName: 'Anna K.',   rating: 5, status: 'pending',  body: 'Remarkable recovery after my knee surgery. 6 weeks in and I can jog again. Will reorder.',       date: '2026-08-09', verified: true  },
+      { id: 'r2', productName: 'TB-500 2mg',          memberName: 'Jonas S.',  rating: 4, status: 'pending',  body: 'Good quality, noticed improved flexibility after 3 weeks. Packaging could be better.',            date: '2026-08-08', verified: true  },
+      { id: 'r3', productName: 'Sermorelin 2mg',      memberName: 'Maria L.',  rating: 5, status: 'approved', body: 'Better sleep quality within 10 days. My recovery from workouts has been significantly faster.',  date: '2026-08-07', verified: true  },
+      { id: 'r4', productName: 'PT-141 10mg',         memberName: 'Erik T.',   rating: 3, status: 'pending',  body: 'Decent product but effects were mild for me. May work better at higher doses.',                  date: '2026-08-07', verified: false },
+      { id: 'r5', productName: 'Ipamorelin 2mg',      memberName: 'Sofia B.',  rating: 5, status: 'featured', body: 'The best peptide I have tried. My GH levels were confirmed improved at my last blood test.',    date: '2026-08-06', verified: true  },
+      { id: 'r6', productName: 'Melanotan II 10mg',   memberName: 'Lukas R.',  rating: 2, status: 'rejected', body: 'Product arrived damaged. The vial was cracked. Customer service resolved it eventually.',        date: '2026-08-05', verified: true  },
+    ]
+    return {
+      pendingCount: 3, approvedCount: 18, featuredCount: 4, totalReviews: 124, avgRating: 4.3,
+      ratingBreakdown: { 5: 68, 4: 32, 3: 14, 2: 6, 1: 4 },
+      reviews
+    }
+  }
+  return request('GET', '/v1/mlm/admin/product-reviews')
+}
+
+export async function getAdminMemberJourney() {
+  if (USE_MOCK) {
+    return {
+      stages: {
+        acquisition: { count: 2_840, delta: 12  },
+        activation:  { count: 1_920, delta: 8   },
+        growth:      { count: 1_140, delta: 15  },
+        retention:   { count: 890,   delta: -3  },
+        churn_risk:  { count: 340,   delta: 22  },
+        churned:     { count: 210,   delta: -5  },
+      },
+      transitions: [
+        { from: 'acquisition', to: 'activation',  rate: 68 },
+        { from: 'activation',  to: 'growth',       rate: 59 },
+        { from: 'growth',      to: 'retention',    rate: 78 },
+        { from: 'retention',   to: 'churn_risk',   rate: 15 },
+        { from: 'churn_risk',  to: 'churned',      rate: 38 },
+        { from: 'churn_risk',  to: 'retention',    rate: 41 },
+      ],
+      churnRisk: [
+        { id: 'm1', name: 'Katarina V.',  rank: 'Director',  lastActive: '48 days ago', riskScore: 84, ltv: 42_800 },
+        { id: 'm2', name: 'Thomas H.',   rank: 'Manager',   lastActive: '61 days ago', riskScore: 78, ltv: 28_400 },
+        { id: 'm3', name: 'Anna P.',     rank: 'Executive', lastActive: '35 days ago', riskScore: 71, ltv: 91_200 },
+        { id: 'm4', name: 'Magnus R.',   rank: 'Manager',   lastActive: '55 days ago', riskScore: 67, ltv: 19_600 },
+        { id: 'm5', name: 'Ingrid K.',   rank: 'Associate', lastActive: '72 days ago', riskScore: 62, ltv: 8_900  },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/member-journey')
+}
+
+export async function getMemberReadingList() {
+  if (USE_MOCK) {
+    return {
+      savedCount: 24, readCount: 18, inProgressCount: 3, streak: 7,
+      articles: [
+        { id: 'a1', title: 'BPC-157: Mechanisms of Action and Clinical Applications', author: 'Dr. Sarah Chen', category: 'peptides', readTime: 12, status: 'in_progress', progressPct: 65, summary: 'A comprehensive review of BPC-157 research, covering gut healing, tendon repair, and neuroprotection.', publishedDate: '2026-07-28' },
+        { id: 'a2', title: 'Building a Sustainable MLM Business in 2026',            author: 'Marcus J.',        category: 'business', readTime: 8,  status: 'read',        progressPct: 100, summary: 'Strategies for long-term success in network marketing with a focus on customer retention.', publishedDate: '2026-07-15' },
+        { id: 'a3', title: 'Sleep Optimization: The Peptide Approach',               author: 'Nordic Vitals HQ', category: 'wellness', readTime: 6,  status: 'unread',      progressPct: 0,  summary: 'How Ipamorelin and CJC-1295 can work synergistically with sleep hygiene to optimize recovery.', publishedDate: '2026-08-01' },
+        { id: 'a4', title: 'Mastering Cold Calling for Supplement Sales',            author: 'Sales Academy',    category: 'business', readTime: 10, status: 'in_progress', progressPct: 30, summary: 'Practical scripts and objection handling for new member recruitment conversations.', publishedDate: '2026-07-20' },
+        { id: 'a5', title: 'Protein Synthesis and Peptide Timing',                  author: 'NutriScience',     category: 'nutrition', readTime: 7, status: 'read',        progressPct: 100, summary: 'Understanding how timing your peptide protocols around workouts maximises anabolic signaling.', publishedDate: '2026-06-30' },
+        { id: 'a6', title: 'The Mindset of a Top Earner',                           author: 'Peak Performance',  category: 'mindset', readTime: 5,  status: 'unread',      progressPct: 0,  summary: 'Interviews with Diamond-rank Nordic Vitals distributors on the beliefs that drive their success.', publishedDate: '2026-08-05' },
+      ],
+      recommended: [
+        { id: 'r1', title: 'TB-500 vs BPC-157: Which is Right for You?',       category: 'peptides',  readTime: 9,  author: 'Dr. Sarah Chen'    },
+        { id: 'r2', title: 'Social Media Strategies for Wellness Brands',       category: 'business',  readTime: 11, author: 'Growth Academy'     },
+        { id: 'r3', title: 'Intermittent Fasting + Peptide Synergy',            category: 'nutrition', readTime: 6,  author: 'NutriScience'       },
+        { id: 'r4', title: 'Overcoming Rejection in Network Marketing',          category: 'mindset',   readTime: 4,  author: 'Peak Performance'   },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/reading-list')
+}
+
+export async function getMemberCommunityFeed() {
+  if (USE_MOCK) {
+    return {
+      myPostCount: 12, likesReceived: 248, commentCount: 74, onlineCount: 83,
+      posts: [
+        {
+          id: 'p1', type: 'win', authorName: 'Sofia B.', rank: 'Director', timeAgo: '2h ago', liked: true, likeCount: 47, commentCount: 12,
+          body: 'Just hit Diamond rank! 🏆 4 years of consistent work and it finally clicked. The key was focusing on 3 people who were truly coachable rather than recruiting everyone. Thank you to my incredible upline team!',
+          comments: [
+            { id: 'c1', authorName: 'Anna K.', body: 'Congratulations Sofia!! You deserve this 🎉' },
+            { id: 'c2', authorName: 'Marcus L.', body: 'Absolutely inspiring — you\'ve been a great mentor to so many' },
+          ]
+        },
+        {
+          id: 'p2', type: 'tip', authorName: 'Jonas E.', rank: 'Executive', timeAgo: '5h ago', liked: false, likeCount: 31, commentCount: 8,
+          body: '💡 Pro tip for BPC-157 protocol: split your daily dose into AM and PM administrations rather than a single injection. I\'ve seen significantly better results with twice-daily dosing — consistent plasma levels seem to matter more than peak levels.',
+          comments: [
+            { id: 'c1', authorName: 'Erik T.', body: 'This matches what I\'ve been reading in the research. Great share!' },
+          ]
+        },
+        {
+          id: 'p3', type: 'question', authorName: 'Lukas M.', rank: 'Manager', timeAgo: '8h ago', liked: false, likeCount: 14, commentCount: 21,
+          body: 'Anyone had experience combining Sermorelin with Ipamorelin? I\'ve heard the synergy is excellent but I want to hear real experiences before starting. What dosing split worked for you?',
+          comments: [
+            { id: 'c1', authorName: 'Sofia B.', body: 'I ran that stack for 3 months. 100mcg Ipamorelin + 200mcg Sermorelin before bed — great sleep and noticeable body comp changes.' },
+          ]
+        },
+        {
+          id: 'p4', type: 'review', authorName: 'Maria K.', rank: 'Manager', timeAgo: '1d ago', liked: true, likeCount: 22, commentCount: 5,
+          body: '⭐⭐⭐⭐⭐ Nordic Vitals TB-500 — just finished my 8-week protocol for a chronic shoulder injury. The improvement is remarkable. Range of motion fully restored. Product quality is consistently excellent.',
+          comments: []
+        },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/community-feed')
+}
+
+export async function getMemberMentorship() {
+  if (USE_MOCK) {
+    return {
+      hasMentor: true, menteeCount: 3, sessionsDone: 14, goalsMet: 4, goalsTotal: 6,
+      mentor: {
+        name: 'Sofia Bergström', rank: 'Diamond', yearsExp: 6, menteeCount: 8,
+        speciality: 'Business Growth', responseTime: '< 4 hours',
+        bio: 'Reached Diamond in 3 years by focusing on product expertise and deep customer relationships. Happy to help you build a business that aligns with your values.'
+      },
+      nextSession: { title: 'Monthly Goal Review', date: '2026-08-14 at 15:00', duration: 45, link: 'https://meet.example.com/sofia-gary' },
+      mentorNotes: [
+        { id: 'n1', note: 'Focus on warm market outreach this week — Gary has 3 strong prospects to follow up.', date: '2026-08-07' },
+        { id: 'n2', note: 'Review the income disclosure script before the next prospect meeting.', date: '2026-07-31' },
+      ],
+      mentees: [
+        { id: 'm1', name: 'Lukas M.',  rank: 'Associate', joinedDate: '2026-06-12', status: 'active'  },
+        { id: 'm2', name: 'Anna P.',   rank: 'Associate', joinedDate: '2026-07-03', status: 'active'  },
+        { id: 'm3', name: 'Erik T.',   rank: 'Associate', joinedDate: '2026-07-28', status: 'pending' },
+      ],
+      sharedGoals: [
+        { id: 'g1', title: 'Reach Manager rank by October',      progressPct: 72, dueDate: '2026-10-01', status: 'on_track' },
+        { id: 'g2', title: 'Recruit 2 qualified members in Q3',  progressPct: 50, dueDate: '2026-09-30', status: 'on_track' },
+        { id: 'g3', title: 'Complete peptide certification course', progressPct: 30, dueDate: '2026-09-01', status: 'behind' },
+      ],
+      sessionHistory: [
+        { id: 's1', title: 'Q3 Strategy Session',    date: '2026-08-01', duration: 45, with: 'Sofia B.', notes: 'Agreed to double down on Instagram content. Sofia will share her top 10 posts.' },
+        { id: 's2', title: 'Objection Handling',     date: '2026-07-18', duration: 30, with: 'Sofia B.', notes: 'Practiced the three main objections: cost, time, and product trust.' },
+        { id: 's3', title: 'Monthly Check-in — Jul', date: '2026-07-03', duration: 30, with: 'Sofia B.', notes: 'June was strong. 1 new recruit qualified. Set July targets.' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/mentorship')
+}
+
+export async function getMemberLiveEvents() {
+  if (USE_MOCK) {
+    return {
+      registeredCount: 8, attendedCount: 14, upcomingCount: 4, replayCount: 22,
+      liveNow: { title: 'Peptide Science: BPC-157 Deep Dive', host: 'Dr. Sarah Chen', viewerCount: 247 },
+      events: [
+        { id: 'e1', title: 'Peptide Science: BPC-157 Deep Dive',            type: 'webinar',        status: 'live',     host: 'Dr. Sarah Chen',      date: 'Today, 15:00',       duration: 60, registeredCount: 312, registered: true,  replayUrl: null,          description: 'Advanced mechanisms, dosing protocols, and real case studies from clinical practice.' },
+        { id: 'e2', title: 'Q3 Earnings & Network Growth Webinar',           type: 'town_hall',      status: 'upcoming', host: 'Nordic Vitals CEO',   date: '2026-08-12 at 18:00', duration: 90, registeredCount: 1_840, registered: true, replayUrl: null,       description: 'Quarterly business update, new product pipeline, and compensation plan enhancements.' },
+        { id: 'e3', title: 'New Product Launch: Nordic Stack Pro',           type: 'product_launch', status: 'upcoming', host: 'Product Team',        date: '2026-08-15 at 14:00', duration: 45, registeredCount: 924, registered: false, replayUrl: null,        description: 'Live reveal of our new flagship peptide stack with exclusive founding-member pricing.' },
+        { id: 'e4', title: 'Live Q&A: Building Your Downline in 90 Days',   type: 'qa',             status: 'upcoming', host: 'Sofia B., Diamond',   date: '2026-08-18 at 19:00', duration: 60, registeredCount: 184, registered: false, replayUrl: null,        description: 'Diamond-rank distributor shares her exact 90-day recruitment and activation system.' },
+        { id: 'e5', title: 'Social Selling Masterclass',                    type: 'training',       status: 'upcoming', host: 'Marketing Academy',   date: '2026-08-22 at 16:00', duration: 120, registeredCount: 431, registered: true, replayUrl: null,        description: 'Instagram and TikTok strategies for wellness brands. Includes live content creation.' },
+        { id: 'e6', title: 'Sermorelin Protocol: Science & Results',         type: 'webinar',        status: 'ended',    host: 'Dr. Lars Peterson',   date: '2026-08-05 at 15:00', duration: 60, registeredCount: 287, registered: true, replayUrl: 'https://replay.example.com/e6', description: 'In-depth exploration of Sermorelin for anti-aging and GH optimization.' },
+        { id: 'e7', title: 'New Member Onboarding — August Cohort',         type: 'training',       status: 'ended',    host: 'Onboarding Team',     date: '2026-08-03 at 10:00', duration: 90, registeredCount: 68,  registered: false, replayUrl: 'https://replay.example.com/e7', description: 'Step-by-step onboarding covering the back office, compensation plan, and first steps.' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/live-events')
+}

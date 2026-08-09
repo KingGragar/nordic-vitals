@@ -270,6 +270,14 @@ const DashProtocolBuilder        = lazy(() => import('./pages/dashboard/Protocol
 const DashNetworkMap             = lazy(() => import('./pages/dashboard/NetworkMap'))
 const DashAgreements             = lazy(() => import('./pages/dashboard/Agreements'))
 const DashLoyaltyTiers           = lazy(() => import('./pages/dashboard/LoyaltyTiers'))
+const AdminEmailSequences        = lazy(() => import('./pages/admin/EmailSequences'))
+const AdminCommissionTiers       = lazy(() => import('./pages/admin/CommissionTiers'))
+const AdminProductReviews        = lazy(() => import('./pages/admin/ProductReviews'))
+const AdminMemberJourney         = lazy(() => import('./pages/admin/MemberJourney'))
+const DashReadingList            = lazy(() => import('./pages/dashboard/ReadingList'))
+const DashCommunityFeed          = lazy(() => import('./pages/dashboard/CommunityFeed'))
+const DashMentorship             = lazy(() => import('./pages/dashboard/Mentorship'))
+const DashLiveEvents             = lazy(() => import('./pages/dashboard/LiveEvents'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -560,6 +568,14 @@ function AppRoutes() {
         <Route path="/dashboard/network-map"         element={<RequireAuth><DashNetworkMap /></RequireAuth>} />
         <Route path="/dashboard/agreements"          element={<RequireAuth><DashAgreements /></RequireAuth>} />
         <Route path="/dashboard/loyalty-tiers"       element={<RequireAuth><DashLoyaltyTiers /></RequireAuth>} />
+        <Route path="/admin/email-sequences"         element={<RequireAuth role="admin"><AdminEmailSequences /></RequireAuth>} />
+        <Route path="/admin/commission-tiers"        element={<RequireAuth role="admin"><AdminCommissionTiers /></RequireAuth>} />
+        <Route path="/admin/product-reviews"         element={<RequireAuth role="admin"><AdminProductReviews /></RequireAuth>} />
+        <Route path="/admin/member-journey"          element={<RequireAuth role="admin"><AdminMemberJourney /></RequireAuth>} />
+        <Route path="/dashboard/reading-list"        element={<RequireAuth><DashReadingList /></RequireAuth>} />
+        <Route path="/dashboard/community-feed"      element={<RequireAuth><DashCommunityFeed /></RequireAuth>} />
+        <Route path="/dashboard/mentorship"          element={<RequireAuth><DashMentorship /></RequireAuth>} />
+        <Route path="/dashboard/live-events"         element={<RequireAuth><DashLiveEvents /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
