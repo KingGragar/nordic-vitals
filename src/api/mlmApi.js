@@ -8887,3 +8887,172 @@ export async function getMemberReferralContests() {
   }
   return request('GET', '/v1/mlm/member/referral-contests')
 }
+
+// ── Admin Back Orders ─────────────────────────────────────────────────────────
+export async function getAdminBackOrders() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      customersWaiting: 34,
+      avgWaitDays: 12,
+      orders: [
+        { id: 'bo1', orderId: 'ORD-7821', customerName: 'Astrid Holm', customerEmail: 'astrid@example.com', productName: 'BPC-157 Complex', sku: 'NV-BPC-250', qty: 2, orderDate: '2026-07-28T10:00:00Z', estRestock: '2026-08-15T00:00:00Z', status: 'pending' },
+        { id: 'bo2', orderId: 'ORD-7845', customerName: 'Lars Eriksson', customerEmail: 'lars@example.com', productName: 'TB-500 Recovery', sku: 'NV-TB5-500', qty: 1, orderDate: '2026-07-30T14:00:00Z', estRestock: '2026-08-20T00:00:00Z', status: 'notified' },
+        { id: 'bo3', orderId: 'ORD-7901', customerName: 'Freya Magnusson', customerEmail: 'freya@example.com', productName: 'Epitalon Longevity', sku: 'NV-EPT-10', qty: 3, orderDate: '2026-08-01T09:00:00Z', estRestock: null, status: 'pending' },
+        { id: 'bo4', orderId: 'ORD-7912', customerName: 'Magnus Strand', customerEmail: 'magnus@example.com', productName: 'BPC-157 Complex', sku: 'NV-BPC-250', qty: 1, orderDate: '2026-08-03T11:00:00Z', estRestock: '2026-08-15T00:00:00Z', status: 'fulfilled' },
+        { id: 'bo5', orderId: 'ORD-7950', customerName: 'Ingrid Dahl', customerEmail: 'ingrid@example.com', productName: 'GHK-Cu Serum', sku: 'NV-GHK-50', qty: 2, orderDate: '2026-08-05T16:00:00Z', estRestock: '2026-08-25T00:00:00Z', status: 'notified' },
+        { id: 'bo6', orderId: 'ORD-7980', customerName: 'Bjørn Hagen', customerEmail: 'bjorn@example.com', productName: 'Selank Peptide', sku: 'NV-SEL-5', qty: 1, orderDate: '2026-08-07T08:00:00Z', estRestock: null, status: 'cancelled' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/back-orders')
+}
+
+// ── Admin Upsell Rules ────────────────────────────────────────────────────────
+export async function getAdminUpsellRules() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    return {
+      triggeredCount: 1842,
+      conversions: 312,
+      revenueAttributed: 18640,
+      rules: [
+        { id: 'ur1', name: 'BPC-157 → TB-500 Cross-sell', type: 'crosssell', triggerProduct: 'BPC-157 Complex', recommendProduct: 'TB-500 Recovery', placement: 'Product page', impressions: 620, conversions: 98, cvr: 15.8, active: true },
+        { id: 'ur2', name: 'Single dose → Bundle upsell', type: 'bundle', triggerProduct: 'BPC-157 Complex (1 vial)', recommendProduct: 'BPC-157 Starter Bundle', placement: 'Cart', impressions: 445, conversions: 67, cvr: 15.1, active: true },
+        { id: 'ur3', name: 'GHK-Cu → Epitalon upsell', type: 'upsell', triggerProduct: 'GHK-Cu Serum', recommendProduct: 'Epitalon Longevity', placement: 'Checkout', impressions: 310, conversions: 41, cvr: 13.2, active: true },
+        { id: 'ur4', name: 'Any peptide → Nordic Stack bundle', type: 'bundle', triggerProduct: 'Any peptide product', recommendProduct: 'Nordic Full Stack', placement: 'Post-purchase', impressions: 280, conversions: 28, cvr: 10.0, active: false },
+        { id: 'ur5', name: 'KPV → Selank cross-sell', type: 'crosssell', triggerProduct: 'KPV Anti-Inflammatory', recommendProduct: 'Selank Peptide', placement: 'Product page', impressions: 187, conversions: 18, cvr: 9.6, active: true },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/upsell-rules')
+}
+
+// ── Admin Reward Catalog ──────────────────────────────────────────────────────
+export async function getAdminRewardCatalog() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      redemptions30d: 47,
+      pointsRedeemed30d: 186400,
+      items: [
+        { id: 'rc1', name: 'Nordic Vitals Branded Hoodie', category: 'physical', description: 'Premium organic cotton hoodie with NV logo', pointsCost: 5000, stock: 50, redeemCount: 12, active: true, emoji: '👕' },
+        { id: 'rc2', name: '€50 Store Credit', category: 'digital', description: 'Instant store credit added to your account', pointsCost: 4000, stock: null, redeemCount: 31, active: true, emoji: '💳' },
+        { id: 'rc3', name: 'Nordic Wellness Retreat (2 nights)', category: 'experience', description: 'Two nights at a partner wellness spa in Norway', pointsCost: 25000, stock: 5, redeemCount: 2, active: true, emoji: '🌿' },
+        { id: 'rc4', name: 'Shaker Bottle Set', category: 'physical', description: 'Premium stainless steel NV shaker + storage', pointsCost: 2000, stock: 120, redeemCount: 18, active: true, emoji: '🥤' },
+        { id: 'rc5', name: 'Advanced Peptide Course', category: 'digital', description: 'Full access to the Advanced Peptide Science e-learning course', pointsCost: 6000, stock: null, redeemCount: 8, active: true, emoji: '🎓' },
+        { id: 'rc6', name: 'Copenhagen Conference Ticket', category: 'travel', description: 'Complimentary ticket to NV Annual Conference in Copenhagen', pointsCost: 40000, stock: 20, redeemCount: 1, active: false, emoji: '✈️' },
+        { id: 'rc7', name: 'NV Notebook + Pen Set', category: 'physical', description: 'Luxury branded stationery for business and journaling', pointsCost: 1500, stock: 200, redeemCount: 22, active: true, emoji: '📓' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/reward-catalog')
+}
+
+// ── Admin Retention Offers ────────────────────────────────────────────────────
+export async function getAdminRetentionOffers() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 380))
+    return {
+      shown30d: 84,
+      saved30d: 31,
+      saveRate: 36.9,
+      offers: [
+        { id: 'ro1', name: 'Cancel — 25% discount', trigger: 'cancel', offerType: 'discount', headline: "Wait! We'd hate to see you go.", description: "Stay for the next 3 months and get 25% off your subscription — no commitment after that.", offerValue: '25% off 3 months', expiresAfterDays: 2, priority: 1, shown: 42, accepted: 16, saveRate: 38.1, active: true },
+        { id: 'ro2', name: 'Cancel — €30 store credit', trigger: 'cancel', offerType: 'credit', headline: 'A gift, just for staying.', description: '€30 store credit added instantly to your account when you keep your subscription active.', offerValue: '€30 credit', expiresAfterDays: 1, priority: 2, shown: 28, accepted: 9, saveRate: 32.1, active: true },
+        { id: 'ro3', name: 'Pause — 1-month pause offer', trigger: 'pause', offerType: 'extension', headline: 'Life happens — take a break instead.', description: 'Pause your subscription for 30 days at no charge. Resume whenever you\'re ready.', offerValue: 'Free 30-day pause', expiresAfterDays: null, priority: 1, shown: 14, accepted: 6, saveRate: 42.9, active: true },
+        { id: 'ro4', name: 'Expire — win-back free gift', trigger: 'expire', offerType: 'gift', headline: 'Come back — we miss you!', description: 'Renew today and receive a free NV Shaker Bottle with your next order.', offerValue: 'Free Shaker Bottle', expiresAfterDays: 7, priority: 1, shown: 0, accepted: 0, saveRate: 0, active: false },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/retention-offers')
+}
+
+// ── Member Body Measurements ──────────────────────────────────────────────────
+export async function getMemberBodyMeasurements() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 380))
+    return {
+      history: [
+        { date: '2026-08-09T07:00:00Z', weight: 83.2, waist: 88, hips: 97, chest: 104, bodyFat: 18.1, muscle: 68.2, note: 'Week 8 check-in' },
+        { date: '2026-07-26T07:00:00Z', weight: 84.0, waist: 89, hips: 98, chest: 105, bodyFat: 18.8, muscle: 67.9, note: 'Week 6 check-in' },
+        { date: '2026-07-12T07:00:00Z', weight: 85.1, waist: 91, hips: 99, chest: 105, bodyFat: 19.4, muscle: 67.5, note: '' },
+        { date: '2026-06-28T07:00:00Z', weight: 85.8, waist: 92, hips: 100, chest: 106, bodyFat: 20.1, muscle: 67.2, note: 'Start of peptide protocol' },
+        { date: '2026-06-14T07:00:00Z', weight: 86.4, waist: 93, hips: 101, chest: 107, bodyFat: 20.8, muscle: 67.0, note: 'Baseline' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/body-measurements')
+}
+
+// ── Member Supplement Stack ───────────────────────────────────────────────────
+export async function getMemberSupplementStack() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 350))
+    return {
+      protocolActive: true,
+      daysRunning: 58,
+      stack: [
+        { id: 'ss1', productName: 'BPC-157 Complex', dosage: '250mcg', dosesPerDay: 2, timing: 'Morning', notes: 'Subcutaneous injection, fasted', emoji: '💉' },
+        { id: 'ss2', productName: 'BPC-157 Complex', dosage: '250mcg', dosesPerDay: 2, timing: 'Evening', notes: 'Before meal', emoji: '💉' },
+        { id: 'ss3', productName: 'TB-500 Recovery', dosage: '2.5mg', dosesPerDay: 1, timing: 'Morning', notes: 'Weekly dose — inject Monday morning', emoji: '🩹' },
+        { id: 'ss4', productName: 'GHK-Cu Serum', dosage: '1 pump', dosesPerDay: 1, timing: 'Morning', notes: 'Apply to face and neck post-shower', emoji: '🧴' },
+        { id: 'ss5', productName: 'KPV Anti-Inflammatory', dosage: '500mcg', dosesPerDay: 1, timing: 'Pre-workout', notes: 'Mix with 1ml bacteriostatic water', emoji: '💊' },
+        { id: 'ss6', productName: 'Epitalon Longevity', dosage: '5mg', dosesPerDay: 1, timing: 'Before bed', notes: '10-day cycle, repeat monthly', emoji: '⭐' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/supplement-stack')
+}
+
+// ── Member Progress Photos ────────────────────────────────────────────────────
+export async function getMemberProgressPhotos() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      streakWeeks: 8,
+      entries: [
+        { id: 'pp1', date: '2026-08-09T08:00:00Z', view: 'front', week: 8, weight: 83.2, notes: 'Visible change in midsection' },
+        { id: 'pp2', date: '2026-07-26T08:00:00Z', view: 'front', week: 6, weight: 84.0, notes: 'Arms looking more defined' },
+        { id: 'pp3', date: '2026-07-12T08:00:00Z', view: 'front', week: 4, weight: 85.1, notes: '' },
+        { id: 'pp4', date: '2026-06-28T08:00:00Z', view: 'front', week: 2, weight: 85.8, notes: 'Start of protocol' },
+        { id: 'pp5', date: '2026-08-09T08:10:00Z', view: 'side', week: 8, weight: 83.2, notes: 'Posture also improved' },
+        { id: 'pp6', date: '2026-07-26T08:10:00Z', view: 'side', week: 6, weight: 84.0, notes: '' },
+        { id: 'pp7', date: '2026-08-09T08:15:00Z', view: 'back', week: 8, weight: 83.2, notes: '' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/progress-photos')
+}
+
+// ── Member Goal Buddy ─────────────────────────────────────────────────────────
+export async function getMemberGoalBuddy() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 420))
+    return {
+      buddy: {
+        id: 'b1', name: 'Freya Magnusson', rank: 'Gold', location: 'Bergen, NO',
+        checkins: 8, goalsMet: 3,
+      },
+      sharedGoals: [
+        { id: 'sg1', title: 'Reach Silver rank by Sep 1', deadline: '2026-09-01T00:00:00Z', myProgress: 72, buddyProgress: 85, status: 'on_track' },
+        { id: 'sg2', title: 'Recruit 5 new members in August', deadline: '2026-08-31T00:00:00Z', myProgress: 60, buddyProgress: 40, status: 'on_track' },
+        { id: 'sg3', title: 'Complete Peptide Science course', deadline: '2026-08-15T00:00:00Z', myProgress: 100, buddyProgress: 100, status: 'completed' },
+        { id: 'sg4', title: 'Hit €2,000 monthly volume', deadline: '2026-08-31T00:00:00Z', myProgress: 38, buddyProgress: 55, status: 'behind' },
+      ],
+      checkins: [
+        { date: '2026-08-08T09:00:00Z', status: 'on_track', mood: 'good', author: 'me' },
+        { date: '2026-08-07T11:00:00Z', status: 'on_track', mood: 'ok', author: 'buddy' },
+        { date: '2026-08-01T09:00:00Z', status: 'on_track', mood: 'good', author: 'me' },
+        { date: '2026-07-25T10:00:00Z', status: 'behind', mood: 'ok', author: 'me' },
+      ],
+      messages: [
+        { text: 'Great work hitting the course goal! 🎉', date: '2026-08-08T10:15:00Z', author: 'buddy' },
+        { text: 'Thanks! You too — your recruit count is impressive 💪', date: '2026-08-08T10:22:00Z', author: 'me' },
+        { text: 'Volume goal is going to be tough this month. How are you sourcing leads?', date: '2026-08-07T14:00:00Z', author: 'buddy' },
+        { text: 'Mostly Instagram Reels and local gym partnerships. DM me and I\'ll share the script.', date: '2026-08-07T14:30:00Z', author: 'me' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/goal-buddy')
+}

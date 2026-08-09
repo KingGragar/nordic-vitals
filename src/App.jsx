@@ -238,6 +238,14 @@ const DashConsultations          = lazy(() => import('./pages/dashboard/Consulta
 const DashPurchasePlanner        = lazy(() => import('./pages/dashboard/PurchasePlanner'))
 const DashJournal                = lazy(() => import('./pages/dashboard/Journal'))
 const DashReferralContest        = lazy(() => import('./pages/dashboard/ReferralContest'))
+const AdminBackOrders            = lazy(() => import('./pages/admin/BackOrders'))
+const AdminUpsellRules           = lazy(() => import('./pages/admin/UpsellRules'))
+const AdminRewardCatalog         = lazy(() => import('./pages/admin/RewardCatalog'))
+const AdminRetentionOffers       = lazy(() => import('./pages/admin/RetentionOffers'))
+const DashBodyMeasurements       = lazy(() => import('./pages/dashboard/BodyMeasurements'))
+const DashSupplementStack        = lazy(() => import('./pages/dashboard/SupplementStack'))
+const DashProgressPhotos         = lazy(() => import('./pages/dashboard/ProgressPhotos'))
+const DashGoalBuddy              = lazy(() => import('./pages/dashboard/GoalBuddy'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -496,6 +504,14 @@ function AppRoutes() {
         <Route path="/dashboard/purchase-planner"    element={<RequireAuth><DashPurchasePlanner /></RequireAuth>} />
         <Route path="/dashboard/journal"             element={<RequireAuth><DashJournal /></RequireAuth>} />
         <Route path="/dashboard/referral-contest"    element={<RequireAuth><DashReferralContest /></RequireAuth>} />
+        <Route path="/admin/back-orders"             element={<RequireAuth role="admin"><AdminBackOrders /></RequireAuth>} />
+        <Route path="/admin/upsell-rules"            element={<RequireAuth role="admin"><AdminUpsellRules /></RequireAuth>} />
+        <Route path="/admin/reward-catalog"          element={<RequireAuth role="admin"><AdminRewardCatalog /></RequireAuth>} />
+        <Route path="/admin/retention-offers"        element={<RequireAuth role="admin"><AdminRetentionOffers /></RequireAuth>} />
+        <Route path="/dashboard/body-measurements"   element={<RequireAuth><DashBodyMeasurements /></RequireAuth>} />
+        <Route path="/dashboard/supplement-stack"    element={<RequireAuth><DashSupplementStack /></RequireAuth>} />
+        <Route path="/dashboard/progress-photos"     element={<RequireAuth><DashProgressPhotos /></RequireAuth>} />
+        <Route path="/dashboard/goal-buddy"          element={<RequireAuth><DashGoalBuddy /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
