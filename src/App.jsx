@@ -286,6 +286,14 @@ const DashWellnessGoals          = lazy(() => import('./pages/dashboard/Wellness
 const DashOrderTracking          = lazy(() => import('./pages/dashboard/OrderTracking'))
 const DashSubscriptionUpgrade    = lazy(() => import('./pages/dashboard/SubscriptionUpgrade'))
 const DashNutritionLog           = lazy(() => import('./pages/dashboard/NutritionLog'))
+const AdminSmartPricing          = lazy(() => import('./pages/admin/SmartPricing'))
+const AdminMemberFeedback        = lazy(() => import('./pages/admin/MemberFeedback'))
+const AdminFulfillmentCenters    = lazy(() => import('./pages/admin/FulfillmentCenters'))
+const AdminGamification          = lazy(() => import('./pages/admin/Gamification'))
+const DashSleepTracker           = lazy(() => import('./pages/dashboard/SleepTracker'))
+const DashChallengesHistory      = lazy(() => import('./pages/dashboard/ChallengesHistory'))
+const DashInvoiceHistory         = lazy(() => import('./pages/dashboard/InvoiceHistory'))
+const DashTeamMap                = lazy(() => import('./pages/dashboard/TeamMap'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -592,6 +600,14 @@ function AppRoutes() {
         <Route path="/dashboard/order-tracking"      element={<RequireAuth><DashOrderTracking /></RequireAuth>} />
         <Route path="/dashboard/subscription-upgrade" element={<RequireAuth><DashSubscriptionUpgrade /></RequireAuth>} />
         <Route path="/dashboard/nutrition-log"       element={<RequireAuth><DashNutritionLog /></RequireAuth>} />
+        <Route path="/admin/smart-pricing"           element={<RequireAuth role="admin"><AdminSmartPricing /></RequireAuth>} />
+        <Route path="/admin/member-feedback"         element={<RequireAuth role="admin"><AdminMemberFeedback /></RequireAuth>} />
+        <Route path="/admin/fulfillment-centers"     element={<RequireAuth role="admin"><AdminFulfillmentCenters /></RequireAuth>} />
+        <Route path="/admin/gamification"            element={<RequireAuth role="admin"><AdminGamification /></RequireAuth>} />
+        <Route path="/dashboard/sleep-tracker"       element={<RequireAuth><DashSleepTracker /></RequireAuth>} />
+        <Route path="/dashboard/challenges-history"  element={<RequireAuth><DashChallengesHistory /></RequireAuth>} />
+        <Route path="/dashboard/invoice-history"     element={<RequireAuth><DashInvoiceHistory /></RequireAuth>} />
+        <Route path="/dashboard/team-map"            element={<RequireAuth><DashTeamMap /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

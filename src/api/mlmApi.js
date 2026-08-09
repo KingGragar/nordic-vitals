@@ -10216,3 +10216,208 @@ export async function addMemberNutritionEntry(data) {
   if (USE_MOCK) { await delay(300); return { ok: true, id: 'nl' + Date.now() } }
   return request('POST', '/v1/mlm/member/nutrition-log', data)
 }
+
+// ── Run 166: Smart Pricing, Member Feedback, Fulfillment Centers, Gamification ──
+// ── Sleep Tracker, Challenges History, Invoice History, Team Map ──────────────
+
+export async function getAdminSmartPricing() {
+  if (USE_MOCK) {
+    await delay(350)
+    return {
+      stats: { activeRules: 12, pendingRules: 3, avgDiscount: 8.4, revenueImpact: '+€4,210' },
+      rules: [
+        { id: 'sp1', name: 'VIP Flash Discount',    trigger: 'member_tier=VIP',        action: 'discount', value: 15, unit: '%', floor: 29.99, ceiling: null, status: 'active',   hits: 342 },
+        { id: 'sp2', name: 'Bulk Order Markdown',   trigger: 'cart_qty>=10',            action: 'discount', value: 10, unit: '%', floor: null,  ceiling: null, status: 'active',   hits: 89  },
+        { id: 'sp3', name: 'Loyalty Cashback',      trigger: 'loyalty_tier=gold',       action: 'cashback', value: 5,  unit: '%', floor: null,  ceiling: 50,   status: 'active',   hits: 210 },
+        { id: 'sp4', name: 'First Order Promo',     trigger: 'order_count=0',           action: 'discount', value: 20, unit: '%', floor: 19.99, ceiling: 30,   status: 'active',   hits: 527 },
+        { id: 'sp5', name: 'Reactivation Offer',    trigger: 'inactive_days>=90',       action: 'discount', value: 25, unit: '%', floor: null,  ceiling: 40,   status: 'paused',   hits: 66  },
+        { id: 'sp6', name: 'High PV Reward',        trigger: 'monthly_pv>=500',         action: 'discount', value: 12, unit: '%', floor: null,  ceiling: null, status: 'active',   hits: 134 },
+        { id: 'sp7', name: 'Weekend Boost',         trigger: 'day_of_week=sat,sun',     action: 'discount', value: 5,  unit: '%', floor: null,  ceiling: null, status: 'pending',  hits: 0   },
+        { id: 'sp8', name: 'Peptide Stack Bundle',  trigger: 'product_category=bundle', action: 'discount', value: 8,  unit: '%', floor: 49.99, ceiling: null, status: 'active',   hits: 441 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/smart-pricing')
+}
+
+export async function toggleAdminSmartPricingRule(id, status) {
+  if (USE_MOCK) { await delay(200); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/smart-pricing/${id}`, { status })
+}
+
+export async function getAdminMemberFeedback() {
+  if (USE_MOCK) {
+    await delay(320)
+    return {
+      stats: { total: 1842, npsScore: 67, avgRating: 4.2, pendingReview: 38 },
+      sentiment: { positive: 61, neutral: 24, negative: 15 },
+      categories: [
+        { name: 'Product Quality', count: 512, avgRating: 4.6 },
+        { name: 'Shipping Speed',  count: 334, avgRating: 3.8 },
+        { name: 'Support',         count: 289, avgRating: 4.1 },
+        { name: 'App UX',          count: 267, avgRating: 3.9 },
+        { name: 'Pricing',         count: 244, avgRating: 3.5 },
+        { name: 'Training',        count: 196, avgRating: 4.4 },
+      ],
+      entries: [
+        { id: 'mf1', member: 'Elin Sørensen',    type: 'nps',     score: 9, comment: 'Fantastic peptide quality, fast delivery!',         status: 'reviewed',  ts: '2026-08-08T14:22:00Z' },
+        { id: 'mf2', member: 'Jonas Karlsson',   type: 'feature', score: null, comment: 'Please add a dark-mode mobile app.',              status: 'pending',   ts: '2026-08-09T08:10:00Z' },
+        { id: 'mf3', member: 'Maja Andersen',    type: 'product', score: 5, comment: 'BPC-157 worked wonders for my knee recovery.',       status: 'featured',  ts: '2026-08-07T19:45:00Z' },
+        { id: 'mf4', member: 'Lars Lindqvist',   type: 'nps',     score: 4, comment: 'Shipping took 10 days, expected 5.',                 status: 'pending',   ts: '2026-08-09T10:05:00Z' },
+        { id: 'mf5', member: 'Sigrid Olsen',     type: 'support', score: 4, comment: 'Support was helpful but slow to respond.',           status: 'reviewed',  ts: '2026-08-08T11:30:00Z' },
+        { id: 'mf6', member: 'Björn Eriksson',   type: 'feature', score: null, comment: 'Bulk ordering discount should be automatic.',      status: 'pending',   ts: '2026-08-09T09:00:00Z' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/member-feedback')
+}
+
+export async function reviewAdminMemberFeedback(id, status) {
+  if (USE_MOCK) { await delay(200); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/member-feedback/${id}`, { status })
+}
+
+export async function getAdminFulfillmentCenters() {
+  if (USE_MOCK) {
+    await delay(300)
+    return {
+      stats: { centers: 4, activeOrders: 2841, avgPickTime: '4.2h', onTimeRate: 97.3 },
+      centers: [
+        { id: 'fc1', name: 'Oslo Hub',         country: 'NO', status: 'operational', capacity: 85, activeOrders: 1102, staff: 24, pendingStock: 0,   lastSync: '2026-08-09T12:00:00Z' },
+        { id: 'fc2', name: 'Stockholm Depot',  country: 'SE', status: 'operational', capacity: 72, activeOrders: 894,  staff: 18, pendingStock: 3,   lastSync: '2026-08-09T11:45:00Z' },
+        { id: 'fc3', name: 'Hamburg Center',   country: 'DE', status: 'operational', capacity: 60, activeOrders: 645,  staff: 15, pendingStock: 0,   lastSync: '2026-08-09T11:30:00Z' },
+        { id: 'fc4', name: 'Copenhagen Store', country: 'DK', status: 'maintenance', capacity: 0,  activeOrders: 200,  staff: 8,  pendingStock: 12,  lastSync: '2026-08-09T08:00:00Z' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/fulfillment-centers')
+}
+
+export async function getAdminGamification() {
+  if (USE_MOCK) {
+    await delay(310)
+    return {
+      stats: { activeBadges: 48, activeRules: 22, challengesRunning: 5, totalXPAwarded: 284920 },
+      badgeCategories: [
+        { id: 'bc1', name: 'Sales',        badges: 12, color: '#fbbf24' },
+        { id: 'bc2', name: 'Recruitment',  badges: 8,  color: '#86efac' },
+        { id: 'bc3', name: 'Wellness',     badges: 10, color: '#a5b4fc' },
+        { id: 'bc4', name: 'Training',     badges: 9,  color: '#f9a8d4' },
+        { id: 'bc5', name: 'Loyalty',      badges: 9,  color: '#fcd34d' },
+      ],
+      pointsRules: [
+        { id: 'pr1', event: 'First order',          points: 500,  active: true  },
+        { id: 'pr2', event: 'Recruit a member',      points: 250,  active: true  },
+        { id: 'pr3', event: 'Monthly PV target hit', points: 200,  active: true  },
+        { id: 'pr4', event: 'Complete training',     points: 100,  active: true  },
+        { id: 'pr5', event: 'Leave product review',  points: 50,   active: true  },
+        { id: 'pr6', event: 'Daily login',           points: 10,   active: false },
+        { id: 'pr7', event: 'Share on social',       points: 30,   active: true  },
+        { id: 'pr8', event: 'Refer a purchase',      points: 150,  active: true  },
+      ],
+      leaderboardConfig: { period: 'monthly', metric: 'xp', topN: 20, resetDay: 1 },
+    }
+  }
+  return request('GET', '/v1/mlm/admin/gamification')
+}
+
+export async function toggleAdminGamificationRule(id, active) {
+  if (USE_MOCK) { await delay(200); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/gamification/rules/${id}`, { active })
+}
+
+// ── Member pages ──
+
+export async function getMemberSleepTracker() {
+  if (USE_MOCK) {
+    await delay(300)
+    return {
+      stats: { avgDuration: 7.1, avgQuality: 3.8, streak: 12, bestNight: 9.0 },
+      entries: [
+        { id: 'sl1', date: '2026-08-08', bedtime: '22:30', wakeTime: '06:15', duration: 7.75, quality: 4, wakeUps: 1, note: 'Felt rested', products: ['Sermorelin 2mg'] },
+        { id: 'sl2', date: '2026-08-07', bedtime: '23:15', wakeTime: '06:45', duration: 7.5,  quality: 3, wakeUps: 2, note: '',           products: [] },
+        { id: 'sl3', date: '2026-08-06', bedtime: '22:00', wakeTime: '06:00', duration: 8.0,  quality: 5, wakeUps: 0, note: 'Best sleep in weeks', products: ['Sermorelin 2mg'] },
+        { id: 'sl4', date: '2026-08-05', bedtime: '00:00', wakeTime: '07:30', duration: 7.5,  quality: 3, wakeUps: 3, note: 'Late night', products: [] },
+        { id: 'sl5', date: '2026-08-04', bedtime: '22:45', wakeTime: '06:30', duration: 7.75, quality: 4, wakeUps: 1, note: '',           products: [] },
+        { id: 'sl6', date: '2026-08-03', bedtime: '23:30', wakeTime: '07:00', duration: 7.5,  quality: 4, wakeUps: 1, note: '',           products: [] },
+        { id: 'sl7', date: '2026-08-02', bedtime: '22:15', wakeTime: '05:45', duration: 7.5,  quality: 5, wakeUps: 0, note: 'Peptide effect noticed', products: ['Sermorelin 2mg'] },
+      ],
+      weekChart: [
+        { day: 'Mon', duration: 7.5 }, { day: 'Tue', duration: 7.5 }, { day: 'Wed', duration: 8.0 },
+        { day: 'Thu', duration: 7.5 }, { day: 'Fri', duration: 7.75 }, { day: 'Sat', duration: 7.5 }, { day: 'Sun', duration: 7.75 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/sleep-tracker')
+}
+
+export async function addMemberSleepEntry(data) {
+  if (USE_MOCK) { await delay(300); return { ok: true, id: 'sl' + Date.now() } }
+  return request('POST', '/v1/mlm/member/sleep-tracker', data)
+}
+
+export async function getMemberChallengesHistory() {
+  if (USE_MOCK) {
+    await delay(290)
+    return {
+      stats: { participated: 18, won: 6, totalPrizeValue: '€840', currentStreak: 3 },
+      history: [
+        { id: 'ch1', title: '30-Day Recruitment Sprint', type: 'recruitment', startDate: '2026-07-01', endDate: '2026-07-31', result: 'won',    rank: 2,  prize: '€150 store credit', participants: 142 },
+        { id: 'ch2', title: 'August PV Blitz',           type: 'sales',       startDate: '2026-08-01', endDate: '2026-08-31', result: 'active', rank: 7,  prize: 'Top 10: trip',      participants: 211 },
+        { id: 'ch3', title: 'Summer Wellness Challenge', type: 'wellness',    startDate: '2026-06-01', endDate: '2026-06-30', result: 'won',    rank: 1,  prize: '€200 cash',         participants: 89  },
+        { id: 'ch4', title: 'Peptide Protocol Month',    type: 'wellness',    startDate: '2026-05-01', endDate: '2026-05-31', result: 'missed', rank: null, prize: '€100 voucher',    participants: 67  },
+        { id: 'ch5', title: 'Nordic Top Earners Q1',     type: 'sales',       startDate: '2026-01-01', endDate: '2026-03-31', result: 'won',    rank: 3,  prize: '€250 bonus',        participants: 318 },
+        { id: 'ch6', title: 'Social Share Blitz',        type: 'social',      startDate: '2026-07-15', endDate: '2026-07-22', result: 'participated', rank: 14, prize: 'Gift pack', participants: 224 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/challenges-history')
+}
+
+export async function getMemberInvoiceHistory() {
+  if (USE_MOCK) {
+    await delay(280)
+    return {
+      stats: { totalInvoices: 24, totalAmount: '€6,842', ytdAmount: '€3,210', pending: 1 },
+      invoices: [
+        { id: 'inv1', invoiceNo: 'NV-INV-2026-0024', date: '2026-08-08', description: 'Order NV-20260808-5512', amount: 218.50, currency: 'EUR', status: 'paid',    type: 'order'      },
+        { id: 'inv2', invoiceNo: 'NV-INV-2026-0023', date: '2026-08-01', description: 'Monthly Membership Fee', amount: 59.00,  currency: 'EUR', status: 'paid',    type: 'membership' },
+        { id: 'inv3', invoiceNo: 'NV-INV-2026-0022', date: '2026-07-28', description: 'Order NV-20260728-4812', amount: 342.00, currency: 'EUR', status: 'paid',    type: 'order'      },
+        { id: 'inv4', invoiceNo: 'NV-INV-2026-0021', date: '2026-07-15', description: 'Order NV-20260715-4420', amount: 128.00, currency: 'EUR', status: 'paid',    type: 'order'      },
+        { id: 'inv5', invoiceNo: 'NV-INV-2026-0020', date: '2026-07-01', description: 'Monthly Membership Fee', amount: 59.00,  currency: 'EUR', status: 'paid',    type: 'membership' },
+        { id: 'inv6', invoiceNo: 'NV-INV-2026-0019', date: '2026-09-01', description: 'Monthly Membership Fee', amount: 59.00,  currency: 'EUR', status: 'pending', type: 'membership' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/invoice-history')
+}
+
+export async function getMemberTeamMap() {
+  if (USE_MOCK) {
+    await delay(310)
+    return {
+      stats: { countries: 8, cities: 24, totalMembers: 184, topCountry: 'Norway' },
+      countries: [
+        { code: 'NO', name: 'Norway',      members: 62, active: 54, flag: '🇳🇴' },
+        { code: 'SE', name: 'Sweden',      members: 41, active: 37, flag: '🇸🇪' },
+        { code: 'DK', name: 'Denmark',     members: 28, active: 24, flag: '🇩🇰' },
+        { code: 'FI', name: 'Finland',     members: 19, active: 16, flag: '🇫🇮' },
+        { code: 'DE', name: 'Germany',     members: 14, active: 11, flag: '🇩🇪' },
+        { code: 'NL', name: 'Netherlands', members: 9,  active: 7,  flag: '🇳🇱' },
+        { code: 'GB', name: 'UK',          members: 7,  active: 5,  flag: '🇬🇧' },
+        { code: 'ES', name: 'Spain',       members: 4,  active: 4,  flag: '🇪🇸' },
+      ],
+      topCities: [
+        { city: 'Oslo',        country: 'NO', members: 28 },
+        { city: 'Stockholm',   country: 'SE', members: 22 },
+        { city: 'Bergen',      country: 'NO', members: 14 },
+        { city: 'Copenhagen',  country: 'DK', members: 13 },
+        { city: 'Gothenburg',  country: 'SE', members: 11 },
+        { city: 'Helsinki',    country: 'FI', members: 10 },
+        { city: 'Trondheim',   country: 'NO', members: 9  },
+        { city: 'Malmö',       country: 'SE', members: 8  },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/team-map')
+}
