@@ -246,6 +246,14 @@ const DashBodyMeasurements       = lazy(() => import('./pages/dashboard/BodyMeas
 const DashSupplementStack        = lazy(() => import('./pages/dashboard/SupplementStack'))
 const DashProgressPhotos         = lazy(() => import('./pages/dashboard/ProgressPhotos'))
 const DashGoalBuddy              = lazy(() => import('./pages/dashboard/GoalBuddy'))
+const AdminOrderRouting          = lazy(() => import('./pages/admin/OrderRouting'))
+const AdminBundleBuilder         = lazy(() => import('./pages/admin/BundleBuilder'))
+const AdminReferralCampaigns     = lazy(() => import('./pages/admin/ReferralCampaigns'))
+const AdminNetworkSnapshot       = lazy(() => import('./pages/admin/NetworkSnapshot'))
+const DashKitBuilder             = lazy(() => import('./pages/dashboard/KitBuilder'))
+const DashWinLog                 = lazy(() => import('./pages/dashboard/WinLog'))
+const DashAiInsights             = lazy(() => import('./pages/dashboard/AiInsights'))
+const DashContentPlanner         = lazy(() => import('./pages/dashboard/ContentPlanner'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -512,6 +520,14 @@ function AppRoutes() {
         <Route path="/dashboard/supplement-stack"    element={<RequireAuth><DashSupplementStack /></RequireAuth>} />
         <Route path="/dashboard/progress-photos"     element={<RequireAuth><DashProgressPhotos /></RequireAuth>} />
         <Route path="/dashboard/goal-buddy"          element={<RequireAuth><DashGoalBuddy /></RequireAuth>} />
+        <Route path="/admin/order-routing"           element={<RequireAuth role="admin"><AdminOrderRouting /></RequireAuth>} />
+        <Route path="/admin/bundle-builder"          element={<RequireAuth role="admin"><AdminBundleBuilder /></RequireAuth>} />
+        <Route path="/admin/referral-campaigns"      element={<RequireAuth role="admin"><AdminReferralCampaigns /></RequireAuth>} />
+        <Route path="/admin/network-snapshot"        element={<RequireAuth role="admin"><AdminNetworkSnapshot /></RequireAuth>} />
+        <Route path="/dashboard/kit-builder"         element={<RequireAuth><DashKitBuilder /></RequireAuth>} />
+        <Route path="/dashboard/win-log"             element={<RequireAuth><DashWinLog /></RequireAuth>} />
+        <Route path="/dashboard/ai-insights"         element={<RequireAuth><DashAiInsights /></RequireAuth>} />
+        <Route path="/dashboard/content-planner"     element={<RequireAuth><DashContentPlanner /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

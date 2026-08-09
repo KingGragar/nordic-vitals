@@ -9056,3 +9056,175 @@ export async function getMemberGoalBuddy() {
   }
   return request('GET', '/v1/mlm/member/goal-buddy')
 }
+
+export async function getAdminOrderRouting() {
+  if (USE_MOCK) {
+    return {
+      routed7d: 1243, fallbackRate: 4.2, fallbackWarehouse: 'Oslo Central',
+      warehouses: [
+        { id: 1, name: 'Oslo Central', location: 'Norway', active: true, pendingOrders: 38 },
+        { id: 2, name: 'Stockholm Hub', location: 'Sweden', active: true, pendingOrders: 22 },
+        { id: 3, name: 'Hamburg EU', location: 'Germany', active: true, pendingOrders: 17 },
+        { id: 4, name: 'UK Fulfilment', location: 'United Kingdom', active: false, pendingOrders: 0 },
+      ],
+      rules: [
+        { id: 1, name: 'Nordic Countries', status: 'active', priority: 'high', warehouse: 'Oslo Central', conditions: ['country=NO,SE,DK,FI'], ordersRouted: 621, avgFulfillHours: 18 },
+        { id: 2, name: 'EU Zone', status: 'active', priority: 'medium', warehouse: 'Hamburg EU', conditions: ['country=DE,NL,BE,FR,AT'], ordersRouted: 289, avgFulfillHours: 28 },
+        { id: 3, name: 'UK Orders', status: 'inactive', priority: 'high', warehouse: 'UK Fulfilment', conditions: ['country=GB'], ordersRouted: 0, avgFulfillHours: 0 },
+        { id: 4, name: 'Heavy Shipments', status: 'active', priority: 'high', warehouse: 'Oslo Central', conditions: ['weight>10kg', 'country=NO'], ordersRouted: 54, avgFulfillHours: 22 },
+        { id: 5, name: 'Express Peptide', status: 'draft', priority: 'high', warehouse: 'Oslo Central', conditions: ['product_type=peptide', 'shipping=express'], ordersRouted: 0, avgFulfillHours: 0 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/order-routing')
+}
+
+export async function getAdminBundleBuilder() {
+  if (USE_MOCK) {
+    return {
+      products: [
+        { id: 1, name: 'BPC-157 10mg', price: 490, cost: 120, pv: 25, stock: 142 },
+        { id: 2, name: 'Collagen Peptide 500g', price: 395, cost: 90, pv: 20, stock: 88 },
+        { id: 3, name: 'TB-500 5mg', price: 620, cost: 150, pv: 30, stock: 67 },
+        { id: 4, name: 'Sermorelin 2mg', price: 540, cost: 130, pv: 27, stock: 55 },
+        { id: 5, name: 'AOD-9604 5mg', price: 480, cost: 110, pv: 24, stock: 99 },
+        { id: 6, name: 'CJC-1295 2mg', price: 510, cost: 125, pv: 26, stock: 73 },
+        { id: 7, name: 'Marine Collagen 300g', price: 320, cost: 75, pv: 16, stock: 120 },
+        { id: 8, name: 'Ipamorelin 5mg', price: 530, cost: 128, pv: 26, stock: 61 },
+      ],
+      savedBundles: [
+        { id: 1, name: 'Starter Pack Pro', items: 3, discount: 15, price: 1162, active: true, sold: 87, productNames: ['BPC-157', 'Collagen', 'TB-500'] },
+        { id: 2, name: 'Recovery Bundle', items: 2, discount: 10, price: 980, active: true, sold: 45, productNames: ['BPC-157', 'TB-500'] },
+        { id: 3, name: 'Anti-Age Stack', items: 4, discount: 20, price: 1496, active: false, sold: 12, productNames: ['Sermorelin', 'AOD-9604', 'Collagen', 'Marine Collagen'] },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/bundle-builder')
+}
+
+export async function getAdminReferralCampaigns() {
+  if (USE_MOCK) {
+    return {
+      totalReferrals: 312, bonusesPaid: 48600, conversionRate: 34.2,
+      campaigns: [
+        { id: 1, name: 'Summer Boost 2026', status: 'active', type: 'bonus_cash', description: 'Earn NOK 300 for every new member enrolled this summer.', startDate: '2026-06-01', endDate: '2026-08-31', eligibility: 'All members', enrolled: 182, referred: 89, converted: 31, bonusPerRef: 300 },
+        { id: 2, name: 'Double-Up July', status: 'ended', type: 'double_points', description: 'All referral points doubled for the month of July.', startDate: '2026-07-01', endDate: '2026-07-31', eligibility: 'Gold+ members', enrolled: 94, referred: 62, converted: 18, bonusPerRef: 0 },
+        { id: 3, name: 'Fall Launch Blast', status: 'scheduled', type: 'gift', description: 'Refer 3+ members and receive an exclusive Nordic Vitals gift box.', startDate: '2026-09-01', endDate: '2026-09-30', eligibility: 'All members', enrolled: 0, referred: 0, converted: 0, bonusPerRef: 0 },
+        { id: 4, name: 'VIP Tier Skip', status: 'draft', type: 'tier_skip', description: 'Top recruiter of the month jumps directly to the next rank tier.', startDate: '2026-10-01', endDate: '2026-10-31', eligibility: 'Silver+ members', enrolled: 0, referred: 0, converted: 0, bonusPerRef: 0 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/referral-campaigns')
+}
+
+export async function getAdminNetworkSnapshot() {
+  if (USE_MOCK) {
+    const makeSnapshot = (id, label, date, memberBase, volBase) => ({
+      id, label, capturedAt: date,
+      totalMembers: memberBase,
+      activeMembers: Math.round(memberBase * 0.61),
+      newMembers30d: Math.round(memberBase * 0.04),
+      totalVolume: volBase,
+      avgDepth: 4.2,
+      rankPromotions30d: Math.round(memberBase * 0.012),
+      rankDistribution: [
+        { rank: 'Starter', count: Math.round(memberBase * 0.42), pct: 42 },
+        { rank: 'Bronze', count: Math.round(memberBase * 0.28), pct: 28 },
+        { rank: 'Silver', count: Math.round(memberBase * 0.16), pct: 16 },
+        { rank: 'Gold', count: Math.round(memberBase * 0.09), pct: 9 },
+        { rank: 'Platinum', count: Math.round(memberBase * 0.04), pct: 4 },
+        { rank: 'Diamond', count: Math.round(memberBase * 0.01), pct: 1 },
+      ],
+      topRecruiters: [
+        { name: 'Ingrid H.', recruited: 14 },
+        { name: 'Lars M.', recruited: 11 },
+        { name: 'Sofia K.', recruited: 9 },
+        { name: 'Erik B.', recruited: 7 },
+        { name: 'Anna W.', recruited: 6 },
+      ]
+    })
+    return {
+      snapshots: [
+        makeSnapshot(1, 'August 2026 (latest)', '2026-08-09', 2847, 4218000),
+        makeSnapshot(2, 'July 2026', '2026-07-01', 2704, 3980000),
+        makeSnapshot(3, 'Q2 End (June)', '2026-06-30', 2531, 3621000),
+        makeSnapshot(4, 'Pre-launch baseline', '2026-05-01', 1892, 2210000),
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/network-snapshot')
+}
+
+export async function getMemberKitBuilder() {
+  if (USE_MOCK) {
+    return {
+      products: [
+        { id: 1, name: 'BPC-157 10mg', price: 490, pv: 25 },
+        { id: 2, name: 'Collagen Peptide 500g', price: 395, pv: 20 },
+        { id: 3, name: 'TB-500 5mg', price: 620, pv: 30 },
+        { id: 4, name: 'Sermorelin 2mg', price: 540, pv: 27 },
+        { id: 5, name: 'AOD-9604 5mg', price: 480, pv: 24 },
+        { id: 6, name: 'Marine Collagen 300g', price: 320, pv: 16 },
+        { id: 7, name: 'Ipamorelin 5mg', price: 530, pv: 26 },
+        { id: 8, name: 'CJC-1295 2mg', price: 510, pv: 26 },
+      ],
+      savedKits: [
+        { id: 1, name: 'My Starter Rec', items: 3, total: 1505 },
+        { id: 2, name: 'Recovery Stack', items: 2, total: 1110 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/kit-builder')
+}
+
+export async function getMemberWinLog() {
+  if (USE_MOCK) {
+    return {
+      thisMonth: 4, streak: 7, sharedCount: 3,
+      wins: [
+        { id: 1, emoji: '🏆', tag: 'recruitment', text: 'Enrolled my first customer today — she bought the Collagen + BPC-157 starter pack. Paid for itself in one week!', impact: '+1 customer, NOK 885 volume', date: '2026-08-09', shared: false },
+        { id: 2, emoji: '💰', tag: 'income', text: 'Commission cheque cleared this morning — NOK 3,200 from team volume. Best month yet!', impact: '+NOK 3,200', date: '2026-08-05', shared: true },
+        { id: 3, emoji: '📈', tag: 'sales', text: 'Hit Silver rank for the first time. The system updated instantly — seeing the badge in my profile feels incredible.', impact: 'Rank up to Silver', date: '2026-08-02', shared: true },
+        { id: 4, emoji: '👥', tag: 'recruitment', text: 'My downline grew to 10 active members. Six months ago I had zero. Consistency compounds!', impact: '+10 team members', date: '2026-07-28', shared: false },
+        { id: 5, emoji: '🌿', tag: 'wellness', text: 'Week 4 of BPC-157 protocol. Knee inflammation down significantly — personal win that fuels how I sell this.', impact: 'Personal wellness milestone', date: '2026-07-20', shared: false },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/win-log')
+}
+
+export async function getMemberAiInsights() {
+  if (USE_MOCK) {
+    return {
+      estImpactPct: 22, lastAnalysed: 'Today 06:12',
+      performanceSummary: 'Your sales volume is up 18% vs last month and your recruitment pace is on track for a Gold rank by October. One area to watch: 3 of your team members have been dormant for 14+ days — a quick check-in could reactivate them before end-of-month cutoff.',
+      trendChart: { values: [12,15,11,18,14,19,22,17,24,26,21,28,25,30,27,32,29,35,31,36,33,38,35,40,37,42,38,44,41,46] },
+      insights: [
+        { id: 1, priority: 'high', type: 'retention', title: 'Dormant Team Risk', body: '3 of your 10 frontline members haven\'t logged in for 14+ days. Based on past patterns, members dormant for 21+ days churn at 68%. A check-in now could save your month-end volume.', action: 'Send a personal message to Lars M., Ingrid H., and Sofia K. using the Team Chat tool.', metric: { current: '3 dormant', target: '0 dormant', gain: '+NOK 1,200 volume' } },
+        { id: 2, priority: 'high', type: 'income', title: 'Rank Promotion Window', body: 'You are NOK 4,200 in personal volume away from Gold rank this month. With 22 days left, reaching this target requires NOK 191/day — very achievable based on your recent pace.', action: 'Focus on personal orders or 2-3 additional customer sales before month end.', metric: { current: 'NOK 9,800 PV', target: 'NOK 14,000 PV', gain: '+25% commission rate' } },
+        { id: 3, priority: 'medium', type: 'product', title: 'BPC-157 Reorder Pattern', body: 'Customers who buy BPC-157 tend to reorder within 28 days. 4 of your customers are now past day 25. A timely reminder could capture these reorders before they go elsewhere.', action: 'Use the Team Broadcast tool to send a reorder reminder to qualifying customers.', metric: { current: '4 customers at-risk', target: '4 reorders secured', gain: 'NOK 1,960 volume' } },
+        { id: 4, priority: 'medium', type: 'recruitment', title: 'Referral Campaign Momentum', body: 'The Summer Boost campaign ends in 22 days. Your current referral conversion rate (34%) is above team average (28%). Doubling down now could earn an additional NOK 2,100 in bonuses.', action: 'Share your referral link via the Content Planner with 3 posts this week.', metric: { current: '3 referrals', target: '10 referrals', gain: 'NOK 2,100 bonus' } },
+        { id: 5, priority: 'low', type: 'growth', title: 'Profile Completeness', body: 'Your member profile is 72% complete. Members with complete profiles get 2.4× more inbound inquiries via the referral landing page.', action: 'Add your bio, product testimonial, and profile photo in the Profile section.', metric: null },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/ai-insights')
+}
+
+export async function getMemberContentPlanner() {
+  if (USE_MOCK) {
+    return {
+      streak: 5,
+      posts: [
+        { id: 1, platform: 'instagram', type: 'product', caption: 'Starting my BPC-157 protocol today — 4 weeks, daily updates. Who else is on a peptide journey? 💊', hashtags: '#BPC157 #peptides #nordicvitals #wellness', day: 1, published: true },
+        { id: 2, platform: 'tiktok', type: 'education', caption: 'What is BPC-157 and why is everyone talking about it? Quick explainer 👇', hashtags: '#peptidescience #healthtips #nordicvitals', day: 3, published: true },
+        { id: 3, platform: 'facebook', type: 'testimonial', caption: 'Week 2 update — knee inflammation noticeably down. Here\'s what I\'ve been doing...', hashtags: '#peptidetherapy #recovery', day: 7, published: false },
+        { id: 4, platform: 'instagram', type: 'recruitment', caption: 'Want to earn while helping people with their health goals? DM me "VITALS" 🌿', hashtags: '#mlm #healthbusiness #nordicvitals', day: 10, published: false },
+        { id: 5, platform: 'tiktok', type: 'personal', caption: 'My morning protocol — collagen, BPC-157, and 10 minutes of sunlight. Simple but powerful.', hashtags: '#morningroutine #wellness', day: 14, published: false },
+        { id: 6, platform: 'instagram', type: 'promo', caption: '🚨 LAST CHANCE: Summer Boost referral campaign ends this month. Earn NOK 300 per new member!', hashtags: '#nordicvitals #referral #summer', day: 20, published: false },
+        { id: 7, platform: 'youtube', type: 'education', caption: 'Full video: 30 days on peptides — honest results, bloodwork, and what I\'d change', hashtags: '#peptides30days #biohacking', day: 28, published: false },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/content-planner')
+}
