@@ -10013,3 +10013,206 @@ export async function getMemberLiveEvents() {
   }
   return request('GET', '/v1/mlm/member/live-events')
 }
+
+// ── Run 165 ─────────────────────────────────────────────────────────────────
+
+export async function getAdminCallCenter() {
+  if (USE_MOCK) {
+    return {
+      queueLength: 7, avgWaitSec: 94, slaBreached: 2, agentsOnline: 5,
+      queue: [
+        { id: 'q1', ticket: 'TK-9041', member: 'Lars Eriksson',  issue: 'Payout not received',     waitSec: 210, priority: 'high',   assignedTo: null },
+        { id: 'q2', ticket: 'TK-9042', member: 'Ingrid H.',       issue: 'Order refund question',   waitSec: 145, priority: 'medium', assignedTo: 'Agent A' },
+        { id: 'q3', ticket: 'TK-9043', member: 'Bjørn T.',        issue: 'KYC document rejected',   waitSec: 88,  priority: 'high',   assignedTo: null },
+        { id: 'q4', ticket: 'TK-9044', member: 'Maria L.',        issue: 'Autoship not processing', waitSec: 62,  priority: 'medium', assignedTo: 'Agent B' },
+        { id: 'q5', ticket: 'TK-9045', member: 'Erik N.',         issue: 'Commission discrepancy',  waitSec: 34,  priority: 'low',    assignedTo: 'Agent A' },
+      ],
+      agents: [
+        { id: 'a1', name: 'Agent A (Sara M.)',  status: 'busy',    ticketsToday: 14, avgResolveSec: 420, satisfaction: 4.7 },
+        { id: 'a2', name: 'Agent B (Kim T.)',   status: 'busy',    ticketsToday: 11, avgResolveSec: 510, satisfaction: 4.5 },
+        { id: 'a3', name: 'Agent C (Olav P.)',  status: 'available', ticketsToday: 9, avgResolveSec: 380, satisfaction: 4.8 },
+        { id: 'a4', name: 'Agent D (Frida L.)', status: 'break',   ticketsToday: 8,  avgResolveSec: 460, satisfaction: 4.4 },
+        { id: 'a5', name: 'Agent E (Nils R.)',  status: 'offline', ticketsToday: 6,  avgResolveSec: 490, satisfaction: 4.3 },
+      ],
+      recentResolved: [
+        { id: 'r1', ticket: 'TK-9038', member: 'Anna K.',    issue: 'Wrong product received',       resolvedBy: 'Sara M.',  resolveSec: 390, rating: 5 },
+        { id: 'r2', ticket: 'TK-9037', member: 'Petter V.',  issue: 'Subscription upgrade query',   resolvedBy: 'Kim T.',   resolveSec: 520, rating: 4 },
+        { id: 'r3', ticket: 'TK-9035', member: 'Hanne L.',   issue: 'Referral link not tracking',   resolvedBy: 'Olav P.',  resolveSec: 300, rating: 5 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/call-center')
+}
+
+export async function assignAdminCallCenterTicket(ticketId, agentId) {
+  if (USE_MOCK) { await delay(300); return { ok: true } }
+  return request('POST', '/v1/mlm/admin/call-center/assign', { ticketId, agentId })
+}
+
+export async function getAdminPriceHistory(skuFilter = '') {
+  if (USE_MOCK) {
+    const rows = [
+      { id: 'ph1', sku: 'NV-BPC-5',   name: 'BPC-157 5mg',            oldPrice: 42.00, newPrice: 47.00, changedBy: 'admin@nordicvitals.com', changedAt: '2026-08-07T09:14:00Z', reason: 'Cost increase' },
+      { id: 'ph2', sku: 'NV-SERM-2',  name: 'Sermorelin 2mg',          oldPrice: 68.00, newPrice: 64.00, changedBy: 'admin@nordicvitals.com', changedAt: '2026-08-05T14:30:00Z', reason: 'Promotional markdown' },
+      { id: 'ph3', sku: 'NV-TB4-1',   name: 'TB-500 / Thymosin Beta-4',oldPrice: 55.00, newPrice: 59.00, changedBy: 'pricing@nordicvitals.com',changedAt: '2026-07-28T11:00:00Z', reason: 'Quarterly review' },
+      { id: 'ph4', sku: 'NV-GHK-1',   name: 'GHK-Cu Peptide Cream',    oldPrice: 38.00, newPrice: 38.00, changedBy: 'pricing@nordicvitals.com',changedAt: '2026-07-20T08:00:00Z', reason: 'No change (audit)' },
+      { id: 'ph5', sku: 'NV-IGFLR3-1',name: 'IGF-1 LR3 0.1mg',         oldPrice: 85.00, newPrice: 91.00, changedBy: 'admin@nordicvitals.com', changedAt: '2026-07-15T16:45:00Z', reason: 'Supplier cost' },
+      { id: 'ph6', sku: 'NV-BPC-5',   name: 'BPC-157 5mg',             oldPrice: 39.00, newPrice: 42.00, changedBy: 'system',                  changedAt: '2026-07-01T00:00:00Z', reason: 'Scheduled Q3 adjustment' },
+      { id: 'ph7', sku: 'NV-STACK-1', name: 'Nordic Stack Pro',         oldPrice: 120.00,newPrice: 115.00,changedBy: 'admin@nordicvitals.com', changedAt: '2026-06-25T10:00:00Z', reason: 'Launch promo' },
+    ]
+    const filtered = skuFilter ? rows.filter(r => r.sku.toLowerCase().includes(skuFilter.toLowerCase()) || r.name.toLowerCase().includes(skuFilter.toLowerCase())) : rows
+    return filtered
+  }
+  return request('GET', `/v1/mlm/admin/price-history?sku=${encodeURIComponent(skuFilter)}`)
+}
+
+export async function getAdminMobileApp() {
+  if (USE_MOCK) {
+    return {
+      iosVersion: '3.4.1', iosForceUpdate: false, iosBuildDate: '2026-08-01',
+      androidVersion: '3.4.2', androidForceUpdate: false, androidBuildDate: '2026-08-03',
+      pushStats: { sent: 18420, opened: 7310, openRate: '39.7%', optedIn: 3_241 },
+      maintenanceMode: false,
+      featureFlags: [
+        { id: 'ff1', key: 'peptide_scanner',    label: 'Peptide QR Scanner',    enabledIos: true,  enabledAndroid: true,  rolloutPct: 100 },
+        { id: 'ff2', key: 'ai_coach',           label: 'AI Wellness Coach',      enabledIos: true,  enabledAndroid: false, rolloutPct: 50  },
+        { id: 'ff3', key: 'biometric_login',    label: 'Biometric Login',        enabledIos: true,  enabledAndroid: true,  rolloutPct: 100 },
+        { id: 'ff4', key: 'dark_mode_v2',       label: 'Dark Mode v2',           enabledIos: false, enabledAndroid: false, rolloutPct: 0   },
+        { id: 'ff5', key: 'token_wallet_ui',    label: 'Token Wallet UI',        enabledIos: true,  enabledAndroid: true,  rolloutPct: 75  },
+      ],
+      appStoreLinks: { ios: 'https://apps.apple.com/app/nordic-vitals', android: 'https://play.google.com/store/apps/nordic-vitals' },
+    }
+  }
+  return request('GET', '/v1/mlm/admin/mobile-app')
+}
+
+export async function toggleAdminMobileFlag(id, platform, enabled) {
+  if (USE_MOCK) { await delay(250); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/mobile-app/flags/${id}`, { platform, enabled })
+}
+
+export async function getAdminComplianceWatchlist() {
+  if (USE_MOCK) {
+    return {
+      total: 12, highRisk: 3, reviewing: 5, cleared: 4,
+      members: [
+        { id: 'cw1', name: 'Marcus B.',    memberId: 'NV-2201', risk: 'high',   trigger: 'Chargebacks × 3 in 30d',           reviewer: 'compliance@nordicvitals.com', flaggedAt: '2026-08-06', notes: 'Dispute pattern under review.' },
+        { id: 'cw2', name: 'Petra K.',     memberId: 'NV-1844', risk: 'high',   trigger: 'Income claim on public social',     reviewer: 'compliance@nordicvitals.com', flaggedAt: '2026-08-04', notes: 'Facebook post removed. Awaiting signed compliance cert.' },
+        { id: 'cw3', name: 'Sven A.',      memberId: 'NV-3017', risk: 'high',   trigger: 'KYC docs unverified > 60d',         reviewer: null,                          flaggedAt: '2026-07-31', notes: '' },
+        { id: 'cw4', name: 'Heidi M.',     memberId: 'NV-0922', risk: 'medium', trigger: 'Rapid downline expansion (31 in 7d)',reviewer: 'kyc@nordicvitals.com',       flaggedAt: '2026-08-01', notes: 'Looks like a team transfer. Investigating.' },
+        { id: 'cw5', name: 'Rolf T.',      memberId: 'NV-4102', risk: 'medium', trigger: 'Payout address changed 3 times',    reviewer: 'kyc@nordicvitals.com',        flaggedAt: '2026-07-29', notes: 'Member confirmed via phone.' },
+        { id: 'cw6', name: 'Ingeborg F.',  memberId: 'NV-0310', risk: 'low',    trigger: 'Unusual login location',            reviewer: null,                          flaggedAt: '2026-08-08', notes: '' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/compliance-watchlist')
+}
+
+export async function updateAdminComplianceWatchlist(id, { risk, notes, cleared }) {
+  if (USE_MOCK) { await delay(300); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/compliance-watchlist/${id}`, { risk, notes, cleared })
+}
+
+export async function getMemberWellnessGoals() {
+  if (USE_MOCK) {
+    return {
+      streak: 14, goalsHit: 3, goalsTotal: 5,
+      goals: [
+        { id: 'wg1', title: 'Daily steps',         unit: 'steps',   target: 10000, current: 8420,  pct: 84, category: 'activity',  trend: 'up' },
+        { id: 'wg2', title: 'Body weight',          unit: 'kg',      target: 82.0,  current: 85.4,  pct: 60, category: 'weight',    trend: 'down' },
+        { id: 'wg3', title: 'Sleep hours',          unit: 'h/night', target: 8.0,   current: 7.2,   pct: 90, category: 'sleep',     trend: 'stable' },
+        { id: 'wg4', title: 'Water intake',         unit: 'L/day',   target: 3.0,   current: 2.4,   pct: 80, category: 'nutrition', trend: 'up' },
+        { id: 'wg5', title: 'Resting heart rate',   unit: 'bpm',     target: 60,    current: 66,    pct: 73, category: 'health',    trend: 'down' },
+      ],
+      weeklyCheckIns: [
+        { week: 'Jul 28', achieved: 3 }, { week: 'Aug 4', achieved: 4 }, { week: 'Aug 11', achieved: 3 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/wellness-goals')
+}
+
+export async function updateMemberWellnessGoal(id, current) {
+  if (USE_MOCK) { await delay(250); return { ok: true } }
+  return request('PATCH', `/v1/mlm/member/wellness-goals/${id}`, { current })
+}
+
+export async function getMemberOrderTracking() {
+  if (USE_MOCK) {
+    return {
+      orders: [
+        {
+          id: 'ot1', orderNo: 'NV-20260808-5512', status: 'in_transit', placedAt: '2026-08-08T10:15:00Z',
+          items: [{ name: 'BPC-157 5mg × 2', qty: 2 }, { name: 'Nordic Stack Pro × 1', qty: 1 }],
+          carrier: 'DHL Express', trackingNo: '1234567890123', estimatedDelivery: '2026-08-11',
+          steps: [
+            { label: 'Order placed',       done: true,  ts: '2026-08-08 10:15' },
+            { label: 'Payment confirmed',  done: true,  ts: '2026-08-08 10:18' },
+            { label: 'Picking & packing',  done: true,  ts: '2026-08-08 14:30' },
+            { label: 'Shipped',            done: true,  ts: '2026-08-09 08:00' },
+            { label: 'Out for delivery',   done: false, ts: null },
+            { label: 'Delivered',          done: false, ts: null },
+          ],
+        },
+        {
+          id: 'ot2', orderNo: 'NV-20260730-4891', status: 'delivered', placedAt: '2026-07-30T09:00:00Z',
+          items: [{ name: 'Sermorelin 2mg × 1', qty: 1 }],
+          carrier: 'PostNord', trackingNo: '9876543210987', estimatedDelivery: '2026-08-02',
+          steps: [
+            { label: 'Order placed',      done: true, ts: '2026-07-30 09:00' },
+            { label: 'Payment confirmed', done: true, ts: '2026-07-30 09:02' },
+            { label: 'Picking & packing', done: true, ts: '2026-07-30 15:00' },
+            { label: 'Shipped',           done: true, ts: '2026-07-31 07:30' },
+            { label: 'Out for delivery',  done: true, ts: '2026-08-02 09:00' },
+            { label: 'Delivered',         done: true, ts: '2026-08-02 12:45' },
+          ],
+        },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/order-tracking')
+}
+
+export async function getMemberSubscriptionUpgrade() {
+  if (USE_MOCK) {
+    return {
+      current: 'starter',
+      plans: [
+        { id: 'starter',    name: 'Starter',     price: 29,  pv: 50,  features: ['Product discounts 10%', 'Basic training', 'Email support', '1 referral link'] },
+        { id: 'pro',        name: 'Pro',          price: 59,  pv: 100, features: ['Product discounts 20%', 'Full training library', 'Priority support', '5 referral links', 'Commission reports', 'Custom landing page'] },
+        { id: 'elite',      name: 'Elite',        price: 99,  pv: 200, features: ['Product discounts 30%', 'All Pro features', 'Dedicated coach', 'Unlimited referral links', 'Co-op ad credits €50/mo', 'Early product access', 'Leadership events'] },
+        { id: 'enterprise', name: 'Enterprise',   price: 199, pv: 400, features: ['Product discounts 40%', 'All Elite features', 'White-label tools', 'API access', 'Custom commissions', 'Account manager'] },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/subscription-upgrade')
+}
+
+export async function upgradeMemberSubscription(planId) {
+  if (USE_MOCK) { await delay(600); return { ok: true, newPlan: planId } }
+  return request('POST', '/v1/mlm/member/subscription-upgrade', { planId })
+}
+
+export async function getMemberNutritionLog() {
+  if (USE_MOCK) {
+    return {
+      today: { calories: 1840, protein: 142, carbs: 180, fat: 62, targetCalories: 2200, targetProtein: 160 },
+      entries: [
+        { id: 'nl1', meal: 'Breakfast', food: 'Oatmeal + protein shake',         calories: 520, protein: 42, carbs: 68, fat: 8,  time: '07:30', linkedProduct: 'Nordic Whey Pro' },
+        { id: 'nl2', meal: 'Lunch',     food: 'Grilled salmon + sweet potato',   calories: 680, protein: 54, carbs: 72, fat: 18, time: '12:15', linkedProduct: null },
+        { id: 'nl3', meal: 'Pre-workout',food: 'BPC-157 injection + banana',     calories: 90,  protein: 2,  carbs: 23, fat: 0,  time: '16:00', linkedProduct: 'BPC-157 5mg' },
+        { id: 'nl4', meal: 'Dinner',    food: 'Chicken breast + salad',          calories: 550, protein: 44, carbs: 17, fat: 36, time: '19:30', linkedProduct: null },
+      ],
+      weeklyAvg: [
+        { day: 'Mon', calories: 2100 }, { day: 'Tue', calories: 1950 }, { day: 'Wed', calories: 2050 },
+        { day: 'Thu', calories: 1840 }, { day: 'Fri', calories: 0 }, { day: 'Sat', calories: 0 }, { day: 'Sun', calories: 0 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/nutrition-log')
+}
+
+export async function addMemberNutritionEntry(data) {
+  if (USE_MOCK) { await delay(300); return { ok: true, id: 'nl' + Date.now() } }
+  return request('POST', '/v1/mlm/member/nutrition-log', data)
+}
