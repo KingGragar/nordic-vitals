@@ -9484,3 +9484,300 @@ export async function getMemberProductFeedback() {
   }
   return request('GET', '/v1/mlm/member/product-feedback')
 }
+
+export async function getAdminTaxRules() {
+  if (USE_MOCK) {
+    return {
+      countryCount: 18,
+      avgRate: 21.4,
+      collectedMtd: 'NOK 284,920',
+      rules: [
+        { id: 'tr1', flag: '🇳🇴', country: 'Norway', region: null, category: 'All Products', type: 'standard', rate: 25, appliesTo: 'B2C sales', effectiveDate: '2024-01-01' },
+        { id: 'tr2', flag: '🇳🇴', country: 'Norway', region: null, category: 'Digital Products', type: 'standard', rate: 25, appliesTo: 'Electronic services', effectiveDate: '2024-01-01' },
+        { id: 'tr3', flag: '🇸🇪', country: 'Sweden', region: null, category: 'All Products', type: 'standard', rate: 25, appliesTo: 'B2C sales', effectiveDate: '2024-01-01' },
+        { id: 'tr4', flag: '🇸🇪', country: 'Sweden', region: null, category: 'Supplements', type: 'reduced', rate: 12, appliesTo: 'Food supplements', effectiveDate: '2024-01-01' },
+        { id: 'tr5', flag: '🇩🇰', country: 'Denmark', region: null, category: 'All Products', type: 'standard', rate: 25, appliesTo: 'B2C sales', effectiveDate: '2024-01-01' },
+        { id: 'tr6', flag: '🇩🇪', country: 'Germany', region: null, category: 'All Products', type: 'standard', rate: 19, appliesTo: 'B2C sales', effectiveDate: '2024-01-01' },
+        { id: 'tr7', flag: '🇩🇪', country: 'Germany', region: null, category: 'Supplements', type: 'reduced', rate: 7, appliesTo: 'Food-classified supplements', effectiveDate: '2024-01-01' },
+        { id: 'tr8', flag: '🇬🇧', country: 'United Kingdom', region: null, category: 'All Products', type: 'standard', rate: 20, appliesTo: 'B2C sales', effectiveDate: '2021-01-01' },
+        { id: 'tr9', flag: '🇬🇧', country: 'United Kingdom', region: null, category: 'Peptides', type: 'zero', rate: 0, appliesTo: 'Research chemicals', effectiveDate: '2021-01-01' },
+        { id: 'tr10', flag: '🇺🇸', country: 'United States', region: 'California', category: 'All Products', type: 'standard', rate: 10.25, appliesTo: 'B2C sales', effectiveDate: '2023-01-01' },
+        { id: 'tr11', flag: '🇺🇸', country: 'United States', region: 'Texas', category: 'All Products', type: 'standard', rate: 8.25, appliesTo: 'B2C sales', effectiveDate: '2023-01-01' },
+        { id: 'tr12', flag: '🇦🇺', country: 'Australia', region: null, category: 'All Products', type: 'standard', rate: 10, appliesTo: 'GST', effectiveDate: '2024-01-01' },
+        { id: 'tr13', flag: '🇨🇭', country: 'Switzerland', region: null, category: 'All Products', type: 'standard', rate: 8.1, appliesTo: 'B2C sales', effectiveDate: '2024-01-01' },
+        { id: 'tr14', flag: '🇪🇺', country: 'EU (default)', region: null, category: 'Digital Products', type: 'standard', rate: 23, appliesTo: 'OSS registered', effectiveDate: '2021-07-01' },
+        { id: 'tr15', flag: '🌐', country: 'B2B (all)', region: null, category: 'All Products', type: 'exempt', rate: 0, appliesTo: 'Valid VAT number', effectiveDate: '2024-01-01' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/tax-rules')
+}
+
+export async function getAdminLogViewer() {
+  if (USE_MOCK) {
+    return {
+      errorsLastHour: 3,
+      warnsLastHour: 14,
+      requestsLastHour: 8_420,
+      p95Latency: '182ms',
+      services: ['api-gateway', 'auth-service', 'order-service', 'payment-service', 'notification-service', 'mlm-engine'],
+      logs: [
+        { id: 'l1', severity: 'error', timestamp: '2026-08-09 12:43:17 UTC', service: 'payment-service', message: 'Stripe webhook signature verification failed: invalid signature', requestId: 'req_9fKm2aB', userId: null, method: 'POST', path: '/webhooks/stripe', statusCode: 400, latency: 22, stack: 'Error: Webhook signature verification failed\n  at verifyStripeWebhook (/app/webhooks/stripe.js:48)\n  at handler (/app/routes/webhooks.js:12)' },
+        { id: 'l2', severity: 'error', timestamp: '2026-08-09 11:18:04 UTC', service: 'mlm-engine', message: 'Commission calculation overflow: member_id=14892 exceeded max tree depth', requestId: 'req_7pNx1cD', userId: '14892', method: 'POST', path: '/v1/mlm/admin/commission-run', statusCode: 500, latency: 3840, stack: 'RangeError: Maximum call stack size exceeded\n  at calculateDownlineBonus (/app/mlm/commissions.js:204)' },
+        { id: 'l3', severity: 'warn', timestamp: '2026-08-09 12:51:38 UTC', service: 'api-gateway', message: 'Rate limit approaching for IP 185.220.101.44: 89/100 requests/min', requestId: null, userId: null, method: null, path: null, statusCode: null, latency: null },
+        { id: 'l4', severity: 'error', timestamp: '2026-08-09 10:02:55 UTC', service: 'auth-service', message: 'JWT refresh token expired and not rotated: token_id=tok_aB3k9', requestId: 'req_4qRs8eF', userId: '28371', method: 'POST', path: '/v1/auth/refresh', statusCode: 401, latency: 8 },
+        { id: 'l5', severity: 'warn', timestamp: '2026-08-09 12:49:02 UTC', service: 'order-service', message: 'Inventory level critical: SKU=NV-BPC157-5MG stock=3 below threshold=10', requestId: null, userId: null, method: null, path: null, statusCode: null, latency: null },
+        { id: 'l6', severity: 'info', timestamp: '2026-08-09 12:52:00 UTC', service: 'api-gateway', message: 'GET /v1/mlm/member/dashboard 200 OK', requestId: 'req_2mLt5gH', userId: '30214', method: 'GET', path: '/v1/mlm/member/dashboard', statusCode: 200, latency: 94 },
+        { id: 'l7', severity: 'warn', timestamp: '2026-08-09 12:47:18 UTC', service: 'notification-service', message: 'SMS delivery failed for member_id=19284: carrier timeout after 3 retries', requestId: 'req_6vPw3jK', userId: '19284', method: null, path: null, statusCode: null, latency: null },
+        { id: 'l8', severity: 'info', timestamp: '2026-08-09 12:50:33 UTC', service: 'payment-service', message: 'Payout batch initiated: batch_id=pay_2026080901, 48 members, NOK 284,920', requestId: 'req_8nQy7mL', userId: null, method: 'POST', path: '/v1/mlm/admin/payouts/batch', statusCode: 200, latency: 1240 },
+        { id: 'l9', severity: 'debug', timestamp: '2026-08-09 12:51:55 UTC', service: 'mlm-engine', message: 'Cache miss for network_tree:member_id=30214, rebuilding from DB', requestId: 'req_2mLt5gH', userId: '30214', method: null, path: null, statusCode: null, latency: 340 },
+        { id: 'l10', severity: 'warn', timestamp: '2026-08-09 12:44:22 UTC', service: 'order-service', message: 'Autoship order skipped for member_id=22093: payment method expired', requestId: 'req_3kMu6nN', userId: '22093', method: null, path: null, statusCode: null, latency: null },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/logs')
+}
+
+export async function getAdminAttribution() {
+  if (USE_MOCK) {
+    return {
+      totalConversions: 1_284,
+      totalRevenue: 'NOK 3,840,200',
+      avgCac: 'NOK 890',
+      roas: 4.3,
+      channels: [
+        { name: 'Organic Search', key: 'organic', revenue: 1_382_472, revenueFormatted: 'NOK 1.38M', sessions: 28_400, conversions: 482, cvr: 1.7, cac: 'NOK 680' },
+        { name: 'Email', key: 'email', revenue: 922_848, revenueFormatted: 'NOK 922k', sessions: 14_200, conversions: 310, cvr: 2.2, cac: 'NOK 410' },
+        { name: 'Paid Search', key: 'paid', revenue: 691_236, revenueFormatted: 'NOK 691k', sessions: 9_800, conversions: 218, cvr: 2.2, cac: 'NOK 1,820' },
+        { name: 'Referral', key: 'referral', revenue: 460_824, revenueFormatted: 'NOK 461k', sessions: 6_400, conversions: 163, cvr: 2.5, cac: 'NOK 220' },
+        { name: 'Social', key: 'social', revenue: 268_014, revenueFormatted: 'NOK 268k', sessions: 8_200, conversions: 87, cvr: 1.1, cac: 'NOK 940' },
+        { name: 'Direct', key: 'direct', revenue: 114_806, revenueFormatted: 'NOK 115k', sessions: 3_100, conversions: 24, cvr: 0.8, cac: 'NOK 180' },
+      ],
+      campaigns: [
+        { id: 'c1', name: 'Summer Peptide Launch', channel: 'Paid Search', channelKey: 'paid', spend: 'NOK 84,000', conversions: 112, revenue: 'NOK 380,000', roas: 4.5 },
+        { id: 'c2', name: 'BPC-157 Email Drip', channel: 'Email', channelKey: 'email', spend: 'NOK 12,000', conversions: 98, revenue: 'NOK 290,000', roas: 24.2 },
+        { id: 'c3', name: 'Influencer – Nordic Recovery', channel: 'Social', channelKey: 'social', spend: 'NOK 38,000', conversions: 54, revenue: 'NOK 162,000', roas: 4.3 },
+        { id: 'c4', name: 'Referral Partner Q2', channel: 'Referral', channelKey: 'referral', spend: 'NOK 22,000', conversions: 87, revenue: 'NOK 261,000', roas: 11.9 },
+        { id: 'c5', name: 'Google Shopping – Collagen', channel: 'Paid Search', channelKey: 'paid', spend: 'NOK 41,000', conversions: 63, revenue: 'NOK 184,000', roas: 4.5 },
+        { id: 'c6', name: 'Win-Back Reactivation', channel: 'Email', channelKey: 'email', spend: 'NOK 8,000', conversions: 41, revenue: 'NOK 118,000', roas: 14.8 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/attribution')
+}
+
+export async function getAdminCustomerSatisfaction() {
+  if (USE_MOCK) {
+    return {
+      npsScore: 58,
+      csatScore: 84,
+      responses30d: 412,
+      promoterPct: 68,
+      detractorPct: 10,
+      npsDistribution: { 1: 4, 2: 3, 3: 8, 4: 12, 5: 14, 6: 10, 7: 38, 8: 64, 9: 128, 10: 131 },
+      npsTrend: [
+        { month: 'Sep', score: 44 }, { month: 'Oct', score: 48 }, { month: 'Nov', score: 51 },
+        { month: 'Dec', score: 46 }, { month: 'Jan', score: 53 }, { month: 'Feb', score: 55 },
+        { month: 'Mar', score: 52 }, { month: 'Apr', score: 57 }, { month: 'May', score: 60 },
+        { month: 'Jun', score: 58 }, { month: 'Jul', score: 62 }, { month: 'Aug', score: 58 },
+      ],
+      npsResponses: [
+        { id: 'n1', memberName: 'Anna K.', score: 10, date: '2026-08-07', comment: 'The product quality is exceptional and shipping was faster than expected. Will absolutely continue ordering.' },
+        { id: 'n2', memberName: 'Lars N.', score: 9, date: '2026-08-06', comment: 'Very happy with results from BPC-157 protocol. Customer support helped me select the right stack.' },
+        { id: 'n3', memberName: 'Marte S.', score: 7, date: '2026-08-05', comment: 'Good products but wish there were more bundle options at mid-price range.' },
+        { id: 'n4', memberName: 'Thomas B.', score: 5, date: '2026-08-04', comment: 'Had an issue with my autoship that took 3 contacts to resolve. Products are fine, service needs work.' },
+        { id: 'n5', memberName: 'Sofia A.', score: 10, date: '2026-08-03', comment: 'Nordic Vitals has completely changed my recovery routine. Referring everyone I know.' },
+      ],
+      csatCategories: [
+        { name: 'Product Quality', score: 91, responses: 340, trend: '↑ +3 pts vs last month' },
+        { name: 'Shipping Speed', score: 82, responses: 310, trend: '→ No change' },
+        { name: 'Customer Support', score: 74, responses: 188, trend: '↑ +5 pts vs last month' },
+        { name: 'Website Experience', score: 88, responses: 220, trend: '↑ +2 pts vs last month' },
+        { name: 'Value for Money', score: 79, responses: 295, trend: '↓ -1 pt vs last month' },
+      ],
+      themes: [
+        { name: 'Fast recovery results', sentiment: 'positive', mentions: 124, topQuote: 'Noticed results within 2 weeks, much faster than expected' },
+        { name: 'Premium packaging', sentiment: 'positive', mentions: 88, topQuote: 'The vials are pharmaceutical grade, very professional' },
+        { name: 'Shipping cost', sentiment: 'negative', mentions: 54, topQuote: 'International shipping fees are high relative to order value' },
+        { name: 'Product range', sentiment: 'positive', mentions: 72, topQuote: 'Love the growing catalog, keeps adding relevant peptides' },
+        { name: 'Customer support wait', sentiment: 'negative', mentions: 38, topQuote: 'Took 2 days to get a response on my order issue' },
+        { name: 'Educational content', sentiment: 'positive', mentions: 61, topQuote: 'The dosing guides and research summaries are excellent' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/customer-satisfaction')
+}
+
+export async function getMemberProtocolBuilder() {
+  if (USE_MOCK) {
+    return {
+      protocols: [
+        {
+          id: 'p1', name: 'Recovery Stack', goal: 'Tendon & joint healing', cycle: '12 weeks', dailyCost: 'NOK 89',
+          items: [
+            { id: 'pi1', peptide: 'BPC-157', dosage: '250 mcg', route: 'Subcutaneous', timing: 'morning', frequency: 'Daily', notes: 'Inject near injury site when possible' },
+            { id: 'pi2', peptide: 'TB-500', dosage: '2 mg', route: 'Subcutaneous', timing: 'morning', frequency: '2x/week', notes: 'Saturate first 2 weeks, then maintenance' },
+            { id: 'pi3', peptide: 'Sermorelin', dosage: '200 mcg', route: 'Subcutaneous', timing: 'bedtime', frequency: 'Daily', notes: 'Take on empty stomach for best GH pulse' },
+          ]
+        },
+        {
+          id: 'p2', name: 'Performance Stack', goal: 'Muscle growth & body composition', cycle: '8 weeks', dailyCost: 'NOK 112',
+          items: [
+            { id: 'pi4', peptide: 'IGF-1 LR3', dosage: '50 mcg', route: 'Subcutaneous', timing: 'postworkout', frequency: 'Daily', notes: 'Inject immediately post-workout' },
+            { id: 'pi5', peptide: 'CJC-1295', dosage: '100 mcg', route: 'Subcutaneous', timing: 'bedtime', frequency: 'Daily', notes: 'Combined with GH pulse for synergy' },
+            { id: 'pi6', peptide: 'GHK-Cu', dosage: '2 mg', route: 'Topical', timing: 'morning', frequency: 'Daily', notes: 'Apply to target areas for skin benefit' },
+          ]
+        }
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/protocol-builder')
+}
+
+export async function getMemberNetworkMap() {
+  if (USE_MOCK) {
+    return {
+      totalCount: 84,
+      maxDepth: 5,
+      activeMtd: 52,
+      networkPv: '4,820 PV',
+      root: {
+        id: 'u0', name: 'You', initials: 'ME', rank: 'Gold', volume: '340 PV', directCount: 6,
+        children: [
+          {
+            id: 'u1', name: 'Anna K.', initials: 'AK', rank: 'Gold', volume: '280 PV', directCount: 4,
+            children: [
+              { id: 'u4', name: 'Petter H.', initials: 'PH', rank: 'Silver', volume: '120 PV', directCount: 2, children: [
+                { id: 'u8', name: 'Lise B.', initials: 'LB', rank: 'Member', volume: '80 PV', directCount: 0, children: [] },
+                { id: 'u9', name: 'Knut R.', initials: 'KR', rank: 'Member', volume: '60 PV', directCount: 0, children: [] },
+              ] },
+              { id: 'u5', name: 'Marie T.', initials: 'MT', rank: 'Bronze', volume: '90 PV', directCount: 1, children: [
+                { id: 'u10', name: 'Erik L.', initials: 'EL', rank: 'Member', volume: '40 PV', directCount: 0, children: [] },
+              ] },
+              { id: 'u6', name: 'Jon E.', initials: 'JE', rank: 'Member', volume: '55 PV', directCount: 0, children: [] },
+              { id: 'u7', name: 'Hege S.', initials: 'HS', rank: 'Member', volume: '45 PV', directCount: 0, children: [] },
+            ]
+          },
+          {
+            id: 'u2', name: 'Lars N.', initials: 'LN', rank: 'Silver', volume: '180 PV', directCount: 3,
+            children: [
+              { id: 'u11', name: 'Siv K.', initials: 'SK', rank: 'Bronze', volume: '90 PV', directCount: 1, children: [
+                { id: 'u14', name: 'Tor A.', initials: 'TA', rank: 'Member', volume: '50 PV', directCount: 0, children: [] },
+              ] },
+              { id: 'u12', name: 'Mads J.', initials: 'MJ', rank: 'Member', volume: '60 PV', directCount: 0, children: [] },
+              { id: 'u13', name: 'Nina P.', initials: 'NP', rank: 'Member', volume: '50 PV', directCount: 0, children: [] },
+            ]
+          },
+          { id: 'u3', name: 'Sofia A.', initials: 'SA', rank: 'Bronze', volume: '95 PV', directCount: 2, children: [
+            { id: 'u15', name: 'Carl M.', initials: 'CM', rank: 'Member', volume: '40 PV', directCount: 0, children: [] },
+            { id: 'u16', name: 'Ida R.', initials: 'IR', rank: 'Member', volume: '38 PV', directCount: 0, children: [] },
+          ] },
+        ]
+      }
+    }
+  }
+  return request('GET', '/v1/mlm/member/network-map')
+}
+
+export async function getMemberAgreements() {
+  if (USE_MOCK) {
+    return {
+      agreements: [
+        {
+          id: 'a1', title: 'Distributor Agreement', type: 'distributor', category: 'Core', version: '3.2',
+          status: 'signed', signedDate: '2025-03-14', expiryDate: '2027-03-14',
+          summary: 'This agreement outlines your rights and responsibilities as an independent distributor of Nordic Vitals products, including commission structure, territory rights, and conduct guidelines.'
+        },
+        {
+          id: 'a2', title: 'Privacy & Data Processing Consent', type: 'compliance', category: 'GDPR', version: '2.1',
+          status: 'signed', signedDate: '2025-03-14', expiryDate: null,
+          summary: 'Consent for processing your personal data in accordance with GDPR. Covers usage for commission calculations, marketing communications, and regulatory reporting.'
+        },
+        {
+          id: 'a3', title: '2026 Annual Compliance Attestation', type: 'compliance', category: 'Regulatory', version: '1.0',
+          status: 'pending', sentDate: '2026-08-01', expiryDate: null,
+          summary: 'Annual attestation confirming adherence to MLM regulations, income claim guidelines, and product marketing standards for the current year.'
+        },
+        {
+          id: 'a4', title: 'Tax Withholding Form (W-8BEN)', type: 'tax', category: 'Tax', version: '2.0',
+          status: 'signed', signedDate: '2025-01-08', expiryDate: '2028-01-08',
+          summary: 'Certificate of foreign status for US tax withholding purposes. Required for international members receiving US-sourced income.'
+        },
+        {
+          id: 'a5', title: 'Co-Op Advertising Agreement', type: 'amendment', category: 'Marketing', version: '1.0',
+          status: 'signed', signedDate: '2026-04-22', expiryDate: '2027-04-22',
+          summary: 'Agreement governing participation in co-operative advertising programs, cost-sharing ratios, approved materials, and reporting requirements.'
+        },
+        {
+          id: 'a6', title: 'Q3 2026 Terms Amendment', type: 'amendment', category: 'Core', version: '3.3',
+          status: 'pending', sentDate: '2026-07-28', expiryDate: null,
+          summary: 'Amendment to your distributor agreement updating commission rates for the Platinum and Diamond tiers effective Q3 2026, reflecting new plan changes.'
+        },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/agreements')
+}
+
+export async function getMemberLoyaltyTiers() {
+  if (USE_MOCK) {
+    return {
+      currentTier: 'Gold',
+      pointsBalance: 12_840,
+      pointsToNext: 7_160,
+      progressPct: 64,
+      tiers: [
+        {
+          name: 'Bronze', minPoints: 0, monthlyPv: 50, directCount: null, multiplier: 1.0,
+          benefits: [
+            { name: 'Member discount', description: '10% off all products' },
+            { name: 'Free shipping', description: 'On orders over NOK 1,500' },
+            { name: 'Monthly newsletter', description: 'Exclusive research updates' },
+          ]
+        },
+        {
+          name: 'Silver', minPoints: 2_500, monthlyPv: 100, directCount: 2, multiplier: 1.5,
+          benefits: [
+            { name: 'Member discount', description: '15% off all products' },
+            { name: 'Free shipping', description: 'On all orders' },
+            { name: 'Priority support', description: 'Dedicated support queue' },
+            { name: 'Early access', description: 'New product launches 48h early' },
+          ]
+        },
+        {
+          name: 'Gold', minPoints: 7_500, monthlyPv: 200, directCount: 5, multiplier: 2.0,
+          benefits: [
+            { name: 'Member discount', description: '20% off all products' },
+            { name: 'Free express shipping', description: 'On all orders' },
+            { name: 'Dedicated account manager', description: 'Personal support contact' },
+            { name: 'Quarterly bonus', description: 'NOK 500 credit each quarter' },
+            { name: 'Exclusive bundles', description: 'Gold-only product bundles' },
+          ]
+        },
+        {
+          name: 'Platinum', minPoints: 20_000, monthlyPv: 500, directCount: 10, multiplier: 2.5,
+          benefits: [
+            { name: 'Member discount', description: '25% off all products' },
+            { name: 'Free express shipping', description: 'All orders, priority pick' },
+            { name: 'Annual retreat invite', description: 'Platinum summit invitation' },
+            { name: 'Co-branding rights', description: 'Use Nordic Vitals logo in marketing' },
+            { name: 'Custom autoship', description: 'Build your own autoship bundle' },
+            { name: 'Revenue share bonus', description: '0.5% of team volume each month' },
+          ]
+        },
+        {
+          name: 'Diamond', minPoints: 50_000, monthlyPv: 1_000, directCount: 20, multiplier: 3.0,
+          benefits: [
+            { name: 'Maximum discount', description: '30% off all products' },
+            { name: 'White-glove support', description: '24/7 dedicated line' },
+            { name: 'Advisory board seat', description: 'Influence product roadmap' },
+            { name: 'Unlimited free shipping', description: 'All tiers, all regions' },
+            { name: 'Exclusive product collab', description: 'Co-develop limited edition items' },
+            { name: 'Revenue share bonus', description: '1% of total network volume' },
+          ]
+        },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/loyalty-tiers')
+}

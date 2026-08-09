@@ -262,6 +262,14 @@ const DashIncomeForecast         = lazy(() => import('./pages/dashboard/IncomeFo
 const DashSavingsTracker         = lazy(() => import('./pages/dashboard/SavingsTracker'))
 const DashTeamActivities         = lazy(() => import('./pages/dashboard/TeamActivities'))
 const DashProductFeedback        = lazy(() => import('./pages/dashboard/ProductFeedback'))
+const AdminTaxRules              = lazy(() => import('./pages/admin/TaxRules'))
+const AdminLogViewer             = lazy(() => import('./pages/admin/LogViewer'))
+const AdminAttribution           = lazy(() => import('./pages/admin/Attribution'))
+const AdminCustomerSatisfaction  = lazy(() => import('./pages/admin/CustomerSatisfaction'))
+const DashProtocolBuilder        = lazy(() => import('./pages/dashboard/ProtocolBuilder'))
+const DashNetworkMap             = lazy(() => import('./pages/dashboard/NetworkMap'))
+const DashAgreements             = lazy(() => import('./pages/dashboard/Agreements'))
+const DashLoyaltyTiers           = lazy(() => import('./pages/dashboard/LoyaltyTiers'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -544,6 +552,14 @@ function AppRoutes() {
         <Route path="/dashboard/savings-tracker"     element={<RequireAuth><DashSavingsTracker /></RequireAuth>} />
         <Route path="/dashboard/team-activities"     element={<RequireAuth><DashTeamActivities /></RequireAuth>} />
         <Route path="/dashboard/product-feedback"    element={<RequireAuth><DashProductFeedback /></RequireAuth>} />
+        <Route path="/admin/tax-rules"               element={<RequireAuth role="admin"><AdminTaxRules /></RequireAuth>} />
+        <Route path="/admin/log-viewer"              element={<RequireAuth role="admin"><AdminLogViewer /></RequireAuth>} />
+        <Route path="/admin/attribution"             element={<RequireAuth role="admin"><AdminAttribution /></RequireAuth>} />
+        <Route path="/admin/customer-satisfaction"   element={<RequireAuth role="admin"><AdminCustomerSatisfaction /></RequireAuth>} />
+        <Route path="/dashboard/protocol-builder"    element={<RequireAuth><DashProtocolBuilder /></RequireAuth>} />
+        <Route path="/dashboard/network-map"         element={<RequireAuth><DashNetworkMap /></RequireAuth>} />
+        <Route path="/dashboard/agreements"          element={<RequireAuth><DashAgreements /></RequireAuth>} />
+        <Route path="/dashboard/loyalty-tiers"       element={<RequireAuth><DashLoyaltyTiers /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
