@@ -230,6 +230,14 @@ const DashMyPromotions           = lazy(() => import('./pages/dashboard/MyPromot
 const DashTrainingPlanner        = lazy(() => import('./pages/dashboard/TrainingPlanner'))
 const DashMyTokens               = lazy(() => import('./pages/dashboard/MyTokens'))
 const DashTeamLeaderboard        = lazy(() => import('./pages/dashboard/TeamLeaderboard'))
+const AdminChargebacks           = lazy(() => import('./pages/admin/Chargebacks'))
+const AdminProductPerformance    = lazy(() => import('./pages/admin/ProductPerformance'))
+const AdminSubscriptionBilling   = lazy(() => import('./pages/admin/SubscriptionBilling'))
+const AdminInventoryForecasting  = lazy(() => import('./pages/admin/InventoryForecasting'))
+const DashConsultations          = lazy(() => import('./pages/dashboard/Consultations'))
+const DashPurchasePlanner        = lazy(() => import('./pages/dashboard/PurchasePlanner'))
+const DashJournal                = lazy(() => import('./pages/dashboard/Journal'))
+const DashReferralContest        = lazy(() => import('./pages/dashboard/ReferralContest'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -480,6 +488,14 @@ function AppRoutes() {
         <Route path="/dashboard/training-planner"    element={<RequireAuth><DashTrainingPlanner /></RequireAuth>} />
         <Route path="/dashboard/my-tokens"           element={<RequireAuth><DashMyTokens /></RequireAuth>} />
         <Route path="/dashboard/team-leaderboard"    element={<RequireAuth><DashTeamLeaderboard /></RequireAuth>} />
+        <Route path="/admin/chargebacks"             element={<RequireAuth role="admin"><AdminChargebacks /></RequireAuth>} />
+        <Route path="/admin/product-performance"     element={<RequireAuth role="admin"><AdminProductPerformance /></RequireAuth>} />
+        <Route path="/admin/subscription-billing"    element={<RequireAuth role="admin"><AdminSubscriptionBilling /></RequireAuth>} />
+        <Route path="/admin/inventory-forecasting"   element={<RequireAuth role="admin"><AdminInventoryForecasting /></RequireAuth>} />
+        <Route path="/dashboard/consultations"       element={<RequireAuth><DashConsultations /></RequireAuth>} />
+        <Route path="/dashboard/purchase-planner"    element={<RequireAuth><DashPurchasePlanner /></RequireAuth>} />
+        <Route path="/dashboard/journal"             element={<RequireAuth><DashJournal /></RequireAuth>} />
+        <Route path="/dashboard/referral-contest"    element={<RequireAuth><DashReferralContest /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

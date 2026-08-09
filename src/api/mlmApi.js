@@ -8646,3 +8646,244 @@ export async function getMemberTeamLeaderboard(period, metric) {
   }
   return request('GET', `/v1/mlm/member/team-leaderboard?period=${period}&metric=${metric}`)
 }
+
+// ── Admin Chargebacks ─────────────────────────────────────────────────────────
+export async function getAdminChargebacks() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      items: [
+        { id: 'cb1', caseId: 'CB-2024-001', member: 'Lars Eriksson', email: 'lars.e@example.com', amount: 149.99, reason: 'fraudulent', gateway: 'Stripe', status: 'open', deadline: '2026-08-20T00:00:00Z', orderRef: 'ORD-7821' },
+        { id: 'cb2', caseId: 'CB-2024-002', member: 'Ingrid Solberg', email: 'ingrid.s@example.com', amount: 89.00, reason: 'unrecognized', gateway: 'Stripe', status: 'pending', deadline: '2026-08-18T00:00:00Z', orderRef: 'ORD-7690' },
+        { id: 'cb3', caseId: 'CB-2024-003', member: 'Bjørn Haugen', email: 'bjorn.h@example.com', amount: 210.50, reason: 'product_not_received', gateway: 'PayPal', status: 'won', deadline: '2026-07-30T00:00:00Z', orderRef: 'ORD-7402' },
+        { id: 'cb4', caseId: 'CB-2024-004', member: 'Freya Magnusson', email: 'freya.m@example.com', amount: 59.90, reason: 'duplicate', gateway: 'Klarna', status: 'lost', deadline: '2026-07-15T00:00:00Z', orderRef: 'ORD-7210' },
+        { id: 'cb5', caseId: 'CB-2024-005', member: 'Erik Thorvald', email: 'erik.t@example.com', amount: 320.00, reason: 'subscription_canceled', gateway: 'Stripe', status: 'open', deadline: '2026-08-25T00:00:00Z', orderRef: 'ORD-7901' },
+        { id: 'cb6', caseId: 'CB-2024-006', member: 'Astrid Holm', email: 'astrid.h@example.com', amount: 74.95, reason: 'fraudulent', gateway: 'Stripe', status: 'won', deadline: '2026-07-01T00:00:00Z', orderRef: 'ORD-7050' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/chargebacks')
+}
+export async function updateAdminChargeback(id, action, note) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { id, action, note } }
+  return request('PATCH', `/v1/mlm/admin/chargebacks/${id}`, { action, note })
+}
+
+// ── Admin Product Performance ─────────────────────────────────────────────────
+export async function getAdminProductPerformance(period = 'month') {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 450))
+    return {
+      totalRevenue: 148200,
+      totalUnits: 3840,
+      avgMargin: 62,
+      products: [
+        { id: 'pp1', name: 'BPC-157 Complex', sku: 'NV-BPC-10', category: 'Peptides', revenue: 42100, units: 840, margin: 68, conversionRate: 4.2, returns: 3, pv: 80, trend: 'up' },
+        { id: 'pp2', name: 'TB-500 Recovery', sku: 'NV-TB5-10', category: 'Peptides', revenue: 38700, units: 620, margin: 71, conversionRate: 3.8, returns: 2, pv: 95, trend: 'up' },
+        { id: 'pp3', name: 'GHK-Cu Serum', sku: 'NV-GHK-30', category: 'Skincare', revenue: 21400, units: 710, margin: 55, conversionRate: 5.1, returns: 8, pv: 45, trend: 'stable' },
+        { id: 'pp4', name: 'Viking Starter Kit', sku: 'NV-KIT-01', category: 'Bundles', revenue: 18900, units: 189, margin: 60, conversionRate: 6.4, returns: 4, pv: 150, trend: 'up' },
+        { id: 'pp5', name: 'Collagen Boost+', sku: 'NV-COL-30', category: 'Supplements', revenue: 14200, units: 472, margin: 58, conversionRate: 4.7, returns: 6, pv: 40, trend: 'down' },
+        { id: 'pp6', name: 'Epitalon 10mg', sku: 'NV-EPI-10', category: 'Peptides', revenue: 8900, units: 148, margin: 74, conversionRate: 2.9, returns: 1, pv: 90, trend: 'up' },
+        { id: 'pp7', name: 'Nordic Sleep Formula', sku: 'NV-SLP-60', category: 'Supplements', revenue: 4000, units: 267, margin: 49, conversionRate: 3.2, returns: 12, pv: 22, trend: 'down' },
+      ]
+    }
+  }
+  return request('GET', `/v1/mlm/admin/product-performance?period=${period}`)
+}
+
+// ── Admin Subscription Billing ────────────────────────────────────────────────
+export async function getAdminSubscriptionBilling() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      successRate: 94.2,
+      failed: [
+        { id: 'sb1', member: 'Jonas Larsson', email: 'jonas.l@example.com', plan: 'Viking Pro Monthly', amount: 89.99, failureReason: 'Card declined', retryCount: 1, lastTriedAt: '2026-08-08T06:00:00Z', retryAt: '2026-08-09T06:00:00Z' },
+        { id: 'sb2', member: 'Eva Kristiansen', email: 'eva.k@example.com', plan: 'Nordic Essential', amount: 49.99, failureReason: 'Insufficient funds', retryCount: 2, lastTriedAt: '2026-08-07T18:00:00Z', retryAt: '2026-08-10T18:00:00Z' },
+        { id: 'sb3', member: 'Mikkel Andersen', email: 'mikkel.a@example.com', plan: 'Viking Pro Monthly', amount: 89.99, failureReason: 'Card expired', retryCount: 3, lastTriedAt: '2026-08-06T12:00:00Z', retryAt: null },
+        { id: 'sb4', member: 'Sigrid Dahl', email: 'sigrid.d@example.com', plan: 'Team Builder', amount: 199.00, failureReason: 'Card declined', retryCount: 1, lastTriedAt: '2026-08-08T10:00:00Z', retryAt: '2026-08-09T10:00:00Z' },
+      ],
+      upcoming: [
+        { id: 'up1', member: 'Astrid Holm', email: 'astrid.h@example.com', plan: 'Viking Pro Monthly', amount: 89.99, renewalDate: '2026-08-10T00:00:00Z', status: 'active', paymentMethod: 'Visa •••• 4242' },
+        { id: 'up2', member: 'Lars Eriksson', email: 'lars.e@example.com', plan: 'Team Builder', amount: 199.00, renewalDate: '2026-08-11T00:00:00Z', status: 'active', paymentMethod: 'Mastercard •••• 8888' },
+        { id: 'up3', member: 'Bjørn Haugen', email: 'bjorn.h@example.com', plan: 'Nordic Essential', amount: 49.99, renewalDate: '2026-08-12T00:00:00Z', status: 'active', paymentMethod: 'Visa •••• 1234' },
+        { id: 'up4', member: 'Freya Magnusson', email: 'freya.m@example.com', plan: 'Viking Pro Monthly', amount: 89.99, renewalDate: '2026-08-13T00:00:00Z', status: 'paused', paymentMethod: 'PayPal' },
+        { id: 'up5', member: 'Helga Nilsen', email: 'helga.n@example.com', plan: 'Nordic Essential', amount: 49.99, renewalDate: '2026-08-15T00:00:00Z', status: 'active', paymentMethod: 'Klarna' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/subscription-billing')
+}
+export async function retryAdminBilling(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 600)); return { id, retried: true } }
+  return request('POST', `/v1/mlm/admin/subscription-billing/${id}/retry`)
+}
+
+// ── Admin Inventory Forecasting ───────────────────────────────────────────────
+export async function getAdminInventoryForecasting() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 450))
+    return {
+      avgDaysCover: 38,
+      items: [
+        { id: 'if1', name: 'BPC-157 Complex', sku: 'NV-BPC-10', category: 'Peptides', currentStock: 42, reorderPoint: 100, forecastUnits30d: 210, reorderQty: 500, leadTimeDays: 21, risk: 'critical', stockoutDate: '2026-08-15T00:00:00Z', daysCover: 6 },
+        { id: 'if2', name: 'TB-500 Recovery', sku: 'NV-TB5-10', category: 'Peptides', currentStock: 88, reorderPoint: 120, forecastUnits30d: 180, reorderQty: 400, leadTimeDays: 21, risk: 'high', stockoutDate: '2026-08-22T00:00:00Z', daysCover: 14 },
+        { id: 'if3', name: 'Viking Starter Kit', sku: 'NV-KIT-01', category: 'Bundles', currentStock: 215, reorderPoint: 50, forecastUnits30d: 60, reorderQty: 100, leadTimeDays: 10, risk: 'low', stockoutDate: null, daysCover: 107 },
+        { id: 'if4', name: 'Collagen Boost+', sku: 'NV-COL-30', category: 'Supplements', currentStock: 390, reorderPoint: 200, forecastUnits30d: 310, reorderQty: 600, leadTimeDays: 14, risk: 'medium', stockoutDate: '2026-09-07T00:00:00Z', daysCover: 37 },
+        { id: 'if5', name: 'GHK-Cu Serum', sku: 'NV-GHK-30', category: 'Skincare', currentStock: 160, reorderPoint: 80, forecastUnits30d: 95, reorderQty: 200, leadTimeDays: 28, risk: 'medium', stockoutDate: '2026-09-11T00:00:00Z', daysCover: 50 },
+        { id: 'if6', name: 'Epitalon 10mg', sku: 'NV-EPI-10', category: 'Peptides', currentStock: 310, reorderPoint: 60, forecastUnits30d: 45, reorderQty: 150, leadTimeDays: 21, risk: 'low', stockoutDate: null, daysCover: 206 },
+        { id: 'if7', name: 'Nordic Sleep Formula', sku: 'NV-SLP-60', category: 'Supplements', currentStock: 74, reorderPoint: 100, forecastUnits30d: 130, reorderQty: 300, leadTimeDays: 14, risk: 'high', stockoutDate: '2026-08-25T00:00:00Z', daysCover: 17 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/inventory-forecasting')
+}
+
+// ── Member Consultations ──────────────────────────────────────────────────────
+export async function getMemberConsultations() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      totalHours: 4.5,
+      credits: 3,
+      experts: [
+        { id: 'ex1', name: 'Dr. Erik Thorvald', title: 'Peptide Science Expert' },
+        { id: 'ex2', name: 'Astrid Holm', title: 'Business Coach & Diamond Leader' },
+        { id: 'ex3', name: 'Ragnar Bjørnstad', title: 'Wellness & Nutrition Advisor' },
+        { id: 'ex4', name: 'Ingrid Solberg', title: 'MLM Strategy Coach' },
+      ],
+      sessions: [
+        { id: 'cs1', expertName: 'Dr. Erik Thorvald', expertTitle: 'Peptide Science Expert', type: 'product', topic: 'BPC-157 protocol optimisation', date: '2026-08-14T00:00:00Z', time: '14:00', status: 'upcoming', meetingLink: 'https://meet.example.com/abc' },
+        { id: 'cs2', expertName: 'Astrid Holm', expertTitle: 'Business Coach', type: 'business', topic: 'Team building strategy for Q3', date: '2026-08-20T00:00:00Z', time: '10:00', status: 'upcoming', meetingLink: 'https://meet.example.com/def' },
+        { id: 'cs3', expertName: 'Ragnar Bjørnstad', expertTitle: 'Wellness Advisor', type: 'wellness', topic: 'Recovery protocol review', date: '2026-07-28T00:00:00Z', time: '15:00', status: 'completed', notes: 'Great session — adjust sleep stack timing and add GHK-Cu topical post-workout.' },
+        { id: 'cs4', expertName: 'Ingrid Solberg', expertTitle: 'MLM Strategy Coach', type: 'strategy', topic: 'Reaching Gold rank before Sep', date: '2026-07-15T00:00:00Z', time: '11:00', status: 'completed', notes: 'Focus on 3 strong legs, leverage the Fast Start bonus window in August.' },
+        { id: 'cs5', expertName: 'Dr. Erik Thorvald', expertTitle: 'Peptide Science Expert', type: 'product', topic: 'Initial intake consultation', date: '2026-07-01T00:00:00Z', time: '09:00', status: 'cancelled' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/consultations')
+}
+export async function bookMemberConsultation(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 600))
+    const expert = { ex1: { name:'Dr. Erik Thorvald', title:'Peptide Science Expert' }, ex2: { name:'Astrid Holm', title:'Business Coach' }, ex3: { name:'Ragnar Bjørnstad', title:'Wellness Advisor' }, ex4: { name:'Ingrid Solberg', title:'MLM Strategy Coach' } }
+    const e = expert[data.expertId] || { name: 'Expert', title: 'Advisor' }
+    return { id: `cs_${Date.now()}`, expertName: e.name, expertTitle: e.title, type: data.type, topic: data.topic, date: new Date(data.date).toISOString(), time: data.time, status: 'upcoming', meetingLink: 'https://meet.example.com/new' }
+  }
+  return request('POST', '/v1/mlm/member/consultations', data)
+}
+
+// ── Member Purchase Planner ───────────────────────────────────────────────────
+export async function getMemberPurchasePlanner() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      monthlyBudget: 250,
+      pvTarget: 200,
+      items: [
+        { id: 'ppi1', name: 'BPC-157 Complex', emoji: '🧪', price: 149.99, pv: 80, category: 'Peptides', recommended: true, plannedQty: 1 },
+        { id: 'ppi2', name: 'TB-500 Recovery', emoji: '💪', price: 124.99, pv: 95, category: 'Peptides', recommended: true, plannedQty: 0 },
+        { id: 'ppi3', name: 'GHK-Cu Serum', emoji: '✨', price: 59.99, pv: 45, category: 'Skincare', recommended: false, plannedQty: 1 },
+        { id: 'ppi4', name: 'Collagen Boost+', emoji: '🌟', price: 44.99, pv: 40, category: 'Supplements', recommended: false, plannedQty: 0 },
+        { id: 'ppi5', name: 'Nordic Sleep Formula', emoji: '🌙', price: 34.99, pv: 22, category: 'Supplements', recommended: false, plannedQty: 1 },
+        { id: 'ppi6', name: 'Epitalon 10mg', emoji: '⚗️', price: 189.99, pv: 90, category: 'Peptides', recommended: false, plannedQty: 0 },
+        { id: 'ppi7', name: 'Viking Starter Kit', emoji: '🛡️', price: 299.99, pv: 150, category: 'Bundles', recommended: false, plannedQty: 0 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/purchase-planner')
+}
+export async function saveMemberPurchasePlan(data) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 400)); return { ok: true } }
+  return request('POST', '/v1/mlm/member/purchase-planner', data)
+}
+
+// ── Member Journal ────────────────────────────────────────────────────────────
+export async function getMemberJournal() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      streak: 5,
+      entries: [
+        { id: 'jn1', mood: 5, title: 'New personal best!', body: 'Hit a new PR at the gym today — definitely feeling the BPC-157 working. Energy levels through the roof. Also had a great call with a new prospect who is very interested in joining.', tags: ['product use','workout','business'], productsUsed: ['BPC-157 Complex'], date: '2026-08-08T07:00:00Z' },
+        { id: 'jn2', mood: 4, title: 'Team check-in day', body: 'Weekly team call went well. Three members are close to rank advancement — gave them a push with some strategy tips from my Ingrid consultation. Sleep was great again using the Nordic formula.', tags: ['team','mindset'], productsUsed: ['Nordic Sleep Formula'], date: '2026-08-07T20:00:00Z' },
+        { id: 'jn3', mood: 3, title: '', body: 'Slower day. Still a bit tired from the event last weekend but stayed consistent with my product stack. One prospect went quiet — will follow up tomorrow.', tags: ['business','product use'], productsUsed: ['BPC-157 Complex', 'GHK-Cu Serum'], date: '2026-08-06T21:00:00Z' },
+        { id: 'jn4', mood: 4, title: 'Gold rank in sight', body: 'Two new sign-ups from the Instagram reel. Sales volume this week is tracking ahead of plan. If things keep going I could hit Gold before end of August — a month early!', tags: ['business','goal progress'], productsUsed: [], date: '2026-08-05T19:00:00Z' },
+        { id: 'jn5', mood: 5, title: 'Recovery is unreal', body: 'Finished a tough 5-day training block and feeling completely recovered. The TB-500 + BPC stack is working better than I expected. Will mention this in my product testimonial post.', tags: ['workout','product use'], productsUsed: ['TB-500 Recovery', 'BPC-157 Complex'], date: '2026-08-04T18:00:00Z' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/journal')
+}
+export async function addMemberJournalEntry(data) {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return { id: `jn_${Date.now()}`, ...data, date: new Date().toISOString() }
+  }
+  return request('POST', '/v1/mlm/member/journal', data)
+}
+export async function deleteMemberJournalEntry(id) {
+  if (MOCK) { await new Promise(r => setTimeout(r, 300)); return { ok: true } }
+  return request('DELETE', `/v1/mlm/member/journal/${id}`)
+}
+
+// ── Member Referral Contests ──────────────────────────────────────────────────
+export async function getMemberReferralContests() {
+  if (MOCK) {
+    await new Promise(r => setTimeout(r, 400))
+    return {
+      myActiveRank: 3,
+      monthlyReferrals: 7,
+      totalPrizesWon: 2,
+      contests: [
+        {
+          id: 'rc1', name: 'August Recruitment Sprint', status: 'active',
+          startDate: '2026-08-01T00:00:00Z', endDate: '2026-08-31T23:59:59Z',
+          description: 'Refer the most new members in August and win exclusive prizes plus bonus PV.',
+          myRank: 3, myReferrals: 7,
+          prizes: [
+            { place: '1st', prize: '€500 store credit + Diamond trip', minReferrals: 20 },
+            { place: '2nd', prize: '€200 store credit + Gold badge', minReferrals: 12 },
+            { place: '3rd', prize: '€100 store credit', minReferrals: 7 },
+          ],
+          leaderboard: [
+            { rank: 1, name: 'Astrid Holm', referrals: 18, isMe: false },
+            { rank: 2, name: 'Lars Eriksson', referrals: 12, isMe: false },
+            { rank: 3, name: 'You', referrals: 7, isMe: true },
+            { rank: 4, name: 'Freya Magnusson', referrals: 6, isMe: false },
+            { rank: 5, name: 'Bjørn Haugen', referrals: 5, isMe: false },
+          ]
+        },
+        {
+          id: 'rc2', name: 'Nordic Summer Dash', status: 'upcoming',
+          startDate: '2026-09-01T00:00:00Z', endDate: '2026-09-30T23:59:59Z',
+          description: 'A fresh contest for September — highest referrers win exclusive NV merchandise and cash bonuses.',
+          myRank: null, myReferrals: 0,
+          prizes: [
+            { place: '1st', prize: '€300 + NV Merchandise Pack', minReferrals: 15 },
+            { place: '2nd', prize: '€150 store credit', minReferrals: 8 },
+            { place: '3rd', prize: '€75 store credit', minReferrals: 5 },
+          ],
+          leaderboard: []
+        },
+        {
+          id: 'rc3', name: 'Summer Launch Blitz', status: 'ended',
+          startDate: '2026-07-01T00:00:00Z', endDate: '2026-07-31T23:59:59Z',
+          description: 'The kickoff contest for the summer season.',
+          myRank: 2, myReferrals: 11,
+          prizes: [
+            { place: '1st', prize: '€400 store credit', minReferrals: 15 },
+            { place: '2nd', prize: '€150 store credit', minReferrals: 8 },
+            { place: '3rd', prize: '€75 store credit', minReferrals: 5 },
+          ],
+          leaderboard: [
+            { rank: 1, name: 'Astrid Holm', referrals: 21, isMe: false },
+            { rank: 2, name: 'You', referrals: 11, isMe: true },
+            { rank: 3, name: 'Freya Magnusson', referrals: 8, isMe: false },
+          ]
+        },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/referral-contests')
+}
