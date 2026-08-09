@@ -294,6 +294,14 @@ const DashSleepTracker           = lazy(() => import('./pages/dashboard/SleepTra
 const DashChallengesHistory      = lazy(() => import('./pages/dashboard/ChallengesHistory'))
 const DashInvoiceHistory         = lazy(() => import('./pages/dashboard/InvoiceHistory'))
 const DashTeamMap                = lazy(() => import('./pages/dashboard/TeamMap'))
+const AdminMediaLibrary          = lazy(() => import('./pages/admin/MediaLibrary'))
+const AdminCustomerJourneyBuilder= lazy(() => import('./pages/admin/CustomerJourneyBuilder'))
+const AdminCommissionClawbacks   = lazy(() => import('./pages/admin/CommissionClawbacks'))
+const AdminAddressValidation     = lazy(() => import('./pages/admin/AddressValidation'))
+const DashXpHistory              = lazy(() => import('./pages/dashboard/XpHistory'))
+const DashDailyCheckin           = lazy(() => import('./pages/dashboard/DailyCheckin'))
+const DashFitnessTracker         = lazy(() => import('./pages/dashboard/FitnessTracker'))
+const DashRecipeLibrary          = lazy(() => import('./pages/dashboard/RecipeLibrary'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -608,6 +616,14 @@ function AppRoutes() {
         <Route path="/dashboard/challenges-history"  element={<RequireAuth><DashChallengesHistory /></RequireAuth>} />
         <Route path="/dashboard/invoice-history"     element={<RequireAuth><DashInvoiceHistory /></RequireAuth>} />
         <Route path="/dashboard/team-map"            element={<RequireAuth><DashTeamMap /></RequireAuth>} />
+        <Route path="/admin/media-library"           element={<RequireAuth role="admin"><AdminMediaLibrary /></RequireAuth>} />
+        <Route path="/admin/customer-journey-builder" element={<RequireAuth role="admin"><AdminCustomerJourneyBuilder /></RequireAuth>} />
+        <Route path="/admin/commission-clawbacks"    element={<RequireAuth role="admin"><AdminCommissionClawbacks /></RequireAuth>} />
+        <Route path="/admin/address-validation"      element={<RequireAuth role="admin"><AdminAddressValidation /></RequireAuth>} />
+        <Route path="/dashboard/xp-history"          element={<RequireAuth><DashXpHistory /></RequireAuth>} />
+        <Route path="/dashboard/daily-checkin"       element={<RequireAuth><DashDailyCheckin /></RequireAuth>} />
+        <Route path="/dashboard/fitness-tracker"     element={<RequireAuth><DashFitnessTracker /></RequireAuth>} />
+        <Route path="/dashboard/recipe-library"      element={<RequireAuth><DashRecipeLibrary /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

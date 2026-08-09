@@ -10421,3 +10421,269 @@ export async function getMemberTeamMap() {
   }
   return request('GET', '/v1/mlm/member/team-map')
 }
+
+// ── Admin: Media Library ──────────────────────────────────────────────────────
+export async function getAdminMediaLibrary() {
+  if (USE_MOCK) {
+    await delay(310)
+    return {
+      stats: { totalAssets: 284, storageUsed: '1.4 GB', byType: { image: 198, video: 31, document: 42, audio: 13 } },
+      assets: [
+        { id: 'ma1',  name: 'hero-banner-summer.jpg',     type: 'image',    size: '2.1 MB', uploadedAt: '2026-08-07', uploadedBy: 'Admin',   folder: 'banners',    usedIn: 3,  tags: ['banner', 'summer', 'hero'] },
+        { id: 'ma2',  name: 'product-tb500-front.jpg',    type: 'image',    size: '840 KB', uploadedAt: '2026-08-06', uploadedBy: 'Admin',   folder: 'products',   usedIn: 12, tags: ['product', 'tb500', 'peptide'] },
+        { id: 'ma3',  name: 'welcome-webinar-aug.mp4',    type: 'video',    size: '148 MB', uploadedAt: '2026-08-05', uploadedBy: 'Admin',   folder: 'videos',     usedIn: 1,  tags: ['webinar', 'onboarding'] },
+        { id: 'ma4',  name: 'compensation-plan-v3.pdf',   type: 'document', size: '3.2 MB', uploadedAt: '2026-07-30', uploadedBy: 'Admin',   folder: 'documents',  usedIn: 8,  tags: ['comp-plan', 'pdf', 'mlm'] },
+        { id: 'ma5',  name: 'logo-dark.svg',              type: 'image',    size: '18 KB',  uploadedAt: '2026-07-15', uploadedBy: 'Admin',   folder: 'branding',   usedIn: 22, tags: ['logo', 'branding'] },
+        { id: 'ma6',  name: 'peptide-guide-2026.pdf',     type: 'document', size: '5.6 MB', uploadedAt: '2026-07-10', uploadedBy: 'Admin',   folder: 'documents',  usedIn: 4,  tags: ['guide', 'peptides', 'science'] },
+        { id: 'ma7',  name: 'social-template-ig.jpg',     type: 'image',    size: '420 KB', uploadedAt: '2026-08-01', uploadedBy: 'Admin',   folder: 'social',     usedIn: 0,  tags: ['social', 'instagram', 'template'] },
+        { id: 'ma8',  name: 'intro-jingle.mp3',           type: 'audio',    size: '2.8 MB', uploadedAt: '2026-06-20', uploadedBy: 'Admin',   folder: 'audio',      usedIn: 2,  tags: ['audio', 'jingle'] },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/media-library')
+}
+
+export async function deleteAdminMediaAsset(id) {
+  if (USE_MOCK) { await delay(250); return { ok: true } }
+  return request('DELETE', `/v1/mlm/admin/media-library/${id}`)
+}
+
+// ── Admin: Customer Journey Builder ──────────────────────────────────────────
+export async function getAdminCustomerJourneys() {
+  if (USE_MOCK) {
+    await delay(320)
+    return {
+      journeys: [
+        {
+          id: 'jny1', name: 'New Member Onboarding', status: 'active', touchpoints: 7, enrolled: 1842, converted: 1520, conversionRate: 82.5, avgDays: 14,
+          stages: [
+            { id: 's1', name: 'Welcome Email',      type: 'awareness',     trigger: 'account_created',  delayDays: 0,  actions: ['Email: Welcome', 'Push: App Download'], completed: 1842, dropOff: 0   },
+            { id: 's2', name: 'First Purchase Push', type: 'consideration', trigger: 'welcome_opened',   delayDays: 2,  actions: ['Email: First Order Offer', 'SMS: Discount Code'], completed: 1730, dropOff: 6   },
+            { id: 's3', name: 'Onboarding Call CTA', type: 'decision',     trigger: 'browsed_products', delayDays: 4,  actions: ['Email: Book a Call', 'In-App: Banner'], completed: 1620, dropOff: 6.4 },
+            { id: 's4', name: 'Kit Setup Guide',     type: 'onboarding',   trigger: 'first_purchase',   delayDays: 1,  actions: ['Email: Getting Started', 'Video: Protocol Guide'], completed: 1580, dropOff: 2.5 },
+            { id: 's5', name: 'Day 14 Check-In',     type: 'retention',    trigger: 'day_14',           delayDays: 14, actions: ['Email: Progress Check', 'Survey: NPS'], completed: 1540, dropOff: 2.5 },
+            { id: 's6', name: 'Referral Invite',     type: 'advocacy',     trigger: 'nps_9_10',         delayDays: 1,  actions: ['Email: Share & Earn', 'Push: Referral Link'], completed: 1520, dropOff: 1.3 },
+          ],
+        },
+        {
+          id: 'jny2', name: 'Churn Recovery',         status: 'active', touchpoints: 4, enrolled: 312, converted: 87,  conversionRate: 27.9, avgDays: 21,
+          stages: [
+            { id: 's1', name: 'Lapsed Alert',        type: 'awareness',    trigger: '30_days_inactive', delayDays: 0,  actions: ['Email: We miss you!', 'SMS: Come back offer'], completed: 312, dropOff: 0   },
+            { id: 's2', name: 'Win-Back Offer',      type: 'consideration', trigger: 'email_opened',     delayDays: 3,  actions: ['Email: 20% Off', 'Push: Exclusive Deal'], completed: 180, dropOff: 42  },
+            { id: 's3', name: 'Personal Outreach',   type: 'decision',     trigger: 'no_response_7d',   delayDays: 7,  actions: ['Task: Upline Call', 'Email: Check-in'], completed: 120, dropOff: 33  },
+            { id: 's4', name: 'Final Offer',         type: 'retention',    trigger: 'still_inactive',   delayDays: 14, actions: ['Email: Last Chance', 'SMS: Gift Code'], completed: 87,  dropOff: 27  },
+          ],
+        },
+        {
+          id: 'jny3', name: 'Rank Advancement',       status: 'draft',  touchpoints: 5, enrolled: 0,   converted: 0,   conversionRate: 0,    avgDays: 0,
+          stages: [],
+        },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/customer-journeys')
+}
+
+// ── Admin: Commission Clawbacks ───────────────────────────────────────────────
+export async function getAdminCommissionClawbacks() {
+  if (USE_MOCK) {
+    await delay(290)
+    return {
+      stats: { pending: 4, thisMonth: 1840, ytdRecovered: 12480, avgResolutionDays: 4 },
+      clawbacks: [
+        { id: 'cb1', memberName: 'Ingrid Solberg',   orderId: 'NV-5501', reason: 'return',     amount: 128.00, date: '2026-08-08', status: 'pending',    note: null                    },
+        { id: 'cb2', memberName: 'Lars Bakken',      orderId: 'NV-5420', reason: 'chargeback', amount: 242.50, date: '2026-08-07', status: 'pending',    note: null                    },
+        { id: 'cb3', memberName: 'Sofia Lindqvist',  orderId: 'NV-5308', reason: 'fraud',      amount: 480.00, date: '2026-08-05', status: 'processing', note: 'Under investigation'   },
+        { id: 'cb4', memberName: 'Erik Andersen',    orderId: 'NV-5210', reason: 'cancel',     amount: 64.00,  date: '2026-08-03', status: 'completed',  note: 'Auto-processed'        },
+        { id: 'cb5', memberName: 'Maja Kristiansen', orderId: 'NV-5190', reason: 'policy',     amount: 95.00,  date: '2026-08-02', status: 'waived',     note: 'First-time violation'  },
+        { id: 'cb6', memberName: 'Tobias Nilsson',   orderId: 'NV-5130', reason: 'return',     amount: 186.00, date: '2026-07-30', status: 'completed',  note: null                    },
+        { id: 'cb7', memberName: 'Astrid Holm',      orderId: 'NV-5080', reason: 'chargeback', amount: 312.00, date: '2026-07-25', status: 'disputed',   note: 'Member contesting'     },
+        { id: 'cb8', memberName: 'Per Hansen',       orderId: 'NV-4960', reason: 'cancel',     amount: 48.00,  date: '2026-07-18', status: 'pending',    note: null                    },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/commission-clawbacks')
+}
+
+export async function processAdminClawback(id, action, note) {
+  if (USE_MOCK) { await delay(300); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/commission-clawbacks/${id}/process`, { action, note })
+}
+
+// ── Admin: Address Validation ─────────────────────────────────────────────────
+export async function getAdminAddressValidation() {
+  if (USE_MOCK) {
+    await delay(280)
+    return {
+      stats: { activeRules: 8, validatedToday: 214, failedRate: 2.8, autoCorrected: 41 },
+      rules: [
+        { id: 'ar1', name: 'Required Fields Check',   type: 'required', description: 'Ensure street, city, postcode, and country are present.',                      active: true,  countries: [] },
+        { id: 'ar2', name: 'Postcode Format — EU',    type: 'format',   description: 'Validate postcode against country-specific regex patterns for EU countries.',  active: true,  countries: ['NO', 'SE', 'DK', 'FI', 'DE', 'NL'] },
+        { id: 'ar3', name: 'Geocode Lookup',          type: 'geocode',  description: 'Resolve address to lat/lng coordinates for shipping zone assignment.',         active: true,  countries: [] },
+        { id: 'ar4', name: 'PO Box Restriction',      type: 'restrict', description: 'Block PO Box addresses for physical product orders.',                           active: true,  countries: [] },
+        { id: 'ar5', name: 'Address Auto-Correction', type: 'format',   description: 'Attempt auto-correction of minor typos via address normalisation service.',    active: true,  countries: ['NO', 'SE', 'DK'] },
+        { id: 'ar6', name: 'Forwarding Address Block',type: 'restrict', description: 'Flag known mail-forwarding service addresses for manual review.',               active: false, countries: ['GB', 'US'] },
+        { id: 'ar7', name: 'Apartment/Unit Required', type: 'required', description: 'Require apartment or unit number for high-rise postal codes.',                  active: false, countries: ['NO'] },
+        { id: 'ar8', name: 'Phone Cross-Check',       type: 'geocode',  description: 'Verify phone country code matches shipping address country.',                   active: true,  countries: [] },
+      ],
+      failures: [
+        { id: 'af1', memberName: 'Ingrid Solberg',  address: 'Gateveien 1, 9999 Ukjentby, NO',     reason: 'Invalid Postcode',    date: '2026-08-09' },
+        { id: 'af2', memberName: 'Lars Bakken',     address: 'PO Box 420, Stockholm, SE',           reason: 'PO Box Restricted',   date: '2026-08-09' },
+        { id: 'af3', memberName: 'Sofia Lindqvist', address: 'Hauptstrasse 5, , DE',                reason: 'Missing City',        date: '2026-08-08' },
+        { id: 'af4', memberName: 'Erik Andersen',   address: 'Torvet 12, 1000 Kobenhavn, DK',       reason: 'Geocode Failed',      date: '2026-08-08' },
+        { id: 'af5', memberName: 'Maja Kristiansen',address: 'Fjordgate 7, 5020 Bergan, NO',        reason: 'Auto-Corrected',      date: '2026-08-07' },
+      ],
+      countries: [
+        { code: 'NO', name: 'Norway',      flag: '🇳🇴', postcodeFormat: '#####',    geocodeEnabled: true,  failRate: 1.8 },
+        { code: 'SE', name: 'Sweden',      flag: '🇸🇪', postcodeFormat: '### ##',   geocodeEnabled: true,  failRate: 2.1 },
+        { code: 'DK', name: 'Denmark',     flag: '🇩🇰', postcodeFormat: '####',     geocodeEnabled: true,  failRate: 1.4 },
+        { code: 'FI', name: 'Finland',     flag: '🇫🇮', postcodeFormat: '#####',    geocodeEnabled: true,  failRate: 2.9 },
+        { code: 'DE', name: 'Germany',     flag: '🇩🇪', postcodeFormat: '#####',    geocodeEnabled: true,  failRate: 3.2 },
+        { code: 'NL', name: 'Netherlands', flag: '🇳🇱', postcodeFormat: '#### XX',  geocodeEnabled: false, failRate: 5.1 },
+        { code: 'GB', name: 'UK',          flag: '🇬🇧', postcodeFormat: 'AN# #AA',  geocodeEnabled: false, failRate: 6.7 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/address-validation')
+}
+
+export async function toggleAdminAddressRule(id, active) {
+  if (USE_MOCK) { await delay(200); return { ok: true } }
+  return request('PATCH', `/v1/mlm/admin/address-validation/rules/${id}`, { active })
+}
+
+// ── Member: XP History ────────────────────────────────────────────────────────
+export async function getMemberXpHistory() {
+  if (USE_MOCK) {
+    await delay(300)
+    return {
+      stats: { totalXp: 18420, thisMonth: 1240, redeemedYtd: 5800, expiringSoon: 600, nextTierXp: 25000, nextTierName: 'Platinum' },
+      transactions: [
+        { id: 'xp1',  type: 'earn',       description: 'Purchase — Order NV-5501',         source: 'Purchase',     date: '2026-08-08', xp: 218,  balance: 18420 },
+        { id: 'xp2',  type: 'bonus',      description: 'August Loyalty Bonus',              source: 'System',       date: '2026-08-01', xp: 500,  balance: 18202 },
+        { id: 'xp3',  type: 'earn',       description: 'Daily Check-In Streak (30 days)',   source: 'Check-In',     date: '2026-08-01', xp: 150,  balance: 17702 },
+        { id: 'xp4',  type: 'earn',       description: 'Referral — Ingrid joined',          source: 'Referral',     date: '2026-07-29', xp: 300,  balance: 17552 },
+        { id: 'xp5',  type: 'redeem',     description: 'Redeemed for €10 store credit',    source: 'Redemption',   date: '2026-07-25', xp: 1000, balance: 17252 },
+        { id: 'xp6',  type: 'earn',       description: 'Purchase — Order NV-5420',         source: 'Purchase',     date: '2026-07-22', xp: 186,  balance: 18252 },
+        { id: 'xp7',  type: 'earn',       description: 'Training Module Completed',        source: 'Training',     date: '2026-07-18', xp: 75,   balance: 18066 },
+        { id: 'xp8',  type: 'expire',     description: 'Points expiry — July 2025 batch', source: 'System',       date: '2026-07-01', xp: 600,  balance: 17991 },
+        { id: 'xp9',  type: 'bonus',      description: 'Rank Promotion Bonus — Gold',      source: 'MLM',          date: '2026-06-15', xp: 1000, balance: 18591 },
+        { id: 'xp10', type: 'adjustment', description: 'Manual Adjustment — Support',      source: 'Admin',        date: '2026-06-10', xp: 50,   balance: 17591 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/xp-history')
+}
+
+// ── Member: Daily Check-In ────────────────────────────────────────────────────
+export async function getMemberDailyCheckin() {
+  if (USE_MOCK) {
+    await delay(260)
+    return {
+      checkedInToday: false,
+      streak: 12,
+      longestStreak: 31,
+      xpEarned: 1080,
+      totalCheckins: 84,
+      dailyXp: 10,
+      history: [
+        { date: '2026-08-08', mood: 5, xp: 10, note: 'Great training session today!' },
+        { date: '2026-08-07', mood: 4, xp: 10, note: null },
+        { date: '2026-08-06', mood: 3, xp: 10, note: 'Tired but pushed through.' },
+        { date: '2026-08-05', mood: 4, xp: 10, note: null },
+        { date: '2026-08-04', mood: 5, xp: 10, note: 'New personal record!' },
+        { date: '2026-08-03', mood: 2, xp: 10, note: 'Rough day.' },
+        { date: '2026-08-02', mood: 4, xp: 10, note: null },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/daily-checkin')
+}
+
+export async function postMemberCheckin(data) {
+  if (USE_MOCK) { await delay(280); return { ok: true, xpEarned: 10 } }
+  return request('POST', '/v1/mlm/member/daily-checkin', data)
+}
+
+// ── Member: Fitness Tracker ───────────────────────────────────────────────────
+export async function getMemberFitnessTracker() {
+  if (USE_MOCK) {
+    await delay(290)
+    return {
+      stats: { sessionsThisMonth: 14, totalMinutes: 1020, caloriesBurned: 8400, activeStreak: 5 },
+      weekChart: [
+        { day: 'Mon', minutes: 45 }, { day: 'Tue', minutes: 0 }, { day: 'Wed', minutes: 60 },
+        { day: 'Thu', minutes: 30 }, { day: 'Fri', minutes: 50 }, { day: 'Sat', minutes: 75 }, { day: 'Sun', minutes: 0 },
+      ],
+      sessions: [
+        { id: 'fs1', type: 'running',      date: '2026-08-09', duration: 50, intensity: 'high',   calories: 480, notes: 'Morning 8k run' },
+        { id: 'fs2', type: 'weightlifting', date: '2026-08-07', duration: 75, intensity: 'high',   calories: 420, notes: 'Push day' },
+        { id: 'fs3', type: 'cycling',      date: '2026-08-06', duration: 60, intensity: 'medium', calories: 380, notes: null },
+        { id: 'fs4', type: 'yoga',         date: '2026-08-04', duration: 45, intensity: 'low',    calories: 120, notes: 'Recovery session' },
+        { id: 'fs5', type: 'running',      date: '2026-08-02', duration: 35, intensity: 'medium', calories: 310, notes: null },
+        { id: 'fs6', type: 'hiit',         date: '2026-08-01', duration: 30, intensity: 'high',   calories: 350, notes: 'Tabata protocol' },
+        { id: 'fs7', type: 'swimming',     date: '2026-07-30', duration: 45, intensity: 'medium', calories: 290, notes: null },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/fitness-tracker')
+}
+
+export async function addMemberFitnessSession(data) {
+  if (USE_MOCK) { await delay(280); return { ok: true } }
+  return request('POST', '/v1/mlm/member/fitness-tracker', data)
+}
+
+// ── Member: Recipe Library ────────────────────────────────────────────────────
+export async function getMemberRecipeLibrary() {
+  if (USE_MOCK) {
+    await delay(310)
+    return {
+      recipes: [
+        {
+          id: 'rc1', emoji: '🥤', name: 'Nordic Recovery Shake', category: 'smoothies', prepMinutes: 5, calories: 320, rating: 4.8,
+          tags: ['protein', 'post-workout', 'peptide'], macros: { protein: 42, carbs: 28, fat: 6 },
+          ingredients: ['2 scoops Nordic Whey', '200ml oat milk', '1 banana', '1 tsp collagen peptides', '5 ice cubes'],
+          steps: ['Add all ingredients to blender.', 'Blend on high for 30 seconds.', 'Pour and consume within 30 minutes post-workout.'],
+          productLinks: ['Nordic Whey Protein', 'Collagen Peptide Complex'],
+        },
+        {
+          id: 'rc2', emoji: '🥗', name: 'Peptide Power Salad', category: 'meals', prepMinutes: 15, calories: 480, rating: 4.6,
+          tags: ['high-protein', 'lunch', 'anti-inflammatory'], macros: { protein: 38, carbs: 32, fat: 18 },
+          ingredients: ['200g grilled salmon', '100g quinoa (cooked)', 'Cucumber, tomato, spinach', '1 tbsp olive oil', 'Lemon juice, salt, pepper'],
+          steps: ['Cook quinoa per package instructions.', 'Grill salmon 4 min per side.', 'Toss greens with olive oil and lemon.', 'Plate quinoa base, top with salmon and salad.'],
+          productLinks: ['Omega-3 Complex'],
+        },
+        {
+          id: 'rc3', emoji: '🍌', name: 'GH-Support Smoothie Bowl', category: 'smoothies', prepMinutes: 8, calories: 390, rating: 4.7,
+          tags: ['gh-support', 'breakfast', 'peptide'], macros: { protein: 28, carbs: 52, fat: 8 },
+          ingredients: ['1 frozen banana', '150ml almond milk', '1 scoop BPC-157 blend', 'Blueberries, granola, chia seeds for topping'],
+          steps: ['Blend banana and almond milk until thick.', 'Pour into bowl.', 'Top with blueberries, granola, chia seeds.', 'Serve immediately.'],
+          productLinks: ['BPC-157 Blend', 'Nordic Greens'],
+        },
+        {
+          id: 'rc4', emoji: '🍳', name: 'High-Protein Nordic Omelette', category: 'meals', prepMinutes: 12, calories: 420, rating: 4.5,
+          tags: ['breakfast', 'keto-friendly', 'quick'], macros: { protein: 34, carbs: 8, fat: 28 },
+          ingredients: ['4 eggs', '50g smoked salmon', '30g cream cheese', 'Fresh dill, chives', '1 tsp butter', 'Salt and pepper'],
+          steps: ['Whisk eggs with salt and pepper.', 'Melt butter in non-stick pan over medium heat.', 'Pour eggs, cook until edges set.', 'Add salmon, cream cheese, herbs.', 'Fold and serve.'],
+          productLinks: [],
+        },
+        {
+          id: 'rc5', emoji: '🧁', name: 'Collagen Protein Balls', category: 'snacks', prepMinutes: 20, calories: 180, rating: 4.9,
+          tags: ['snack', 'no-bake', 'collagen'], macros: { protein: 12, carbs: 18, fat: 7 },
+          ingredients: ['1 cup rolled oats', '2 scoops collagen peptides', '3 tbsp honey', '2 tbsp peanut butter', '1 tsp vanilla'],
+          steps: ['Mix all ingredients in a bowl until combined.', 'Refrigerate 15 minutes.', 'Roll into 12 balls.', 'Store refrigerated up to 1 week.'],
+          productLinks: ['Collagen Peptide Complex'],
+        },
+        {
+          id: 'rc6', emoji: '☕', name: 'Nootropic Morning Coffee', category: 'supplements', prepMinutes: 5, calories: 80, rating: 4.4,
+          tags: ['morning', 'focus', 'nootropic'], macros: { protein: 2, carbs: 4, fat: 5 },
+          ingredients: ['250ml freshly brewed coffee', '1 tsp MCT oil', '1/2 scoop Nordic Focus blend', '1 tsp collagen peptides', 'Optional: splash of oat milk'],
+          steps: ['Brew coffee.', 'Add MCT oil and Nordic Focus blend.', 'Blend 15 seconds or use a frother.', 'Add collagen, stir, drink immediately.'],
+          productLinks: ['Nordic Focus Blend', 'Collagen Peptide Complex'],
+        },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/recipe-library')
+}
