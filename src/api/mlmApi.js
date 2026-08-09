@@ -9228,3 +9228,259 @@ export async function getMemberContentPlanner() {
   }
   return request('GET', '/v1/mlm/member/content-planner')
 }
+
+export async function getAdminLocalization() {
+  if (USE_MOCK) {
+    return {
+      defaultLocale: 'nb-NO',
+      languages: [
+        { code: 'nb', name: 'Norwegian Bokmål', nativeName: 'Norsk Bokmål', flag: '🇳🇴', active: true, isDefault: true, coverage: 100 },
+        { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧', active: true, isDefault: false, coverage: 98 },
+        { code: 'sv', name: 'Swedish', nativeName: 'Svenska', flag: '🇸🇪', active: true, isDefault: false, coverage: 82 },
+        { code: 'da', name: 'Danish', nativeName: 'Dansk', flag: '🇩🇰', active: true, isDefault: false, coverage: 75 },
+        { code: 'fi', name: 'Finnish', nativeName: 'Suomi', flag: '🇫🇮', active: false, isDefault: false, coverage: 40 },
+        { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', active: false, isDefault: false, coverage: 20 },
+      ],
+      currencies: [
+        { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr', rate: 1, decimals: 2, active: true, isDefault: true, rateUpdated: '2026-08-09' },
+        { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.087, decimals: 2, active: true, isDefault: false, rateUpdated: '2026-08-09' },
+        { code: 'SEK', name: 'Swedish Krona', symbol: 'kr', rate: 0.96, decimals: 2, active: true, isDefault: false, rateUpdated: '2026-08-09' },
+        { code: 'DKK', name: 'Danish Krone', symbol: 'kr', rate: 0.65, decimals: 2, active: true, isDefault: false, rateUpdated: '2026-08-09' },
+        { code: 'USD', name: 'US Dollar', symbol: '$', rate: 0.093, decimals: 2, active: false, isDefault: false, rateUpdated: '2026-08-08' },
+        { code: 'GBP', name: 'British Pound', symbol: '£', rate: 0.073, decimals: 2, active: false, isDefault: false, rateUpdated: '2026-08-08' },
+      ],
+      timezones: [
+        { id: 'tz1', label: 'Europe/Oslo', offset: 'UTC+2', region: 'Northern Europe', memberCount: 1842, isDefault: true },
+        { id: 'tz2', label: 'Europe/Stockholm', offset: 'UTC+2', region: 'Northern Europe', memberCount: 341, isDefault: false },
+        { id: 'tz3', label: 'Europe/Copenhagen', offset: 'UTC+2', region: 'Northern Europe', memberCount: 198, isDefault: false },
+        { id: 'tz4', label: 'Europe/Helsinki', offset: 'UTC+3', region: 'Northern Europe', memberCount: 74, isDefault: false },
+        { id: 'tz5', label: 'Europe/London', offset: 'UTC+1', region: 'Western Europe', memberCount: 53, isDefault: false },
+        { id: 'tz6', label: 'America/New_York', offset: 'UTC-4', region: 'North America', memberCount: 21, isDefault: false },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/localization')
+}
+
+export async function getAdminOnboardingFlows() {
+  if (USE_MOCK) {
+    return {
+      avgCompletion: 71,
+      inProgress: 234,
+      completed30d: 189,
+      flows: [
+        {
+          id: 'flow1', name: 'Standard Member Onboarding', description: 'Default 6-step flow for new members', active: true, completionRate: 74,
+          steps: [
+            { id: 's1', title: 'Profile Setup', type: 'welcome', description: 'Complete basic profile info, photo, and bio', required: true, completionRate: 98, avgMinutes: 5, skipAllowed: false },
+            { id: 's2', title: 'KYC Verification', type: 'kyc', description: 'Upload ID and verify identity for compliance', required: true, completionRate: 82, avgMinutes: 12, skipAllowed: false },
+            { id: 's3', title: 'Welcome Training Module', type: 'training', description: 'Watch intro video and complete knowledge check', required: false, completionRate: 71, avgMinutes: 20, skipAllowed: true },
+            { id: 's4', title: 'Product Exploration', type: 'product', description: 'Browse catalog, add favourites, learn about peptides', required: false, completionRate: 68, avgMinutes: 8, skipAllowed: true },
+            { id: 's5', title: 'First Autoship Setup', type: 'activation', description: 'Configure monthly autoship for recurring orders', required: false, completionRate: 55, avgMinutes: 6, skipAllowed: true },
+            { id: 's6', title: 'Referral Link Activation', type: 'activation', description: 'Generate and share your unique referral link', required: false, completionRate: 49, avgMinutes: 3, skipAllowed: true },
+          ]
+        },
+        {
+          id: 'flow2', name: 'VIP Fast-Track', description: 'Streamlined 3-step flow for high-intent members', active: true, completionRate: 91,
+          steps: [
+            { id: 's1', title: 'Profile + KYC Combined', type: 'kyc', description: 'Single-step profile and identity verification', required: true, completionRate: 97, avgMinutes: 8, skipAllowed: false },
+            { id: 's2', title: 'VIP Welcome Call Booking', type: 'welcome', description: 'Book 1:1 onboarding call with your upline', required: false, completionRate: 88, avgMinutes: 3, skipAllowed: true },
+            { id: 's3', title: 'Starter Kit Order', type: 'product', description: 'Order your recommended starter kit at VIP discount', required: false, completionRate: 79, avgMinutes: 5, skipAllowed: true },
+          ]
+        },
+        {
+          id: 'flow3', name: 'Distributor Activation', description: 'Extended flow for members applying for distributor status', active: false, completionRate: 62,
+          steps: [
+            { id: 's1', title: 'Standard Onboarding', type: 'welcome', description: 'Complete standard member onboarding first', required: true, completionRate: 74, avgMinutes: 54, skipAllowed: false },
+            { id: 's2', title: 'Business Plan Submission', type: 'training', description: 'Submit your 90-day business plan', required: true, completionRate: 58, avgMinutes: 30, skipAllowed: false },
+          ]
+        }
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/onboarding-flows')
+}
+
+export async function getAdminMemberTags() {
+  if (USE_MOCK) {
+    return {
+      taggedMembers: 1654,
+      avgTagsPerMember: 3.2,
+      tags: [
+        { id: 't1', name: 'high-value', description: 'Members with LTV > NOK 20,000', category: 'behavioral', color: '#86efac', autoAssign: true, rule: 'LTV > 20000', memberCount: 312, createdAt: '2026-02-10' },
+        { id: 't2', name: 'at-risk-churn', description: 'No purchase in 60+ days on active subscription', category: 'risk', color: '#f87171', autoAssign: true, rule: 'days_since_order > 60 AND has_subscription', memberCount: 87, createdAt: '2026-03-01' },
+        { id: 't3', name: 'top-recruiter', description: 'Added 5+ members in last 90 days', category: 'behavioral', color: '#93c5fd', autoAssign: true, rule: 'recruits_90d >= 5', memberCount: 44, createdAt: '2026-01-15' },
+        { id: 't4', name: 'peptide-enthusiast', description: 'Purchased 3+ different peptide SKUs', category: 'product', color: '#818cf8', autoAssign: true, rule: 'distinct_peptide_skus >= 3', memberCount: 531, createdAt: '2026-02-20' },
+        { id: 't5', name: 'new-member', description: 'Joined in last 30 days', category: 'lifecycle', color: '#fbbf24', autoAssign: true, rule: 'days_since_join <= 30', memberCount: 189, createdAt: '2026-01-01' },
+        { id: 't6', name: 'autoship-active', description: 'Currently on an active autoship plan', category: 'lifecycle', color: '#86efac', autoAssign: true, rule: 'has_active_autoship', memberCount: 876, createdAt: '2026-01-01' },
+        { id: 't7', name: 'vip-prospect', description: 'Manually tagged by upline as VIP candidate', category: 'custom', color: '#c4b5fd', autoAssign: false, rule: null, memberCount: 23, createdAt: '2026-04-05' },
+        { id: 't8', name: 'wellness-focus', description: 'Primarily purchases wellness/recovery products', category: 'product', color: '#86efac', autoAssign: false, rule: null, memberCount: 298, createdAt: '2026-03-12' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/member-tags')
+}
+
+export async function getAdminSmartNotifications() {
+  if (USE_MOCK) {
+    return {
+      openRate: 38,
+      clickRate: 12,
+      sent30d: 14820,
+      rules: [
+        { id: 'r1', name: 'Cart Abandonment Rescue', triggerType: 'behavioral', triggerCondition: 'Member adds to cart but does not checkout within 2 hours', messagePreview: 'You left something behind! Your cart is saved — complete your order and get free shipping.', channels: ['email', 'push'], active: true, sent30d: 2340, openRate: 44, clickRate: 18, unsubRate: 0.4, delay: '2 hours' },
+        { id: 'r2', name: 'Rank-Up Congratulations', triggerType: 'milestone', triggerCondition: 'Member achieves a new rank', messagePreview: 'Congratulations on reaching {{rank}}! Here\'s what unlocks at your new level.', channels: ['email', 'inApp', 'push'], active: true, sent30d: 156, openRate: 81, clickRate: 42, unsubRate: 0.1, delay: 'immediate' },
+        { id: 'r3', name: 'Autoship Upcoming Reminder', triggerType: 'time', triggerCondition: '7 days before next autoship renewal', messagePreview: 'Your autoship order of {{products}} ships in 7 days. Want to adjust?', channels: ['email', 'sms'], active: true, sent30d: 1890, openRate: 62, clickRate: 28, unsubRate: 0.2, delay: 'on trigger' },
+        { id: 'r4', name: 'Inactivity Win-Back', triggerType: 'inactivity', triggerCondition: 'No login for 45 days', messagePreview: 'We miss you! Here\'s what\'s new in your business dashboard + a 10% welcome back voucher.', channels: ['email'], active: true, sent30d: 423, openRate: 29, clickRate: 8, unsubRate: 1.1, delay: 'on trigger' },
+        { id: 'r5', name: 'First Purchase Thank-You', triggerType: 'purchase', triggerCondition: 'Member places their very first order', messagePreview: 'Thank you for your first order! Here\'s your quick-start guide to peptides.', channels: ['email', 'inApp'], active: true, sent30d: 189, openRate: 74, clickRate: 35, unsubRate: 0.0, delay: '1 hour' },
+        { id: 'r6', name: 'Birthday Reward', triggerType: 'time', triggerCondition: 'Member\'s birthday (date of birth in profile)', messagePreview: 'Happy Birthday from Nordic Vitals! Enjoy 15% off your next order — gift from us.', channels: ['email', 'push'], active: false, sent30d: 0, openRate: 0, clickRate: 0, unsubRate: 0, delay: 'morning of' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/admin/smart-notifications')
+}
+
+export async function getMemberIncomeForecast() {
+  if (USE_MOCK) {
+    return {
+      currentRank: 'Silver',
+      thisMonthEst: 'NOK 4,200',
+      nextRankBonus: 'NOK 2,500',
+      teamVolume: 'NOK 38,400',
+      scenarios: {
+        conservative: {
+          monthly: [
+            { label: 'Aug', personal: 2100, team: 1800, total: 3900, totalFormatted: 'kr 3.9k' },
+            { label: 'Sep', personal: 2200, team: 2000, total: 4200, totalFormatted: 'kr 4.2k' },
+            { label: 'Oct', personal: 2300, team: 2100, total: 4400, totalFormatted: 'kr 4.4k' },
+            { label: 'Nov', personal: 2400, team: 2200, total: 4600, totalFormatted: 'kr 4.6k' },
+            { label: 'Dec', personal: 2500, team: 2400, total: 4900, totalFormatted: 'kr 4.9k' },
+            { label: 'Jan', personal: 2400, team: 2300, total: 4700, totalFormatted: 'kr 4.7k' },
+          ],
+          assumptions: [
+            { label: 'Personal Volume Growth', value: '5% / month' },
+            { label: 'Team Recruit Rate', value: '0.5 / month' },
+            { label: 'Retention Rate', value: '85%' },
+            { label: 'Autoship Compliance', value: '70%' },
+          ]
+        },
+        realistic: {
+          monthly: [
+            { label: 'Aug', personal: 2600, team: 2200, total: 4800, totalFormatted: 'kr 4.8k' },
+            { label: 'Sep', personal: 2900, team: 2600, total: 5500, totalFormatted: 'kr 5.5k' },
+            { label: 'Oct', personal: 3200, team: 3000, total: 6200, totalFormatted: 'kr 6.2k' },
+            { label: 'Nov', personal: 3500, team: 3500, total: 7000, totalFormatted: 'kr 7.0k' },
+            { label: 'Dec', personal: 4000, team: 4200, total: 8200, totalFormatted: 'kr 8.2k' },
+            { label: 'Jan', personal: 3600, team: 3800, total: 7400, totalFormatted: 'kr 7.4k' },
+          ],
+          assumptions: [
+            { label: 'Personal Volume Growth', value: '12% / month' },
+            { label: 'Team Recruit Rate', value: '1.5 / month' },
+            { label: 'Retention Rate', value: '90%' },
+            { label: 'Autoship Compliance', value: '80%' },
+          ]
+        },
+        optimistic: {
+          monthly: [
+            { label: 'Aug', personal: 3200, team: 3000, total: 6200, totalFormatted: 'kr 6.2k' },
+            { label: 'Sep', personal: 3800, team: 3800, total: 7600, totalFormatted: 'kr 7.6k' },
+            { label: 'Oct', personal: 4500, team: 5000, total: 9500, totalFormatted: 'kr 9.5k' },
+            { label: 'Nov', personal: 5200, team: 6500, total: 11700, totalFormatted: 'kr 11.7k' },
+            { label: 'Dec', personal: 6000, team: 8000, total: 14000, totalFormatted: 'kr 14k' },
+            { label: 'Jan', personal: 5500, team: 7000, total: 12500, totalFormatted: 'kr 12.5k' },
+          ],
+          assumptions: [
+            { label: 'Personal Volume Growth', value: '22% / month' },
+            { label: 'Team Recruit Rate', value: '3+ / month' },
+            { label: 'Retention Rate', value: '95%' },
+            { label: 'Autoship Compliance', value: '90%' },
+          ]
+        }
+      },
+      milestones: [
+        { amount: 'NOK 5,000/mo', progress: 84, reached: false, eta: '~1 month' },
+        { amount: 'NOK 10,000/mo', progress: 42, reached: false, eta: '~3 months' },
+        { amount: 'NOK 25,000/mo', progress: 17, reached: false, eta: '~9 months' },
+        { amount: 'NOK 50,000/mo', progress: 8, reached: false, eta: '~18 months' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/income-forecast')
+}
+
+export async function getMemberSavingsTracker() {
+  if (USE_MOCK) {
+    return {
+      totalSaved: 'NOK 14,820',
+      avgDiscount: 28,
+      totalOrders: 34,
+      retailEquivalent: 'NOK 52,900',
+      byCategory: [
+        { name: 'Peptides', saved: 'NOK 9,240', pct: 62 },
+        { name: 'Collagen', saved: 'NOK 2,810', pct: 19 },
+        { name: 'Supplements', saved: 'NOK 1,680', pct: 11 },
+        { name: 'Accessories', saved: 'NOK 1,090', pct: 8 },
+      ],
+      periods: {
+        allTime: { chart: [800, 1200, 900, 1400, 1800, 1100, 2000, 1600, 2200, 1900, 2400, 2800], startLabel: 'Jan 2025', endLabel: 'Now' },
+        thisYear: { chart: [1100, 2000, 1600, 2200, 1900, 2400, 2800, 2100], startLabel: 'Jan 2026', endLabel: 'Now' },
+        last90: { chart: [700, 650, 820, 900, 780, 860, 1100, 980, 1200, 1050, 1300, 1400], startLabel: 'May', endLabel: 'Now' },
+        last30: { chart: [280, 320, 190, 450, 380, 290, 340, 410], startLabel: '2 Jul', endLabel: 'Now' },
+      },
+      topSavings: [
+        { id: 1, orderId: '38291', date: '2026-07-28', retailValue: 'NOK 3,200', paid: 'NOK 2,100', saved: 'NOK 1,100', discountPct: 34 },
+        { id: 2, orderId: '37841', date: '2026-06-14', retailValue: 'NOK 2,800', paid: 'NOK 1,960', saved: 'NOK 840', discountPct: 30 },
+        { id: 3, orderId: '36990', date: '2026-05-03', retailValue: 'NOK 2,600', paid: 'NOK 1,820', saved: 'NOK 780', discountPct: 30 },
+        { id: 4, orderId: '35420', date: '2026-03-18', retailValue: 'NOK 4,100', paid: 'NOK 3,200', saved: 'NOK 900', discountPct: 22 },
+        { id: 5, orderId: '34012', date: '2026-01-22', retailValue: 'NOK 1,900', paid: 'NOK 1,290', saved: 'NOK 610', discountPct: 32 },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/savings-tracker')
+}
+
+export async function getMemberTeamActivities() {
+  if (USE_MOCK) {
+    return {
+      activeMembers: 38,
+      rankUps30d: 5,
+      recruits30d: 12,
+      activities: [
+        { type: 'rank', memberName: 'Anna K.', description: 'Achieved Gold rank!', detail: null, timeAgo: '2h ago', value: '⭐ Gold' },
+        { type: 'recruit', memberName: 'Marte S.', description: 'Recruited a new member', detail: 'Erik J. joined the team', timeAgo: '4h ago', value: '+1 member' },
+        { type: 'order', memberName: 'Thomas B.', description: 'Placed an autoship order', detail: 'BPC-157 + TB-500 — NOK 2,840', timeAgo: '5h ago', value: 'NOK 2,840' },
+        { type: 'milestone', memberName: 'Ingrid P.', description: 'Hit 100 PV personal volume this month!', detail: null, timeAgo: '8h ago', value: '100 PV' },
+        { type: 'training', memberName: 'Lars N.', description: 'Completed Peptide Science module', detail: 'Score: 92/100', timeAgo: '1d ago', value: '92 pts' },
+        { type: 'challenge', memberName: 'Sofia A.', description: 'Won the Weekly Referral Challenge', detail: '3 new sign-ups this week', timeAgo: '1d ago', value: '1st place' },
+        { type: 'order', memberName: 'Jon M.', description: 'First ever order placed!', detail: 'Starter Kit — NOK 1,490', timeAgo: '2d ago', value: 'NOK 1,490' },
+        { type: 'recruit', memberName: 'Hanne L.', description: 'Recruited 2 new members this week', detail: null, timeAgo: '2d ago', value: '+2 members' },
+        { type: 'milestone', memberName: 'Bjørn C.', description: 'Reached 500 PV team volume', detail: null, timeAgo: '3d ago', value: '500 PV team' },
+        { type: 'rank', memberName: 'Marie T.', description: 'Promoted to Silver rank', detail: null, timeAgo: '4d ago', value: '⭐ Silver' },
+      ],
+      topPerformers: [
+        { name: 'Anna K.', metric: '340 PV', category: 'volume' },
+        { name: 'Marte S.', metric: '3 recruits', category: 'recruitment' },
+        { name: 'Thomas B.', metric: 'NOK 14,200', category: 'revenue' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/team-activities')
+}
+
+export async function getMemberProductFeedback() {
+  if (USE_MOCK) {
+    return {
+      avgRating: 4.6,
+      helpfulVotes: 84,
+      productsReviewed: 6,
+      purchasedProducts: ['BPC-157 (5mg vials)', 'TB-500 (2mg vials)', 'GHK-Cu Topical', 'Sermorelin', 'Collagen Peptide Blend', 'IGF-1 LR3'],
+      feedback: [
+        { id: 'f1', productName: 'BPC-157 (5mg vials)', rating: 5, date: '2026-07-18', verified: true, title: 'Remarkable recovery results', body: 'Used for knee tendon issue after 6 months of chronic pain. After 4 weeks on 250mcg/day, pain reduced by about 70%. Still ongoing but very impressed with the quality and consistency of these vials.', effects: ['Pain reduction', 'Tendon healing', 'Anti-inflammatory'], helpfulCount: 32, adminReply: 'Thank you for sharing your experience with BPC-157! We\'re thrilled to hear about your recovery progress. Please remember to consult with a healthcare professional for dosing guidance.', status: 'approved' },
+        { id: 'f2', productName: 'TB-500 (2mg vials)', rating: 5, date: '2026-06-02', verified: true, title: 'Excellent for muscle recovery', body: 'Combined with BPC-157 over an 8-week cycle. Significant improvement in post-workout recovery. Soreness down by at least half. Purity seems spot-on based on expected effects and no adverse reactions.', effects: ['Muscle recovery', 'Flexibility', 'Reduced soreness'], helpfulCount: 18, adminReply: null, status: 'approved' },
+        { id: 'f3', productName: 'GHK-Cu Topical', rating: 4, date: '2026-05-15', verified: true, title: 'Good for skin but takes time', body: 'Been using topically on face and neck for 2 months. Skin texture has improved, pores look smaller. The results are subtle compared to injected peptides but consistent. The formulation absorbs well.', effects: ['Skin texture', 'Anti-aging', 'Collagen stimulation'], helpfulCount: 11, adminReply: null, status: 'approved' },
+        { id: 'f4', productName: 'Sermorelin', rating: 4, date: '2026-03-28', verified: true, title: 'Good sleep quality improvement', body: 'Sleep quality noticeably better within 2 weeks. More vivid dreams, waking up feeling more rested. Haven\'t noticed dramatic body composition changes yet but the sleep alone makes it worthwhile.', effects: ['Sleep quality', 'Recovery', 'GH stimulation'], helpfulCount: 23, adminReply: null, status: 'approved' },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/product-feedback')
+}

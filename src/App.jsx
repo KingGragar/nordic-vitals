@@ -254,6 +254,14 @@ const DashKitBuilder             = lazy(() => import('./pages/dashboard/KitBuild
 const DashWinLog                 = lazy(() => import('./pages/dashboard/WinLog'))
 const DashAiInsights             = lazy(() => import('./pages/dashboard/AiInsights'))
 const DashContentPlanner         = lazy(() => import('./pages/dashboard/ContentPlanner'))
+const AdminLocalization          = lazy(() => import('./pages/admin/Localization'))
+const AdminOnboardingFlows       = lazy(() => import('./pages/admin/OnboardingFlows'))
+const AdminMemberTags            = lazy(() => import('./pages/admin/MemberTags'))
+const AdminSmartNotifications    = lazy(() => import('./pages/admin/SmartNotifications'))
+const DashIncomeForecast         = lazy(() => import('./pages/dashboard/IncomeForecast'))
+const DashSavingsTracker         = lazy(() => import('./pages/dashboard/SavingsTracker'))
+const DashTeamActivities         = lazy(() => import('./pages/dashboard/TeamActivities'))
+const DashProductFeedback        = lazy(() => import('./pages/dashboard/ProductFeedback'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -528,6 +536,14 @@ function AppRoutes() {
         <Route path="/dashboard/win-log"             element={<RequireAuth><DashWinLog /></RequireAuth>} />
         <Route path="/dashboard/ai-insights"         element={<RequireAuth><DashAiInsights /></RequireAuth>} />
         <Route path="/dashboard/content-planner"     element={<RequireAuth><DashContentPlanner /></RequireAuth>} />
+        <Route path="/admin/localization"            element={<RequireAuth role="admin"><AdminLocalization /></RequireAuth>} />
+        <Route path="/admin/onboarding-flows"        element={<RequireAuth role="admin"><AdminOnboardingFlows /></RequireAuth>} />
+        <Route path="/admin/member-tags"             element={<RequireAuth role="admin"><AdminMemberTags /></RequireAuth>} />
+        <Route path="/admin/smart-notifications"     element={<RequireAuth role="admin"><AdminSmartNotifications /></RequireAuth>} />
+        <Route path="/dashboard/income-forecast"     element={<RequireAuth><DashIncomeForecast /></RequireAuth>} />
+        <Route path="/dashboard/savings-tracker"     element={<RequireAuth><DashSavingsTracker /></RequireAuth>} />
+        <Route path="/dashboard/team-activities"     element={<RequireAuth><DashTeamActivities /></RequireAuth>} />
+        <Route path="/dashboard/product-feedback"    element={<RequireAuth><DashProductFeedback /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
