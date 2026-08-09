@@ -10687,3 +10687,291 @@ export async function getMemberRecipeLibrary() {
   }
   return request('GET', '/v1/mlm/member/recipe-library')
 }
+
+// ── Admin: Heat Maps ──────────────────────────────────────────────────────────
+export async function getAdminHeatMaps() {
+  if (USE_MOCK) {
+    await delay(340)
+    return {
+      summary: { avgDepth: '67%', topConverting: 'Pricing', deadZones: 3, sessions: '18,420' },
+      matrix: {
+        Landing: {
+          all:     { header: 8200, hero: 14600, products: 11300, testimonials: 6800, pricing: 9400, footer: 2100 },
+          desktop: { header: 4900, hero: 9200, products: 7100, testimonials: 4100, pricing: 6200, footer: 1400 },
+          mobile:  { header: 2800, hero: 4200, products: 3400, testimonials: 2100, pricing: 2600, footer: 600 },
+          tablet:  { header: 500, hero: 1200, products: 800, testimonials: 600, pricing: 600, footer: 100 },
+        },
+        Shop: {
+          all:     { header: 6100, hero: 4200, products: 18900, testimonials: 2100, pricing: 7600, footer: 1800 },
+          desktop: { header: 3600, hero: 2600, products: 12400, testimonials: 1200, pricing: 4900, footer: 1100 },
+          mobile:  { header: 2100, hero: 1400, products: 5400, testimonials: 700, pricing: 2200, footer: 600 },
+          tablet:  { header: 400, hero: 200, products: 1100, testimonials: 200, pricing: 500, footer: 100 },
+        },
+        'Product Detail': {
+          all:     { header: 3100, hero: 9800, products: 12600, testimonials: 7200, pricing: 14800, footer: 2400 },
+          desktop: { header: 1900, hero: 6200, products: 8100, testimonials: 4600, pricing: 9600, footer: 1500 },
+          mobile:  { header: 1000, hero: 2900, products: 3700, testimonials: 2200, pricing: 4400, footer: 700 },
+          tablet:  { header: 200, hero: 700, products: 800, testimonials: 400, pricing: 800, footer: 200 },
+        },
+        Join: {
+          all:     { header: 2800, hero: 9400, products: 3200, testimonials: 5600, pricing: 12400, footer: 1600 },
+          desktop: { header: 1700, hero: 5900, products: 1900, testimonials: 3500, pricing: 8100, footer: 1000 },
+          mobile:  { header: 900, hero: 2800, products: 1000, testimonials: 1700, pricing: 3600, footer: 500 },
+          tablet:  { header: 200, hero: 700, products: 300, testimonials: 400, pricing: 700, footer: 100 },
+        },
+        Dashboard: {
+          all:     { header: 9200, hero: 6100, products: 4800, testimonials: 1200, pricing: 2400, footer: 3600 },
+          desktop: { header: 6100, hero: 4200, products: 3300, testimonials: 800, pricing: 1600, footer: 2400 },
+          mobile:  { header: 2600, hero: 1600, products: 1200, testimonials: 300, pricing: 700, footer: 1000 },
+          tablet:  { header: 500, hero: 300, products: 300, testimonials: 100, pricing: 100, footer: 200 },
+        },
+        Checkout: {
+          all:     { header: 1800, hero: 3200, products: 2600, testimonials: 800, pricing: 6800, footer: 900 },
+          desktop: { header: 1100, hero: 2100, products: 1700, testimonials: 500, pricing: 4400, footer: 600 },
+          mobile:  { header: 600, hero: 900, products: 700, testimonials: 200, pricing: 2000, footer: 250 },
+          tablet:  { header: 100, hero: 200, products: 200, testimonials: 100, pricing: 400, footer: 50 },
+        },
+      },
+      pageRankings: [
+        { page: 'Product Detail', engagementScore: 82 },
+        { page: 'Checkout',       engagementScore: 76 },
+        { page: 'Join',           engagementScore: 71 },
+        { page: 'Landing',        engagementScore: 64 },
+        { page: 'Shop',           engagementScore: 58 },
+        { page: 'Dashboard',      engagementScore: 49 },
+      ],
+      dropoffs: [
+        { section: 'hero → products',       dropPct: 22 },
+        { section: 'products → testimonials', dropPct: 38 },
+        { section: 'pricing → checkout',    dropPct: 61 },
+        { section: 'cart → payment',        dropPct: 44 },
+      ],
+      scrollDepth: { 25: 91, 50: 74, 75: 52, 90: 34, 100: 18 },
+    }
+  }
+  return request('GET', '/v1/mlm/admin/heat-maps')
+}
+
+// ── Admin: Error Tracking ─────────────────────────────────────────────────────
+export async function getAdminErrorTracking() {
+  if (USE_MOCK) {
+    await delay(310)
+    const makeStack = (fn, file) => `Error: ${fn}\n  at ${fn} (${file}:42:18)\n  at processRequest (middleware/auth.js:88:12)\n  at Layer.handle (express/lib/router/layer.js:95:5)`
+    return {
+      stats: { open: 14, critical: 3, usersHit: '2,841', resolved7d: 29, mttr: '4.2h' },
+      errors: [
+        { id: 'e1', message: 'Cannot read properties of undefined (reading \'token\')', location: 'src/auth/tokenRefresh.js:42', severity: 'critical', status: 'open', occurrences: 1842, firstSeen: '2026-08-07', lastSeen: '2026-08-09 14:32', usersAffected: '342', browser: 'Chrome 126', stackTrace: makeStack("Cannot read properties of undefined (reading 'token')", 'src/auth/tokenRefresh.js') },
+        { id: 'e2', message: 'Failed to fetch: Network request to /v1/mlm/member/commissions failed', location: 'src/api/mlmApi.js:1204', severity: 'high', status: 'open', occurrences: 612, firstSeen: '2026-08-08', lastSeen: '2026-08-09 13:48', usersAffected: '128', browser: 'Safari 17', stackTrace: makeStack('Failed to fetch', 'src/api/mlmApi.js') },
+        { id: 'e3', message: 'ChunkLoadError: Loading chunk 14 failed', location: 'webpack/runtime/chunk loading:34', severity: 'high', status: 'open', occurrences: 409, firstSeen: '2026-08-06', lastSeen: '2026-08-09 12:11', usersAffected: '89', browser: 'Firefox 128', stackTrace: makeStack('ChunkLoadError', 'webpack/runtime/chunk') },
+        { id: 'e4', message: 'RangeError: Maximum call stack size exceeded', location: 'src/pages/dashboard/Tree.jsx:188', severity: 'critical', status: 'open', occurrences: 38, firstSeen: '2026-08-09', lastSeen: '2026-08-09 11:54', usersAffected: '12', browser: 'Chrome 126', stackTrace: makeStack('Maximum call stack size exceeded', 'src/pages/dashboard/Tree.jsx') },
+        { id: 'e5', message: 'TypeError: cart.items.reduce is not a function', location: 'src/pages/Checkout.jsx:76', severity: 'medium', status: 'open', occurrences: 212, firstSeen: '2026-08-05', lastSeen: '2026-08-09 10:22', usersAffected: '44', browser: 'Edge 124', stackTrace: makeStack('cart.items.reduce is not a function', 'src/pages/Checkout.jsx') },
+        { id: 'e6', message: 'SyntaxError: Unexpected token < in JSON at position 0', location: 'src/api/mlmApi.js:44', severity: 'medium', status: 'resolved', occurrences: 88, firstSeen: '2026-08-03', lastSeen: '2026-08-08 09:14', usersAffected: '18', browser: 'Chrome 125', stackTrace: makeStack('Unexpected token < in JSON', 'src/api/mlmApi.js') },
+        { id: 'e7', message: 'Warning: Each child in a list should have a unique "key" prop', location: 'src/pages/Shop.jsx:211', severity: 'low', status: 'ignored', occurrences: 3280, firstSeen: '2026-08-01', lastSeen: '2026-08-09 08:00', usersAffected: '0', browser: 'All', stackTrace: 'Warning in Shop.jsx:211\n  in ProductCard\n  in ul\n  in Shop' },
+        { id: 'e8', message: 'Unhandled Promise Rejection: Request timeout after 30000ms', location: 'src/api/mlmApi.js:28', severity: 'critical', status: 'open', occurrences: 94, firstSeen: '2026-08-08', lastSeen: '2026-08-09 09:41', usersAffected: '31', browser: 'Chrome 126', stackTrace: makeStack('Request timeout', 'src/api/mlmApi.js') },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/error-tracking')
+}
+
+export async function resolveAdminError(id) {
+  if (USE_MOCK) { await delay(240); return { ok: true } }
+  return request('POST', `/v1/mlm/admin/error-tracking/${id}/resolve`)
+}
+
+// ── Admin: Content Performance ────────────────────────────────────────────────
+export async function getAdminContentPerformance() {
+  if (USE_MOCK) {
+    await delay(320)
+    return {
+      stats: { totalViews: '142,800', avgTime: '3m 24s', convAssists: '2,140', topCategory: 'Peptides', bounceRate: '52%' },
+      content: [
+        { id: 'c1', title: 'BPC-157: The Complete Guide for Nordic Members', type: 'blog', views: 28400, avgTime: '6m 12s', convAssists: 380, shares: 1240, bounceRate: 38, publishedAt: '2026-07-14' },
+        { id: 'c2', title: 'How to Build Your First MLM Team: Step-by-Step', type: 'resource', views: 21600, avgTime: '8m 45s', convAssists: 610, shares: 890, bounceRate: 29, publishedAt: '2026-06-22' },
+        { id: 'c3', title: 'Nordic Vitals Compensation Plan Explained', type: 'video', views: 18900, avgTime: '12m 30s', convAssists: 540, shares: 620, bounceRate: 22, publishedAt: '2026-07-01' },
+        { id: 'c4', title: 'Peptides for Recovery: What the Science Says', type: 'blog', views: 14200, avgTime: '4m 58s', convAssists: 210, shares: 480, bounceRate: 44, publishedAt: '2026-07-28' },
+        { id: 'c5', title: 'Join Page — Scandinavia Edition', type: 'landing', views: 12800, avgTime: '1m 42s', convAssists: 820, shares: 140, bounceRate: 71, publishedAt: '2026-05-15' },
+        { id: 'c6', title: 'GHK-Cu Copper Peptide: Member FAQ', type: 'resource', views: 9400, avgTime: '5m 14s', convAssists: 160, shares: 310, bounceRate: 41, publishedAt: '2026-08-01' },
+        { id: 'c7', title: 'Social Media Playbook for Nordic Distributors', type: 'resource', views: 8100, avgTime: '7m 22s', convAssists: 290, shares: 560, bounceRate: 33, publishedAt: '2026-06-10' },
+        { id: 'c8', title: 'Nordic Vitals Product Range Overview', type: 'video', views: 7600, avgTime: '9m 44s', convAssists: 180, shares: 240, bounceRate: 28, publishedAt: '2026-07-18' },
+        { id: 'c9', title: 'MLM Income Myths Debunked', type: 'blog', views: 6800, avgTime: '3m 52s', convAssists: 88, shares: 420, bounceRate: 62, publishedAt: '2026-08-04' },
+        { id: 'c10', title: 'Autoship Setup Landing Page — NO', type: 'landing', views: 5200, avgTime: '2m 08s', convAssists: 340, shares: 60, bounceRate: 58, publishedAt: '2026-06-30' },
+      ],
+      categoryBreakdown: [
+        { category: 'peptides',    views: 52000 },
+        { category: 'business',    views: 38400 },
+        { category: 'recruitment', views: 28800 },
+        { category: 'wellness',    views: 14200 },
+        { category: 'compliance',  views: 9400 },
+      ],
+      trafficSources: [
+        { source: 'Organic Search', pct: 38 },
+        { source: 'Direct',         pct: 24 },
+        { source: 'Social Media',   pct: 19 },
+        { source: 'Email',          pct: 12 },
+        { source: 'Referral',       pct: 7 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/content-performance')
+}
+
+// ── Admin: Regulatory Reports ─────────────────────────────────────────────────
+export async function getAdminRegulatoryReports() {
+  if (USE_MOCK) {
+    await delay(290)
+    return {
+      stats: { total: 28, overdue: 1, dueSoon: 3, jurisdictions: 6 },
+      reports: [
+        { id: 'r1', name: 'Norway Income Disclosure 2025', type: 'income_disclosure',     jurisdiction: 'Norway', period: '2025 Annual', dueDate: '2026-03-31', status: 'current' },
+        { id: 'r2', name: 'EU Business Opportunity Disclosure', type: 'business_opportunity', jurisdiction: 'EU',     period: 'Q1 2026',    dueDate: '2026-04-30', status: 'current' },
+        { id: 'r3', name: 'Sweden Annual Compliance Filing', type: 'annual_compliance',   jurisdiction: 'Sweden', period: '2025 Annual', dueDate: '2026-04-01', status: 'current' },
+        { id: 'r4', name: 'US FTC Earnings Disclosure',     type: 'ftc_disclosure',       jurisdiction: 'US',     period: 'Q2 2026',    dueDate: '2026-09-30', status: 'due_soon' },
+        { id: 'r5', name: 'Denmark Earnings Claim Review',  type: 'earnings_claim',       jurisdiction: 'Denmark', period: 'Q2 2026',   dueDate: '2026-09-15', status: 'due_soon' },
+        { id: 'r6', name: 'Finland MLM Compliance Report',  type: 'annual_compliance',   jurisdiction: 'Finland', period: '2025 Annual', dueDate: '2026-03-15', status: 'overdue' },
+        { id: 'r7', name: 'Norway Q1 Earnings Statement',   type: 'earnings_claim',       jurisdiction: 'Norway', period: 'Q1 2026',    dueDate: '2026-05-30', status: 'current' },
+        { id: 'r8', name: 'EU GDPR Income Data Disclosure', type: 'income_disclosure',    jurisdiction: 'EU',     period: '2025 Annual', dueDate: '2026-05-25', status: 'current' },
+        { id: 'r9', name: 'Sweden Income Disclosure 2025',  type: 'income_disclosure',    jurisdiction: 'Sweden', period: '2025 Annual', dueDate: '2026-04-30', status: 'current' },
+        { id: 'r10', name: 'US FTC Business Opportunity',   type: 'business_opportunity', jurisdiction: 'US',     period: 'Q3 2026',    dueDate: '2026-10-30', status: 'draft' },
+      ],
+      upcomingDeadlines: [
+        { id: 'd1', name: 'US FTC Earnings Disclosure',    jurisdiction: 'US',      type: 'FTC', day: '30', month: 'SEP', status: 'due_soon', daysLeft: 52 },
+        { id: 'd2', name: 'Denmark Earnings Claim',        jurisdiction: 'Denmark', type: 'Earnings', day: '15', month: 'SEP', status: 'due_soon', daysLeft: 37 },
+        { id: 'd3', name: 'Norway Q3 Earnings Statement',  jurisdiction: 'Norway',  type: 'Earnings', day: '31', month: 'OCT', status: 'due_soon', daysLeft: 83 },
+      ],
+      incomeDisclosure: [
+        { rank: 'Starter',     avg: 'kr 0',      pct: 31 },
+        { rank: 'Bronze',      avg: 'kr 4,200',   pct: 28 },
+        { rank: 'Silver',      avg: 'kr 18,600',  pct: 22 },
+        { rank: 'Gold',        avg: 'kr 64,800',  pct: 13 },
+        { rank: 'Platinum',    avg: 'kr 180,000', pct: 5 },
+        { rank: 'Diamond',     avg: 'kr 480,000', pct: 1 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/regulatory-reports')
+}
+
+// ── Member: Water Tracker ─────────────────────────────────────────────────────
+export async function getMemberWaterTracker() {
+  if (USE_MOCK) {
+    await delay(280)
+    return {
+      today: { intake: 1400, goal: 2500 },
+      stats: { weekAvg: '2,180 ml', streak: 9, best: '3,200 ml' },
+      hourly: { 7: 250, 8: 0, 9: 350, 10: 0, 11: 250, 12: 300, 13: 0, 14: 250, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0 },
+      log: [
+        { id: 'w1', time: '14:22', ml: 250, source: 'water' },
+        { id: 'w2', time: '12:08', ml: 300, source: 'water' },
+        { id: 'w3', time: '11:45', ml: 250, source: 'water' },
+        { id: 'w4', time: '09:30', ml: 350, source: 'nordic_shake' },
+        { id: 'w5', time: '07:15', ml: 250, source: 'water' },
+      ],
+      tip: 'Peptide supplementation works best when you are well-hydrated. Aim for 35ml per kg of bodyweight. If you weigh 70kg, that is 2,450ml per day — water, herbal teas, and nutrient drinks all count.',
+    }
+  }
+  return request('GET', '/v1/mlm/member/water-tracker')
+}
+
+export async function logMemberWaterIntake(data) {
+  if (USE_MOCK) { await delay(200); return { ok: true } }
+  return request('POST', '/v1/mlm/member/water-tracker', data)
+}
+
+// ── Member: Mindfulness ───────────────────────────────────────────────────────
+export async function getMemberMindfulness() {
+  if (USE_MOCK) {
+    await delay(300)
+    return {
+      stats: { streak: 12, monthSessions: 24, totalMinutes: 860, avgMoodLift: 1.4 },
+      sessions: [
+        { id: 'm1', type: 'meditation',   duration: 15, mood: 5, date: 'Today',     notes: null },
+        { id: 'm2', type: 'breathing',    duration: 10, mood: 4, date: 'Yesterday', notes: 'Box breathing before the team call' },
+        { id: 'm3', type: 'body_scan',    duration: 20, mood: 4, date: '2026-08-07', notes: null },
+        { id: 'm4', type: 'visualization', duration: 10, mood: 5, date: '2026-08-06', notes: 'Visualized closing a new recruit' },
+        { id: 'm5', type: 'meditation',   duration: 15, mood: 3, date: '2026-08-05', notes: 'Distracted — tried anyway' },
+        { id: 'm6', type: 'journaling',   duration: 10, mood: 4, date: '2026-08-04', notes: null },
+        { id: 'm7', type: 'breathing',    duration: 5,  mood: 5, date: '2026-08-03', notes: 'Quick reset mid-afternoon' },
+        { id: 'm8', type: 'meditation',   duration: 20, mood: 5, date: '2026-08-02', notes: null },
+      ],
+      moodByType: [
+        { type: 'visualization', avg: 4.7 },
+        { type: 'meditation',    avg: 4.4 },
+        { type: 'breathing',     avg: 4.2 },
+        { type: 'journaling',    avg: 4.0 },
+        { type: 'body_scan',     avg: 3.8 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/mindfulness')
+}
+
+export async function logMemberMindfulnessSession(data) {
+  if (USE_MOCK) { await delay(250); return { ok: true } }
+  return request('POST', '/v1/mlm/member/mindfulness', data)
+}
+
+// ── Member: Mood Journal ──────────────────────────────────────────────────────
+export async function getMemberMoodJournal() {
+  if (USE_MOCK) {
+    await delay(290)
+    return {
+      stats: { avgMood: '3.9', bestFactor: 'exercise', totalEntries: 62, trend: '+0.3' },
+      entries: [
+        { id: 'mj1', date: 'Today',      mood: 4, energy: 4, factors: ['exercise', 'nutrition'], note: 'Great morning run. Energy high after the Nordic shake.' },
+        { id: 'mj2', date: 'Yesterday',  mood: 3, energy: 3, factors: ['work', 'stress'], note: 'Long calls. Needed more water.' },
+        { id: 'mj3', date: '2026-08-07', mood: 5, energy: 5, factors: ['exercise', 'social', 'products'], note: 'Team event was amazing!' },
+        { id: 'mj4', date: '2026-08-06', mood: 4, energy: 3, factors: ['sleep', 'nutrition'], note: null },
+        { id: 'mj5', date: '2026-08-05', mood: 2, energy: 2, factors: ['sleep', 'stress'], note: 'Poor sleep night before.' },
+        { id: 'mj6', date: '2026-08-04', mood: 4, energy: 4, factors: ['exercise', 'products'], note: null },
+        { id: 'mj7', date: '2026-08-03', mood: 5, energy: 5, factors: ['social', 'exercise'], note: 'Hit my monthly volume target!' },
+        { id: 'mj8', date: '2026-08-02', mood: 4, energy: 3, factors: ['nutrition'], note: null },
+        { id: 'mj9', date: '2026-08-01', mood: 3, energy: 3, factors: ['work'], note: 'Back-to-back calls.' },
+        { id: 'mj10', date: '2026-07-31', mood: 5, energy: 5, factors: ['exercise', 'social', 'products'], note: null },
+      ],
+      factorCorrelation: [
+        { factor: 'products',  avgMood: 4.5 },
+        { factor: 'exercise',  avgMood: 4.3 },
+        { factor: 'social',    avgMood: 4.2 },
+        { factor: 'nutrition', avgMood: 3.9 },
+        { factor: 'sleep',     avgMood: 3.6 },
+        { factor: 'work',      avgMood: 3.1 },
+        { factor: 'stress',    avgMood: 2.4 },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/mood-journal')
+}
+
+export async function addMemberMoodEntry(data) {
+  if (USE_MOCK) { await delay(240); return { ok: true } }
+  return request('POST', '/v1/mlm/member/mood-journal', data)
+}
+
+// ── Member: Business Resources ────────────────────────────────────────────────
+export async function getMemberBusinessResources() {
+  if (USE_MOCK) {
+    await delay(310)
+    const resources = [
+      { id: 'br1', title: 'New Recruit Welcome Script', category: 'scripts', format: 'PDF', size: '240 KB', description: 'Word-for-word onboarding script for your first call with a new team member.', downloads: 2840, addedAt: '2026-07-01', updatedAt: '2026-08-01', tags: ['onboarding', 'script', 'recruits'] },
+      { id: 'br2', title: 'Monthly Business Planner', category: 'templates', format: 'XLSX', size: '180 KB', description: 'Plan your monthly PV goals, call schedule, recruitment targets, and income projection.', downloads: 2210, addedAt: '2026-06-15', updatedAt: '2026-07-20', tags: ['planning', 'goals', 'template'] },
+      { id: 'br3', title: 'Nordic Vitals Compensation Deep-Dive', category: 'guides', format: 'PDF', size: '1.2 MB', description: 'Comprehensive breakdown of all commission types, rank requirements, and bonus pools.', downloads: 1980, addedAt: '2026-05-20', updatedAt: '2026-08-05', tags: ['commissions', 'ranks', 'compensation'] },
+      { id: 'br4', title: 'Social Media Content Templates Pack', category: 'templates', format: 'PPT', size: '4.8 MB', description: '40 ready-to-post social media slides for Instagram, TikTok, and Facebook.', downloads: 1760, addedAt: '2026-07-10', updatedAt: '2026-07-10', tags: ['social', 'instagram', 'tiktok'] },
+      { id: 'br5', title: 'Peptide Product Knowledge Guide', category: 'guides', format: 'PDF', size: '3.4 MB', description: 'Everything you need to know to answer customer questions about our peptide range.', downloads: 1540, addedAt: '2026-06-01', updatedAt: '2026-08-03', tags: ['peptides', 'products', 'knowledge'] },
+      { id: 'br6', title: 'Follow-Up Call Script Pack', category: 'scripts', format: 'PDF', size: '310 KB', description: '5 follow-up scripts for leads at different stages: curious, interested, hesitant, ready.', downloads: 1320, addedAt: '2026-07-18', updatedAt: '2026-07-18', tags: ['follow-up', 'leads', 'scripts'] },
+      { id: 'br7', title: 'Income Tax Guide for Distributors (NO)', category: 'legal', format: 'PDF', size: '890 KB', description: 'Norway-specific tax guide: what to declare, deductions available, and quarterly deadlines.', downloads: 980, addedAt: '2026-01-15', updatedAt: '2026-01-15', tags: ['tax', 'norway', 'legal'] },
+      { id: 'br8', title: 'ROI Calculator Tool', category: 'tools', format: 'XLSX', size: '220 KB', description: 'Interactive spreadsheet to calculate your return on investment and break-even point by rank.', downloads: 860, addedAt: '2026-07-22', updatedAt: '2026-08-06', tags: ['roi', 'calculator', 'tool'] },
+      { id: 'br9', title: 'Team Meeting Agenda Template', category: 'templates', format: 'DOCX', size: '95 KB', description: 'Structured agenda for weekly team meetings: wins, training slot, and accountability check-in.', downloads: 740, addedAt: '2026-06-28', updatedAt: '2026-06-28', tags: ['team', 'meeting', 'template'] },
+      { id: 'br10', title: 'Distributor Agreement Summary (EN)', category: 'legal', format: 'PDF', size: '420 KB', description: 'Plain-language summary of the distributor agreement — what you can and cannot do.', downloads: 680, addedAt: '2026-04-01', updatedAt: '2026-04-01', tags: ['legal', 'agreement', 'compliance'] },
+      { id: 'br11', title: 'Peptide Protocol Advisor Script', category: 'scripts', format: 'PDF', size: '280 KB', description: 'Guide customers through selecting the right peptide protocol based on their goals.', downloads: 620, addedAt: '2026-08-02', updatedAt: '2026-08-02', tags: ['peptides', 'protocol', 'sales'] },
+      { id: 'br12', title: 'Rank Advancement Tracker', category: 'tools', format: 'XLSX', size: '160 KB', description: 'Track your weekly PV, team volume, and recruits needed to hit your next rank.', downloads: 580, addedAt: '2026-07-28', updatedAt: '2026-08-07', tags: ['rank', 'tracker', 'goals'] },
+    ]
+    return {
+      stats: { total: resources.length, downloaded: 14, newThisMonth: 4, favourites: 3 },
+      resources,
+      recentlyAdded: resources.sort((a, b) => b.addedAt.localeCompare(a.addedAt)).slice(0, 5),
+      topDownloaded: [...resources].sort((a, b) => b.downloads - a.downloads).slice(0, 5),
+    }
+  }
+  return request('GET', '/v1/mlm/member/business-resources')
+}
