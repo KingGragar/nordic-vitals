@@ -322,6 +322,14 @@ const DashBeforeAfterGallery     = lazy(() => import('./pages/dashboard/BeforeAf
 const DashPeptideEducation       = lazy(() => import('./pages/dashboard/PeptideEducation'))
 const DashAutoOrderTemplates     = lazy(() => import('./pages/dashboard/AutoOrderTemplates'))
 const DashWellnessChallenges     = lazy(() => import('./pages/dashboard/WellnessChallenges'))
+const AdminSkuManager            = lazy(() => import('./pages/admin/SkuManager'))
+const AdminTranslationManager    = lazy(() => import('./pages/admin/TranslationManager'))
+const AdminDynamicDiscounts      = lazy(() => import('./pages/admin/DynamicDiscounts'))
+const AdminMarketplaceAnalytics  = lazy(() => import('./pages/admin/MarketplaceAnalytics'))
+const DashPeptideDiary           = lazy(() => import('./pages/dashboard/PeptideDiary'))
+const DashBodyComposition        = lazy(() => import('./pages/dashboard/BodyComposition'))
+const DashFinancialSummary       = lazy(() => import('./pages/dashboard/FinancialSummary'))
+const DashTeamMessages           = lazy(() => import('./pages/dashboard/TeamMessages'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -664,6 +672,14 @@ function AppRoutes() {
         <Route path="/dashboard/peptide-education"  element={<RequireAuth><DashPeptideEducation /></RequireAuth>} />
         <Route path="/dashboard/autoorder-templates" element={<RequireAuth><DashAutoOrderTemplates /></RequireAuth>} />
         <Route path="/dashboard/wellness-challenges" element={<RequireAuth><DashWellnessChallenges /></RequireAuth>} />
+        <Route path="/admin/sku-manager"            element={<RequireAuth role="admin"><AdminSkuManager /></RequireAuth>} />
+        <Route path="/admin/translations"           element={<RequireAuth role="admin"><AdminTranslationManager /></RequireAuth>} />
+        <Route path="/admin/dynamic-discounts"      element={<RequireAuth role="admin"><AdminDynamicDiscounts /></RequireAuth>} />
+        <Route path="/admin/marketplace-analytics"  element={<RequireAuth role="admin"><AdminMarketplaceAnalytics /></RequireAuth>} />
+        <Route path="/dashboard/peptide-diary"      element={<RequireAuth><DashPeptideDiary /></RequireAuth>} />
+        <Route path="/dashboard/body-composition"   element={<RequireAuth><DashBodyComposition /></RequireAuth>} />
+        <Route path="/dashboard/financial-summary"  element={<RequireAuth><DashFinancialSummary /></RequireAuth>} />
+        <Route path="/dashboard/team-messages"      element={<RequireAuth><DashTeamMessages /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

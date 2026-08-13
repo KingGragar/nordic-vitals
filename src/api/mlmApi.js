@@ -11389,3 +11389,223 @@ export async function joinWellnessChallenge(id) {
   if (MOCK) return { ok: true }
   return request('POST', `/v1/mlm/member/wellness-challenges/${id}/join`)
 }
+
+// ── Run 170: Admin SKU Manager ────────────────────────────────────
+export async function getAdminSkuManager() {
+  if (MOCK) {
+    const skus = [
+      { id:1,  sku:'NV-BPC157-2MG',  name:'BPC-157 2mg',           barcode:'5901234123457', category:'Peptides',     price:49.99,  stock:342,  status:'active' },
+      { id:2,  sku:'NV-TB500-2MG',   name:'TB-500 2mg',            barcode:'5901234123458', category:'Peptides',     price:54.99,  stock:218,  status:'active' },
+      { id:3,  sku:'NV-GHKCU-SRM',   name:'GHK-Cu Serum 30ml',     barcode:'',             category:'Topicals',     price:39.99,  stock:89,   status:'active' },
+      { id:4,  sku:'NV-IPAM-2MG',    name:'Ipamorelin 2mg',        barcode:'5901234123460', category:'Peptides',     price:44.99,  stock:155,  status:'active' },
+      { id:5,  sku:'NV-CJC1295-2MG', name:'CJC-1295 2mg',          barcode:'5901234123461', category:'Peptides',     price:47.99,  stock:201,  status:'active' },
+      { id:6,  sku:'NV-SELANK-5MG',  name:'Selank 5mg',            barcode:'',             category:'Peptides',     price:59.99,  stock:12,   status:'active' },
+      { id:7,  sku:'NV-NAD-250MG',   name:'NAD+ 250mg',            barcode:'5901234123463', category:'Supplements',  price:34.99,  stock:445,  status:'active' },
+      { id:8,  sku:'NV-COLLPOW-300G',name:'Collagen Powder 300g',  barcode:'5901234123464', category:'Supplements',  price:29.99,  stock:6,    status:'active' },
+      { id:9,  sku:'NV-EPITALON-10', name:'Epithalon 10mg',        barcode:'5901234123465', category:'Peptides',     price:69.99,  stock:0,    status:'discontinued' },
+      { id:10, sku:'NV-THYMOS-1MG',  name:'Thymosin Alpha-1 1mg',  barcode:'',             category:'Peptides',     price:74.99,  stock:78,   status:'draft' },
+      { id:11, sku:'NV-XMAS-BUNDLE', name:'Winter Recovery Bundle', barcode:'5901234123467', category:'Bundles',     price:129.99, stock:35,   status:'seasonal' },
+      { id:12, sku:'NV-HEXAMORELIN', name:'Hexarelin 2mg',         barcode:'',             category:'Peptides',     price:52.99,  stock:44,   status:'active' },
+    ]
+    return {
+      summary: { total: skus.length, active: skus.filter(s=>s.status==='active').length, no_barcode: skus.filter(s=>!s.barcode).length, discontinued: skus.filter(s=>s.status==='discontinued').length },
+      skus,
+    }
+  }
+  return request('GET', '/v1/mlm/admin/sku-manager')
+}
+export async function updateSkuBarcode(id, barcode) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/admin/sku-manager/${id}/barcode`, { barcode })
+}
+
+// ── Run 170: Admin Translation Manager ───────────────────────────
+export async function getAdminTranslations() {
+  if (MOCK) {
+    const keys = [
+      { key:'nav.dashboard',     en:'Dashboard',        translations:{ nb:'Dashbord', sv:'Instrumentpanel', da:'Instrumentbræt', fi:'Hallintapaneeli', de:'Armaturenbrett' } },
+      { key:'nav.commissions',   en:'Commissions',      translations:{ nb:'Provisjoner', sv:'Provisioner', da:'Provisioner', fi:'Provisiot', de:'' } },
+      { key:'nav.orders',        en:'Orders',           translations:{ nb:'Bestillinger', sv:'Beställningar', da:'Ordrer', fi:'Tilaukset', de:'Bestellungen' } },
+      { key:'nav.leaderboard',   en:'Leaderboard',      translations:{ nb:'Ledertavle', sv:'Topplista', da:'Rangliste', fi:'', de:'' } },
+      { key:'btn.join_now',      en:'Join Now',         translations:{ nb:'Bli med nå', sv:'Gå med nu', da:'Tilmeld dig', fi:'Liity nyt', de:'Jetzt beitreten' } },
+      { key:'btn.get_started',   en:'Get Started',      translations:{ nb:'Kom i gang', sv:'Kom igång', da:'Kom i gang', fi:'Aloita', de:'' } },
+      { key:'label.rank',        en:'Rank',             translations:{ nb:'Rang', sv:'Rang', da:'Rang', fi:'Taso', de:'Rang' } },
+      { key:'label.pv',          en:'Personal Volume',  translations:{ nb:'Personlig volum', sv:'Personlig volym', da:'Personlig volumen', fi:'', de:'' } },
+      { key:'msg.welcome_back',  en:'Welcome back!',    translations:{ nb:'Velkommen tilbake!', sv:'Välkommen tillbaka!', da:'Velkommen tilbage!', fi:'Tervetuloa takaisin!', de:'Willkommen zurück!' } },
+      { key:'msg.no_results',    en:'No results found', translations:{ nb:'Ingen resultater funnet', sv:'', da:'', fi:'', de:'Keine Ergebnisse gefunden' } },
+      { key:'page.home.hero',    en:'Transform Your Health & Wealth', translations:{ nb:'', sv:'', da:'', fi:'', de:'' } },
+      { key:'page.home.subhero', en:'Premium peptides + proven MLM opportunity', translations:{ nb:'', sv:'', da:'', fi:'', de:'' } },
+    ]
+    const locales = [
+      { code:'nb', name:'Norwegian', flag:'🇳🇴', translated: keys.filter(k=>!!k.translations.nb).length, total: keys.length },
+      { code:'sv', name:'Swedish',   flag:'🇸🇪', translated: keys.filter(k=>!!k.translations.sv).length, total: keys.length },
+      { code:'da', name:'Danish',    flag:'🇩🇰', translated: keys.filter(k=>!!k.translations.da).length, total: keys.length },
+      { code:'fi', name:'Finnish',   flag:'🇫🇮', translated: keys.filter(k=>!!k.translations.fi).length, total: keys.length },
+      { code:'de', name:'German',    flag:'🇩🇪', translated: keys.filter(k=>!!k.translations.de).length, total: keys.length },
+    ]
+    return { locales, keys }
+  }
+  return request('GET', '/v1/mlm/admin/translations')
+}
+export async function saveTranslationKey(key, locale, value) {
+  if (MOCK) return { ok: true }
+  return request('PUT', '/v1/mlm/admin/translations', { key, locale, value })
+}
+
+// ── Run 170: Admin Dynamic Discounts ──────────────────────────────
+export async function getAdminDynamicDiscounts() {
+  if (MOCK) {
+    return {
+      summary: { active: 4, total_discounted: 28450, orders_affected: 1243, avg_discount_pct: 12 },
+      rules: [
+        { id:1, name:'New Member Welcome',     type:'percentage',    condition:'first_order',          value:'15%', min_order:0,   times_applied:412,  target_uses:1000, status:'active',  expires_at:null },
+        { id:2, name:'$100+ Cart Discount',    type:'fixed',         condition:'cart_total > $100',     value:'$10', min_order:100, times_applied:287,  target_uses:500,  status:'active',  expires_at:'2026-12-31' },
+        { id:3, name:'Summer Free Shipping',   type:'free_shipping', condition:'any',                  value:'Free', min_order:50, times_applied:634,  target_uses:2000, status:'active',  expires_at:'2026-08-31' },
+        { id:4, name:'BOGO Collagen',          type:'bogo',          condition:'buy 2 collagen items', value:'1 free', min_order:0, times_applied:89,  target_uses:200,  status:'active',  expires_at:'2026-08-20' },
+        { id:5, name:'Loyalty Tier Discount',  type:'percentage',    condition:'member_tier = Gold+',  value:'10%', min_order:75,  times_applied:156,  target_uses:300,  status:'paused',  expires_at:null },
+        { id:6, name:'Flash Sale -20%',        type:'percentage',    condition:'any',                  value:'20%', min_order:0,   times_applied:0,    target_uses:500,  status:'draft',   expires_at:'2026-09-15' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/dynamic-discounts')
+}
+export async function toggleDynamicDiscount(id, status) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/admin/dynamic-discounts/${id}/status`, { status })
+}
+export async function deleteDynamicDiscount(id) {
+  if (MOCK) return { ok: true }
+  return request('DELETE', `/v1/mlm/admin/dynamic-discounts/${id}`)
+}
+
+// ── Run 170: Admin Marketplace Analytics ──────────────────────────
+export async function getAdminMarketplaceAnalytics(period = '30d') {
+  if (MOCK) {
+    const days = period === '7d' ? 7 : period === '90d' ? 90 : 30
+    return {
+      summary: { gmv: 18420, listings: 342, active_sellers: 89, transactions: 521, avg_sale_price: 35.40, pending_review: 14 },
+      category_breakdown: [
+        { name:'Peptide Kits',     gmv:7840, listings:102, sellers:41 },
+        { name:'Supplements',      gmv:4320, listings:87,  sellers:29 },
+        { name:'Training Resources',gmv:2950,listings:68,  sellers:33 },
+        { name:'Starter Bundles',  gmv:1980, listings:51,  sellers:22 },
+        { name:'Digital Products', gmv:1330, listings:34,  sellers:18 },
+      ],
+      top_sellers: [
+        { name:'member_4821', listings:18, sales:67, gmv:2340 },
+        { name:'member_3302', listings:14, sales:51, gmv:1890 },
+        { name:'member_7701', listings:22, sales:43, gmv:1540 },
+        { name:'member_1994', listings:9,  sales:38, gmv:1320 },
+        { name:'member_5560', listings:11, sales:29, gmv:980  },
+      ],
+      daily_transactions: Array.from({length:days},(_,i)=>({ date:`2026-${String(7+Math.floor((i+13)/31)).padStart(2,'0')}-${String(((i+13)%31)+1).padStart(2,'0')}`, count: Math.floor(8+Math.sin(i/3)*6+Math.random()*5) })),
+    }
+  }
+  return request('GET', `/v1/mlm/admin/marketplace-analytics?period=${period}`)
+}
+
+// ── Run 170: Member Peptide Diary ─────────────────────────────────
+export async function getMemberPeptideDiary() {
+  if (MOCK) {
+    return {
+      stats: { total_logs: 87, week_logs: 14, streak: 6, unique_peptides: 5 },
+      entries: [
+        { id:1,  peptide:'BPC-157',    dose_mcg:250, route:'subcutaneous', timing:'morning',     note:'Felt great, no injection site issues', logged_at:'2026-08-13T07:30:00Z' },
+        { id:2,  peptide:'Ipamorelin', dose_mcg:200, route:'subcutaneous', timing:'bedtime',     note:'', logged_at:'2026-08-13T22:00:00Z' },
+        { id:3,  peptide:'BPC-157',    dose_mcg:250, route:'subcutaneous', timing:'morning',     note:'', logged_at:'2026-08-12T07:25:00Z' },
+        { id:4,  peptide:'TB-500',     dose_mcg:500, route:'subcutaneous', timing:'post_workout',note:'Week 2, knee feeling better', logged_at:'2026-08-12T18:00:00Z' },
+        { id:5,  peptide:'Ipamorelin', dose_mcg:200, route:'subcutaneous', timing:'bedtime',     note:'', logged_at:'2026-08-12T22:00:00Z' },
+        { id:6,  peptide:'BPC-157',    dose_mcg:250, route:'subcutaneous', timing:'morning',     note:'', logged_at:'2026-08-11T07:30:00Z' },
+        { id:7,  peptide:'GHK-Cu',     dose_mcg:0,   route:'topical',      timing:'evening',     note:'Applied to face and neck', logged_at:'2026-08-11T20:00:00Z' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/peptide-diary')
+}
+export async function logPeptideDiaryEntry(data) {
+  if (MOCK) return { ok: true, id: Date.now() }
+  return request('POST', '/v1/mlm/member/peptide-diary', data)
+}
+export async function deletePeptideDiaryEntry(id) {
+  if (MOCK) return { ok: true }
+  return request('DELETE', `/v1/mlm/member/peptide-diary/${id}`)
+}
+
+// ── Run 170: Member Body Composition ──────────────────────────────
+export async function getMemberBodyComposition() {
+  if (MOCK) {
+    return {
+      current:  { weight_kg: 82.4, body_fat_pct: 18.2, muscle_kg: 38.1, waist_cm: 88, bmi: 24.8, height_m: 1.82 },
+      baseline: { weight_kg: 87.0, body_fat_pct: 22.5, muscle_kg: 35.4, waist_cm: 95, bmi: 26.3 },
+      history: [
+        { date:'2026-08-13', weight_kg:'82.4', body_fat_pct:'18.2', muscle_kg:'38.1', waist_cm:'88', bmi:'24.8' },
+        { date:'2026-08-06', weight_kg:'83.1', body_fat_pct:'18.8', muscle_kg:'37.8', waist_cm:'89', bmi:'25.1' },
+        { date:'2026-07-30', weight_kg:'83.9', body_fat_pct:'19.4', muscle_kg:'37.5', waist_cm:'90', bmi:'25.4' },
+        { date:'2026-07-23', weight_kg:'84.7', body_fat_pct:'20.1', muscle_kg:'37.0', waist_cm:'91', bmi:'25.6' },
+        { date:'2026-07-16', weight_kg:'85.2', body_fat_pct:'20.8', muscle_kg:'36.5', waist_cm:'92', bmi:'25.7' },
+        { date:'2026-07-09', weight_kg:'85.9', body_fat_pct:'21.2', muscle_kg:'36.2', waist_cm:'93', bmi:'25.9' },
+        { date:'2026-07-02', weight_kg:'86.5', body_fat_pct:'21.9', muscle_kg:'35.7', waist_cm:'94', bmi:'26.1' },
+        { date:'2026-06-25', weight_kg:'87.0', body_fat_pct:'22.5', muscle_kg:'35.4', waist_cm:'95', bmi:'26.3' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/body-composition')
+}
+export async function logBodyCompositionEntry(data) {
+  if (MOCK) return { ok: true }
+  return request('POST', '/v1/mlm/member/body-composition', data)
+}
+
+// ── Run 170: Member Financial Summary ─────────────────────────────
+export async function getMemberFinancialSummary(year = 2026) {
+  if (MOCK) {
+    return {
+      summary: { total_earned: 14820.50, paid_out: 12400.00, pending: 2420.50, tax_withheld: 0 },
+      breakdown: [
+        { type:'Personal Commissions', amount: 6240.00 },
+        { type:'Team Override',        amount: 4980.50 },
+        { type:'Rank Bonuses',         amount: 2100.00 },
+        { type:'Leadership Pool',      amount: 1500.00 },
+      ],
+      monthly: [
+        { month:'Jan', earned:800   }, { month:'Feb', earned:920   }, { month:'Mar', earned:1050 },
+        { month:'Apr', earned:1180  }, { month:'May', earned:1240  }, { month:'Jun', earned:1380 },
+        { month:'Jul', earned:1520  }, { month:'Aug', earned:1730  }, { month:'Sep', earned:0    },
+        { month:'Oct', earned:0     }, { month:'Nov', earned:0     }, { month:'Dec', earned:0    },
+      ].slice(0, year === 2025 ? 12 : 8),
+      payouts: [
+        { id:1, date:'2026-08-01', amount:1730.00, method:'Bank Transfer', reference:'PAY-20260801', status:'paid'    },
+        { id:2, date:'2026-07-01', amount:1520.00, method:'Bank Transfer', reference:'PAY-20260701', status:'paid'    },
+        { id:3, date:'2026-06-01', amount:1380.00, method:'Bank Transfer', reference:'PAY-20260601', status:'paid'    },
+        { id:4, date:'2026-05-01', amount:1240.00, method:'Bank Transfer', reference:'PAY-20260501', status:'paid'    },
+        { id:5, date:'2026-04-01', amount:1180.00, method:'Bank Transfer', reference:'PAY-20260401', status:'paid'    },
+        { id:6, date:'2026-03-01', amount:1050.00, method:'Bank Transfer', reference:'PAY-20260301', status:'paid'    },
+        { id:7, date:'2026-02-01', amount:920.00,  method:'Bank Transfer', reference:'PAY-20260201', status:'paid'    },
+        { id:8, date:'2026-01-01', amount:800.00,  method:'Bank Transfer', reference:'PAY-20260101', status:'paid'    },
+        { id:9, date:'2026-09-01', amount:2420.50, method:'Bank Transfer', reference:'PAY-20260901', status:'pending' },
+      ],
+    }
+  }
+  return request('GET', `/v1/mlm/member/financial-summary?year=${year}`)
+}
+
+// ── Run 170: Member Team Messages ─────────────────────────────────
+export async function getMemberTeamMessages() {
+  if (MOCK) {
+    return {
+      unread: 2,
+      messages: [
+        { id:1, subject:'🚀 August Rank Push — Let\'s Go!', type:'broadcast', from:'Sarah D. (Diamond)', preview:'Team, we\'re 12% behind last August\'s volume. Here\'s the plan...', body:'Team — we\'re 12% behind last August\'s volume target. Here\'s the 3-week push plan:\n\n1. Every active leg submits a $75+ order by Aug 20.\n2. Refer one new customer this month — even a trial order counts.\n3. Use the team resources folder for social media assets.\n\nI\'ll be hosting a live call Thursday 8pm CET. Link in the events tab. Let\'s smash this together! 💪', sent_at:'2026-08-13T08:00:00Z', read:false },
+        { id:2, subject:'New Training: Advanced Recruitment Scripts', type:'training', from:'Nordic Vitals HQ', preview:'A new training module has been added to your learning path...', body:'We\'ve just published a new advanced training module: "Closing Techniques for the Modern Network Marketer."\n\nYou\'ll find it in your Learning Path under the Business Development category. It covers:\n- Objection handling for the top 10 rejections\n- The 3-question close\n- Following up without being pushy\n\nExpected completion time: 22 minutes. Worth 350 XP.', sent_at:'2026-08-12T14:30:00Z', read:false },
+        { id:3, subject:'Congratulations — Team Volume Milestone!', type:'recognition', from:'Sarah D. (Diamond)', preview:'Your team crossed 10,000 PV for the month — incredible...', body:'I just had to send this message personally.\n\nYour team crossed the 10,000 PV milestone for July — that\'s a team record! Every single one of you contributed to this result.\n\nSpecial shoutout to the top three performers:\n🥇 member_4821 — 1,240 PV\n🥈 member_3302 — 980 PV\n🥉 member_7701 — 840 PV\n\nKeep it up. August target: 11,500 PV. I believe in every one of you.', sent_at:'2026-08-01T16:00:00Z', read:true },
+        { id:4, subject:'⚠ Policy Update: Income Claims', type:'alert', from:'Nordic Vitals Compliance', preview:'Effective immediately: updated guidance on income claims in social media...', body:'Effective immediately, please review the updated income claim guidelines before posting on social media.\n\nKey changes:\n- All earnings screenshots must include the full income disclosure statement or a link to it.\n- Terms like "financial freedom" or "replace your salary" are no longer permitted without substantiation.\n- Testimonials showing specific dollar amounts require the member\'s consent form.\n\nThe updated compliance guide is in your Business Resources section. Violations may result in account suspension.', sent_at:'2026-07-28T09:00:00Z', read:true },
+        { id:5, subject:'Weekly Update — Rank Advancements', type:'update', from:'Sarah D. (Diamond)', preview:'Two members on your team advanced rank this week...', body:'Quick weekly update from your upline:\n\n✅ member_1994 advanced to Silver — welcome to the team leadership!\n✅ member_5560 hit their first 100 PV month — great start!\n\nReminder: the team call is every Thursday at 8pm CET. Attendance is tracked and counts toward your mentorship badge.\n\nHave a great week everyone.', sent_at:'2026-07-21T12:00:00Z', read:true },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/member/team-messages')
+}
+export async function markTeamMessageRead(id) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/member/team-messages/${id}/read`)
+}
