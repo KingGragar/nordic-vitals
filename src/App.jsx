@@ -314,6 +314,14 @@ const AdminResellers             = lazy(() => import('./pages/admin/Resellers'))
 const AdminAiContentTools        = lazy(() => import('./pages/admin/AiContentTools'))
 const DashSupplementCycle        = lazy(() => import('./pages/dashboard/SupplementCycle'))
 const DashShoppingList           = lazy(() => import('./pages/dashboard/ShoppingList'))
+const AdminPeptideDatabase       = lazy(() => import('./pages/admin/PeptideDatabase'))
+const AdminDropshipPartners      = lazy(() => import('./pages/admin/DropshipPartners'))
+const AdminCampaignAnalytics     = lazy(() => import('./pages/admin/CampaignAnalytics'))
+const AdminTicketEscalations     = lazy(() => import('./pages/admin/TicketEscalations'))
+const DashBeforeAfterGallery     = lazy(() => import('./pages/dashboard/BeforeAfterGallery'))
+const DashPeptideEducation       = lazy(() => import('./pages/dashboard/PeptideEducation'))
+const DashAutoOrderTemplates     = lazy(() => import('./pages/dashboard/AutoOrderTemplates'))
+const DashWellnessChallenges     = lazy(() => import('./pages/dashboard/WellnessChallenges'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -648,6 +656,14 @@ function AppRoutes() {
         <Route path="/admin/ai-content"             element={<RequireAuth role="admin"><AdminAiContentTools /></RequireAuth>} />
         <Route path="/dashboard/supplement-cycle"   element={<RequireAuth><DashSupplementCycle /></RequireAuth>} />
         <Route path="/dashboard/shopping-list"      element={<RequireAuth><DashShoppingList /></RequireAuth>} />
+        <Route path="/admin/peptide-database"       element={<RequireAuth role="admin"><AdminPeptideDatabase /></RequireAuth>} />
+        <Route path="/admin/dropship-partners"      element={<RequireAuth role="admin"><AdminDropshipPartners /></RequireAuth>} />
+        <Route path="/admin/campaign-analytics"     element={<RequireAuth role="admin"><AdminCampaignAnalytics /></RequireAuth>} />
+        <Route path="/admin/ticket-escalations"     element={<RequireAuth role="admin"><AdminTicketEscalations /></RequireAuth>} />
+        <Route path="/dashboard/before-after"       element={<RequireAuth><DashBeforeAfterGallery /></RequireAuth>} />
+        <Route path="/dashboard/peptide-education"  element={<RequireAuth><DashPeptideEducation /></RequireAuth>} />
+        <Route path="/dashboard/autoorder-templates" element={<RequireAuth><DashAutoOrderTemplates /></RequireAuth>} />
+        <Route path="/dashboard/wellness-challenges" element={<RequireAuth><DashWellnessChallenges /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

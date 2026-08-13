@@ -11182,3 +11182,210 @@ export async function clearShoppingList() {
   }
   return request('DELETE', '/v1/mlm/member/shopping-list')
 }
+
+// ── Run 169: Admin Peptide Database ──────────────────────────────
+export async function getAdminPeptideDatabase() {
+  if (MOCK) {
+    const compounds = ['BPC-157','TB-500','CJC-1295','Ipamorelin','Sermorelin','GHK-Cu','AOD-9604','Epithalon','Selank','Semax','PT-141','DSIP','GHRP-6','Hexarelin','MK-677']
+    return {
+      total: compounds.length, active: 11, pending_review: 2, restricted: 2,
+      compounds: compounds.map((name, i) => ({
+        id: i+1, name,
+        mw: (400 + i*37.3).toFixed(1),
+        sequence: ['GEPPGIPPA','LKKTETQ','HAEGTFTSDVSSYLEGQ','AIBG','YGADFKDNMAQY'][i % 5],
+        class: ['Growth Factor','Peptide Hormone','Neuropeptide','Antimicrobial'][i % 4],
+        status: i < 11 ? 'active' : i < 13 ? 'pending_review' : 'restricted',
+        jurisdictions: { us: i < 13, eu: i < 12, au: i < 11, ca: i < 10 },
+        references: Math.floor(8 + i * 3.7),
+        last_updated: `2026-0${(i%8)+1}-${String((i*3+1)%28+1).padStart(2,'0')}`,
+      }))
+    }
+  }
+  return request('GET', '/v1/mlm/admin/peptide-database')
+}
+export async function updatePeptideStatus(id, status) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/admin/peptide-database/${id}/status`, { status })
+}
+
+// ── Run 169: Admin Dropship Partners ─────────────────────────────
+export async function getAdminDropshipPartners() {
+  if (MOCK) {
+    const names = ['NordicFulfill','VikingLogistics','ArcticDist','PolarShip','FjordFulfilment']
+    return {
+      summary: { total: 5, active: 3, on_hold: 1, inactive: 1, avg_lead_days: 3.8, avg_margin: 28 },
+      partners: names.map((name, i) => ({
+        id: i+1, name,
+        contact: `ops@${name.toLowerCase().replace(' ','')}.no`,
+        country: ['NO','SE','DK','FI','NO'][i],
+        status: ['active','active','active','on_hold','inactive'][i],
+        margin_pct: [24,28,31,27,22][i],
+        lead_days: [2,3,4,5,3][i],
+        reliability_pct: [98,95,93,88,91][i],
+        skus_count: [145,89,212,67,34][i],
+        orders_30d: [1240,876,432,210,89][i],
+        revenue_30d: [248000,175200,86400,42000,17800][i],
+      }))
+    }
+  }
+  return request('GET', '/v1/mlm/admin/dropship-partners')
+}
+export async function updateDropshipPartnerStatus(id, status) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/admin/dropship-partners/${id}/status`, { status })
+}
+
+// ── Run 169: Admin Campaign Analytics ────────────────────────────
+export async function getAdminCampaignAnalytics() {
+  if (MOCK) {
+    const months = ['Feb','Mar','Apr','May','Jun','Jul','Aug']
+    return {
+      summary: { total_spend: 84200, total_revenue: 621000, roas: 7.37, conversions: 3841, cpa: 21.92 },
+      channels: [
+        { name: 'Email',    spend: 8400,  revenue: 210000, conversions: 1820, roas: 25.0, ctr: 4.2 },
+        { name: 'SMS',      spend: 12600, revenue: 189000, conversions: 940,  roas: 15.0, ctr: 8.7 },
+        { name: 'Push',     spend: 3200,  revenue: 84000,  conversions: 520,  roas: 26.3, ctr: 3.1 },
+        { name: 'Social',   spend: 42000, revenue: 98000,  conversions: 410,  roas: 2.33, ctr: 1.8 },
+        { name: 'Affiliate',spend: 18000, revenue: 40000,  conversions: 151,  roas: 2.22, ctr: 2.9 },
+      ],
+      monthly: months.map((m, i) => ({
+        month: m,
+        spend: 9000 + i*1200 + Math.round(Math.sin(i)*800),
+        revenue: 68000 + i*9000 + Math.round(Math.cos(i)*5000),
+      })),
+      top_campaigns: [
+        { name: 'Summer Peptide Launch', channel: 'Email', roas: 31.2, revenue: 89400, status: 'ended' },
+        { name: 'Rank-Up Push Blast',    channel: 'Push',  roas: 28.7, revenue: 42100, status: 'ended' },
+        { name: 'BPC-157 Bundle SMS',    channel: 'SMS',   roas: 22.4, revenue: 67800, status: 'ended' },
+        { name: 'IG Influencer Wave',    channel: 'Social',roas: 4.1,  revenue: 32000, status: 'active' },
+      ],
+    }
+  }
+  return request('GET', '/v1/mlm/admin/campaign-analytics')
+}
+
+// ── Run 169: Admin Ticket Escalations ────────────────────────────
+export async function getAdminTicketEscalations() {
+  if (MOCK) {
+    const reasons = ['SLA breach','Repeat contact','Sentiment: angry','No-resolution 48h','High-value member']
+    const agents = ['Astrid K.','Lars M.','Ingrid B.','Erik T.']
+    return {
+      summary: { open: 12, breach_risk: 4, resolved_today: 7, avg_resolution_h: 6.2 },
+      tickets: Array.from({length:12},(_,i)=>({
+        id: 10300+i, subject: ['Wrong order received','Commission not paid','Account locked','Autoship failed','Refund delay'][i%5],
+        member: `member_${1000+i*37}`, priority: ['urgent','high','medium'][i%3],
+        reason: reasons[i%reasons.length], assigned_to: agents[i%agents.length],
+        opened_at: `2026-08-1${2-Math.floor(i/4)}T${String(8+i*1.5|0).padStart(2,'0')}:00:00Z`,
+        sla_due_at: `2026-08-13T${String(10+i).padStart(2,'0')}:00:00Z`,
+        status: i < 2 ? 'breach_risk' : 'open',
+        contact_count: 1 + (i % 5),
+      }))
+    }
+  }
+  return request('GET', '/v1/mlm/admin/ticket-escalations')
+}
+export async function resolveEscalation(id, decision, note) {
+  if (MOCK) return { ok: true }
+  return request('POST', `/v1/mlm/admin/ticket-escalations/${id}/resolve`, { decision, note })
+}
+
+// ── Run 169: Member Before & After Gallery ───────────────────────
+export async function getMemberBeforeAfterGallery() {
+  if (MOCK) {
+    return {
+      my_entries: [
+        { id: 1, weeks: 12, product: 'BPC-157 + TB-500', goal: 'Recovery', status: 'published', likes: 48, created_at: '2026-06-01' },
+      ],
+      community: Array.from({length:18},(_,i)=>({
+        id: 100+i, username: `member_${1000+i*41}`,
+        weeks: [4,8,12,16,20,24][i%6], product: ['BPC-157','GHK-Cu','TB-500','CJC-1295','Ipamorelin'][i%5],
+        goal: ['Recovery','Anti-aging','Performance','Weight loss','Muscle growth'][i%5],
+        likes: Math.floor(10 + i*8.3), comments: Math.floor(2+i*1.7),
+        created_at: `2026-0${(i%8)+1}-${String((i*3+1)%28+1).padStart(2,'0')}`,
+      })),
+      stats: { total_entries: 2847, avg_weeks: 13.4, goals: {Recovery:34, Performance:28, 'Anti-aging':21, Other:17} }
+    }
+  }
+  return request('GET', '/v1/mlm/member/before-after-gallery')
+}
+export async function submitBeforeAfterEntry(data) {
+  if (MOCK) return { ok: true, id: Date.now() }
+  return request('POST', '/v1/mlm/member/before-after-gallery', data)
+}
+
+// ── Run 169: Member Peptide Education ────────────────────────────
+export async function getMemberPeptideEducation() {
+  if (MOCK) {
+    return {
+      progress: { modules_completed: 4, total_modules: 12, xp_earned: 1200, streak: 5 },
+      current_module: { id: 5, title: 'BPC-157: The Healing Peptide', duration_min: 18, xp: 300 },
+      modules: [
+        {id:1,title:'What Are Peptides?',             category:'Fundamentals', duration_min:10,xp:150,status:'completed'},
+        {id:2,title:'Peptide Delivery Methods',       category:'Fundamentals', duration_min:12,xp:150,status:'completed'},
+        {id:3,title:'GH Peptides Overview',           category:'Growth',       duration_min:15,xp:200,status:'completed'},
+        {id:4,title:'Recovery Peptides',              category:'Recovery',     duration_min:14,xp:200,status:'completed'},
+        {id:5,title:'BPC-157: The Healing Peptide',   category:'Recovery',     duration_min:18,xp:300,status:'in_progress'},
+        {id:6,title:'TB-500 Deep Dive',               category:'Recovery',     duration_min:16,xp:250,status:'locked'},
+        {id:7,title:'Anti-Aging Peptides',            category:'Anti-aging',   duration_min:20,xp:350,status:'locked'},
+        {id:8,title:'Cognitive Enhancing Peptides',   category:'Neuro',        duration_min:22,xp:350,status:'locked'},
+        {id:9,title:'Stacking Protocols',             category:'Advanced',     duration_min:25,xp:400,status:'locked'},
+        {id:10,title:'Dosing & Timing',               category:'Advanced',     duration_min:20,xp:300,status:'locked'},
+        {id:11,title:'Peptide Storage & Handling',    category:'Practical',    duration_min:12,xp:200,status:'locked'},
+        {id:12,title:'Legal & Safety Overview',       category:'Compliance',   duration_min:15,xp:200,status:'locked'},
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/peptide-education')
+}
+export async function completePeptideModule(id) {
+  if (MOCK) return { ok: true, xp_earned: 200 }
+  return request('POST', `/v1/mlm/member/peptide-education/${id}/complete`)
+}
+
+// ── Run 169: Member AutoOrder Templates ──────────────────────────
+export async function getMemberAutoOrderTemplates() {
+  if (MOCK) {
+    return {
+      templates: [
+        { id:1, name:'Monthly Stack', frequency:'monthly', day:1,  total_pv:120, total_price:189, items:[{name:'BPC-157 2mg',qty:2},{name:'TB-500 2mg',qty:1},{name:'GHK-Cu Serum',qty:1}], active:true,  next_order:'2026-09-01', orders_placed:7 },
+        { id:2, name:'Weekly Basics', frequency:'weekly',  day:1,  total_pv:40,  total_price:62,  items:[{name:'Ipamorelin 2mg',qty:1},{name:'CJC-1295 2mg',qty:1}],                       active:false, next_order:null,          orders_placed:3 },
+      ],
+      summary: { active: 1, total_saved: 4.8, pv_per_month: 160 }
+    }
+  }
+  return request('GET', '/v1/mlm/member/autoorder-templates')
+}
+export async function toggleAutoOrderTemplate(id, active) {
+  if (MOCK) return { ok: true }
+  return request('PUT', `/v1/mlm/member/autoorder-templates/${id}/toggle`, { active })
+}
+export async function deleteAutoOrderTemplate(id) {
+  if (MOCK) return { ok: true }
+  return request('DELETE', `/v1/mlm/member/autoorder-templates/${id}`)
+}
+
+// ── Run 169: Member Wellness Challenges ──────────────────────────
+export async function getMemberWellnessChallenges() {
+  if (MOCK) {
+    return {
+      my_stats: { completed: 8, in_progress: 2, streak: 14, xp_earned: 3200 },
+      active: [
+        { id:1,  title:'30-Day Hydration',        category:'Hydration',   days:30, day:14, goal:'2.5L/day',      xp:500, participants:1842, my_pct:47, prize:'💧 Hydration Badge' },
+        { id:2,  title:'Peptide Protocol Week',   category:'Peptides',    days:7,  day:3,  goal:'7 days on stack',xp:300, participants:924,  my_pct:43, prize:'🧬 Protocol Badge' },
+      ],
+      upcoming: [
+        { id:3,  title:'Sleep Optimisation',      category:'Sleep',       days:21, starts:'2026-08-20', xp:400, prize:'😴 Sleep Master' },
+        { id:4,  title:'Mindfulness Month',       category:'Mindfulness', days:30, starts:'2026-09-01', xp:600, prize:'🧘 Zen Badge' },
+      ],
+      completed: [
+        { id:5,  title:'Step Counter August',     category:'Fitness',     completed_at:'2026-08-08', xp_earned:250, rank:247 },
+        { id:6,  title:'Recovery Sprint',         category:'Recovery',    completed_at:'2026-08-01', xp_earned:300, rank:89  },
+      ]
+    }
+  }
+  return request('GET', '/v1/mlm/member/wellness-challenges')
+}
+export async function joinWellnessChallenge(id) {
+  if (MOCK) return { ok: true }
+  return request('POST', `/v1/mlm/member/wellness-challenges/${id}/join`)
+}
