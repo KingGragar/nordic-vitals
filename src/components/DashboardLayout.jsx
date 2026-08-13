@@ -36,6 +36,7 @@ const navSections = [
       { to: '/dashboard/wishlist',     label: '❤️ Wishlist' },
       { to: '/dashboard/my-reviews',   label: '⭐ My Reviews' },
       { to: '/dashboard/loyalty',      label: '⭐ Loyalty Points' },
+      { to: '/dashboard/shopping-list',  label: '🛒 Shopping List' },
       { to: '/dashboard/autoship',      label: '♻️ Autoship' },
       { to: '/dashboard/subscription', label: '📑 My Subscription' },
       { to: '/dashboard/gift-cards',  label: '🎁 Gift Cards' },
@@ -48,8 +49,9 @@ const navSections = [
   {
     heading: 'Grow',
     links: [
-      { to: '/dashboard/goals',           label: '🎯 Goal Planner' },
-      { to: '/dashboard/fast-start',      label: '⚡ Fast Start Bonus' },
+      { to: '/dashboard/goals',             label: '🎯 Goal Planner' },
+      { to: '/dashboard/supplement-cycle', label: '🔄 Supplement Cycle' },
+      { to: '/dashboard/fast-start',       label: '⚡ Fast Start Bonus' },
       { to: '/dashboard/rank-progress',  label: '📊 Rank Progress' },
       { to: '/dashboard/forecast',       label: '📈 Earnings Forecast' },
       { to: '/dashboard/milestones',     label: '🏅 Milestones' },

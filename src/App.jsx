@@ -310,6 +310,10 @@ const DashWaterTracker           = lazy(() => import('./pages/dashboard/WaterTra
 const DashMindfulness            = lazy(() => import('./pages/dashboard/Mindfulness'))
 const DashMoodJournal            = lazy(() => import('./pages/dashboard/MoodJournal'))
 const DashBusinessResources      = lazy(() => import('./pages/dashboard/BusinessResources'))
+const AdminResellers             = lazy(() => import('./pages/admin/Resellers'))
+const AdminAiContentTools        = lazy(() => import('./pages/admin/AiContentTools'))
+const DashSupplementCycle        = lazy(() => import('./pages/dashboard/SupplementCycle'))
+const DashShoppingList           = lazy(() => import('./pages/dashboard/ShoppingList'))
 
 function RequireAuth({ children, role }) {
   const { user } = useAuth()
@@ -640,6 +644,10 @@ function AppRoutes() {
         <Route path="/dashboard/mindfulness"         element={<RequireAuth><DashMindfulness /></RequireAuth>} />
         <Route path="/dashboard/mood-journal"        element={<RequireAuth><DashMoodJournal /></RequireAuth>} />
         <Route path="/dashboard/business-resources"  element={<RequireAuth><DashBusinessResources /></RequireAuth>} />
+        <Route path="/admin/resellers"              element={<RequireAuth role="admin"><AdminResellers /></RequireAuth>} />
+        <Route path="/admin/ai-content"             element={<RequireAuth role="admin"><AdminAiContentTools /></RequireAuth>} />
+        <Route path="/dashboard/supplement-cycle"   element={<RequireAuth><DashSupplementCycle /></RequireAuth>} />
+        <Route path="/dashboard/shopping-list"      element={<RequireAuth><DashShoppingList /></RequireAuth>} />
 
         <Route path="/unsubscribe" element={<Unsubscribe />} />
 

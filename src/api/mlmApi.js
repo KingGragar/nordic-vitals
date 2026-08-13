@@ -10975,3 +10975,210 @@ export async function getMemberBusinessResources() {
   }
   return request('GET', '/v1/mlm/member/business-resources')
 }
+
+// ── Admin: Resellers ──────────────────────────────────────────────────────────
+export async function getAdminResellers() {
+  if (USE_MOCK) {
+    await delay(320)
+    const { RESELLERS, RESELLER_STATS } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_resellers') || 'null')
+    return { resellers: stored || RESELLERS, stats: RESELLER_STATS }
+  }
+  return request('GET', '/v1/mlm/admin/resellers')
+}
+export async function createReseller(data) {
+  if (USE_MOCK) {
+    await delay(260)
+    const { RESELLERS } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_resellers') || 'null') || RESELLERS
+    const newR = { ...data, id: 'rs-' + Date.now(), totalOrders: 0, totalNok: 0, lastOrderDate: null, status: 'pending' }
+    localStorage.setItem('nv_resellers', JSON.stringify([newR, ...stored]))
+    return newR
+  }
+  return request('POST', '/v1/mlm/admin/resellers', data)
+}
+export async function updateReseller(data) {
+  if (USE_MOCK) {
+    await delay(220)
+    const { RESELLERS } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_resellers') || 'null') || RESELLERS
+    const updated = stored.map(r => r.id === data.id ? { ...r, ...data } : r)
+    localStorage.setItem('nv_resellers', JSON.stringify(updated))
+    return { ...data }
+  }
+  return request('PUT', `/v1/mlm/admin/resellers/${data.id}`, data)
+}
+export async function deleteReseller(id) {
+  if (USE_MOCK) {
+    await delay(180)
+    const { RESELLERS } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_resellers') || 'null') || RESELLERS
+    localStorage.setItem('nv_resellers', JSON.stringify(stored.filter(r => r.id !== id)))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/resellers/${id}`)
+}
+export async function getResellerOrders(resellerId) {
+  if (USE_MOCK) {
+    await delay(200)
+    const { RESELLER_ORDERS } = await import('../data/mock.js')
+    return RESELLER_ORDERS[resellerId] || []
+  }
+  return request('GET', `/v1/mlm/admin/resellers/${resellerId}/orders`)
+}
+
+// ── Admin: AI Content Tools ───────────────────────────────────────────────────
+export async function getAiContentTemplates() {
+  if (USE_MOCK) {
+    await delay(180)
+    const { AI_CONTENT_TEMPLATES } = await import('../data/mock.js')
+    return AI_CONTENT_TEMPLATES
+  }
+  return request('GET', '/v1/mlm/admin/ai-content/templates')
+}
+export async function generateAiContent({ platform, tone, goal, product, customHint }) {
+  if (USE_MOCK) {
+    await delay(1400)
+    const templates = {
+      'Omega-3 Arctic Pure': { emoji: '🐟', benefit: 'heart and brain health', nordic: 'cold Arctic waters' },
+      'Nordic Collagen Complex': { emoji: '✨', benefit: 'glowing skin and joint support', nordic: 'Nordic cloudberry extract' },
+      'Vitamin D3 + K2': { emoji: '☀️', benefit: 'bone strength and immune defence', nordic: 'Scandinavian winter formula' },
+      'Arctic Shilajit': { emoji: '🪨', benefit: 'sustained energy and vitality', nordic: 'pure Himalayan resin' },
+      'Nordic Greens Blend': { emoji: '🌿', benefit: 'daily nutrition and gut health', nordic: '22 Nordic organic greens' },
+      'Focus Formula': { emoji: '🧠', benefit: 'mental clarity and calm focus', nordic: "Lion's Mane and Nordic adaptogens" },
+    }
+    const t = templates[product] || { emoji: '💚', benefit: 'optimal wellness', nordic: 'the Nordic tradition' }
+    const toneMap = {
+      Inspirational: `Imagine waking up every morning with the energy to live life fully. ✨ That's what ${t.emoji} ${product} does for me. Sourced from ${t.nordic}, it supports ${t.benefit} — naturally and purely.`,
+      Educational: `Did you know? ${product} is specifically formulated for ${t.benefit}. The secret is ${t.nordic}, which sets it apart from conventional supplements. Science-backed, Nordic-approved. 🔬`,
+      Conversational: `Okay, I have to share this. I've been using ${product} for 6 weeks and the difference is real. ${t.benefit.charAt(0).toUpperCase() + t.benefit.slice(1)} — I feel it every single day. ${t.emoji}`,
+      Professional: `At Nordic Vitals, we're committed to evidence-based nutrition. ${product} supports ${t.benefit} through our premium ${t.nordic} formulation — third-party tested and purity guaranteed.`,
+      Playful: `Plot twist: taking care of yourself is actually the coolest thing you can do 😎 ${t.emoji} ${product} → ${t.benefit} → feeling like your best Nordic self. Who's in?`,
+      'Nordic/Nature': `From the heart of the North 🏔 ${product} carries the purity of ${t.nordic}. In Scandinavia, we believe wellness is a connection — to nature, to science, to ourselves.`,
+    }
+    const content = (toneMap[tone] || toneMap.Inspirational) + (customHint ? `\n\n${customHint}` : '')
+    const goalTags = {
+      'Product awareness': `#NordicVitals #${product.replace(/\s+/g, '')} #Supplements #NordicHealth`,
+      'Recruitment': '#NordicVitals #WorkFromAnywhere #MLM #HealthBusiness #JoinUs',
+      'Team motivation': '#NordicVitals #TeamNordic #MLMSuccess #TogetherWeGrow',
+      'Health education': `#NordicVitals #NaturalHealth #WellnessTips #${product.replace(/\s+/g, '')}`,
+    }
+    return {
+      content,
+      hashtags: (goalTags[goal] || '#NordicVitals #NordicHealth') + ' #Norway #Wellness #Supplements',
+      caption_ideas: [
+        `The Nordic way to ${t.benefit.split(' ')[0]} 🌿`,
+        `Pure. Natural. Nordic. ${t.emoji}`,
+        `This is what ${t.benefit} feels like →`,
+      ],
+    }
+  }
+  return request('POST', '/v1/mlm/admin/ai-content/generate', { platform, tone, goal, product, customHint })
+}
+export async function saveGeneratedContent(data) {
+  if (USE_MOCK) {
+    await delay(180)
+    const stored = JSON.parse(localStorage.getItem('nv_ai_drafts') || '[]')
+    const draft = { ...data, id: 'draft-' + Date.now(), savedAt: new Date().toLocaleDateString('no-NO') }
+    localStorage.setItem('nv_ai_drafts', JSON.stringify([draft, ...stored]))
+    return draft
+  }
+  return request('POST', '/v1/mlm/admin/ai-content/drafts', data)
+}
+export async function getContentDrafts() {
+  if (USE_MOCK) {
+    await delay(200)
+    return JSON.parse(localStorage.getItem('nv_ai_drafts') || '[]')
+  }
+  return request('GET', '/v1/mlm/admin/ai-content/drafts')
+}
+export async function deleteContentDraft(id) {
+  if (USE_MOCK) {
+    await delay(150)
+    const stored = JSON.parse(localStorage.getItem('nv_ai_drafts') || '[]')
+    localStorage.setItem('nv_ai_drafts', JSON.stringify(stored.filter(d => d.id !== id)))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/admin/ai-content/drafts/${id}`)
+}
+
+// ── Member: Supplement Cycles ─────────────────────────────────────────────────
+export async function getSupplementCycles() {
+  if (USE_MOCK) {
+    await delay(280)
+    const { SUPPLEMENT_CYCLES } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_supplement_cycles') || 'null')
+    return { cycles: stored || SUPPLEMENT_CYCLES }
+  }
+  return request('GET', '/v1/mlm/member/supplement-cycles')
+}
+export async function saveSupplementCycle(data) {
+  if (USE_MOCK) {
+    await delay(220)
+    const { SUPPLEMENT_CYCLES } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_supplement_cycles') || 'null') || SUPPLEMENT_CYCLES
+    if (data.id) {
+      const updated = stored.map(c => c.id === data.id ? { ...c, ...data } : c)
+      localStorage.setItem('nv_supplement_cycles', JSON.stringify(updated))
+      return { ...data }
+    }
+    const created = { ...data, id: 'cyc-' + Date.now(), isActive: false, currentPhase: 'on', daysLeft: data.onWeeks * 7, startedAt: null }
+    localStorage.setItem('nv_supplement_cycles', JSON.stringify([created, ...stored]))
+    return created
+  }
+  return request('POST', '/v1/mlm/member/supplement-cycles', data)
+}
+export async function deleteSupplementCycle(id) {
+  if (USE_MOCK) {
+    await delay(160)
+    const { SUPPLEMENT_CYCLES } = await import('../data/mock.js')
+    const stored = JSON.parse(localStorage.getItem('nv_supplement_cycles') || 'null') || SUPPLEMENT_CYCLES
+    localStorage.setItem('nv_supplement_cycles', JSON.stringify(stored.filter(c => c.id !== id)))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/member/supplement-cycles/${id}`)
+}
+
+// ── Member: Shopping List ─────────────────────────────────────────────────────
+export async function getSmartShoppingList() {
+  if (USE_MOCK) {
+    await delay(200)
+    const items = JSON.parse(localStorage.getItem('nv_shopping_list') || '[]')
+    return { items }
+  }
+  return request('GET', '/v1/mlm/member/shopping-list')
+}
+export async function addShoppingListItem(productId) {
+  if (USE_MOCK) {
+    await delay(120)
+    const items = JSON.parse(localStorage.getItem('nv_shopping_list') || '[]')
+    const existing = items.find(i => i.productId === productId)
+    if (existing) {
+      const updated = items.map(i => i.productId === productId ? { ...i, qty: i.qty + 1 } : i)
+      localStorage.setItem('nv_shopping_list', JSON.stringify(updated))
+      return updated.find(i => i.productId === productId)
+    }
+    const newItem = { productId, qty: 1 }
+    localStorage.setItem('nv_shopping_list', JSON.stringify([...items, newItem]))
+    return newItem
+  }
+  return request('POST', '/v1/mlm/member/shopping-list', { productId })
+}
+export async function removeShoppingListItem(productId) {
+  if (USE_MOCK) {
+    await delay(100)
+    const items = JSON.parse(localStorage.getItem('nv_shopping_list') || '[]')
+    const updated = items.filter(i => i.productId !== productId)
+    localStorage.setItem('nv_shopping_list', JSON.stringify(updated))
+    return { ok: true }
+  }
+  return request('DELETE', `/v1/mlm/member/shopping-list/${productId}`)
+}
+export async function clearShoppingList() {
+  if (USE_MOCK) {
+    await delay(100)
+    localStorage.setItem('nv_shopping_list', '[]')
+    return { ok: true }
+  }
+  return request('DELETE', '/v1/mlm/member/shopping-list')
+}

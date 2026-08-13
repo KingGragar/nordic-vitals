@@ -4037,3 +4037,69 @@ export const COMMISSION_STATEMENTS = [
 export const COMMISSION_STATEMENT_SUMMARY = {
   ytdGrossNok: 22130, ytdNetNok: 21084, currentMonthNok: 1240, lastMonthNok: 4579, statementsAvailable: 7,
 }
+
+// ── Admin Resellers ───────────────────────────────────────────────────────────
+export const RESELLERS = [
+  { id: 'rs-1', company: 'Nordic Pharma AS',        contact: 'Ingrid Larsen',   email: 'ingrid@nordicpharma.no', phone: '+47 412 34 567', country: 'Norway',      tier: 'gold',     creditLimit: 150000, totalOrders: 24, totalNok: 342800, lastOrderDate: '2026-08-10', status: 'active',    notes: 'Key account — pharmacy chain in Oslo and Bergen.' },
+  { id: 'rs-2', company: 'Hälsa AB',                contact: 'Erik Lindqvist',  email: 'erik@halsa.se',          phone: '+46 70 123 4567', country: 'Sweden',     tier: 'silver',   creditLimit: 80000,  totalOrders: 11, totalNok: 128400, lastOrderDate: '2026-08-05', status: 'active',    notes: 'Health food store chain in Stockholm.' },
+  { id: 'rs-3', company: 'Sundt Sport DK',          contact: 'Mads Andersen',   email: 'mads@sundtsport.dk',     phone: '+45 50 12 34 56', country: 'Denmark',    tier: 'bronze',   creditLimit: 40000,  totalOrders: 5,  totalNok: 38200,  lastOrderDate: '2026-07-20', status: 'active',    notes: 'Sports nutrition shop.' },
+  { id: 'rs-4', company: 'Wellness Hub GmbH',       contact: 'Anna Müller',     email: 'anna@wellnesshub.de',    phone: '+49 160 9876543', country: 'Germany',    tier: 'silver',   creditLimit: 100000, totalOrders: 8,  totalNok: 96500,  lastOrderDate: '2026-07-28', status: 'active',    notes: 'Online supplement retailer DE/AT/CH.' },
+  { id: 'rs-5', company: 'Fjord Health UK',         contact: 'James Whitmore',  email: 'james@fjordhealth.co.uk',phone: '+44 7900 123456', country: 'UK',         tier: 'platinum', creditLimit: 200000, totalOrders: 31, totalNok: 521400, lastOrderDate: '2026-08-12', status: 'active',    notes: 'Premium Nordic supplements importer — 3 stores in London.' },
+  { id: 'rs-6', company: 'BioNord Finland OY',      contact: 'Satu Mäkinen',    email: 'satu@bionord.fi',        phone: '+358 40 987 6543', country: 'Finland',   tier: 'bronze',   creditLimit: 30000,  totalOrders: 2,  totalNok: 14800,  lastOrderDate: '2026-06-30', status: 'pending',   notes: 'Application submitted — awaiting VAT docs.' },
+  { id: 'rs-7', company: 'Vitalen NL',              contact: 'Jan de Vries',    email: 'jan@vitalen.nl',         phone: '+31 6 12345678',  country: 'Netherlands',tier: 'silver',   creditLimit: 70000,  totalOrders: 14, totalNok: 168200, lastOrderDate: '2026-08-08', status: 'active',    notes: 'Largest Dutch health food chain account.' },
+  { id: 'rs-8', company: 'Gamle Nord Apotek',       contact: 'Tor Bakken',      email: 'tor@gamlenord.no',       phone: '+47 901 23 456',  country: 'Norway',     tier: 'gold',     creditLimit: 120000, totalOrders: 18, totalNok: 276000, lastOrderDate: '2026-08-11', status: 'suspended', notes: 'Account on hold — overdue invoice from July.' },
+]
+export const RESELLER_STATS = {
+  total: 8, active: 6, pending: 1, suspended: 1,
+  ytdRevenueNok: 1586300, avgOrderNok: 18200,
+}
+export const RESELLER_ORDERS = {
+  'rs-1': [
+    { id: 'RO-2024-08-001', date: '2026-08-10', items: 6, totalNok: 24800, status: 'active' },
+    { id: 'RO-2024-07-008', date: '2026-07-22', items: 4, totalNok: 16400, status: 'active' },
+    { id: 'RO-2024-07-003', date: '2026-07-08', items: 8, totalNok: 31200, status: 'active' },
+  ],
+  'rs-5': [
+    { id: 'RO-UK-08-012', date: '2026-08-12', items: 12, totalNok: 58200, status: 'active' },
+    { id: 'RO-UK-08-001', date: '2026-08-01', items: 9,  totalNok: 42000, status: 'active' },
+    { id: 'RO-UK-07-021', date: '2026-07-15', items: 11, totalNok: 51000, status: 'active' },
+  ],
+}
+
+// ── Admin AI Content Tools ────────────────────────────────────────────────────
+export const AI_CONTENT_TEMPLATES = [
+  { id: 'tpl-1', name: 'Product Spotlight',       icon: '🌟', description: 'Showcase a single product with key benefits and a clear CTA.', platforms: ['instagram', 'facebook', 'linkedin'] },
+  { id: 'tpl-2', name: 'Before & After Story',    icon: '🔄', description: 'Inspirational transformation story using NV supplements.', platforms: ['instagram', 'tiktok', 'facebook'] },
+  { id: 'tpl-3', name: 'Nordic Science Tip',      icon: '🔬', description: 'Educational micro-content explaining a supplement mechanism.', platforms: ['instagram', 'linkedin', 'x'] },
+  { id: 'tpl-4', name: 'Team Shoutout',           icon: '🎉', description: 'Celebrate a team member rank-up or milestone.', platforms: ['instagram', 'facebook'] },
+  { id: 'tpl-5', name: 'Join the Team CTA',       icon: '🚀', description: 'Recruitment post with income opportunity framing.', platforms: ['instagram', 'tiktok', 'facebook', 'x'] },
+  { id: 'tpl-6', name: 'Nordic Nature Visual',    icon: '🏔', description: 'Connect brand with Norwegian wilderness and purity.', platforms: ['instagram', 'tiktok'] },
+  { id: 'tpl-7', name: 'Supplement Stack Guide',  icon: '📦', description: 'Showcase a product bundle with usage tips.', platforms: ['instagram', 'facebook', 'linkedin', 'email'] },
+  { id: 'tpl-8', name: 'Week-in-My-Life',         icon: '📅', description: 'Behind-the-scenes content showing daily supplement routine.', platforms: ['instagram', 'tiktok'] },
+]
+export const AI_CONTENT_DRAFTS = []
+
+// ── Member Supplement Cycles ──────────────────────────────────────────────────
+export const SUPPLEMENT_CYCLES = [
+  {
+    id: 'cyc-1', name: 'Winter Immunity Stack', goal: 'immune support',
+    products: [3, 5, 6], onWeeks: 8, offWeeks: 2,
+    isActive: true, currentPhase: 'on', daysLeft: 23,
+    startedAt: '2026-07-15', notes: 'Take Omega-3 with breakfast. D3+K2 with fat-containing meal.',
+  },
+  {
+    id: 'cyc-2', name: 'Focus & Energy Cycle', goal: 'energy & focus',
+    products: [4, 6], onWeeks: 6, offWeeks: 3,
+    isActive: false, currentPhase: 'off', daysLeft: null,
+    startedAt: '2026-05-01', notes: 'Shilajit 500mg before breakfast. Focus Formula 30 min pre-work.',
+  },
+  {
+    id: 'cyc-3', name: 'Collagen Beauty Protocol', goal: 'skin & beauty',
+    products: [2, 3, 5], onWeeks: 12, offWeeks: 4,
+    isActive: false, currentPhase: 'on', daysLeft: null,
+    startedAt: '2026-04-01', notes: 'Collagen with Vitamin C source. Morning preferred.',
+  },
+]
+
+// ── Member Shopping List ──────────────────────────────────────────────────────
+export const SHOPPING_LIST_ITEMS = []
